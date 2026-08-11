@@ -1,0 +1,37 @@
+{
+	"env": {
+		"browser": true,
+		"es2022": true,
+		"node": true
+	},
+	"extends": [
+		"@liferay/eslint-config/react"
+	],
+	"globals": {
+		"describe": "readonly",
+		"expect": "readonly",
+		"it": "readonly",
+		"vi": "readonly"
+	},
+	"overrides": [
+		{
+			"files": [
+				"*.mjs"
+			],
+			"parser": "espree",
+			"parserOptions": {
+				"ecmaVersion": 2022,
+				"sourceType": "module"
+			}
+		},
+		{
+			"files": [
+				"scripts/**"
+			],
+			"rules": {
+				"no-console": "off"
+			}
+		}
+	],
+	"root": true
+}

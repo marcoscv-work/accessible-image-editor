@@ -10,7 +10,9 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
-		"generate:images": "node scripts/generate-images.mjs"
+		"generate:images": "node scripts/generate-images.mjs",
+		"lint": "eslint --ext .ts,.tsx,.mjs src e2e scripts",
+		"postinstall": "node scripts/link-liferay-eslint-plugin.mjs"
 	},
 	"dependencies": {
 		"@clayui/button": "^3.166.0",
@@ -26,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
+		"@liferay/eslint-config": "^28.0.0",
 		"@playwright/test": "^1.62.1",
 		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/react": "^16.3.2",
@@ -34,10 +37,16 @@
 		"@types/node": "^26.2.0",
 		"@types/react": "^18.3.31",
 		"@types/react-dom": "^18.3.7",
+		"@typescript-eslint/eslint-plugin": "^6.21.0",
+		"@typescript-eslint/parser": "^6.21.0",
 		"@vitejs/plugin-react": "^6.0.5",
+		"babel-eslint": "^10.1.0",
+		"eslint": "^8.57.1",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-react-hooks": "^7.1.1",
 		"jest-axe": "^11.0.0",
 		"jsdom": "^30.0.1",
-		"typescript": "^7.0.2",
+		"typescript": "^5.9.3",
 		"vite": "^8.2.1",
 		"vitest": "^4.1.10"
 	}
