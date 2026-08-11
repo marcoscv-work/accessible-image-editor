@@ -79,7 +79,7 @@ export default {
 	'load-failed': 'The image could not be opened. Try a different file.',
 	'move-down': 'Move down',
 	'move-up': 'Move up',
-	'opacity': 'Opacity (%)',
+	'opacity': 'Opacity',
 	'open-an-image': 'Open an image from your device',
 	'open-sample-image': 'Edit sample image',
 	'overlay-instructions':
@@ -95,7 +95,7 @@ export default {
 	'reset-all': 'Reset all',
 	'rotate-90': 'Rotate 90 degrees clockwise',
 	'rotated-90': 'Rotated 90 degrees clockwise',
-	'rotation-degrees': 'Rotation (degrees)',
+	'rotation-degrees': 'Rotation',
 	'saturation': 'Saturation',
 	'save': 'Save',
 	'selected-layer': 'Selected layer: {0}',

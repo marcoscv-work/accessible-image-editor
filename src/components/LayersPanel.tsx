@@ -18,11 +18,13 @@ function NumberField({
 	max,
 	min = 1,
 	onCommit,
+	suffix,
 	value,
 }: FieldProps & {
 	max?: number;
 	min?: number;
 	onCommit: (value: number) => void;
+	suffix?: string;
 	value: number;
 }) {
 	const [draft, setDraft] = useState(String(value));
@@ -41,25 +43,39 @@ function NumberField({
 		onCommit(Math.min(Math.max(parsed, min), max ?? Infinity));
 	};
 
+	const input = (
+		<ClayInput
+			id={id}
+			max={max}
+			min={min}
+			onBlur={commit}
+			onChange={(event) => setDraft(event.target.value)}
+			onKeyDown={(event: React.KeyboardEvent) => {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					commit();
+				}
+			}}
+			type="number"
+			value={draft}
+		/>
+	);
+
 	return (
 		<ClayForm.Group>
 			<label htmlFor={id}>{label}</label>
 
-			<ClayInput
-				id={id}
-				max={max}
-				min={min}
-				onBlur={commit}
-				onChange={(event) => setDraft(event.target.value)}
-				onKeyDown={(event: React.KeyboardEvent) => {
-					if (event.key === 'Enter') {
-						event.preventDefault();
-						commit();
-					}
-				}}
-				type="number"
-				value={draft}
-			/>
+			{suffix ? (
+				<ClayInput.Group>
+					<ClayInput.GroupItem>{input}</ClayInput.GroupItem>
+
+					<ClayInput.GroupItem append shrink>
+						<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
+					</ClayInput.GroupItem>
+				</ClayInput.Group>
+			) : (
+				input
+			)}
 		</ClayForm.Group>
 	);
 }
@@ -137,8 +153,20 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 				{t('selected-layer', label)}
 			</h3>
 
-			<ClayForm.Group>
-				<label htmlFor="layer-prop-color">{t('text-color')}</label>
+			{overlay.kind === 'text' && (
+				<TextField
+					id="layer-prop-text"
+					label={t('text-content')}
+					onCommit={(text) => commitPatch({text})}
+					value={overlay.text}
+				/>
+			)}
+
+			<div className="editor-panel-grid">
+				<ClayForm.Group>
+					<label htmlFor="layer-prop-color">
+						{t('text-color')}
+					</label>
 
 					<input
 						className="editor-color-input form-control"
@@ -163,15 +191,15 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						type="color"
 						value={overlay.color}
 					/>
-			</ClayForm.Group>
+				</ClayForm.Group>
 
-			<div className="editor-panel-grid">
 				<NumberField
 					id="layer-prop-opacity"
 					label={t('opacity')}
 					max={100}
 					min={0}
 					onCommit={(opacity) => commitPatch({opacity})}
+					suffix="%"
 					value={overlay.opacity ?? 100}
 				/>
 
@@ -181,19 +209,21 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					max={360}
 					min={-360}
 					onCommit={(rotation) => commitPatch({rotation})}
+					suffix="°"
 					value={overlay.rotation ?? 0}
 				/>
-			</div>
 
-			{overlay.kind === 'text' && (
-				<>
-					<TextField
-						id="layer-prop-text"
-						label={t('text-content')}
-						onCommit={(text) => commitPatch({text})}
-						value={overlay.text}
+				{overlay.kind === 'sticker' && (
+					<NumberField
+						id="layer-prop-size"
+						label={t('size')}
+						min={8}
+						onCommit={(size) => commitPatch({size})}
+						value={overlay.size}
 					/>
+				)}
 
+				{overlay.kind === 'text' && (
 					<NumberField
 						id="layer-prop-font-size"
 						label={t('font-size')}
@@ -201,36 +231,26 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						onCommit={(fontSize) => commitPatch({fontSize})}
 						value={overlay.fontSize}
 					/>
-				</>
-			)}
+				)}
 
-			{overlay.kind === 'shape' && (
-				<div className="editor-panel-grid">
-					<NumberField
-						id="layer-prop-width"
-						label={t('width')}
-						onCommit={(width) => commitPatch({width})}
-						value={overlay.width}
-					/>
+				{overlay.kind === 'shape' && (
+					<>
+						<NumberField
+							id="layer-prop-width"
+							label={t('width')}
+							onCommit={(width) => commitPatch({width})}
+							value={overlay.width}
+						/>
 
-					<NumberField
-						id="layer-prop-height"
-						label={t('height')}
-						onCommit={(height) => commitPatch({height})}
-						value={overlay.height}
-					/>
-				</div>
-			)}
-
-			{overlay.kind === 'sticker' && (
-				<NumberField
-					id="layer-prop-size"
-					label={t('size')}
-					min={8}
-					onCommit={(size) => commitPatch({size})}
-					value={overlay.size}
-				/>
-			)}
+						<NumberField
+							id="layer-prop-height"
+							label={t('height')}
+							onCommit={(height) => commitPatch({height})}
+							value={overlay.height}
+						/>
+					</>
+				)}
+			</div>
 		</div>
 	);
 }

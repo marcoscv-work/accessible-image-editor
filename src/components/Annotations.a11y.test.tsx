@@ -161,7 +161,7 @@ describe('Annotations, filters, and layers', () => {
 
 		// Opacity wraps the node in a translucent group, clamped to 0-100.
 
-		const opacityInput = screen.getByLabelText('Opacity (%)');
+		const opacityInput = screen.getByLabelText('Opacity');
 
 		fireEvent.change(opacityInput, {target: {value: '50'}});
 		fireEvent.keyDown(opacityInput, {key: 'Enter'});
@@ -173,7 +173,7 @@ describe('Annotations, filters, and layers', () => {
 
 		// Rotation spins the whole interactive group around the center.
 
-		const rotationInput = screen.getByLabelText('Rotation (degrees)');
+		const rotationInput = screen.getByLabelText('Rotation');
 
 		fireEvent.change(rotationInput, {target: {value: '45'}});
 		fireEvent.keyDown(rotationInput, {key: 'Enter'});

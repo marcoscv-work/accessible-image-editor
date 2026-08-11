@@ -290,9 +290,9 @@
 }
 
 .editor-color-input {
-	height: 2.5rem;
+	height: 2.375rem;
 	padding: 0.25rem;
-	width: 5rem;
+	width: 100%;
 }
 
 /* Layers */
