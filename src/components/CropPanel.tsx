@@ -14,10 +14,15 @@ interface Props {
 type Field = 'height' | 'width' | 'x' | 'y';
 
 const FIELD_LABELS: Record<Field, string> = {
-	height: 'height',
-	width: 'width',
+
+	// Insertion order drives the rendered order: X, Y, Width, Height.
+
+	/* eslint-disable sort-keys */
 	x: 'x-position',
 	y: 'y-position',
+	width: 'width',
+	height: 'height',
+	/* eslint-enable sort-keys */
 };
 
 /**
