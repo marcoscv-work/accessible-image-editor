@@ -1,6 +1,12 @@
 import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
-import React, {useEffect, useReducer, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useReducer,
+	useRef,
+	useState,
+} from 'react';
 
 import {t} from '../i18n';
 import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
@@ -24,13 +30,32 @@ import {Workspace} from './Workspace';
 
 const ZOOM_LEVELS = [0.05, 0.1, 0.15, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3];
 
-function fitZoom(width: number, height: number): number {
-	const availableWidth = Math.max(window.innerWidth - 360, 240);
-	const availableHeight = Math.max(window.innerHeight - 200, 240);
+/**
+ * The stage padding around the image inside the workspace (see
+ * .editor-stage in styles.css), counted on both sides.
+ */
+const STAGE_PADDING = 48;
+
+/**
+ * Zoom that fits the image inside the actual workspace element, which
+ * already accounts for the header, the bottom bar, and the sidebar.
+ * Falls back to a window-based estimate until the workspace exists.
+ */
+function fitZoom(
+	workspace: HTMLElement | null,
+	width: number,
+	height: number
+): number {
+	const availableWidth = workspace
+		? workspace.clientWidth - STAGE_PADDING
+		: Math.max(window.innerWidth - 360, 240);
+	const availableHeight = workspace
+		? workspace.clientHeight - STAGE_PADDING
+		: Math.max(window.innerHeight - 200, 240);
 
 	const fit = Math.min(availableWidth / width, availableHeight / height, 1);
 
-	return Math.max(Math.round(fit * 100) / 100, 0.01);
+	return Math.max(Math.floor(fit * 100) / 100, 0.01);
 }
 
 function stepZoom(zoom: number, direction: -1 | 1): number {
@@ -57,17 +82,86 @@ export default function EditorModal({image, onClose}: Props) {
 		initialHistory(image.width, image.height)
 	);
 
-	const [zoom, setZoom] = useState(() => fitZoom(image.width, image.height));
+	const [zoom, setZoom] = useState(() =>
+		fitZoom(null, image.width, image.height)
+	);
 	const [saving, setSaving] = useState(false);
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
+	const workspaceRef = useRef<HTMLDivElement | null>(null);
+
+	/**
+	 * While true, the zoom tracks the workspace size (initial fit, modal
+	 * settling, window resizes, rotation). Manual zoom steps switch to
+	 * user control; the fit button switches back.
+	 */
+	const autoFitRef = useRef(true);
+
 	const state = history.present;
+
+	const stageBoundsRef = useRef(rotatedSize(state));
+
+	stageBoundsRef.current = rotatedSize(state);
 
 	useEffect(() => {
 		announce(t('editor-loaded', image.width, image.height));
 	}, [announce, image]);
 
+	// ClayModal mounts its children only after the opening animation, so
+	// the workspace cannot be measured at EditorModal mount time. A
+	// callback ref attaches the ResizeObserver exactly when the element
+	// appears, and the observer keeps the fit in sync with the modal
+	// settling and later window resizes.
+
+	const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
+	const handleWorkspaceRef = useCallback(
+		(element: HTMLDivElement | null) => {
+			resizeObserverRef.current?.disconnect();
+			resizeObserverRef.current = null;
+
+			workspaceRef.current = element;
+
+			if (!element) {
+				return;
+			}
+
+			const observer = new ResizeObserver(() => {
+				if (autoFitRef.current) {
+					setZoom(
+						fitZoom(
+							element,
+							stageBoundsRef.current.width,
+							stageBoundsRef.current.height
+						)
+					);
+				}
+			});
+
+			observer.observe(element);
+
+			resizeObserverRef.current = observer;
+		},
+		[]
+	);
+
+	// Rotation swaps the stage bounds without resizing the workspace.
+
+	useEffect(() => {
+		if (autoFitRef.current && workspaceRef.current) {
+			setZoom(
+				fitZoom(
+					workspaceRef.current,
+					stageBoundsRef.current.width,
+					stageBoundsRef.current.height
+				)
+			);
+		}
+	}, [state.rotation]);
+
 	const zoomBy = (direction: -1 | 1) => {
+		autoFitRef.current = false;
+
 		const next = stepZoom(zoom, direction);
 
 		if (next !== zoom) {
@@ -77,9 +171,15 @@ export default function EditorModal({image, onClose}: Props) {
 	};
 
 	const zoomToFit = () => {
+		autoFitRef.current = true;
+
 		const bounds = rotatedSize(state);
 
-		const next = fitZoom(bounds.width, bounds.height);
+		const next = fitZoom(
+			workspaceRef.current,
+			bounds.width,
+			bounds.height
+		);
 
 		setZoom(next);
 		announce(t('zoom-level', Math.round(next * 100)));
@@ -167,6 +267,7 @@ export default function EditorModal({image, onClose}: Props) {
 							onZoom={zoomBy}
 							onZoomFit={zoomToFit}
 							state={state}
+							workspaceRef={handleWorkspaceRef}
 							zoom={zoom}
 						/>
 

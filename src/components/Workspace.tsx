@@ -16,6 +16,7 @@ interface Props {
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
 	state: EditState;
+	workspaceRef?: React.Ref<HTMLDivElement>;
 	zoom: number;
 }
 
@@ -31,6 +32,7 @@ export function Workspace({
 	onZoom,
 	onZoomFit,
 	state,
+	workspaceRef,
 	zoom,
 }: Props) {
 	const bounds = rotatedSize(state);
@@ -62,6 +64,7 @@ export function Workspace({
 			aria-label={t('workspace')}
 			className="editor-workspace"
 			onKeyDown={handleKeyDown}
+			ref={workspaceRef}
 			role="region"
 			tabIndex={0}
 		>
