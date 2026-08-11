@@ -25,7 +25,7 @@ export function ShortcutsDialog({onOpenChange, open}: Props) {
 	}
 
 	return (
-		<ClayModal observer={observer} size="sm">
+		<ClayModal observer={observer}>
 			<div onKeyDown={(event: React.KeyboardEvent) => event.stopPropagation()}>
 				<ClayModal.Header
 					closeButtonAriaLabel={t('close')}

@@ -336,10 +336,19 @@
 /* Shortcuts dialog */
 
 .editor-shortcut-list {
+	align-items: center;
 	display: grid;
-	gap: 0.5rem 1rem;
+	gap: 0.625rem 1.25rem;
 	grid-template-columns: auto 1fr;
 	margin: 0;
+}
+
+.editor-shortcut-list dt {
+	font-weight: 400;
+}
+
+.editor-shortcut-list kbd {
+	white-space: nowrap;
 }
 
 .editor-shortcut-list dd {
