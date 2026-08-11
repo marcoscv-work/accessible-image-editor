@@ -7,6 +7,7 @@ const SHORTCUTS: Array<{descriptionKey: string; keys: string}> = [
 	{descriptionKey: 'shortcut-arrows', keys: 'Arrow keys'},
 	{descriptionKey: 'shortcut-shift-arrows', keys: 'Shift + Arrow keys'},
 	{descriptionKey: 'shortcut-zoom', keys: '+ / -'},
+	{descriptionKey: 'shortcut-zoom-fit', keys: '0'},
 	{descriptionKey: 'shortcut-undo', keys: 'Ctrl/Cmd + Z'},
 	{descriptionKey: 'shortcut-redo', keys: 'Ctrl/Cmd + Shift + Z'},
 	{descriptionKey: 'shortcut-escape', keys: 'Esc'},

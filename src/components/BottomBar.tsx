@@ -25,6 +25,7 @@ interface Props {
 	onSave: () => void;
 	onUndo: () => void;
 	onZoom: (direction: -1 | 1) => void;
+	onZoomFit: () => void;
 	ratio: RatioPreset;
 	saving: boolean;
 	zoom: number;
@@ -40,6 +41,7 @@ export function BottomBar({
 	onSave,
 	onUndo,
 	onZoom,
+	onZoomFit,
 	ratio,
 	saving,
 	zoom,
@@ -125,6 +127,15 @@ export function BottomBar({
 					onClick={() => onZoom(1)}
 					symbol="plus"
 					title={t('zoom-in')}
+				/>
+
+				<ClayButtonWithIcon
+					aria-label={t('zoom-fit')}
+					className="editor-bar-button"
+					displayType="unstyled"
+					onClick={onZoomFit}
+					symbol="autosize"
+					title={t('zoom-fit')}
 				/>
 			</div>
 

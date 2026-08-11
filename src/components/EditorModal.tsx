@@ -30,9 +30,7 @@ function fitZoom(width: number, height: number): number {
 
 	const fit = Math.min(availableWidth / width, availableHeight / height, 1);
 
-	const fitting = ZOOM_LEVELS.filter((level) => level <= fit);
-
-	return fitting.length ? fitting[fitting.length - 1] : ZOOM_LEVELS[0];
+	return Math.max(Math.round(fit * 100) / 100, 0.01);
 }
 
 function stepZoom(zoom: number, direction: -1 | 1): number {
@@ -76,6 +74,15 @@ export default function EditorModal({image, onClose}: Props) {
 			setZoom(next);
 			announce(t('zoom-level', Math.round(next * 100)));
 		}
+	};
+
+	const zoomToFit = () => {
+		const bounds = rotatedSize(state);
+
+		const next = fitZoom(bounds.width, bounds.height);
+
+		setZoom(next);
+		announce(t('zoom-level', Math.round(next * 100)));
 	};
 
 	const undo = () => {
@@ -158,6 +165,7 @@ export default function EditorModal({image, onClose}: Props) {
 							image={image}
 							onAnnounce={announce}
 							onZoom={zoomBy}
+							onZoomFit={zoomToFit}
 							state={state}
 							zoom={zoom}
 						/>
@@ -218,6 +226,7 @@ export default function EditorModal({image, onClose}: Props) {
 						onSave={handleSave}
 						onUndo={undo}
 						onZoom={zoomBy}
+						onZoomFit={zoomToFit}
 						ratio={state.ratio}
 						saving={saving}
 						zoom={zoom}

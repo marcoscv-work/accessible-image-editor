@@ -14,6 +14,7 @@ interface Props {
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
 	onZoom: (direction: -1 | 1) => void;
+	onZoomFit: () => void;
 	state: EditState;
 	zoom: number;
 }
@@ -28,6 +29,7 @@ export function Workspace({
 	image,
 	onAnnounce,
 	onZoom,
+	onZoomFit,
 	state,
 	zoom,
 }: Props) {
@@ -42,6 +44,10 @@ export function Workspace({
 		else if (event.key === '-' || event.key === '_') {
 			event.preventDefault();
 			onZoom(-1);
+		}
+		else if (event.key === '0') {
+			event.preventDefault();
+			onZoomFit();
 		}
 	};
 

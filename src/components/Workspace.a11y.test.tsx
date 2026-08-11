@@ -38,6 +38,7 @@ function EditorHarness() {
 				onZoom={(direction) =>
 					setZoom((current) => current + direction * 0.25)
 				}
+				onZoomFit={() => {}}
 				state={history.present}
 				zoom={zoom}
 			/>
@@ -64,6 +65,7 @@ function EditorHarness() {
 				onSave={() => {}}
 				onUndo={() => {}}
 				onZoom={() => {}}
+				onZoomFit={() => {}}
 				ratio={history.present.ratio}
 				saving={false}
 				zoom={zoom}
