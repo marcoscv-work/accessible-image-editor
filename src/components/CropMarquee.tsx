@@ -314,6 +314,7 @@ export function CropMarquee({
 									x: position.x - hitRadius,
 									y: position.y - hitRadius,
 								}}
+								shape="circle"
 								zoom={zoom}
 							/>
 						)}

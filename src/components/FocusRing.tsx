@@ -23,6 +23,12 @@ interface Props {
 	bounds: Bounds;
 
 	/**
+	 * Ring geometry: circular nodes (crop handles) get concentric circle
+	 * rings; everything else gets rectangles.
+	 */
+	shape?: 'circle' | 'rectangle';
+
+	/**
 	 * CSS pixels per SVG user unit; ring thickness is divided by it so the
 	 * ring stays the same size on screen at any zoom level.
 	 */
@@ -35,12 +41,40 @@ interface Props {
  * paints its own white inner + accent outer rings around the focused
  * node. The two-tone pair stays evident over any image content.
  */
-export function FocusRing({bounds, zoom}: Props) {
+export function FocusRing({bounds, shape = 'rectangle', zoom}: Props) {
 	const thickness = 3 / zoom;
 	const gap = 2 / zoom;
 
 	const innerInset = gap + thickness / 2;
 	const outerInset = gap + thickness * 1.5;
+
+	if (shape === 'circle') {
+		const cx = bounds.x + bounds.width / 2;
+		const cy = bounds.y + bounds.height / 2;
+		const radius = Math.max(bounds.width, bounds.height) / 2;
+
+		return (
+			<g pointerEvents="none">
+				<circle
+					className="focus-ring-outer"
+					cx={cx}
+					cy={cy}
+					fill="none"
+					r={radius + outerInset}
+					strokeWidth={thickness}
+				/>
+
+				<circle
+					className="focus-ring-inner"
+					cx={cx}
+					cy={cy}
+					fill="none"
+					r={radius + innerInset}
+					strokeWidth={thickness}
+				/>
+			</g>
+		);
+	}
 
 	return (
 		<g pointerEvents="none">
