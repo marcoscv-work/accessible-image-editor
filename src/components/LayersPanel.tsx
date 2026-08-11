@@ -121,8 +121,14 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 	};
 
 	return (
-		<fieldset className="editor-layer-properties">
-			<legend>{t('selected-layer', label)}</legend>
+		<div
+			aria-labelledby="layer-properties-title"
+			className="editor-layer-properties"
+			role="group"
+		>
+			<h3 className="editor-panel-subtitle" id="layer-properties-title">
+				{t('selected-layer', label)}
+			</h3>
 
 			<ClayForm.Group>
 				<label htmlFor="layer-prop-color">{t('text-color')}</label>
@@ -198,7 +204,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					value={overlay.size}
 				/>
 			)}
-		</fieldset>
+		</div>
 	);
 }
 

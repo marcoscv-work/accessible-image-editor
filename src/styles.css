@@ -305,29 +305,14 @@
 	color: #fff;
 }
 
-/*
- * The properties box is visually tied to the selected layer: same primary
- * color as the selected list item, connected by an accent left border.
- */
-
 .editor-layer-properties {
-	background: #f0f5ff;
-	border: 1px solid #b3cdff;
-	border-left: 4px solid #0b5fff;
-	border-radius: 0 4px 4px 0;
-	margin: 0.75rem 0 0;
-	padding: 0.75rem;
+	margin-top: 0.75rem;
 }
 
-.editor-layer-properties legend {
-	color: #004ad7;
-	display: block;
-	float: none;
+.editor-panel-subtitle {
 	font-size: 0.875rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	padding: 0;
-	width: auto;
 }
 
 /* Sticker picker */
