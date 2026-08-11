@@ -28,6 +28,7 @@ Open http://localhost:5173, then "Edit sample image" (bundled) or open one of yo
 ```bash
 npm test          # vitest: reducer, filter pipeline, jest-axe scans
 npm run test:e2e  # Playwright: keyboard-only journeys + axe + 20MP perf budget
+npm run lint      # @liferay/eslint-config (react preset)
 ```
 
 The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state. A dedicated pointer-parity spec exercises the same annotation operations with mouse drags (WCAG 2.5.x).
