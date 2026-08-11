@@ -63,6 +63,7 @@ function EditorHarness() {
 				onCancel={() => {}}
 				onRedo={() => {}}
 				onSave={() => {}}
+				onShowShortcuts={() => {}}
 				onUndo={() => {}}
 				onZoom={() => {}}
 				onZoomFit={() => {}}

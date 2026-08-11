@@ -1,4 +1,3 @@
-import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
 import React, {
 	useCallback,
@@ -305,15 +304,6 @@ export default function EditorModal({image, onClose}: Props) {
 								onAnnounce={announce}
 								overlays={state.overlays}
 							/>
-
-							<ClayButton
-								className="mt-3"
-								displayType="secondary"
-								onClick={() => setShortcutsOpen(true)}
-								size="sm"
-							>
-								{t('keyboard-shortcuts')}
-							</ClayButton>
 						</aside>
 					</div>
 
@@ -325,6 +315,7 @@ export default function EditorModal({image, onClose}: Props) {
 						onCancel={closeModal}
 						onRedo={redo}
 						onSave={handleSave}
+						onShowShortcuts={() => setShortcutsOpen(true)}
 						onUndo={undo}
 						onZoom={zoomBy}
 						onZoomFit={zoomToFit}

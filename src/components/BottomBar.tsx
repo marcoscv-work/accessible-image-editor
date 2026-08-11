@@ -23,6 +23,7 @@ interface Props {
 	onCancel: () => void;
 	onRedo: () => void;
 	onSave: () => void;
+	onShowShortcuts: () => void;
 	onUndo: () => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
@@ -39,6 +40,7 @@ export function BottomBar({
 	onCancel,
 	onRedo,
 	onSave,
+	onShowShortcuts,
 	onUndo,
 	onZoom,
 	onZoomFit,
@@ -103,6 +105,15 @@ export function BottomBar({
 					onClick={onRedo}
 					symbol="redo"
 					title={t('redo')}
+				/>
+
+				<ClayButtonWithIcon
+					aria-label={t('keyboard-shortcuts')}
+					className="editor-bar-button"
+					displayType="unstyled"
+					onClick={onShowShortcuts}
+					symbol="question-circle"
+					title={t('keyboard-shortcuts')}
 				/>
 			</div>
 
