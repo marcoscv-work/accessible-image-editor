@@ -1,8 +1,8 @@
-# Accessible Image Editor PoC
+# Accessible Image Editor
 
-A proof of concept for a **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system). It explores the alternative to the Pintura SDK integration (epic LPD-58956): instead of remediating a canvas-based editor (discovery LPD-93990, estimation LPD-102096), it tests whether an editor covering the same functional scope can be **accessible by architecture**.
+A **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system), proposed as the accessible image editing solution for the new CMS (epic LPD-58956): instead of remediating a canvas-based third-party editor (discovery LPD-93990, estimation LPD-102096), it covers the same functional scope while being **accessible by architecture**.
 
-The full goal statement lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
+The original feasibility goal lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
 
 ## Core idea
 
@@ -30,7 +30,7 @@ npm test          # vitest: reducer, filter pipeline, jest-axe scans
 npm run test:e2e  # Playwright: keyboard-only journeys + axe + 20MP perf budget
 ```
 
-The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state.
+The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state. A dedicated pointer-parity spec exercises the same annotation operations with mouse drags (WCAG 2.5.x).
 
 `npm run generate:images` regenerates the bundled sample and the 20MP performance asset (macOS `sips` required).
 
@@ -44,8 +44,11 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `+` / `-` | Zoom in/out while the workspace has focus |
 | `Ctrl/Cmd + Z` | Undo (announced with the operation name) |
 | `Ctrl/Cmd + Shift + Z` | Redo |
-| `Delete` | Remove the focused annotation, or the selected layer in the layers list |
-| `Enter` | Commit a numeric crop field |
+| `Delete` | Remove the focused annotation or layer row |
+| `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor |
+| `0` | Fit the image to the window while the workspace has focus |
+| `Shift + drag` | Keep the crop proportions while resizing a handle |
+| `Alt + drag` | Resize the crop from its center |
 | `Esc` | Close the editor or the open dialog |
 
 The same map is available in the UI through the "Keyboard shortcuts" button.

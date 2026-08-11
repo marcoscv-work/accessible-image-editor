@@ -22,8 +22,8 @@ export default {
 	'annotation-moved': '{0} moved to x {1}, y {2}',
 	'annotation-removed': '{0} removed',
 	'app-description':
-		'A proof of concept for a fully accessible, non-canvas image editor. Open the bundled sample or pick an image from your device.',
-	'app-title': 'Accessible Image Editor PoC',
+		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',
+	'app-title': 'Accessible Image Editor',
 	'adjustment-set': '{0} set to {1}',
 	'adjustments': 'Adjustments',
 	'adjustments-reset': 'All adjustments reset',

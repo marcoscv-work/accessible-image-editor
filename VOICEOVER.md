@@ -6,7 +6,7 @@ Setup: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), `npm run dev`, http://
 
 | # | Action | Expected VoiceOver behavior | Result |
 | --- | --- | --- | --- |
-| 1 | Load the page | Title "Accessible Image Editor PoC"; heading and description readable with VO+arrows | ☐ |
+| 1 | Load the page | Title "Accessible Image Editor"; heading and description readable with VO+arrows | ☐ |
 | 2 | `Tab` to "Edit sample image", `VO+Space` | Button announced with its name; on activation: "Image editor opened. Image is 1600 by 1067 pixels." via the live region | ☐ |
 | 3 | Explore the dialog | "Editing Image, dialog"; focus is inside; `Esc` announces return to the landing button | ☐ |
 | 4 | `Tab` to the workspace | "Image workspace, region" plus the usage description (zoom keys, crop area) | ☐ |

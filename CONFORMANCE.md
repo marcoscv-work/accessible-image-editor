@@ -1,14 +1,14 @@
 # WCAG 2.1 AA Conformance Checklist
 
-Status of every WCAG 2.1 Level A and AA success criterion for the implemented PoC scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, and code inspection. Manual assistive technology passes are pending (see [VOICEOVER.md](VOICEOVER.md)); criteria whose full verification depends on them are marked accordingly.
+Status of every WCAG 2.1 Level A and AA success criterion for the implemented scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, and code inspection. Manual assistive technology passes are pending (see [VOICEOVER.md](VOICEOVER.md)); criteria whose full verification depends on them are marked accordingly.
 
-Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** — implemented; final confirmation pending the manual AT pass. **N/A** — no content of this type in the PoC.
+Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** — implemented; final confirmation pending the manual AT pass. **N/A** — no content of this type in the editor.
 
 | Criterion | Level | Status | Notes |
 | --- | --- | --- | --- |
 | 1.1.1 Non-text Content | A | Pass | Every control has an accessible name; filter thumbnails are `aria-hidden` decorations next to their text label; the workspace region is labelled and described. |
 | 1.2.1–1.2.5 Time-based Media | A/AA | N/A | No audio or video. |
-| 1.3.1 Info and Relationships | A | Pass | Native headings, labels, fieldset/legend for the filter group, `listbox`/`option` for layers, `dl` for shortcuts. |
+| 1.3.1 Info and Relationships | A | Pass | Native headings, labels, fieldset/legend for the filter group, layer rows whose actions carry the layer name, `dl` for shortcuts. |
 | 1.3.2 Meaningful Sequence | A | Pass | DOM order matches visual order; verified by the keyboard journeys. |
 | 1.3.3 Sensory Characteristics | A | Pass | Instructions are textual; handle names include their position but operation never depends on vision alone (numeric panel is a parallel route). |
 | 1.3.4 Orientation | AA | Pass | No orientation lock. |
