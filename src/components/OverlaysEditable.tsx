@@ -29,7 +29,9 @@ function arrowDelta(key: string): [number, number] | null {
 interface Props {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
+	selectedId: string | null;
 	zoom: number;
 }
 
@@ -41,7 +43,9 @@ interface Props {
 export function OverlaysEditable({
 	dispatch,
 	onAnnounce,
+	onSelect,
 	overlays,
+	selectedId,
 	zoom,
 }: Props) {
 	const overlaysRef = useRef(overlays);
@@ -83,6 +87,26 @@ export function OverlaysEditable({
 
 	const handleKeyDown =
 		(id: string) => (event: React.KeyboardEvent<SVGElement>) => {
+			if (event.key === 'Enter') {
+
+				// Jump to the annotation's property editor, as announced
+				// in the overlay instructions.
+
+				event.preventDefault();
+
+				onSelect(id);
+
+				window.setTimeout(() => {
+					document
+						.querySelector<HTMLElement>(
+							'.editor-layer-properties input, .editor-layer-properties select'
+						)
+						?.focus();
+				}, 0);
+
+				return;
+			}
+
 			if (event.key === 'Delete' || event.key === 'Backspace') {
 				const overlay = current(id);
 
@@ -169,6 +193,8 @@ export function OverlaysEditable({
 
 			event.currentTarget.setPointerCapture?.(event.pointerId);
 
+			onSelect(id);
+
 			pointerGesture.current = {
 				id,
 				startX: event.clientX,
@@ -232,12 +258,20 @@ export function OverlaysEditable({
 					>
 						<OverlayShape overlay={overlay} />
 
-						{focus?.id === overlay.id && (
+						{focus?.id === overlay.id ? (
 							<FocusRing
 								bounds={bounds}
 								emphasis={focus.modality}
 								zoom={zoom}
 							/>
+						) : (
+							selectedId === overlay.id && (
+								<FocusRing
+									bounds={bounds}
+									emphasis="pointer"
+									zoom={zoom}
+								/>
+							)
 						)}
 
 						<rect
@@ -248,7 +282,9 @@ export function OverlaysEditable({
 							fill="transparent"
 							height={bounds.height}
 							onBlur={() => setFocus(null)}
-							onFocus={(event) =>
+							onFocus={(event) => {
+								onSelect(overlay.id);
+
 								setFocus({
 									id: overlay.id,
 									modality: matchesFocusVisible(
@@ -256,8 +292,8 @@ export function OverlaysEditable({
 									)
 										? 'keyboard'
 										: 'pointer',
-								})
-							}
+								});
+							}}
 							onKeyDown={handleKeyDown(overlay.id)}
 							onKeyUp={handleKeyUp(overlay.id)}
 							onPointerDown={handlePointerDown(overlay.id)}

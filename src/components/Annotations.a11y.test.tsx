@@ -1,6 +1,6 @@
 import {fireEvent, render, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
-import {useReducer} from 'react';
+import {useReducer, useState} from 'react';
 
 import {LoadedImage} from '../imaging/loadImage';
 import {editorReducer, initialHistory} from '../state/editorReducer';
@@ -23,6 +23,7 @@ function AnnotationHarness() {
 	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
 		initialHistory(IMAGE.width, IMAGE.height)
 	);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
 
 	return (
 		<>
@@ -30,8 +31,10 @@ function AnnotationHarness() {
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
+				onSelectOverlay={setSelectedId}
 				onZoom={() => {}}
 				onZoomFit={() => {}}
+				selectedOverlayId={selectedId}
 				state={history.present}
 				zoom={0.5}
 			/>
@@ -52,7 +55,9 @@ function AnnotationHarness() {
 			<LayersPanel
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onSelect={setSelectedId}
 				overlays={history.present.overlays}
+				selectedId={selectedId}
 			/>
 		</>
 	);
@@ -193,6 +198,49 @@ describe('Annotations, filters, and layers', () => {
 		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
 
 		expect(await axe(container)).toHaveNoViolations();
+	});
+
+	it('syncs selection between the stage and the layers panel', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(
+			screen.getByRole('button', {name: 'Add star sticker'})
+		);
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		// Focusing the sticker on the stage selects its layer row.
+
+		const hits = container.querySelectorAll('.overlay-hit');
+
+		fireEvent.focus(hits[0]);
+
+		expect(
+			screen.getByRole('button', {name: 'Star sticker', pressed: true})
+		).toBeInTheDocument();
+
+		// Selecting the rectangle row shows the light ring on the stage.
+
+		fireEvent.blur(hits[0]);
+
+		fireEvent.click(
+			screen.getByRole('button', {name: 'Rectangle', pressed: false})
+		);
+
+		expect(container.querySelectorAll('.selection-ring')).toHaveLength(1);
+	});
+
+	it('jumps from the stage node to its property editor on Enter', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		fireEvent.keyDown(hit, {key: 'Enter'});
+
+		await new Promise((resolve) => setTimeout(resolve, 20));
+
+		expect(document.activeElement?.id).toBe('layer-prop-color');
 	});
 
 	it('deletes a layer from its row and hides the empty panel', () => {

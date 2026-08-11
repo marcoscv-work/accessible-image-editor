@@ -260,7 +260,9 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 interface Props {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
+	selectedId: string | null;
 }
 
 /**
@@ -270,9 +272,13 @@ interface Props {
  * reveal on hover or keyboard focus and carry the layer name in their
  * accessible names. The panel disappears while there are no annotations.
  */
-export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
-	const [selectedId, setSelectedId] = useState<string | null>(null);
-
+export function LayersPanel({
+	dispatch,
+	onAnnounce,
+	onSelect,
+	overlays,
+	selectedId,
+}: Props) {
 	const items = [...overlays].reverse();
 
 	const selected =
@@ -287,7 +293,7 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 
 		onAnnounce(t('annotation-removed', overlayLabel(overlay)));
 
-		setSelectedId(null);
+		onSelect(null);
 	};
 
 	const reorder = (overlay: Overlay, visualDirection: -1 | 1) => {
@@ -331,7 +337,7 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 							<button
 								aria-pressed={isSelected}
 								className="editor-layer-name"
-								onClick={() => setSelectedId(overlay.id)}
+								onClick={() => onSelect(overlay.id)}
 								onKeyDown={(event: React.KeyboardEvent) => {
 									if (
 										event.key === 'Delete' ||

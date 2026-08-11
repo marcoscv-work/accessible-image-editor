@@ -35,10 +35,12 @@ function EditorHarness() {
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
+				onSelectOverlay={() => {}}
 				onZoom={(direction) =>
 					setZoom((current) => current + direction * 0.25)
 				}
 				onZoomFit={() => {}}
+				selectedOverlayId={null}
 				state={history.present}
 				zoom={zoom}
 			/>

@@ -89,7 +89,7 @@ export default {
 	'open-an-image': 'Open an image from your device',
 	'open-sample-image': 'Edit sample image',
 	'overlay-instructions':
-		'Use the arrow keys to move by 1 pixel, hold Shift for 10 pixels. Press Delete to remove.',
+		'Use the arrow keys to move by 1 pixel, hold Shift for 10 pixels. Press Enter to edit the properties, Delete to remove.',
 	'overlay-shape-label': 'Rectangle',
 	'overlay-text-label': 'Text: {0}',
 	'ratio': 'Ratio:',

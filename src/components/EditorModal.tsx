@@ -85,6 +85,9 @@ export default function EditorModal({image, onClose}: Props) {
 		fitZoom(null, image.width, image.height)
 	);
 	const [saving, setSaving] = useState(false);
+	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
+		null
+	);
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
 	const workspaceRef = useRef<HTMLDivElement | null>(null);
@@ -263,8 +266,10 @@ export default function EditorModal({image, onClose}: Props) {
 							dispatch={dispatch}
 							image={image}
 							onAnnounce={announce}
+							onSelectOverlay={setSelectedOverlayId}
 							onZoom={zoomBy}
 							onZoomFit={zoomToFit}
+							selectedOverlayId={selectedOverlayId}
 							state={state}
 							workspaceRef={handleWorkspaceRef}
 							zoom={zoom}
@@ -302,7 +307,9 @@ export default function EditorModal({image, onClose}: Props) {
 							<LayersPanel
 								dispatch={dispatch}
 								onAnnounce={announce}
+								onSelect={setSelectedOverlayId}
 								overlays={state.overlays}
+								selectedId={selectedOverlayId}
 							/>
 						</aside>
 					</div>

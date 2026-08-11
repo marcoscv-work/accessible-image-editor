@@ -13,8 +13,10 @@ interface Props {
 	dispatch: (action: EditorAction) => void;
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
+	onSelectOverlay: (id: string | null) => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
+	selectedOverlayId: string | null;
 	state: EditState;
 	workspaceRef?: React.Ref<HTMLDivElement>;
 	zoom: number;
@@ -29,8 +31,10 @@ export function Workspace({
 	dispatch,
 	image,
 	onAnnounce,
+	onSelectOverlay,
 	onZoom,
 	onZoomFit,
+	selectedOverlayId,
 	state,
 	workspaceRef,
 	zoom,
@@ -116,7 +120,9 @@ export function Workspace({
 					<OverlaysEditable
 						dispatch={dispatch}
 						onAnnounce={onAnnounce}
+						onSelect={onSelectOverlay}
 						overlays={state.overlays}
+						selectedId={selectedOverlayId}
 						zoom={zoom}
 					/>
 				</CropMarquee>

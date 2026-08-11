@@ -8,7 +8,7 @@ import {Page, expect, test} from '@playwright/test';
  */
 
 async function tabUntil(page: Page, ariaLabel: string): Promise<void> {
-	for (let i = 0; i < 40; i++) {
+	for (let i = 0; i < 80; i++) {
 		const label = await page.evaluate(() => {
 			const active = document.activeElement;
 
