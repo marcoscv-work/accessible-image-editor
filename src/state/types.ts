@@ -64,7 +64,11 @@ export type StickerKind =
 	| 'arrow'
 	| 'bolt'
 	| 'check'
+	| 'cool'
 	| 'heart'
+	| 'laugh'
+	| 'love'
+	| 'sad'
 	| 'smiley'
 	| 'star';
 
