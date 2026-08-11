@@ -13,6 +13,7 @@ import {
 	STICKER_DEFAULT_COLORS,
 	STICKER_KINDS,
 	StickerArt,
+	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {StickerKind, TextOverlay} from '../state/types';
@@ -320,7 +321,18 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 			<TextDialog
 				onAdd={(overlay) => {
 					dispatch({
-						overlay: {...overlay, x: centerX, y: centerY},
+						overlay: {
+							...overlay,
+							x:
+								centerX -
+								textWidth(
+									overlay.text,
+									overlay.fontFamily,
+									overlay.fontSize
+								) /
+									2,
+							y: centerY,
+						},
 						type: 'add-overlay',
 					});
 

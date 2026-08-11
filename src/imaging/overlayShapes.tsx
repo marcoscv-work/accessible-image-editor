@@ -406,10 +406,46 @@ export function StickerArt({color, size, sticker, x, y}: StickerArtProps) {
 	);
 }
 
+let measureContext: CanvasRenderingContext2D | null | undefined;
+
 /**
- * Approximate bounding box of an overlay, used for the keyboard/pointer
- * hit target. Text metrics are estimated (0.6em average advance), which is
- * good enough for a grab area.
+ * Real text width measured through an offscreen canvas (same font engine
+ * the SVG renderer uses). Falls back to a 0.6em-average estimate where
+ * canvas is unavailable (jsdom).
+ */
+export function textWidth(
+	content: string,
+	fontFamily: string,
+	fontSize: number
+): number {
+	if (measureContext === undefined) {
+		try {
+			measureContext = document
+				.createElement('canvas')
+				.getContext('2d');
+		}
+		catch {
+			measureContext = null;
+		}
+	}
+
+	if (measureContext) {
+		measureContext.font = `${fontSize}px ${fontFamily}`;
+
+		const width = measureContext.measureText(content).width;
+
+		if (Number.isFinite(width) && width > 0) {
+			return width;
+		}
+	}
+
+	return Math.max(content.length * fontSize * 0.6, fontSize);
+}
+
+/**
+ * Bounding box of an overlay, used for the selection frame, the
+ * keyboard/pointer hit target, and the rotation pivot. Text width is
+ * measured, not estimated.
  */
 export function overlayBounds(overlay: Overlay): {
 	height: number;
@@ -437,8 +473,9 @@ export function overlayBounds(overlay: Overlay): {
 		case 'text':
 			return {
 				height: overlay.fontSize * 1.2,
-				width: Math.max(
-					overlay.text.length * overlay.fontSize * 0.6,
+				width: textWidth(
+					overlay.text,
+					overlay.fontFamily,
 					overlay.fontSize
 				),
 				x: overlay.x,
