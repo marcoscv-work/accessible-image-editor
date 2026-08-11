@@ -165,14 +165,25 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					/>
 			</ClayForm.Group>
 
-			<NumberField
-				id="layer-prop-opacity"
-				label={t('opacity')}
-				max={100}
-				min={0}
-				onCommit={(opacity) => commitPatch({opacity})}
-				value={overlay.opacity ?? 100}
-			/>
+			<div className="editor-panel-grid">
+				<NumberField
+					id="layer-prop-opacity"
+					label={t('opacity')}
+					max={100}
+					min={0}
+					onCommit={(opacity) => commitPatch({opacity})}
+					value={overlay.opacity ?? 100}
+				/>
+
+				<NumberField
+					id="layer-prop-rotation"
+					label={t('rotation-degrees')}
+					max={360}
+					min={-360}
+					onCommit={(rotation) => commitPatch({rotation})}
+					value={overlay.rotation ?? 0}
+				/>
+			</div>
 
 			{overlay.kind === 'text' && (
 				<>

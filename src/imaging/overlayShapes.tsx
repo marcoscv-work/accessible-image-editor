@@ -133,6 +133,29 @@ export function overlayBounds(overlay: Overlay): {
 	}
 }
 
+export function overlayCenter(overlay: Overlay): {x: number; y: number} {
+	const bounds = overlayBounds(overlay);
+
+	return {x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2};
+}
+
+/**
+ * The rotation transform of an overlay, around its center. Applied by the
+ * stage to the whole interactive group and by the export renderer to the
+ * static shape, so both stay identical.
+ */
+export function overlayTransform(overlay: Overlay): string | undefined {
+	const rotation = overlay.rotation ?? 0;
+
+	if (!rotation) {
+		return undefined;
+	}
+
+	const center = overlayCenter(overlay);
+
+	return `rotate(${rotation} ${center.x} ${center.y})`;
+}
+
 export function overlayLabel(overlay: Overlay): string {
 	switch (overlay.kind) {
 		case 'shape':

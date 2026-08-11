@@ -42,6 +42,7 @@ export interface TextOverlay {
 	id: string;
 	kind: 'text';
 	opacity?: number;
+	rotation?: number;
 	text: string;
 	x: number;
 	y: number;
@@ -53,6 +54,7 @@ export interface ShapeOverlay {
 	id: string;
 	kind: 'shape';
 	opacity?: number;
+	rotation?: number;
 	width: number;
 	x: number;
 	y: number;
@@ -71,6 +73,7 @@ export interface StickerOverlay {
 	id: string;
 	kind: 'sticker';
 	opacity?: number;
+	rotation?: number;
 	size: number;
 	sticker: StickerKind;
 	x: number;

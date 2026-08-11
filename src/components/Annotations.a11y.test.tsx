@@ -170,6 +170,17 @@ describe('Annotations, filters, and layers', () => {
 			'opacity',
 			'0.5'
 		);
+
+		// Rotation spins the whole interactive group around the center.
+
+		const rotationInput = screen.getByLabelText('Rotation (degrees)');
+
+		fireEvent.change(rotationInput, {target: {value: '45'}});
+		fireEvent.keyDown(rotationInput, {key: 'Enter'});
+
+		expect(shape().closest('g[transform]')?.getAttribute('transform')).toContain(
+			'rotate(45'
+		);
 	});
 
 	it('has no axe violations with the layer properties open', async () => {

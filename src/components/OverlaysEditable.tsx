@@ -5,6 +5,7 @@ import {
 	OverlayShape,
 	overlayBounds,
 	overlayLabel,
+	overlayTransform,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
@@ -23,6 +24,28 @@ function arrowDelta(key: string): [number, number] | null {
 		default:
 			return null;
 	}
+}
+
+/**
+ * The interactive group rotates with the overlay, so screen-space deltas
+ * (mouse drags, arrow keys) must be counter-rotated into the overlay's
+ * local coordinates for the element to follow the pointer on screen.
+ */
+function counterRotateDelta(
+	dx: number,
+	dy: number,
+	rotation: number
+): [number, number] {
+	if (!rotation) {
+		return [dx, dy];
+	}
+
+	const radians = (rotation * Math.PI) / 180;
+
+	const cos = Math.cos(radians);
+	const sin = Math.sin(radians);
+
+	return [dx * cos + dy * sin, -dx * sin + dy * cos];
 }
 
 interface Props {
@@ -122,11 +145,17 @@ export function OverlaysEditable({
 
 			setFocus({id, modality: 'keyboard'});
 
+			const [dx, dy] = counterRotateDelta(
+				delta[0] * step,
+				delta[1] * step,
+				overlay.rotation ?? 0
+			);
+
 			dispatch({
 				id,
 				patch: {
-					x: overlay.x + delta[0] * step,
-					y: overlay.y + delta[1] * step,
+					x: overlay.x + dx,
+					y: overlay.y + dy,
 				},
 				transient: true,
 				type: 'update-overlay',
@@ -180,11 +209,17 @@ export function OverlaysEditable({
 			return;
 		}
 
+		const [dx, dy] = counterRotateDelta(
+			(event.clientX - gesture.startX) / zoom,
+			(event.clientY - gesture.startY) / zoom,
+			current(gesture.id)?.rotation ?? 0
+		);
+
 		dispatch({
 			id: gesture.id,
 			patch: {
-				x: gesture.x + (event.clientX - gesture.startX) / zoom,
-				y: gesture.y + (event.clientY - gesture.startY) / zoom,
+				x: gesture.x + dx,
+				y: gesture.y + dy,
 			},
 			transient: true,
 			type: 'update-overlay',
@@ -221,7 +256,10 @@ export function OverlaysEditable({
 				const bounds = overlayBounds(overlay);
 
 				return (
-					<g key={overlay.id}>
+					<g
+						key={overlay.id}
+						transform={overlayTransform(overlay)}
+					>
 						<OverlayShape overlay={overlay} />
 
 						{focus?.id === overlay.id && (

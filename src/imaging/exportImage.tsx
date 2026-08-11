@@ -4,7 +4,7 @@ import {EditState} from '../state/types';
 import {FilterDefs, isIdentityFilter} from './FilterDefs';
 import {rotationTransform} from './geometry';
 import {LoadedImage} from './loadImage';
-import {OverlayShape} from './overlayShapes';
+import {OverlayShape, overlayTransform} from './overlayShapes';
 
 function blobToDataURL(blob: Blob): Promise<string> {
 	return new Promise((resolve, reject) => {
@@ -74,7 +74,9 @@ export async function exportEditedImage(
 			</g>
 
 			{state.overlays.map((overlay) => (
-				<OverlayShape key={overlay.id} overlay={overlay} />
+				<g key={overlay.id} transform={overlayTransform(overlay)}>
+					<OverlayShape overlay={overlay} />
+				</g>
 			))}
 		</svg>
 	);
