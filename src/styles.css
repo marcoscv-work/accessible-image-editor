@@ -237,6 +237,21 @@
 	gap: 0.5rem;
 }
 
+/*
+ * Clay positions the radio ring (::before, 16px) and dot (::after, 24px
+ * box) for a single-line text label; our label is taller because of the
+ * filter thumbnail. Recenter through `top` only: Atlas drives `transform`
+ * on ::after for the check animation, so it must stay untouched.
+ */
+
+.editor-filter-option .custom-control-label::before {
+	top: calc(50% - 8px);
+}
+
+.editor-filter-option .custom-control-label::after {
+	top: calc(50% - 12px);
+}
+
 .editor-filter-thumb {
 	border: 1px solid #e7e7ed;
 	border-radius: 4px;

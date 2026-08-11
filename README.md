@@ -1,0 +1,73 @@
+# Accessible Image Editor PoC
+
+A proof of concept for a **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system). It explores the alternative to the Pintura SDK integration (epic LPD-58956): instead of remediating a canvas-based editor (discovery LPD-93990, estimation LPD-102096), it tests whether an editor covering the same functional scope can be **accessible by architecture**.
+
+The full goal statement lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
+
+## Core idea
+
+The editor is **parametric and declarative**:
+
+- Every operation is serializable data: a crop is `{x, y, width, height}`, brightness is a number, a text overlay is an object. The whole session is one JSON-friendly `EditState` managed by a pure reducer with an undo/redo history.
+- The preview is **SVG in the DOM**, not canvas: the raster image is an `<image>` element, color adjustments are declarative SVG filter primitives (`feComponentTransfer`, `feColorMatrix`), and every annotation is a real, focusable, labelled DOM node.
+- The export serializes **the same SVG** at full resolution and rasterizes it offscreen; a canvas exists only as the final encoder, invisible to the user and absent from the accessibility tree. Preview and export share the same components (`FilterDefs`, `rotationTransform`, `OverlayShape`), so what you see is what you save by construction.
+- The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps 20MP images responsive.
+
+## Run
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:5173, then "Edit sample image" (bundled) or open one of your own (JPEG/PNG/WebP).
+
+## Test
+
+```bash
+npm test          # vitest: reducer, filter pipeline, jest-axe scans
+npm run test:e2e  # Playwright: keyboard-only journeys + axe + 20MP perf budget
+```
+
+The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state.
+
+`npm run generate:images` regenerates the bundled sample and the 20MP performance asset (macOS `sips` required).
+
+## Keyboard map
+
+| Keys | Action |
+| --- | --- |
+| `Tab` / `Shift+Tab` | Move between all controls, including the crop area, each of its 8 handles, and every annotation |
+| `Arrow keys` | Move the focused crop control or annotation by 1 pixel |
+| `Shift + Arrow keys` | Move by 10 pixels |
+| `+` / `-` | Zoom in/out while the workspace has focus |
+| `Ctrl/Cmd + Z` | Undo (announced with the operation name) |
+| `Ctrl/Cmd + Shift + Z` | Redo |
+| `Delete` | Remove the focused annotation, or the selected layer in the layers list |
+| `Enter` | Commit a numeric crop field |
+| `Esc` | Close the editor or the open dialog |
+
+The same map is available in the UI through the "Keyboard shortcuts" button.
+
+## Structure
+
+```
+src/
+  state/        EditState + pure reducer with labelled undo/redo history
+  imaging/      loadImage (decode + downscale), FilterDefs (color pipeline),
+                geometry (rotation), overlayShapes, exportImage (SVG → encoder)
+  components/   EditorModal (Clay full-screen modal shell), Workspace (SVG stage),
+                CropMarquee, CropPanel, AdjustPanel, FilterGallery,
+                AnnotatePanel, LayersPanel, BottomBar, Announcer (live region)
+  i18n/         t() + English dictionary (Language.properties-shaped keys)
+e2e/            Keyboard-only Playwright journeys, axe scans, 20MP perf budget
+```
+
+## Out of scope (product-phase concerns)
+
+- **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, and stickers.
+- Background removal.
+- Touch/mobile polish (pointer events work, but no touch-specific UX).
+- EXIF orientation/metadata preservation and color management (ICC).
+- HEIC input.
+- NVDA/JAWS passes (a VoiceOver script is prepared in [VOICEOVER.md](VOICEOVER.md); all are pending human runs).
