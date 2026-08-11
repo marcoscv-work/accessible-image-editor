@@ -15,10 +15,16 @@ interface FieldProps {
 function NumberField({
 	id,
 	label,
+	max,
 	min = 1,
 	onCommit,
 	value,
-}: FieldProps & {min?: number; onCommit: (value: number) => void; value: number}) {
+}: FieldProps & {
+	max?: number;
+	min?: number;
+	onCommit: (value: number) => void;
+	value: number;
+}) {
 	const [draft, setDraft] = useState(String(value));
 
 	useEffect(() => setDraft(String(value)), [value]);
@@ -32,7 +38,7 @@ function NumberField({
 			return;
 		}
 
-		onCommit(Math.max(parsed, min));
+		onCommit(Math.min(Math.max(parsed, min), max ?? Infinity));
 	};
 
 	return (
@@ -41,6 +47,7 @@ function NumberField({
 
 			<ClayInput
 				id={id}
+				max={max}
 				min={min}
 				onBlur={commit}
 				onChange={(event) => setDraft(event.target.value)}
@@ -157,6 +164,15 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						value={overlay.color}
 					/>
 			</ClayForm.Group>
+
+			<NumberField
+				id="layer-prop-opacity"
+				label={t('opacity')}
+				max={100}
+				min={0}
+				onCommit={(opacity) => commitPatch({opacity})}
+				value={overlay.opacity ?? 100}
+			/>
 
 			{overlay.kind === 'text' && (
 				<>

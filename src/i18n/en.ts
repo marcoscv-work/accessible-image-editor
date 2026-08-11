@@ -79,6 +79,7 @@ export default {
 	'load-failed': 'The image could not be opened. Try a different file.',
 	'move-down': 'Move down',
 	'move-up': 'Move up',
+	'opacity': 'Opacity (%)',
 	'open-an-image': 'Open an image from your device',
 	'open-sample-image': 'Edit sample image',
 	'overlay-instructions':
@@ -106,6 +107,8 @@ export default {
 	'shortcut-shift-arrows': 'Move the focused crop control by 10 pixels',
 	'shortcut-undo': 'Undo the last change',
 	'shortcut-zoom': 'Zoom in and out while the workspace has focus',
+	'shortcut-zoom-fit':
+		'Fit the image to the window while the workspace has focus',
 	'sticker-arrow': 'Arrow sticker',
 	'sticker-bolt': 'Lightning sticker',
 	'sticker-check': 'Check mark sticker',
@@ -123,6 +126,7 @@ export default {
 		'Scrollable view of the image. Use the zoom buttons or plus and minus keys to zoom. Tab to reach the crop area and its handles.',
 	'x-position': 'X position',
 	'y-position': 'Y position',
+	'zoom-fit': 'Fit image to window',
 	'zoom-in': 'Zoom in',
 	'zoom-level': 'Zoom {0}%',
 	'zoom-out': 'Zoom out',

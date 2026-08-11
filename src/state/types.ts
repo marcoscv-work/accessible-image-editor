@@ -41,6 +41,7 @@ export interface TextOverlay {
 	fontSize: number;
 	id: string;
 	kind: 'text';
+	opacity?: number;
 	text: string;
 	x: number;
 	y: number;
@@ -51,6 +52,7 @@ export interface ShapeOverlay {
 	height: number;
 	id: string;
 	kind: 'shape';
+	opacity?: number;
 	width: number;
 	x: number;
 	y: number;
@@ -68,6 +70,7 @@ export interface StickerOverlay {
 	color: string;
 	id: string;
 	kind: 'sticker';
+	opacity?: number;
 	size: number;
 	sticker: StickerKind;
 	x: number;

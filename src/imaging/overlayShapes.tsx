@@ -148,9 +148,19 @@ export function overlayLabel(overlay: Overlay): string {
 
 /**
  * The visual node of an overlay. Shared verbatim between the interactive
- * preview and the static export renderer.
+ * preview and the static export renderer. Opacity (the native color input
+ * offers no alpha channel) wraps the node as a group attribute, so it
+ * rasterizes identically at export.
  */
 export function OverlayShape({overlay}: {overlay: Overlay}) {
+	const opacity = (overlay.opacity ?? 100) / 100;
+
+	const node = renderOverlayNode(overlay);
+
+	return opacity < 1 ? <g opacity={opacity}>{node}</g> : node;
+}
+
+function renderOverlayNode(overlay: Overlay) {
 	switch (overlay.kind) {
 		case 'shape':
 			return (

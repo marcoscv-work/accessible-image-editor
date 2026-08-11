@@ -31,6 +31,7 @@ function AnnotationHarness() {
 				image={IMAGE}
 				onAnnounce={() => {}}
 				onZoom={() => {}}
+				onZoomFit={() => {}}
 				state={history.present}
 				zoom={0.5}
 			/>
@@ -157,6 +158,18 @@ describe('Annotations, filters, and layers', () => {
 		fireEvent.blur(colorInput);
 
 		expect(shape()).toHaveAttribute('fill', '#00ff00');
+
+		// Opacity wraps the node in a translucent group, clamped to 0-100.
+
+		const opacityInput = screen.getByLabelText('Opacity (%)');
+
+		fireEvent.change(opacityInput, {target: {value: '50'}});
+		fireEvent.keyDown(opacityInput, {key: 'Enter'});
+
+		expect(shape().closest('g[opacity]')).toHaveAttribute(
+			'opacity',
+			'0.5'
+		);
 	});
 
 	it('has no axe violations with the layer properties open', async () => {
