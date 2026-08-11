@@ -23,6 +23,8 @@ export default {
 	'adjustments': 'Adjustments',
 	'adjustments-reset': 'All adjustments reset',
 	'aspect-lock': 'Lock aspect ratio',
+	'aspect-ratio-locked': 'Aspect ratio locked',
+	'aspect-ratio-unlocked': 'Aspect ratio unlocked',
 	'brightness': 'Brightness',
 	'contrast': 'Contrast',
 	'cancel': 'Cancel',

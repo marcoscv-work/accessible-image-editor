@@ -178,6 +178,27 @@
 	grid-template-columns: 1fr 1fr;
 }
 
+/* Width | padlock | Height, drawing-tool style. */
+
+.editor-crop-size-row {
+	align-items: center;
+	display: flex;
+	gap: 0.25rem;
+}
+
+.editor-crop-size-row .form-group {
+	flex: 1;
+}
+
+.editor-aspect-lock {
+	align-self: flex-end;
+	margin-bottom: 0.625rem;
+}
+
+.editor-aspect-lock[aria-pressed='true'] {
+	color: #0b5fff;
+}
+
 /* Bottom bar */
 
 .editor-bottom-bar {

@@ -1,4 +1,5 @@
-import ClayForm, {ClayCheckbox, ClayInput} from '@clayui/form';
+import {ClayButtonWithIcon} from '@clayui/button';
+import ClayForm, {ClayInput} from '@clayui/form';
 import React, {useEffect, useState} from 'react';
 
 import {t} from '../i18n';
@@ -14,21 +15,17 @@ interface Props {
 type Field = 'height' | 'width' | 'x' | 'y';
 
 const FIELD_LABELS: Record<Field, string> = {
-
-	// Insertion order drives the rendered order: X, Y, Width, Height.
-
-	/* eslint-disable sort-keys */
+	height: 'height',
+	width: 'width',
 	x: 'x-position',
 	y: 'y-position',
-	width: 'width',
-	height: 'height',
-	/* eslint-enable sort-keys */
 };
 
 /**
  * The non-spatial route to precise cropping: plain numeric inputs. Values
  * commit on blur or Enter so screen reader and keyboard users can type a
- * full number without fighting live clamping.
+ * full number without fighting live clamping. The aspect ratio lock is a
+ * padlock toggle between Width and Height, drawing-tool style.
  */
 export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 	const [drafts, setDrafts] = useState<Record<Field, string>>({
@@ -90,6 +87,33 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 		);
 	};
 
+	const renderField = (field: Field) => (
+		<ClayForm.Group key={field}>
+			<label htmlFor={`crop-${field}`}>{t(FIELD_LABELS[field])}</label>
+
+			<ClayInput
+				id={`crop-${field}`}
+				min={0}
+				onBlur={() => commit(field)}
+				onChange={(event) =>
+					setDrafts((previous) => ({
+						...previous,
+						[field]: event.target.value,
+					}))
+				}
+				onKeyDown={(event: React.KeyboardEvent) => {
+					if (event.key === 'Enter') {
+						event.preventDefault();
+						commit(field);
+					}
+				}}
+				sizing="sm"
+				type="number"
+				value={drafts[field]}
+			/>
+		</ClayForm.Group>
+	);
+
 	return (
 		<section aria-labelledby="crop-panel-title" className="editor-panel">
 			<h2 className="editor-panel-title" id="crop-panel-title">
@@ -97,41 +121,38 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 			</h2>
 
 			<div className="editor-panel-grid">
-				{(Object.keys(FIELD_LABELS) as Field[]).map((field) => (
-					<ClayForm.Group key={field}>
-						<label htmlFor={`crop-${field}`}>
-							{t(FIELD_LABELS[field])}
-						</label>
-
-						<ClayInput
-							id={`crop-${field}`}
-							min={0}
-							sizing="sm"
-							onBlur={() => commit(field)}
-							onChange={(event) =>
-								setDrafts((previous) => ({
-									...previous,
-									[field]: event.target.value,
-								}))
-							}
-							onKeyDown={(event: React.KeyboardEvent) => {
-								if (event.key === 'Enter') {
-									event.preventDefault();
-									commit(field);
-								}
-							}}
-							type="number"
-							value={drafts[field]}
-						/>
-					</ClayForm.Group>
-				))}
+				{renderField('x')}
+				{renderField('y')}
 			</div>
 
-			<ClayCheckbox
-				checked={aspectLocked}
-				label={t('aspect-lock')}
-				onChange={() => setAspectLocked((locked) => !locked)}
-			/>
+			<div className="editor-crop-size-row">
+				{renderField('width')}
+
+				<ClayButtonWithIcon
+					aria-label={t('aspect-lock')}
+					aria-pressed={aspectLocked}
+					className="editor-aspect-lock"
+					displayType="unstyled"
+					onClick={() => {
+						setAspectLocked((locked) => {
+							onAnnounce(
+								t(
+									locked
+										? 'aspect-ratio-unlocked'
+										: 'aspect-ratio-locked'
+								)
+							);
+
+							return !locked;
+						});
+					}}
+					size="xs"
+					symbol={aspectLocked ? 'lock' : 'unlock'}
+					title={t('aspect-lock')}
+				/>
+
+				{renderField('height')}
+			</div>
 		</section>
 	);
 }
