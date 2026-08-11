@@ -3,7 +3,7 @@ import React, {useRef, useState} from 'react';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
-import {FocusRing, matchesFocusVisible} from './FocusRing';
+import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 
 type HandleDirection = 'e' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w';
 
@@ -129,7 +129,10 @@ export function CropMarquee({
 
 	cropRef.current = crop;
 
-	const [focused, setFocused] = useState<string | null>(null);
+	const [focused, setFocused] = useState<{
+		key: string;
+		modality: FocusModality;
+	} | null>(null);
 
 	const keyboardGesture = useRef(false);
 
@@ -169,9 +172,9 @@ export function CropMarquee({
 		keyboardGesture.current = true;
 
 		// Arrow keys are keyboard interaction even after a mouse focus:
-		// surface the ring.
+		// surface the full ring.
 
-		setFocused(focusKey);
+		setFocused({key: focusKey, modality: 'keyboard'});
 
 		dispatch({
 			crop: adjustCrop(
@@ -270,11 +273,12 @@ export function CropMarquee({
 				height={crop.height}
 				onBlur={() => setFocused(null)}
 				onFocus={(event) =>
-					setFocused(
-						matchesFocusVisible(event.currentTarget)
-							? 'move'
-							: null
-					)
+					setFocused({
+						key: 'move',
+						modality: matchesFocusVisible(event.currentTarget)
+							? 'keyboard'
+							: 'pointer',
+					})
 				}
 				onKeyDown={handleKeyDown(MOVE_EDGES, 'move')}
 				onKeyUp={handleKeyUp}
@@ -288,7 +292,13 @@ export function CropMarquee({
 				y={crop.y}
 			/>
 
-			{focused === 'move' && <FocusRing bounds={crop} zoom={zoom} />}
+			{focused?.key === 'move' && (
+				<FocusRing
+					bounds={crop}
+					emphasis={focused.modality}
+					zoom={zoom}
+				/>
+			)}
 
 			{children}
 
@@ -306,7 +316,7 @@ export function CropMarquee({
 							strokeWidth={strokeWidth}
 						/>
 
-						{focused === direction && (
+						{focused?.key === direction && (
 							<FocusRing
 								bounds={{
 									height: hitRadius * 2,
@@ -314,6 +324,7 @@ export function CropMarquee({
 									x: position.x - hitRadius,
 									y: position.y - hitRadius,
 								}}
+								emphasis={focused.modality}
 								shape="circle"
 								zoom={zoom}
 							/>
@@ -328,11 +339,14 @@ export function CropMarquee({
 							fill="transparent"
 							onBlur={() => setFocused(null)}
 							onFocus={(event) =>
-								setFocused(
-									matchesFocusVisible(event.currentTarget)
-										? direction
-										: null
-								)
+								setFocused({
+									key: direction,
+									modality: matchesFocusVisible(
+										event.currentTarget
+									)
+										? 'keyboard'
+										: 'pointer',
+								})
 							}
 							onKeyDown={handleKeyDown(edges, direction)}
 							onKeyUp={handleKeyUp}

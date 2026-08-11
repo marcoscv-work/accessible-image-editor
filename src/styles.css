@@ -110,6 +110,10 @@
 	stroke: var(--editor-accent);
 }
 
+.selection-ring {
+	stroke: var(--editor-accent);
+}
+
 /* Sidebar */
 
 .editor-sidebar {

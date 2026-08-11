@@ -8,7 +8,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
-import {FocusRing, matchesFocusVisible} from './FocusRing';
+import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 
 function arrowDelta(key: string): [number, number] | null {
 	switch (key) {
@@ -47,7 +47,10 @@ export function OverlaysEditable({
 
 	overlaysRef.current = overlays;
 
-	const [focusedId, setFocusedId] = useState<string | null>(null);
+	const [focus, setFocus] = useState<{
+		id: string;
+		modality: FocusModality;
+	} | null>(null);
 
 	const keyboardGesture = useRef<string | null>(null);
 
@@ -115,9 +118,9 @@ export function OverlaysEditable({
 			keyboardGesture.current = id;
 
 			// Arrow keys are keyboard interaction even after a mouse
-			// focus: surface the ring.
+			// focus: surface the full ring.
 
-			setFocusedId(id);
+			setFocus({id, modality: 'keyboard'});
 
 			dispatch({
 				id,
@@ -221,8 +224,12 @@ export function OverlaysEditable({
 					<g key={overlay.id}>
 						<OverlayShape overlay={overlay} />
 
-						{focusedId === overlay.id && (
-							<FocusRing bounds={bounds} zoom={zoom} />
+						{focus?.id === overlay.id && (
+							<FocusRing
+								bounds={bounds}
+								emphasis={focus.modality}
+								zoom={zoom}
+							/>
 						)}
 
 						<rect
@@ -231,13 +238,16 @@ export function OverlaysEditable({
 							className="overlay-hit"
 							fill="transparent"
 							height={bounds.height}
-							onBlur={() => setFocusedId(null)}
+							onBlur={() => setFocus(null)}
 							onFocus={(event) =>
-								setFocusedId(
-									matchesFocusVisible(event.currentTarget)
-										? overlay.id
-										: null
-								)
+								setFocus({
+									id: overlay.id,
+									modality: matchesFocusVisible(
+										event.currentTarget
+									)
+										? 'keyboard'
+										: 'pointer',
+								})
 							}
 							onKeyDown={handleKeyDown(overlay.id)}
 							onKeyUp={handleKeyUp(overlay.id)}

@@ -19,8 +19,17 @@ export function matchesFocusVisible(element: Element): boolean {
 	}
 }
 
+export type FocusModality = 'keyboard' | 'pointer';
+
 interface Props {
 	bounds: Bounds;
+
+	/**
+	 * Keyboard focus gets the full Clay-style double ring; pointer focus
+	 * gets a subtle single selection line, enough feedback without the
+	 * navigation emphasis.
+	 */
+	emphasis?: FocusModality;
 
 	/**
 	 * Ring geometry: circular nodes (crop handles) get concentric circle
@@ -36,17 +45,54 @@ interface Props {
 }
 
 /**
- * Clay-style double focus ring, drawn as real SVG geometry: browsers do
- * not reliably render CSS outlines on SVG child elements, so the stage
- * paints its own white inner + accent outer rings around the focused
- * node. The two-tone pair stays evident over any image content.
+ * Focus feedback drawn as real SVG geometry: browsers do not reliably
+ * render CSS outlines on SVG child elements, so the stage paints its own
+ * rings around the focused node. Keyboard focus is a white inner + accent
+ * outer pair that stays evident over any image content.
  */
-export function FocusRing({bounds, shape = 'rectangle', zoom}: Props) {
-	const thickness = 3 / zoom;
+export function FocusRing({
+	bounds,
+	emphasis = 'keyboard',
+	shape = 'rectangle',
+	zoom,
+}: Props) {
+	const thickness = 2 / zoom;
 	const gap = 2 / zoom;
 
 	const innerInset = gap + thickness / 2;
 	const outerInset = gap + thickness * 1.5;
+
+	if (emphasis === 'pointer') {
+		const selectionThickness = 1.5 / zoom;
+		const inset = gap + selectionThickness / 2;
+
+		if (shape === 'circle') {
+			return (
+				<circle
+					className="selection-ring"
+					cx={bounds.x + bounds.width / 2}
+					cy={bounds.y + bounds.height / 2}
+					fill="none"
+					pointerEvents="none"
+					r={Math.max(bounds.width, bounds.height) / 2 + inset}
+					strokeWidth={selectionThickness}
+				/>
+			);
+		}
+
+		return (
+			<rect
+				className="selection-ring"
+				fill="none"
+				height={bounds.height + 2 * inset}
+				pointerEvents="none"
+				strokeWidth={selectionThickness}
+				width={bounds.width + 2 * inset}
+				x={bounds.x - inset}
+				y={bounds.y - inset}
+			/>
+		);
+	}
 
 	if (shape === 'circle') {
 		const cx = bounds.x + bounds.width / 2;
