@@ -95,6 +95,7 @@ export default {
 	'reset-all': 'Reset all',
 	'rotate-90': 'Rotate 90 degrees clockwise',
 	'rotated-90': 'Rotated 90 degrees clockwise',
+	'rotation-degrees': 'Rotation (degrees)',
 	'saturation': 'Saturation',
 	'save': 'Save',
 	'selected-layer': 'Selected layer: {0}',

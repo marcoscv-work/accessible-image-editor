@@ -20,6 +20,7 @@
 		"@clayui/modal": "^3.166.0",
 		"@clayui/slider": "^3.166.0",
 		"@clayui/tabs": "^3.166.0",
+		"@clayui/tooltip": "^3.166.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
 	},

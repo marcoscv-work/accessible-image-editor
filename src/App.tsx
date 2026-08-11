@@ -1,5 +1,6 @@
 import ClayButton from '@clayui/button';
 import {ClayIconSpriteContext} from '@clayui/icon';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import spritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {useRef, useState} from 'react';
 
@@ -40,6 +41,12 @@ export default function App() {
 
 	return (
 		<ClayIconSpriteContext.Provider value={spritemap}>
+			{/*
+			 * A singleton provider: delegation from document.body reaches
+			 * titled elements anywhere, including portaled Clay modals.
+			 */}
+			<ClayTooltipProvider autoAlign delay={200} scope="[title]" />
+
 			<AnnouncerProvider>
 				<main className="landing">
 					<h1>{t('app-title')}</h1>
