@@ -3,7 +3,7 @@ import React, {useRef, useState} from 'react';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
-import {FocusRing} from './FocusRing';
+import {FocusRing, matchesFocusVisible} from './FocusRing';
 
 type HandleDirection = 'e' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w';
 
@@ -153,7 +153,8 @@ export function CropMarquee({
 		);
 	};
 
-	const handleKeyDown = (edges: Edges) => (event: React.KeyboardEvent) => {
+	const handleKeyDown =
+		(edges: Edges, focusKey: string) => (event: React.KeyboardEvent) => {
 		const delta = arrowDelta(event.key);
 
 		if (!delta) {
@@ -166,6 +167,11 @@ export function CropMarquee({
 		const step = event.shiftKey ? 10 : 1;
 
 		keyboardGesture.current = true;
+
+		// Arrow keys are keyboard interaction even after a mouse focus:
+		// surface the ring.
+
+		setFocused(focusKey);
 
 		dispatch({
 			crop: adjustCrop(
@@ -263,8 +269,14 @@ export function CropMarquee({
 				fill="transparent"
 				height={crop.height}
 				onBlur={() => setFocused(null)}
-				onFocus={() => setFocused('move')}
-				onKeyDown={handleKeyDown(MOVE_EDGES)}
+				onFocus={(event) =>
+					setFocused(
+						matchesFocusVisible(event.currentTarget)
+							? 'move'
+							: null
+					)
+				}
+				onKeyDown={handleKeyDown(MOVE_EDGES, 'move')}
 				onKeyUp={handleKeyUp}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove(MOVE_EDGES)}
@@ -314,8 +326,14 @@ export function CropMarquee({
 							cy={position.y}
 							fill="transparent"
 							onBlur={() => setFocused(null)}
-							onFocus={() => setFocused(direction)}
-							onKeyDown={handleKeyDown(edges)}
+							onFocus={(event) =>
+								setFocused(
+									matchesFocusVisible(event.currentTarget)
+										? direction
+										: null
+								)
+							}
+							onKeyDown={handleKeyDown(edges, direction)}
 							onKeyUp={handleKeyUp}
 							onPointerDown={handlePointerDown}
 							onPointerMove={handlePointerMove(edges)}

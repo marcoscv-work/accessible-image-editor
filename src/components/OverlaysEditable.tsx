@@ -8,7 +8,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
-import {FocusRing} from './FocusRing';
+import {FocusRing, matchesFocusVisible} from './FocusRing';
 
 function arrowDelta(key: string): [number, number] | null {
 	switch (key) {
@@ -113,6 +113,11 @@ export function OverlaysEditable({
 			const step = event.shiftKey ? 10 : 1;
 
 			keyboardGesture.current = id;
+
+			// Arrow keys are keyboard interaction even after a mouse
+			// focus: surface the ring.
+
+			setFocusedId(id);
 
 			dispatch({
 				id,
@@ -227,7 +232,13 @@ export function OverlaysEditable({
 							fill="transparent"
 							height={bounds.height}
 							onBlur={() => setFocusedId(null)}
-							onFocus={() => setFocusedId(overlay.id)}
+							onFocus={(event) =>
+								setFocusedId(
+									matchesFocusVisible(event.currentTarget)
+										? overlay.id
+										: null
+								)
+							}
 							onKeyDown={handleKeyDown(overlay.id)}
 							onKeyUp={handleKeyUp(overlay.id)}
 							onPointerDown={handlePointerDown(overlay.id)}

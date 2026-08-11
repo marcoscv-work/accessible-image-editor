@@ -5,6 +5,20 @@ interface Bounds {
 	y: number;
 }
 
+/**
+ * True when the element's focus came from the keyboard (the
+ * :focus-visible heuristic). Pointer-driven focus keeps the stage clean;
+ * the double ring is reserved for keyboard navigation.
+ */
+export function matchesFocusVisible(element: Element): boolean {
+	try {
+		return element.matches(':focus-visible');
+	}
+	catch {
+		return true;
+	}
+}
+
 interface Props {
 	bounds: Bounds;
 
