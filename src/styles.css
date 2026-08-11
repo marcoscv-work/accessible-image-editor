@@ -73,11 +73,6 @@
 	cursor: move;
 }
 
-.crop-move:focus-visible {
-	outline: 3px solid #fff;
-	outline-offset: 2px;
-}
-
 .crop-handle-visual {
 	fill: #fff;
 	stroke: var(--editor-accent);
@@ -87,9 +82,25 @@
 	cursor: pointer;
 }
 
-.crop-handle:focus-visible {
-	outline: 3px solid #fff;
-	outline-offset: 2px;
+/*
+ * Clay-style double focus ring (white inner + accent outer) for the
+ * interactive stage nodes. Browsers do not reliably paint CSS outlines on
+ * SVG children, so the rings are real SVG geometry (see FocusRing); the
+ * stage nodes only suppress the inconsistent native indicator.
+ */
+
+.crop-handle,
+.crop-move,
+.overlay-hit {
+	outline: none;
+}
+
+.focus-ring-inner {
+	stroke: #fff;
+}
+
+.focus-ring-outer {
+	stroke: var(--editor-accent);
 }
 
 /* Sidebar */
@@ -218,11 +229,6 @@
 	cursor: move;
 }
 
-.overlay-hit:focus-visible {
-	outline: 3px solid #fff;
-	outline-offset: 2px;
-}
-
 /* Filters */
 
 .editor-filter-grid {
@@ -297,6 +303,49 @@
 .editor-layer-item[aria-selected='true'] {
 	background: #0b5fff;
 	color: #fff;
+}
+
+/*
+ * The properties box is visually tied to the selected layer: same primary
+ * color as the selected list item, connected by an accent left border.
+ */
+
+.editor-layer-properties {
+	background: #f0f5ff;
+	border: 1px solid #b3cdff;
+	border-left: 4px solid #0b5fff;
+	border-radius: 0 4px 4px 0;
+	margin: 0.75rem 0 0;
+	padding: 0.75rem;
+}
+
+.editor-layer-properties legend {
+	color: #004ad7;
+	display: block;
+	float: none;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	padding: 0;
+	width: auto;
+}
+
+/* Sticker picker */
+
+.editor-sticker-picker {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.editor-sticker-picker .btn {
+	align-items: center;
+	display: inline-flex;
+	justify-content: center;
+	min-height: 36px;
+	min-width: 36px;
+	padding: 0.375rem;
 }
 
 /* Shortcuts dialog */

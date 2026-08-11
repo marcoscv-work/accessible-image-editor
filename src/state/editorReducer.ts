@@ -293,6 +293,25 @@ export function editorReducer(
 		}
 
 		case 'update-overlay': {
+			const target = present.overlays.find(
+				(overlay) => overlay.id === action.id
+			);
+
+			if (!target) {
+				return history;
+			}
+
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				Object.entries(action.patch).every(
+					([key, value]) =>
+						target[key as keyof Overlay] === value
+				)
+			) {
+				return history;
+			}
+
 			return applyEdit(
 				history,
 				{

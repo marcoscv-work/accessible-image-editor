@@ -1,8 +1,9 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
+import {FocusRing} from './FocusRing';
 
 type HandleDirection = 'e' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w';
 
@@ -98,6 +99,14 @@ function arrowDelta(key: string): [number, number] | null {
 }
 
 interface Props {
+
+	/**
+	 * Rendered between the crop-move surface and the handles: annotations
+	 * must sit above the whole-area move rect (or it swallows their
+	 * pointer events) but below the handles.
+	 */
+	children?: React.ReactNode;
+
 	crop: CropRect;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
@@ -109,10 +118,18 @@ interface Props {
 	zoom: number;
 }
 
-export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
+export function CropMarquee({
+	children,
+	crop,
+	dispatch,
+	onAnnounce,
+	zoom,
+}: Props) {
 	const cropRef = useRef(crop);
 
 	cropRef.current = crop;
+
+	const [focused, setFocused] = useState<string | null>(null);
 
 	const keyboardGesture = useRef(false);
 
@@ -175,7 +192,7 @@ export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<SVGElement>) => {
-		event.currentTarget.setPointerCapture(event.pointerId);
+		event.currentTarget.setPointerCapture?.(event.pointerId);
 
 		pointerGesture.current = {
 			crop: cropRef.current,
@@ -245,6 +262,8 @@ export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
 				className="crop-move"
 				fill="transparent"
 				height={crop.height}
+				onBlur={() => setFocused(null)}
+				onFocus={() => setFocused('move')}
 				onKeyDown={handleKeyDown(MOVE_EDGES)}
 				onKeyUp={handleKeyUp}
 				onPointerDown={handlePointerDown}
@@ -256,6 +275,10 @@ export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
 				x={crop.x}
 				y={crop.y}
 			/>
+
+			{focused === 'move' && <FocusRing bounds={crop} zoom={zoom} />}
+
+			{children}
 
 			{HANDLES.map(({direction, edges}) => {
 				const position = handlePosition(crop, direction);
@@ -271,6 +294,18 @@ export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
 							strokeWidth={strokeWidth}
 						/>
 
+						{focused === direction && (
+							<FocusRing
+								bounds={{
+									height: hitRadius * 2,
+									width: hitRadius * 2,
+									x: position.x - hitRadius,
+									y: position.y - hitRadius,
+								}}
+								zoom={zoom}
+							/>
+						)}
+
 						<circle
 							aria-describedby="crop-handle-description"
 							aria-label={t(`crop-handle-${direction}`)}
@@ -278,6 +313,8 @@ export function CropMarquee({crop, dispatch, onAnnounce, zoom}: Props) {
 							cx={position.x}
 							cy={position.y}
 							fill="transparent"
+							onBlur={() => setFocused(null)}
+							onFocus={() => setFocused(direction)}
 							onKeyDown={handleKeyDown(edges)}
 							onKeyUp={handleKeyUp}
 							onPointerDown={handlePointerDown}

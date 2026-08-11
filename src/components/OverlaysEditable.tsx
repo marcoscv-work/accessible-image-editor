@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
+import {FocusRing} from './FocusRing';
 
 function arrowDelta(key: string): [number, number] | null {
 	switch (key) {
@@ -45,6 +46,8 @@ export function OverlaysEditable({
 	const overlaysRef = useRef(overlays);
 
 	overlaysRef.current = overlays;
+
+	const [focusedId, setFocusedId] = useState<string | null>(null);
 
 	const keyboardGesture = useRef<string | null>(null);
 
@@ -151,7 +154,7 @@ export function OverlaysEditable({
 				return;
 			}
 
-			event.currentTarget.setPointerCapture(event.pointerId);
+			event.currentTarget.setPointerCapture?.(event.pointerId);
 
 			pointerGesture.current = {
 				id,
@@ -213,12 +216,18 @@ export function OverlaysEditable({
 					<g key={overlay.id}>
 						<OverlayShape overlay={overlay} />
 
+						{focusedId === overlay.id && (
+							<FocusRing bounds={bounds} zoom={zoom} />
+						)}
+
 						<rect
 							aria-describedby="overlay-instructions"
 							aria-label={overlayLabel(overlay)}
 							className="overlay-hit"
 							fill="transparent"
 							height={bounds.height}
+							onBlur={() => setFocusedId(null)}
+							onFocus={() => setFocusedId(overlay.id)}
 							onKeyDown={handleKeyDown(overlay.id)}
 							onKeyUp={handleKeyUp(overlay.id)}
 							onPointerDown={handlePointerDown(overlay.id)}

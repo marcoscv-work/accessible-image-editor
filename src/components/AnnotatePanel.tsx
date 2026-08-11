@@ -4,8 +4,13 @@ import ClayModal, {useModal} from '@clayui/modal';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
+import {
+	STICKER_DEFAULT_COLORS,
+	STICKER_KINDS,
+	StickerArt,
+} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {TextOverlay} from '../state/types';
+import {StickerKind, TextOverlay} from '../state/types';
 
 function nextId(kind: string): string {
 	return `${kind}-${crypto.randomUUID().slice(0, 8)}`;
@@ -204,19 +209,21 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		onAnnounce(t('annotation-added', t('overlay-shape-label')));
 	};
 
-	const addStar = () => {
+	const addSticker = (sticker: StickerKind) => {
 		dispatch({
 			overlay: {
+				color: STICKER_DEFAULT_COLORS[sticker],
 				id: nextId('sticker'),
 				kind: 'sticker',
 				size: Math.round(Math.min(bounds.width, bounds.height) * 0.2),
+				sticker,
 				x: centerX,
 				y: centerY,
 			},
 			type: 'add-overlay',
 		});
 
-		onAnnounce(t('annotation-added', t('overlay-sticker-label')));
+		onAnnounce(t('annotation-added', t(`sticker-${sticker}`)));
 	};
 
 	return (
@@ -244,14 +251,39 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 				>
 					{t('add-rectangle')}
 				</ClayButton>
+			</div>
 
-				<ClayButton
-					displayType="secondary"
-					onClick={addStar}
-					size="sm"
-				>
-					{t('add-star')}
-				</ClayButton>
+			<div
+				aria-label={t('stickers')}
+				className="editor-sticker-picker"
+				role="group"
+			>
+				{STICKER_KINDS.map((sticker) => (
+					<ClayButton
+						aria-label={t(`add-sticker-${sticker}`)}
+						displayType="secondary"
+						key={sticker}
+						onClick={() => addSticker(sticker)}
+						size="sm"
+						title={t(`add-sticker-${sticker}`)}
+					>
+						<svg
+							aria-hidden="true"
+							focusable="false"
+							height={20}
+							viewBox="0 0 24 24"
+							width={20}
+						>
+							<StickerArt
+								color={STICKER_DEFAULT_COLORS[sticker]}
+								size={22}
+								sticker={sticker}
+								x={12}
+								y={12}
+							/>
+						</svg>
+					</ClayButton>
+				))}
 			</div>
 
 			<TextDialog

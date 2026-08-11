@@ -125,6 +125,48 @@ describe('Annotations, filters, and layers', () => {
 		).toEqual(['Star sticker', 'Rectangle']);
 	});
 
+	it('edits the selected layer properties from the layers panel', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		// The overlay's visual rect is the only rect without a class (the
+		// crop border, move surface, and hit targets are all classed).
+
+		const shape = () =>
+			container.querySelector(
+				'.editor-workspace rect:not([class])'
+			) as SVGRectElement;
+
+		expect(shape()).toHaveAttribute('fill', '#0b5fff');
+
+		// Width commits on Enter.
+
+		const widthInput = screen.getByLabelText('Width');
+
+		fireEvent.change(widthInput, {target: {value: '500'}});
+		fireEvent.keyDown(widthInput, {key: 'Enter'});
+
+		expect(shape()).toHaveAttribute('width', '500');
+
+		// Color commits on blur after picking.
+
+		const colorInput = screen.getByLabelText('Color');
+
+		fireEvent.change(colorInput, {target: {value: '#00ff00'}});
+		fireEvent.blur(colorInput);
+
+		expect(shape()).toHaveAttribute('fill', '#00ff00');
+	});
+
+	it('has no axe violations with the layer properties open', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		expect(await axe(container)).toHaveNoViolations();
+	});
+
 	it('deletes the selected layer with the Delete key', () => {
 		render(<AnnotationHarness />);
 

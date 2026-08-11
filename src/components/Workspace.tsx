@@ -91,13 +91,6 @@ export function Workspace({
 					/>
 				</g>
 
-				<OverlaysEditable
-					dispatch={dispatch}
-					onAnnounce={onAnnounce}
-					overlays={state.overlays}
-					zoom={zoom}
-				/>
-
 				<path
 					className="crop-dim"
 					d={dimPath}
@@ -110,7 +103,14 @@ export function Workspace({
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
 					zoom={zoom}
-				/>
+				>
+					<OverlaysEditable
+						dispatch={dispatch}
+						onAnnounce={onAnnounce}
+						overlays={state.overlays}
+						zoom={zoom}
+					/>
+				</CropMarquee>
 			</svg>
 		</div>
 	);

@@ -4,7 +4,17 @@ import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
 
-const PRESETS: FilterPreset[] = ['none', 'grayscale', 'sepia', 'warm', 'cool'];
+const PRESETS: FilterPreset[] = [
+	'none',
+	'grayscale',
+	'noir',
+	'sepia',
+	'vintage',
+	'warm',
+	'cool',
+	'vivid',
+	'invert',
+];
 
 interface Props {
 	dispatch: (action: EditorAction) => void;

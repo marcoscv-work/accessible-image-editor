@@ -15,7 +15,16 @@ export interface Adjustments {
 	shadows: number;
 }
 
-export type FilterPreset = 'cool' | 'grayscale' | 'none' | 'sepia' | 'warm';
+export type FilterPreset =
+	| 'cool'
+	| 'grayscale'
+	| 'invert'
+	| 'noir'
+	| 'none'
+	| 'sepia'
+	| 'vintage'
+	| 'vivid'
+	| 'warm';
 
 export type RatioPreset =
 	| '1:1'
@@ -47,10 +56,20 @@ export interface ShapeOverlay {
 	y: number;
 }
 
+export type StickerKind =
+	| 'arrow'
+	| 'bolt'
+	| 'check'
+	| 'heart'
+	| 'smiley'
+	| 'star';
+
 export interface StickerOverlay {
+	color: string;
 	id: string;
 	kind: 'sticker';
 	size: number;
+	sticker: StickerKind;
 	x: number;
 	y: number;
 }
