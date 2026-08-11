@@ -40,6 +40,12 @@
 	min-height: 0;
 }
 
+/* Tighter form rhythm inside the editor panels than Clay's default. */
+
+.image-editor .form-group {
+	margin-bottom: 0.5rem;
+}
+
 /* Workspace */
 
 .editor-workspace {
