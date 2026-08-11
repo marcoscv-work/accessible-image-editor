@@ -130,7 +130,7 @@ export function BottomBar({
 
 			<div className="editor-bar-group">
 				<ClayButton
-					className="editor-cancel-button"
+					className="editor-cancel-button mr-3"
 					displayType="unstyled"
 					onClick={onCancel}
 				>
