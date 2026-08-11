@@ -2,18 +2,21 @@ import ClayButton from '@clayui/button';
 import {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import spritemap from '@clayui/css/lib/images/icons/icons.svg';
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import {t} from './i18n';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal from './components/EditorModal';
+import {watchOrphanTooltips} from './components/tooltips';
 
 export default function App() {
 	const [image, setImage] = useState<LoadedImage | null>(null);
 	const [loadError, setLoadError] = useState(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => watchOrphanTooltips(), []);
 
 	const open = async (blob: Blob, fileName: string) => {
 		try {
