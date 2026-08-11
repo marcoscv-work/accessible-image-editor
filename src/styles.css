@@ -1,0 +1,220 @@
+:root {
+	--editor-accent: #4b9bff;
+	--editor-bar-bg: #14151f;
+	--editor-workspace-bg: #23263a;
+}
+
+/* Landing */
+
+.landing {
+	margin: 0 auto;
+	max-width: 44rem;
+	padding: 3rem 1.5rem;
+}
+
+.landing-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+/* Editor layout */
+
+.image-editor-modal .modal-content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.image-editor {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.editor-main {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+/* Workspace */
+
+.editor-workspace {
+	background: var(--editor-workspace-bg);
+	display: flex;
+	flex: 1;
+	overflow: auto;
+}
+
+.editor-workspace:focus-visible {
+	outline: 3px solid var(--editor-accent);
+	outline-offset: -3px;
+}
+
+.editor-stage {
+	display: block;
+	margin: auto;
+	padding: 24px;
+	box-sizing: content-box;
+}
+
+.crop-dim {
+	fill: rgba(10, 11, 20, 0.6);
+}
+
+.crop-border {
+	stroke: var(--editor-accent);
+}
+
+.crop-move {
+	cursor: move;
+}
+
+.crop-move:focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: 2px;
+}
+
+.crop-handle-visual {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.crop-handle {
+	cursor: pointer;
+}
+
+.crop-handle:focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Sidebar */
+
+.editor-sidebar {
+	background: #fff;
+	border-left: 1px solid #e7e7ed;
+	display: flex;
+	flex-direction: column;
+	overflow: auto;
+	padding: 1rem;
+	width: 280px;
+}
+
+.editor-panel-title {
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 0.75rem;
+}
+
+.editor-panel-grid {
+	display: grid;
+	gap: 0 0.75rem;
+	grid-template-columns: 1fr 1fr;
+}
+
+/* Bottom bar */
+
+.editor-bottom-bar {
+	align-items: center;
+	background: var(--editor-bar-bg);
+	color: #fff;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.5rem;
+	justify-content: space-between;
+	padding: 0.5rem 1rem;
+}
+
+.editor-bar-group {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.editor-ratio-label {
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.editor-ratio-select {
+	background: transparent;
+	border-color: #7d8093;
+	color: #fff;
+	width: auto;
+}
+
+.editor-ratio-select option {
+	color: #272833;
+}
+
+.editor-bar-button,
+.editor-cancel-button {
+	color: #fff;
+	min-height: 24px;
+	min-width: 24px;
+}
+
+.editor-bar-button:hover,
+.editor-cancel-button:hover {
+	color: #d6e3ff;
+}
+
+.editor-bar-button:disabled {
+	color: #9496ab;
+}
+
+.editor-zoom-level {
+	min-width: 3.5rem;
+	text-align: center;
+}
+
+.editor-bottom-bar .btn:focus-visible,
+.editor-ratio-select:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Shortcuts dialog */
+
+.editor-shortcut-list {
+	display: grid;
+	gap: 0.5rem 1rem;
+	grid-template-columns: auto 1fr;
+	margin: 0;
+}
+
+.editor-shortcut-list dd {
+	margin: 0;
+}
+
+/* Small screens / 400% zoom reflow */
+
+@media (max-width: 700px) {
+	.editor-main {
+		flex-direction: column;
+	}
+
+	.editor-sidebar {
+		border-left: 0;
+		border-top: 1px solid #e7e7ed;
+		max-height: 45%;
+		width: 100%;
+	}
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+	}
+}

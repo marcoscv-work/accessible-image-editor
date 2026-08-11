@@ -1,0 +1,139 @@
+import {fireEvent, render, screen} from '@testing-library/react';
+import {axe} from 'jest-axe';
+import {useReducer, useState} from 'react';
+
+import {LoadedImage} from '../imaging/loadImage';
+import {editorReducer, initialHistory} from '../state/editorReducer';
+import {BottomBar} from './BottomBar';
+import {CropPanel} from './CropPanel';
+import {Workspace} from './Workspace';
+
+const IMAGE: LoadedImage = {
+	blob: new Blob(),
+	fileName: 'test.jpg',
+	height: 800,
+	previewUrl: 'test.jpg',
+	type: 'image/jpeg',
+	width: 1200,
+};
+
+/**
+ * The editor content without the ClayModal chrome: jsdom cannot run the
+ * modal's transition lifecycle, so the full-dialog scan happens in the
+ * Playwright suite instead.
+ */
+function EditorHarness() {
+	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
+		initialHistory(IMAGE.width, IMAGE.height)
+	);
+	const [zoom, setZoom] = useState(0.5);
+
+	return (
+		<>
+			<Workspace
+				dispatch={dispatch}
+				image={IMAGE}
+				onAnnounce={() => {}}
+				onZoom={(direction) =>
+					setZoom((current) => current + direction * 0.25)
+				}
+				state={history.present}
+				zoom={zoom}
+			/>
+
+			<CropPanel
+				crop={history.present.crop}
+				dispatch={dispatch}
+				onAnnounce={() => {}}
+			/>
+
+			<BottomBar
+				canRedo={false}
+				canUndo={history.past.length > 0}
+				dispatch={dispatch}
+				onAnnounce={() => {}}
+				onCancel={() => {}}
+				onRedo={() => {}}
+				onSave={() => {}}
+				onUndo={() => {}}
+				onZoom={() => {}}
+				ratio={history.present.ratio}
+				saving={false}
+				zoom={zoom}
+			/>
+		</>
+	);
+}
+
+describe('Editor workspace composition', () => {
+	it('has no axe violations', async () => {
+		const {container} = render(<EditorHarness />);
+
+		expect(await axe(container)).toHaveNoViolations();
+	});
+
+	it('exposes the crop area and all eight handles as labelled buttons', () => {
+		render(<EditorHarness />);
+
+		expect(
+			screen.getByRole('button', {name: 'Crop area'})
+		).toBeInTheDocument();
+
+		for (const name of [
+			'Crop handle: top left corner',
+			'Crop handle: top edge',
+			'Crop handle: top right corner',
+			'Crop handle: right edge',
+			'Crop handle: bottom right corner',
+			'Crop handle: bottom edge',
+			'Crop handle: bottom left corner',
+			'Crop handle: left edge',
+		]) {
+			expect(screen.getByRole('button', {name})).toBeInTheDocument();
+		}
+	});
+
+	it('moves the crop area with the keyboard', () => {
+		render(<EditorHarness />);
+
+		const rightHandle = screen.getByRole('button', {
+			name: 'Crop handle: right edge',
+		});
+
+		fireEvent.keyDown(rightHandle, {key: 'ArrowLeft', shiftKey: true});
+		fireEvent.keyUp(rightHandle, {key: 'ArrowLeft', shiftKey: true});
+
+		const widthInput = screen.getByLabelText('Width') as HTMLInputElement;
+
+		expect(widthInput.value).toBe('1190');
+	});
+
+	it('commits numeric panel edits on Enter and respects aspect lock', () => {
+		render(<EditorHarness />);
+
+		const widthInput = screen.getByLabelText('Width') as HTMLInputElement;
+		const heightInput = screen.getByLabelText(
+			'Height'
+		) as HTMLInputElement;
+
+		fireEvent.click(screen.getByLabelText('Lock aspect ratio'));
+
+		fireEvent.change(widthInput, {target: {value: '600'}});
+		fireEvent.keyDown(widthInput, {key: 'Enter'});
+
+		expect(widthInput.value).toBe('600');
+		expect(heightInput.value).toBe('400');
+	});
+
+	it('zooms with plus and minus while the workspace has focus', () => {
+		render(<EditorHarness />);
+
+		const workspace = screen.getByRole('region', {
+			name: 'Image workspace',
+		});
+
+		fireEvent.keyDown(workspace, {key: '+'});
+
+		expect(screen.getByText('75%')).toBeInTheDocument();
+	});
+});
