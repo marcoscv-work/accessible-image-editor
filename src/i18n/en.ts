@@ -76,7 +76,6 @@ export default {
 	'layer-moved-up': '{0} moved up',
 	'layer-updated': '{0} updated',
 	'layers': 'Layers',
-	'layers-empty': 'No annotations yet.',
 	'load-failed': 'The image could not be opened. Try a different file.',
 	'move-down': 'Move down',
 	'move-up': 'Move up',

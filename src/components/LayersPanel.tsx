@@ -276,6 +276,10 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 		);
 	};
 
+	if (!items.length) {
+		return null;
+	}
+
 	const handleKeyDown = (event: React.KeyboardEvent) => {
 		switch (event.key) {
 			case 'ArrowDown':
@@ -305,78 +309,69 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 				{t('layers')}
 			</h2>
 
-			{!items.length && (
-				<p className="text-secondary">{t('layers-empty')}</p>
-			)}
-
-			{items.length > 0 && (
-				<>
-					<ul
-						aria-activedescendant={
-							selected ? `layer-${selected.id}` : undefined
-						}
-						aria-labelledby="layers-panel-title"
-						className="editor-layer-list"
-						id="layers-listbox"
-						onKeyDown={handleKeyDown}
-						role="listbox"
-						tabIndex={0}
+			<ul
+				aria-activedescendant={
+					selected ? `layer-${selected.id}` : undefined
+				}
+				aria-labelledby="layers-panel-title"
+				className="editor-layer-list"
+				id="layers-listbox"
+				onKeyDown={handleKeyDown}
+				role="listbox"
+				tabIndex={0}
+			>
+				{items.map((overlay) => (
+					<li
+						aria-selected={overlay.id === selected?.id}
+						className="editor-layer-item"
+						id={`layer-${overlay.id}`}
+						key={overlay.id}
+						onClick={() => setSelectedId(overlay.id)}
+						role="option"
 					>
-						{items.map((overlay) => (
-							<li
-								aria-selected={overlay.id === selected?.id}
-								className="editor-layer-item"
-								id={`layer-${overlay.id}`}
-								key={overlay.id}
-								onClick={() => setSelectedId(overlay.id)}
-								role="option"
-							>
-								{overlayLabel(overlay)}
-							</li>
-						))}
-					</ul>
+						{overlayLabel(overlay)}
+					</li>
+				))}
+			</ul>
 
-					<div className="editor-annotate-actions">
-						<ClayButton
-							disabled={!selected || items[0] === selected}
-							displayType="secondary"
-							onClick={() => reorderSelected(-1)}
-							size="xs"
-						>
-							{t('move-up')}
-						</ClayButton>
+			<div className="editor-annotate-actions">
+				<ClayButton
+					disabled={!selected || items[0] === selected}
+					displayType="secondary"
+					onClick={() => reorderSelected(-1)}
+					size="xs"
+				>
+					{t('move-up')}
+				</ClayButton>
 
-						<ClayButton
-							disabled={
-								!selected ||
-								items[items.length - 1] === selected
-							}
-							displayType="secondary"
-							onClick={() => reorderSelected(1)}
-							size="xs"
-						>
-							{t('move-down')}
-						</ClayButton>
+				<ClayButton
+					disabled={
+						!selected || items[items.length - 1] === selected
+					}
+					displayType="secondary"
+					onClick={() => reorderSelected(1)}
+					size="xs"
+				>
+					{t('move-down')}
+				</ClayButton>
 
-						<ClayButton
-							disabled={!selected}
-							displayType="secondary"
-							onClick={removeSelected}
-							size="xs"
-						>
-							{t('delete')}
-						</ClayButton>
-					</div>
+				<ClayButton
+					disabled={!selected}
+					displayType="secondary"
+					onClick={removeSelected}
+					size="xs"
+				>
+					{t('delete')}
+				</ClayButton>
+			</div>
 
-					{selected && (
-						<LayerProperties
-							dispatch={dispatch}
-							key={selected.id}
-							onAnnounce={onAnnounce}
-							overlay={selected}
-						/>
-					)}
-				</>
+			{selected && (
+				<LayerProperties
+					dispatch={dispatch}
+					key={selected.id}
+					onAnnounce={onAnnounce}
+					overlay={selected}
+				/>
 			)}
 		</section>
 	);

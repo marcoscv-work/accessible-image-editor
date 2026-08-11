@@ -167,8 +167,10 @@ describe('Annotations, filters, and layers', () => {
 		expect(await axe(container)).toHaveNoViolations();
 	});
 
-	it('deletes the selected layer with the Delete key', () => {
+	it('deletes the selected layer and hides the empty layers panel', () => {
 		render(<AnnotationHarness />);
+
+		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 
 		fireEvent.click(
 			screen.getByRole('button', {name: 'Add star sticker'})
@@ -178,7 +180,7 @@ describe('Annotations, filters, and layers', () => {
 
 		fireEvent.keyDown(listbox, {key: 'Delete'});
 
-		expect(screen.queryAllByRole('option')).toHaveLength(0);
-		expect(screen.getByText('No annotations yet.')).toBeInTheDocument();
+		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 	});
 });
