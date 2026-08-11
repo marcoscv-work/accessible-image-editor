@@ -244,6 +244,7 @@ export function OverlaysEditable({
 							aria-describedby="overlay-instructions"
 							aria-label={overlayLabel(overlay)}
 							className="overlay-hit"
+							data-overlay-id={overlay.id}
 							fill="transparent"
 							height={bounds.height}
 							onBlur={() => setFocus(null)}

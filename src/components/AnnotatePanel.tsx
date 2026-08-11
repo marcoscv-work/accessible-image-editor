@@ -16,6 +16,24 @@ function nextId(kind: string): string {
 	return `${kind}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
+/**
+ * Move focus to the freshly inserted overlay on the stage, so the user
+ * can adjust it immediately. The delay matters for the text dialog flow:
+ * Clay restores focus to the trigger button when the modal closes, and
+ * this focus must land after that.
+ */
+function focusOverlay(id: string, delay = 0): void {
+	window.setTimeout(() => {
+		window.requestAnimationFrame(() => {
+			const node = document.querySelector<SVGElement>(
+				`[data-overlay-id="${id}"]`
+			);
+
+			(node as unknown as HTMLElement | null)?.focus?.();
+		});
+	}, delay);
+}
+
 interface TextDialogProps {
 	onAdd: (overlay: Omit<TextOverlay, 'x' | 'y'>) => void;
 	onOpenChange: (open: boolean) => void;
@@ -193,11 +211,13 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 	const centerY = Math.round(bounds.height / 2);
 
 	const addRectangle = () => {
+		const id = nextId('shape');
+
 		dispatch({
 			overlay: {
 				color: '#0b5fff',
 				height: Math.round(bounds.height * 0.15),
-				id: nextId('shape'),
+				id,
 				kind: 'shape',
 				width: Math.round(bounds.width * 0.25),
 				x: Math.round(centerX - bounds.width * 0.125),
@@ -207,13 +227,17 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		});
 
 		onAnnounce(t('annotation-added', t('overlay-shape-label')));
+
+		focusOverlay(id);
 	};
 
 	const addSticker = (sticker: StickerKind) => {
+		const id = nextId('sticker');
+
 		dispatch({
 			overlay: {
 				color: STICKER_DEFAULT_COLORS[sticker],
-				id: nextId('sticker'),
+				id,
 				kind: 'sticker',
 				size: Math.round(Math.min(bounds.width, bounds.height) * 0.2),
 				sticker,
@@ -224,6 +248,8 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		});
 
 		onAnnounce(t('annotation-added', t(`sticker-${sticker}`)));
+
+		focusOverlay(id);
 	};
 
 	return (
@@ -296,6 +322,8 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 					onAnnounce(
 						t('annotation-added', t('overlay-text-label', overlay.text))
 					);
+
+					focusOverlay(overlay.id, 450);
 				}}
 				onOpenChange={setTextDialogOpen}
 				open={textDialogOpen}

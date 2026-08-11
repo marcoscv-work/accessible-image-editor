@@ -49,7 +49,11 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// The sticker is a focusable node in the workspace; nudge it right.
 
-	await tabUntil(page, 'Star sticker');
+	// Focus lands on the inserted sticker automatically.
+
+	await expect(
+		page.locator('.editor-workspace .overlay-hit')
+	).toBeFocused();
 
 	await page.keyboard.press('Shift+ArrowRight');
 
@@ -82,16 +86,15 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// Layers: two entries, topmost first; delete the selected one.
 
-	await tabUntil(page, 'layers-listbox');
+	const layerNames = page.locator('.editor-layer-name');
 
-	const options = page.locator('#layers-listbox').getByRole('option');
+	await expect(layerNames).toHaveCount(2);
+	await expect(layerNames.first()).toHaveText('Text: Hello');
 
-	await expect(options).toHaveCount(2);
-	await expect(options.first()).toHaveText('Text: Hello');
-
+	await tabUntil(page, 'Text: Hello');
 	await page.keyboard.press('Delete');
 
-	await expect(options).toHaveCount(1);
+	await expect(layerNames).toHaveCount(1);
 	await expect(status).toContainText('Text: Hello removed');
 
 	// Everything still passes an axe scan.
