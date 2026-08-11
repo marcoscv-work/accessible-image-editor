@@ -1,0 +1,43 @@
+{
+	"name": "accessible-image-editor-poc",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc --noEmit && vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:e2e": "playwright test",
+		"generate:images": "node scripts/generate-images.mjs"
+	},
+	"dependencies": {
+		"@clayui/button": "^3.166.0",
+		"@clayui/css": "^3.166.0",
+		"@clayui/form": "^3.166.0",
+		"@clayui/icon": "^3.166.0",
+		"@clayui/modal": "^3.166.0",
+		"@clayui/slider": "^3.166.0",
+		"@clayui/tabs": "^3.166.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1"
+	},
+	"devDependencies": {
+		"@axe-core/playwright": "^4.13.0",
+		"@playwright/test": "^1.62.1",
+		"@testing-library/jest-dom": "^7.0.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.3",
+		"@types/jest-axe": "^3.5.9",
+		"@types/node": "^26.2.0",
+		"@types/react": "^18.3.31",
+		"@types/react-dom": "^18.3.7",
+		"@vitejs/plugin-react": "^6.0.5",
+		"jest-axe": "^11.0.0",
+		"jsdom": "^30.0.1",
+		"typescript": "^7.0.2",
+		"vite": "^8.2.1",
+		"vitest": "^4.1.10"
+	}
+}
