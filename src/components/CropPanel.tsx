@@ -69,6 +69,15 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 			}
 		}
 
+		if (
+			next.height === crop.height &&
+			next.width === crop.width &&
+			next.x === crop.x &&
+			next.y === crop.y
+		) {
+			return;
+		}
+
 		dispatch({crop: next, type: 'set-crop'});
 
 		onAnnounce(

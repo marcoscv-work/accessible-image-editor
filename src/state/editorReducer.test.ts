@@ -115,6 +115,26 @@ describe('editorReducer', () => {
 		expect(state.present.crop.width).toBe(WIDTH);
 	});
 
+	it('ignores no-op commits so blurs never pollute the history', () => {
+		let state = editorReducer(history(), {
+			crop: {height: 500, width: 800, x: 0, y: 0},
+			type: 'set-crop',
+		});
+
+		state = editorReducer(state, {
+			crop: {height: 500, width: 800, x: 0, y: 0},
+			type: 'set-crop',
+		});
+
+		state = editorReducer(state, {
+			key: 'brightness',
+			type: 'set-adjustment',
+			value: 0,
+		});
+
+		expect(state.past).toHaveLength(1);
+	});
+
 	it('reverts an uncommitted gesture on undo', () => {
 		let state = editorReducer(history(), {
 			crop: {height: 500, width: 500, x: 40, y: 0},

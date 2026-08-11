@@ -151,6 +151,15 @@ function applyEdit(
 	};
 }
 
+function cropsEqual(a: CropRect, b: CropRect): boolean {
+	return (
+		a.height === b.height &&
+		a.width === b.width &&
+		a.x === b.x &&
+		a.y === b.y
+	);
+}
+
 export function editorReducer(
 	history: EditorHistory,
 	action: EditorAction
@@ -159,12 +168,28 @@ export function editorReducer(
 
 	switch (action.type) {
 		case 'set-crop': {
+			const crop = clampCrop(action.crop, present);
+
+			// A non-transient set-crop outside a gesture that changes
+			// nothing (e.g. a field blur re-committing the same value)
+			// must not create a history entry.
+
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				cropsEqual(crop, present.crop)
+			) {
+				return history;
+			}
+
 			return applyEdit(
 				history,
 				{
 					...present,
-					crop: clampCrop(action.crop, present),
-					ratio: 'custom',
+					crop,
+					ratio: cropsEqual(crop, present.crop)
+						? present.ratio
+						: 'custom',
 				},
 				t('label-crop'),
 				action.transient
@@ -221,6 +246,14 @@ export function editorReducer(
 		}
 
 		case 'set-adjustment': {
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				present.adjustments[action.key] === action.value
+			) {
+				return history;
+			}
+
 			return applyEdit(
 				history,
 				{

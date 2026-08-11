@@ -36,6 +36,14 @@ async function expectNoAxeViolations(page: Page): Promise<void> {
 	expect(results.violations).toEqual([]);
 }
 
+/**
+ * Clay's modal fades in; interacting (or scanning colors) mid-transition
+ * hits a half-animated UI, so wait until the fade has fully settled.
+ */
+async function waitForModalSettled(page: Page): Promise<void> {
+	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
+}
+
 test('keyboard-only crop journey', async ({page}) => {
 	await page.goto('/');
 
@@ -57,6 +65,8 @@ test('keyboard-only crop journey', async ({page}) => {
 	await expect(
 		dialog.getByText('Editing Image', {exact: true})
 	).toBeVisible();
+
+	await waitForModalSettled(page);
 
 	await expectNoAxeViolations(page);
 
@@ -85,14 +95,16 @@ test('keyboard-only crop journey', async ({page}) => {
 
 	await expect(widthInput).toHaveValue('800');
 
-	// Ratio preset from the select, keyboard only.
+	// Ratio preset from the select, keyboard only (letter typeahead).
 
 	await tabUntil(page, 'crop-ratio-select');
-	await page.getByLabel('Ratio:').press('ArrowDown');
+	await page.getByLabel('Ratio:').press('o');
 
-	await expect(page.getByLabel('Ratio:')).not.toHaveValue('custom');
+	await expect(page.getByLabel('Ratio:')).toHaveValue('original');
+	await expect(widthInput).toHaveValue('1600');
 
-	// Undo everything back to the initial crop.
+	// Undo everything back to the initial crop. Each discrete arrow press
+	// was its own undoable step, so the three 10px nudges undo one by one.
 
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(widthInput).toHaveValue('800');
@@ -100,13 +112,15 @@ test('keyboard-only crop journey', async ({page}) => {
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(widthInput).toHaveValue('1570');
 
-	await page.keyboard.press('ControlOrMeta+z');
-	await expect(widthInput).toHaveValue('1600');
+	for (const width of ['1580', '1590', '1600']) {
+		await page.keyboard.press('ControlOrMeta+z');
+		await expect(widthInput).toHaveValue(width);
+	}
 
 	// Redo one step.
 
 	await page.keyboard.press('ControlOrMeta+Shift+z');
-	await expect(widthInput).toHaveValue('1570');
+	await expect(widthInput).toHaveValue('1590');
 
 	// Zoom from the workspace with the keyboard and hear the result.
 
@@ -141,6 +155,8 @@ test('escape cancels the editor and restores focus', async ({page}) => {
 	await page.keyboard.press('Enter');
 
 	await expect(page.getByRole('dialog')).toBeVisible();
+
+	await waitForModalSettled(page);
 
 	await page.keyboard.press('Escape');
 
