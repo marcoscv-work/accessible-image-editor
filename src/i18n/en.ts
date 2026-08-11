@@ -108,10 +108,12 @@ export default {
 	'size': 'Size',
 	'save-failed': 'Saving failed. Please try again.',
 	'shadows': 'Shadows',
+	'shortcut-alt-drag': 'Resize the crop from its center while dragging',
 	'shortcut-arrows': 'Move the focused crop control by 1 pixel',
 	'shortcut-escape': 'Close the editor or the open dialog',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move the focused crop control by 10 pixels',
+	'shortcut-shift-drag': 'Keep the crop proportions while dragging',
 	'shortcut-undo': 'Undo the last change',
 	'shortcut-zoom': 'Zoom in and out while the workspace has focus',
 	'shortcut-zoom-fit':

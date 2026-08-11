@@ -6,6 +6,8 @@ import {t} from '../i18n';
 const SHORTCUTS: Array<{descriptionKey: string; keys: string}> = [
 	{descriptionKey: 'shortcut-arrows', keys: 'Arrow keys'},
 	{descriptionKey: 'shortcut-shift-arrows', keys: 'Shift + Arrow keys'},
+	{descriptionKey: 'shortcut-shift-drag', keys: 'Shift + drag'},
+	{descriptionKey: 'shortcut-alt-drag', keys: 'Alt + drag'},
 	{descriptionKey: 'shortcut-zoom', keys: '+ / -'},
 	{descriptionKey: 'shortcut-zoom-fit', keys: '0'},
 	{descriptionKey: 'shortcut-undo', keys: 'Ctrl/Cmd + Z'},

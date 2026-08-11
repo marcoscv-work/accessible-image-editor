@@ -98,6 +98,72 @@ function arrowDelta(key: string): [number, number] | null {
 	}
 }
 
+/**
+ * Drawing-tool drag modifiers: Shift keeps the proportions of the crop
+ * the gesture started from, Alt resizes around its center. Without
+ * modifiers the base rectangle passes through untouched. Exported for
+ * unit testing.
+ */
+export function applyResizeModifiers(
+	base: CropRect,
+	origin: CropRect,
+	edges: Edges,
+	options: {center: boolean; proportional: boolean}
+): CropRect {
+	const isResize = !!(edges.bottom || edges.left || edges.right || edges.top);
+
+	if (!isResize || (!options.center && !options.proportional)) {
+		return base;
+	}
+
+	let {height, width} = base;
+
+	if (options.center) {
+		width = origin.width + 2 * (base.width - origin.width);
+		height = origin.height + 2 * (base.height - origin.height);
+	}
+
+	if (options.proportional) {
+		const scaleX = width / origin.width;
+		const scaleY = height / origin.height;
+
+		const horizontal = !!(edges.left || edges.right);
+		const vertical = !!(edges.bottom || edges.top);
+
+		const scale =
+			horizontal && vertical
+				? Math.max(Math.abs(scaleX), Math.abs(scaleY))
+				: horizontal
+					? Math.abs(scaleX)
+					: Math.abs(scaleY);
+
+		width = origin.width * scale;
+		height = origin.height * scale;
+	}
+
+	let x;
+	let y;
+
+	if (options.center) {
+		x = origin.x + origin.width / 2 - width / 2;
+		y = origin.y + origin.height / 2 - height / 2;
+	}
+	else {
+		x = edges.left
+			? origin.x + origin.width - width
+			: edges.right
+				? origin.x
+				: origin.x + origin.width / 2 - width / 2;
+		y = edges.top
+			? origin.y + origin.height - height
+			: edges.bottom
+				? origin.y
+				: origin.y + origin.height / 2 - height / 2;
+	}
+
+	return {height, width, x, y};
+}
+
 interface Props {
 
 	/**
@@ -218,13 +284,18 @@ export function CropMarquee({
 				return;
 			}
 
+			const base = adjustCrop(
+				gesture.crop,
+				edges,
+				(event.clientX - gesture.startX) / zoom,
+				(event.clientY - gesture.startY) / zoom
+			);
+
 			dispatch({
-				crop: adjustCrop(
-					gesture.crop,
-					edges,
-					(event.clientX - gesture.startX) / zoom,
-					(event.clientY - gesture.startY) / zoom
-				),
+				crop: applyResizeModifiers(base, gesture.crop, edges, {
+					center: event.altKey,
+					proportional: event.shiftKey,
+				}),
 				transient: true,
 				type: 'set-crop',
 			});
