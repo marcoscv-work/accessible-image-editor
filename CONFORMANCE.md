@@ -33,7 +33,7 @@ Legend: **Pass** â€” implemented and verified by tests/inspection. **Pass\*** â€
 | 2.4.4 Link Purpose | A | N/A | No links. |
 | 2.4.5 Multiple Ways | AA | N/A | Single-page tool. |
 | 2.4.6 Headings and Labels | AA | Pass | Panel headings (Crop, Adjustments, Filters, Annotate, Layers) and explicit labels everywhere. |
-| 2.4.7 Focus Visible | AA | Pass | Always-visible custom outlines, including on SVG nodes (crop handles, annotations) against the dark workspace. |
+| 2.4.7 Focus Visible | AA | Pass | Clay-style double focus rings (white inner + accent outer). Stage nodes (crop area, handles, annotations) draw them as real SVG geometry because browsers do not reliably paint CSS outlines on SVG children; the two-tone pair stays evident over any image content. |
 | 2.5.1 Pointer Gestures | A | Pass | All pointer interaction is single-pointer dragging with full keyboard equivalents. |
 | 2.5.2 Pointer Cancellation | A | Pass | Gestures commit on pointer-up; pointer-down only captures. |
 | 2.5.3 Label in Name | A | Pass | Visible text is contained in accessible names. |
@@ -56,4 +56,4 @@ Legend: **Pass** â€” implemented and verified by tests/inspection. **Pass\*** â€
 - Run the manual VoiceOver script ([VOICEOVER.md](VOICEOVER.md)), then NVDA and JAWS passes, and clear the Pass\* entries.
 - Add an automated 320px-wide / 400%-zoom Playwright viewport test for 1.4.10.
 - The crop widget exposes 9 tab stops (area + 8 handles). Reachable and operable today; a product refinement could make it a single composite stop with roving focus to shorten the tab sequence.
-- Verify SVG `outline` focus rendering on Firefox and Safari (Chromium verified).
+- Verify SVG filter and focus-ring rendering on Firefox and Safari (Chromium verified; the rings are plain SVG geometry, so no outline-support differences apply).

@@ -11,6 +11,7 @@ The editor is **parametric and declarative**:
 - Every operation is serializable data: a crop is `{x, y, width, height}`, brightness is a number, a text overlay is an object. The whole session is one JSON-friendly `EditState` managed by a pure reducer with an undo/redo history.
 - The preview is **SVG in the DOM**, not canvas: the raster image is an `<image>` element, color adjustments are declarative SVG filter primitives (`feComponentTransfer`, `feColorMatrix`), and every annotation is a real, focusable, labelled DOM node.
 - The export serializes **the same SVG** at full resolution and rasterizes it offscreen; a canvas exists only as the final encoder, invisible to the user and absent from the accessibility tree. Preview and export share the same components (`FilterDefs`, `rotationTransform`, `OverlayShape`), so what you see is what you save by construction.
+- Focus on the stage (crop area, handles, annotations) is a **Clay-style double ring** (white inner + accent outer) drawn as real SVG geometry, because browsers do not reliably paint CSS outlines on SVG children.
 - The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps 20MP images responsive.
 
 ## Run

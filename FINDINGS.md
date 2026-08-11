@@ -36,6 +36,8 @@ The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original fi
 4. **Clay custom-radio with tall labels.** The radio ring/dot pseudo-elements assume single-line text labels; 40px thumbnail labels misaligned the checked indicator. Fix: recenter via `top` only — Atlas drives `transform` on the dot for its check animation, so overriding transform breaks it. Cost a debugging round.
 5. **SVG-in-image secure mode.** An SVG rasterized through `<img>` cannot load `blob:` subresources; the export must inline the bitmap as a data URL. Known platform behavior, but it is the kind of pitfall a product team should have written down (now it is).
 6. **Cross-platform keyboard behavior.** On macOS, ArrowDown on a closed `<select>` opens the native picker instead of changing the value; the journey uses letter typeahead. AT/OS interaction matrices need explicit test strategy, not assumptions.
+7. **CSS outlines do not paint on SVG children.** The first focus-indicator attempt (CSS `outline` on the stage nodes) silently rendered nothing in Chromium. The fix: focus rings as real SVG geometry (`FocusRing`, a Clay-style white inner + accent outer pair with zoom-compensated thickness), driven by React focus state. Anything interactive inside the SVG stage must own its focus visuals.
+8. **Stacking order is an interaction contract.** The whole-area crop-move surface initially sat above the annotations and swallowed their pointer events (keyboard worked, dragging did not: a bug an all-keyboard test suite cannot see). Pointer-parity e2e coverage was added alongside the fix.
 
 ## Risks and open items at product scale
 
