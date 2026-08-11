@@ -125,6 +125,22 @@
 	stroke: var(--editor-accent);
 }
 
+/* On-stage manipulation handles (pointer-only affordance). */
+
+.object-handle {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.object-handle-rotate {
+	cursor: grab;
+}
+
+.object-rotate-stick {
+	pointer-events: none;
+	stroke: var(--editor-accent);
+}
+
 /* Sidebar */
 
 .editor-sidebar {
@@ -334,11 +350,13 @@
 
 .editor-layer-item {
 	align-items: center;
+	background: #fff;
 	display: flex;
+	position: relative;
 }
 
 .editor-layer-item-selected {
-	background: #0b5fff;
+	background: var(--primary, #0b5fff);
 }
 
 .editor-layer-item-selected .editor-layer-actions .btn,
@@ -358,16 +376,22 @@
 }
 
 /*
- * Per-row actions reveal on hover or keyboard focus. They stay in the
- * tab order while hidden (opacity only), and :focus-within makes them
- * visible the moment focus reaches them.
+ * Per-row actions reveal on hover or keyboard focus. They overlay the
+ * right edge of the row (no reserved width, so the layer name is never
+ * truncated by hidden controls) with the row background inherited to
+ * cover the text underneath; they stay in the tab order while hidden.
  */
 
 .editor-layer-actions {
 	align-items: center;
+	background: inherit;
+	bottom: 0;
 	display: flex;
 	opacity: 0;
-	padding-right: 0.25rem;
+	padding: 0 0.25rem;
+	position: absolute;
+	right: 0;
+	top: 0;
 }
 
 .editor-layer-item:focus-within .editor-layer-actions,

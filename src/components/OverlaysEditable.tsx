@@ -31,6 +31,46 @@ function arrowDelta(key: string): [number, number] | null {
 	}
 }
 
+/**
+ * Rotates a client-space delta into the overlay's local axes, for the
+ * on-stage manipulation gestures that operate inside the rotated group.
+ */
+function toLocalDelta(
+	dx: number,
+	dy: number,
+	rotation: number
+): [number, number] {
+	if (!rotation) {
+		return [dx, dy];
+	}
+
+	const radians = (rotation * Math.PI) / 180;
+
+	const cos = Math.cos(radians);
+	const sin = Math.sin(radians);
+
+	return [dx * cos + dy * sin, -dx * sin + dy * cos];
+}
+
+const RESIZE_CORNERS = [
+	{cursor: 'nwse-resize', name: 'nw', x: 0, y: 0},
+	{cursor: 'nesw-resize', name: 'ne', x: 1, y: 0},
+	{cursor: 'nwse-resize', name: 'se', x: 1, y: 1},
+	{cursor: 'nesw-resize', name: 'sw', x: 0, y: 1},
+];
+
+interface ManipGesture {
+	centerX: number;
+	centerY: number;
+	id: string;
+	kind: 'resize' | 'rotate';
+	overlay: Overlay;
+	startAngle: number;
+	startDistance: number;
+	startX: number;
+	startY: number;
+}
+
 interface Props {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
@@ -71,6 +111,8 @@ export function OverlaysEditable({
 		x: number;
 		y: number;
 	} | null>(null);
+
+	const manipGesture = useRef<ManipGesture | null>(null);
 
 	const current = (id: string) =>
 		overlaysRef.current.find((overlay) => overlay.id === id);
@@ -249,6 +291,190 @@ export function OverlaysEditable({
 		}
 	};
 
+	const startManipulation =
+		(
+			overlay: Overlay,
+			kind: 'resize' | 'rotate',
+			handleX: number,
+			handleY: number
+		) =>
+		(event: React.PointerEvent<SVGElement>) => {
+			event.stopPropagation();
+
+			event.currentTarget.setPointerCapture?.(event.pointerId);
+
+			onSelect(overlay.id);
+
+			const bounds = overlayBounds(overlay);
+
+			const centerX = bounds.x + bounds.width / 2;
+			const centerY = bounds.y + bounds.height / 2;
+
+			manipGesture.current = {
+				centerX,
+				centerY,
+				id: overlay.id,
+				kind,
+				overlay,
+				startAngle: Math.atan2(handleY - centerY, handleX - centerX),
+				startDistance: Math.hypot(
+					handleX - centerX,
+					handleY - centerY
+				),
+				startX: event.clientX,
+				startY: event.clientY,
+			};
+		};
+
+	const handleManipulationMove = (
+		event: React.PointerEvent<SVGElement>
+	) => {
+		const gesture = manipGesture.current;
+
+		if (!gesture) {
+			return;
+		}
+
+		const {centerX, centerY, overlay} = gesture;
+
+		// Pointer position in the overlay's local frame: the handle's
+		// start position plus the counter-rotated client delta.
+
+		const [dx, dy] = toLocalDelta(
+			(event.clientX - gesture.startX) / zoom,
+			(event.clientY - gesture.startY) / zoom,
+			overlay.rotation ?? 0
+		);
+
+		const pointX =
+			centerX +
+			gesture.startDistance * Math.cos(gesture.startAngle) +
+			dx;
+		const pointY =
+			centerY +
+			gesture.startDistance * Math.sin(gesture.startAngle) +
+			dy;
+
+		if (gesture.kind === 'rotate') {
+			const degrees =
+				(overlay.rotation ?? 0) +
+				((Math.atan2(pointY - centerY, pointX - centerX) -
+					gesture.startAngle) *
+					180) /
+					Math.PI;
+
+			let rotation = Math.round(((degrees % 360) + 360) % 360);
+
+			if (event.shiftKey) {
+				rotation = (Math.round(rotation / 15) * 15) % 360;
+			}
+
+			dispatch({
+				id: gesture.id,
+				patch: {rotation},
+				transient: true,
+				type: 'update-overlay',
+			});
+
+			return;
+		}
+
+		// Resize: proportional by default, anchored at the center, which
+		// keeps the geometry stable under rotation. Shift resizes a
+		// rectangle's sides freely.
+
+		const scale = Math.max(
+			Math.hypot(pointX - centerX, pointY - centerY) /
+				gesture.startDistance,
+			0.05
+		);
+
+		if (overlay.kind === 'sticker') {
+			dispatch({
+				id: gesture.id,
+				patch: {size: Math.max(Math.round(overlay.size * scale), 8)},
+				transient: true,
+				type: 'update-overlay',
+			});
+		}
+		else if (overlay.kind === 'text') {
+			const fontSize = Math.max(Math.round(overlay.fontSize * scale), 8);
+
+			// Keep the estimated text box centered while it scales.
+
+			dispatch({
+				id: gesture.id,
+				patch: {
+					fontSize,
+					x:
+						centerX -
+						Math.max(
+							overlay.text.length * fontSize * 0.6,
+							fontSize
+						) /
+							2,
+					y: centerY + 0.4 * fontSize,
+				},
+				transient: true,
+				type: 'update-overlay',
+			});
+		}
+		else if (overlay.kind === 'shape') {
+			let width;
+			let height;
+
+			if (event.shiftKey) {
+				width = Math.max(Math.abs(pointX - centerX) * 2, 8);
+				height = Math.max(Math.abs(pointY - centerY) * 2, 8);
+			}
+			else {
+				width = Math.max(overlay.width * scale, 8);
+				height = Math.max(overlay.height * scale, 8);
+			}
+
+			dispatch({
+				id: gesture.id,
+				patch: {
+					height: Math.round(height),
+					width: Math.round(width),
+					x: Math.round(centerX - width / 2),
+					y: Math.round(centerY - height / 2),
+				},
+				transient: true,
+				type: 'update-overlay',
+			});
+		}
+	};
+
+	const handleManipulationUp = () => {
+		const gesture = manipGesture.current;
+
+		if (!gesture) {
+			return;
+		}
+
+		manipGesture.current = null;
+
+		const overlay = current(gesture.id);
+
+		if (overlay) {
+
+			// Commit the whole gesture as one undo step.
+
+			dispatch({
+				id: gesture.id,
+				patch: {
+					rotation: overlay.rotation,
+					x: overlay.x,
+					y: overlay.y,
+				},
+				type: 'update-overlay',
+			});
+
+			onAnnounce(t('layer-updated', overlayLabel(overlay)));
+		}
+	};
+
 	return (
 		<g>
 			<desc id="overlay-instructions">{t('overlay-instructions')}</desc>
@@ -310,6 +536,67 @@ export function OverlaysEditable({
 							x={bounds.x}
 							y={bounds.y}
 						/>
+
+						{(selectedId === overlay.id ||
+							focus?.id === overlay.id) && (
+							<g aria-hidden="true" className="object-handles">
+								{RESIZE_CORNERS.map((corner) => {
+									const handleX =
+										bounds.x + corner.x * bounds.width;
+									const handleY =
+										bounds.y + corner.y * bounds.height;
+									const size = 10 / zoom;
+
+									return (
+										<rect
+											className="object-handle"
+											height={size}
+											key={corner.name}
+											onPointerDown={startManipulation(
+												overlay,
+												'resize',
+												handleX,
+												handleY
+											)}
+											onPointerMove={
+												handleManipulationMove
+											}
+											onPointerUp={handleManipulationUp}
+											strokeWidth={1.5 / zoom}
+											style={{cursor: corner.cursor}}
+											width={size}
+											x={handleX - size / 2}
+											y={handleY - size / 2}
+										/>
+									);
+								})}
+
+								<line
+									className="object-rotate-stick"
+									strokeWidth={1.5 / zoom}
+									x1={bounds.x + bounds.width / 2}
+									x2={bounds.x + bounds.width / 2}
+									y1={bounds.y}
+									y2={bounds.y - 24 / zoom}
+								/>
+
+								<circle
+									className="object-handle object-handle-rotate"
+									cx={bounds.x + bounds.width / 2}
+									cy={bounds.y - 24 / zoom}
+									onPointerDown={startManipulation(
+										overlay,
+										'rotate',
+										bounds.x + bounds.width / 2,
+										bounds.y - 24 / zoom
+									)}
+									onPointerMove={handleManipulationMove}
+									onPointerUp={handleManipulationUp}
+									r={6 / zoom}
+									strokeWidth={1.5 / zoom}
+								/>
+							</g>
+						)}
 					</g>
 				);
 			})}

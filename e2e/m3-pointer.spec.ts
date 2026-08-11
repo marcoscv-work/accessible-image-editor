@@ -66,4 +66,66 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await expect(
 		page.locator('.editor-workspace rect[fill="#00ff00"]')
 	).toHaveAttribute('width', '500');
+
+	// On-stage manipulation: dragging a corner handle resizes
+	// proportionally around the center. Re-select the rectangle first
+	// (the earlier crop drag cleared the selection).
+
+	await page.locator('.editor-layer-name').first().click();
+	await expect(page.locator('.object-handle').first()).toBeVisible();
+
+	const widthBefore = Number(
+		await page.locator('#layer-prop-width').inputValue()
+	);
+	const heightBefore = Number(
+		await page.locator('#layer-prop-height').inputValue()
+	);
+
+	const seHandle = page.locator('.object-handle').nth(2);
+	const seBox = (await seHandle.boundingBox())!;
+
+	await page.mouse.move(
+		seBox.x + seBox.width / 2,
+		seBox.y + seBox.height / 2
+	);
+	await page.mouse.down();
+	await page.mouse.move(seBox.x + seBox.width / 2 + 60, seBox.y + seBox.height / 2 + 60, {
+		steps: 4,
+	});
+	await page.mouse.up();
+
+	const widthAfter = Number(
+		await page.locator('#layer-prop-width').inputValue()
+	);
+	const heightAfter = Number(
+		await page.locator('#layer-prop-height').inputValue()
+	);
+
+	expect(widthAfter).toBeGreaterThan(widthBefore);
+
+	// Proportional: both sides scaled by the same factor (within
+	// rounding).
+
+	expect(
+		Math.abs(widthAfter / widthBefore - heightAfter / heightBefore)
+	).toBeLessThan(0.05);
+
+	// The rotate handle spins the annotation.
+
+	const rotateHandle = page.locator('.object-handle-rotate');
+	const rotateBox = (await rotateHandle.boundingBox())!;
+
+	await page.mouse.move(
+		rotateBox.x + rotateBox.width / 2,
+		rotateBox.y + rotateBox.height / 2
+	);
+	await page.mouse.down();
+	await page.mouse.move(rotateBox.x + 120, rotateBox.y + 90, {steps: 4});
+	await page.mouse.up();
+
+	const rotation = Number(
+		await page.locator('#layer-prop-rotation').inputValue()
+	);
+
+	expect(rotation).not.toBe(0);
 });

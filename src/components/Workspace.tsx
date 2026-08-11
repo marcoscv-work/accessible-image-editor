@@ -78,7 +78,11 @@ export function Workspace({
 				// Clicking anything that is not an annotation clears the
 				// visual selection, drawing-tool style.
 
-				if (!(event.target as Element).closest('.overlay-hit')) {
+				if (
+					!(event.target as Element).closest(
+						'.overlay-hit, .object-handles'
+					)
+				) {
 					onSelectOverlay(null);
 				}
 			}}
