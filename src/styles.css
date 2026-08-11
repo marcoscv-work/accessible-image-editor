@@ -55,10 +55,17 @@
 }
 
 .editor-stage {
+	box-sizing: content-box;
 	display: block;
 	margin: auto;
+
+	/*
+	 * Edge handles and their focus rings extend past the image bounds;
+	 * without visible overflow the SVG viewport clips them. The padding
+	 * reserves the room they paint into.
+	 */
+	overflow: visible;
 	padding: 24px;
-	box-sizing: content-box;
 }
 
 .crop-dim {
