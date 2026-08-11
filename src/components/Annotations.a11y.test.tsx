@@ -71,13 +71,17 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds a sticker as a focusable, keyboard-movable SVG node', () => {
-		render(<AnnotationHarness />);
+		const {container} = render(<AnnotationHarness />);
 
 		fireEvent.click(
 			screen.getByRole('button', {name: 'Add star sticker'})
 		);
 
-		const sticker = screen.getByRole('button', {name: 'Star sticker'});
+		const sticker = container.querySelector(
+			'.overlay-hit'
+		) as SVGRectElement;
+
+		expect(sticker).toHaveAttribute('aria-label', 'Star sticker');
 
 		const initialX = Number(sticker.getAttribute('x'));
 
@@ -110,20 +114,20 @@ describe('Annotations, filters, and layers', () => {
 		);
 		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
 
-		const options = screen.getAllByRole('option');
+		const layerNames = () =>
+			[...document.querySelectorAll('.editor-layer-name')].map(
+				(node) => node.textContent
+			);
 
-		expect(options.map((option) => option.textContent)).toEqual([
-			'Rectangle',
-			'Star sticker',
-		]);
+		expect(layerNames()).toEqual(['Rectangle', 'Star sticker']);
 
-		// The topmost layer is selected by default; move it down.
+		// Per-row action: move the topmost layer down.
 
-		fireEvent.click(screen.getByRole('button', {name: 'Move down'}));
+		fireEvent.click(
+			screen.getByRole('button', {name: 'Move Rectangle down'})
+		);
 
-		expect(
-			screen.getAllByRole('option').map((option) => option.textContent)
-		).toEqual(['Star sticker', 'Rectangle']);
+		expect(layerNames()).toEqual(['Star sticker', 'Rectangle']);
 	});
 
 	it('edits the selected layer properties from the layers panel', () => {
@@ -191,20 +195,24 @@ describe('Annotations, filters, and layers', () => {
 		expect(await axe(container)).toHaveNoViolations();
 	});
 
-	it('deletes the selected layer and hides the empty layers panel', () => {
+	it('deletes a layer from its row and hides the empty panel', () => {
 		render(<AnnotationHarness />);
 
-		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 
 		fireEvent.click(
 			screen.getByRole('button', {name: 'Add star sticker'})
 		);
 
-		const listbox = screen.getByRole('listbox');
+		expect(screen.getByText('Layers')).toBeInTheDocument();
 
-		fireEvent.keyDown(listbox, {key: 'Delete'});
+		// Delete on the layer's name button removes the layer.
 
-		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+		fireEvent.keyDown(
+			screen.getByRole('button', {name: 'Star sticker', pressed: true}),
+			{key: 'Delete'}
+		);
+
 		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 	});
 });

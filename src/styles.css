@@ -290,8 +290,8 @@
 }
 
 .editor-color-input {
-	height: 2.375rem;
-	padding: 0.25rem;
+	height: 1.9375rem;
+	padding: 0.125rem 0.25rem;
 	width: 100%;
 }
 
@@ -300,26 +300,53 @@
 .editor-layer-list {
 	border: 1px solid #e7e7ed;
 	border-radius: 4px;
-	list-style: none;
 	margin: 0 0 0.75rem;
-	max-height: 10rem;
+	max-height: 12rem;
 	overflow: auto;
 	padding: 0;
 }
 
-.editor-layer-list:focus-visible {
-	outline: 2px solid #0b5fff;
-	outline-offset: 2px;
-}
-
 .editor-layer-item {
-	cursor: default;
-	padding: 0.375rem 0.75rem;
+	align-items: center;
+	display: flex;
 }
 
-.editor-layer-item[aria-selected='true'] {
+.editor-layer-item-selected {
 	background: #0b5fff;
+}
+
+.editor-layer-item-selected .editor-layer-actions .btn,
+.editor-layer-item-selected .editor-layer-name {
 	color: #fff;
+}
+
+.editor-layer-name {
+	background: none;
+	border: 0;
+	flex: 1;
+	overflow: hidden;
+	padding: 0.375rem 0.75rem;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/*
+ * Per-row actions reveal on hover or keyboard focus. They stay in the
+ * tab order while hidden (opacity only), and :focus-within makes them
+ * visible the moment focus reaches them.
+ */
+
+.editor-layer-actions {
+	align-items: center;
+	display: flex;
+	opacity: 0;
+	padding-right: 0.25rem;
+}
+
+.editor-layer-item:focus-within .editor-layer-actions,
+.editor-layer-item:hover .editor-layer-actions {
+	opacity: 1;
 }
 
 .editor-layer-properties {

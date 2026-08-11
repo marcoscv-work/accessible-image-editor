@@ -21,7 +21,9 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 
 	// Drag the rectangle 60px right, 40px down.
 
-	const hit = page.getByRole('button', {exact: true, name: 'Rectangle'});
+	const hit = page
+		.locator('.editor-workspace')
+		.getByRole('button', {exact: true, name: 'Rectangle'});
 	const box = (await hit.boundingBox())!;
 
 	const startX = box.x + box.width / 2;

@@ -106,6 +106,7 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 						<ClayInput
 							id={`crop-${field}`}
 							min={0}
+							sizing="sm"
 							onBlur={() => commit(field)}
 							onChange={(event) =>
 								setDrafts((previous) => ({

@@ -1,4 +1,4 @@
-import ClayButton from '@clayui/button';
+import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
 import React, {useEffect, useRef, useState} from 'react';
 
@@ -48,6 +48,7 @@ function NumberField({
 			id={id}
 			max={max}
 			min={min}
+			sizing="sm"
 			onBlur={commit}
 			onChange={(event) => setDraft(event.target.value)}
 			onKeyDown={(event: React.KeyboardEvent) => {
@@ -66,8 +67,8 @@ function NumberField({
 			<label htmlFor={id}>{label}</label>
 
 			{suffix ? (
-				<ClayInput.Group>
-					<ClayInput.GroupItem>{input}</ClayInput.GroupItem>
+				<ClayInput.Group small>
+					<ClayInput.GroupItem prepend>{input}</ClayInput.GroupItem>
 
 					<ClayInput.GroupItem append shrink>
 						<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
@@ -108,6 +109,7 @@ function TextField({
 				id={id}
 				onBlur={commit}
 				onChange={(event) => setDraft(event.target.value)}
+				sizing="sm"
 				onKeyDown={(event: React.KeyboardEvent) => {
 					if (event.key === 'Enter') {
 						event.preventDefault();
@@ -169,7 +171,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					</label>
 
 					<input
-						className="editor-color-input form-control"
+						className="editor-color-input form-control form-control-sm"
 						id="layer-prop-color"
 						onBlur={() => {
 							if (colorGesture.current) {
@@ -262,10 +264,11 @@ interface Props {
 }
 
 /**
- * Layer management as a single-select listbox: arrow keys move the
- * selection, Delete removes the selected layer, and the buttons reorder
- * it. Layers are listed topmost first; the overlays array is painted
- * bottom to top. The selected layer's properties are editable below.
+ * Layer management: one row per layer, topmost first (the overlays array
+ * is painted bottom to top). The row's name button selects the layer for
+ * the properties editor below; per-row icon actions (reorder, delete)
+ * reveal on hover or keyboard focus and carry the layer name in their
+ * accessible names. The panel disappears while there are no annotations.
  */
 export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -275,79 +278,34 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 	const selected =
 		items.find((overlay) => overlay.id === selectedId) ?? items[0] ?? null;
 
-	const selectByOffset = (offset: number) => {
-		if (!selected) {
-			return;
-		}
+	if (!items.length) {
+		return null;
+	}
 
-		const index = items.findIndex(
-			(overlay) => overlay.id === selected.id
-		);
-		const next = items[index + offset];
+	const remove = (overlay: Overlay) => {
+		dispatch({id: overlay.id, type: 'remove-overlay'});
 
-		if (next) {
-			setSelectedId(next.id);
-		}
-	};
-
-	const removeSelected = () => {
-		if (!selected) {
-			return;
-		}
-
-		dispatch({id: selected.id, type: 'remove-overlay'});
-
-		onAnnounce(t('annotation-removed', overlayLabel(selected)));
+		onAnnounce(t('annotation-removed', overlayLabel(overlay)));
 
 		setSelectedId(null);
 	};
 
-	const reorderSelected = (visualDirection: -1 | 1) => {
-		if (!selected) {
-			return;
-		}
+	const reorder = (overlay: Overlay, visualDirection: -1 | 1) => {
 
 		// Visually up (-1) means later in paint order (+1 in the array).
 
 		dispatch({
 			direction: visualDirection === -1 ? 1 : -1,
-			id: selected.id,
+			id: overlay.id,
 			type: 'move-overlay-layer',
 		});
 
 		onAnnounce(
 			t(
 				visualDirection === -1 ? 'layer-moved-up' : 'layer-moved-down',
-				overlayLabel(selected)
+				overlayLabel(overlay)
 			)
 		);
-	};
-
-	if (!items.length) {
-		return null;
-	}
-
-	const handleKeyDown = (event: React.KeyboardEvent) => {
-		switch (event.key) {
-			case 'ArrowDown':
-				event.preventDefault();
-				selectByOffset(1);
-				break;
-
-			case 'ArrowUp':
-				event.preventDefault();
-				selectByOffset(-1);
-				break;
-
-			case 'Backspace':
-			case 'Delete':
-				event.preventDefault();
-				removeSelected();
-				break;
-
-			default:
-				break;
-		}
 	};
 
 	return (
@@ -356,61 +314,72 @@ export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
 				{t('layers')}
 			</h2>
 
-			<ul
-				aria-activedescendant={
-					selected ? `layer-${selected.id}` : undefined
-				}
-				aria-labelledby="layers-panel-title"
-				className="editor-layer-list"
-				id="layers-listbox"
-				onKeyDown={handleKeyDown}
-				role="listbox"
-				tabIndex={0}
-			>
-				{items.map((overlay) => (
-					<li
-						aria-selected={overlay.id === selected?.id}
-						className="editor-layer-item"
-						id={`layer-${overlay.id}`}
-						key={overlay.id}
-						onClick={() => setSelectedId(overlay.id)}
-						role="option"
-					>
-						{overlayLabel(overlay)}
-					</li>
-				))}
+			<ul className="editor-layer-list list-unstyled small">
+				{items.map((overlay, index) => {
+					const label = overlayLabel(overlay);
+					const isSelected = overlay.id === selected?.id;
+
+					return (
+						<li
+							className={
+								isSelected
+									? 'editor-layer-item editor-layer-item-selected'
+									: 'editor-layer-item'
+							}
+							key={overlay.id}
+						>
+							<button
+								aria-pressed={isSelected}
+								className="editor-layer-name"
+								onClick={() => setSelectedId(overlay.id)}
+								onKeyDown={(event: React.KeyboardEvent) => {
+									if (
+										event.key === 'Delete' ||
+										event.key === 'Backspace'
+									) {
+										event.preventDefault();
+										remove(overlay);
+									}
+								}}
+								type="button"
+							>
+								{label}
+							</button>
+
+							<span className="editor-layer-actions">
+								<ClayButtonWithIcon
+									aria-label={t('move-layer-up', label)}
+									disabled={index === 0}
+									displayType="unstyled"
+									onClick={() => reorder(overlay, -1)}
+									size="xs"
+									symbol="angle-up"
+									title={t('move-layer-up', label)}
+								/>
+
+								<ClayButtonWithIcon
+									aria-label={t('move-layer-down', label)}
+									disabled={index === items.length - 1}
+									displayType="unstyled"
+									onClick={() => reorder(overlay, 1)}
+									size="xs"
+									symbol="angle-down"
+									title={t('move-layer-down', label)}
+								/>
+
+								<ClayButtonWithIcon
+									aria-label={t('delete-layer', label)}
+									displayType="unstyled"
+									onClick={() => remove(overlay)}
+									size="xs"
+									symbol="trash"
+									title={t('delete-layer', label)}
+								/>
+							</span>
+						</li>
+					);
+				})}
 			</ul>
-
-			<div className="editor-annotate-actions">
-				<ClayButton
-					disabled={!selected || items[0] === selected}
-					displayType="secondary"
-					onClick={() => reorderSelected(-1)}
-					size="xs"
-				>
-					{t('move-up')}
-				</ClayButton>
-
-				<ClayButton
-					disabled={
-						!selected || items[items.length - 1] === selected
-					}
-					displayType="secondary"
-					onClick={() => reorderSelected(1)}
-					size="xs"
-				>
-					{t('move-down')}
-				</ClayButton>
-
-				<ClayButton
-					disabled={!selected}
-					displayType="secondary"
-					onClick={removeSelected}
-					size="xs"
-				>
-					{t('delete')}
-				</ClayButton>
-			</div>
 
 			{selected && (
 				<LayerProperties
