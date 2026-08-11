@@ -296,6 +296,16 @@ export function LayersPanel({
 		onSelect(null);
 	};
 
+	const duplicate = (overlay: Overlay) => {
+		const newId = `${overlay.kind}-${crypto.randomUUID().slice(0, 8)}`;
+
+		dispatch({id: overlay.id, newId, type: 'duplicate-overlay'});
+
+		onAnnounce(t('annotation-duplicated', overlayLabel(overlay)));
+
+		onSelect(newId);
+	};
+
 	const reorder = (overlay: Overlay, visualDirection: -1 | 1) => {
 
 		// Visually up (-1) means later in paint order (+1 in the array).
@@ -371,6 +381,15 @@ export function LayersPanel({
 									size="xs"
 									symbol="angle-down"
 									title={t('move-layer-down', label)}
+								/>
+
+								<ClayButtonWithIcon
+									aria-label={t('duplicate-layer', label)}
+									displayType="unstyled"
+									onClick={() => duplicate(overlay)}
+									size="xs"
+									symbol="copy"
+									title={t('duplicate-layer', label)}
 								/>
 
 								<ClayButtonWithIcon

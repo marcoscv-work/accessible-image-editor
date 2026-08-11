@@ -148,6 +148,42 @@ describe('editorReducer', () => {
 		expect(state.past).toHaveLength(0);
 	});
 
+	it('duplicates an overlay right above the original with an offset', () => {
+		const overlay = {
+			color: '#ffffff',
+			fontFamily: 'sans-serif',
+			fontSize: 48,
+			id: 'text-1',
+			kind: 'text' as const,
+			text: 'Hello',
+			x: 100,
+			y: 100,
+		};
+
+		let state = editorReducer(history(), {overlay, type: 'add-overlay'});
+
+		state = editorReducer(state, {
+			overlay: {...overlay, id: 'text-2', text: 'World'},
+			type: 'add-overlay',
+		});
+
+		state = editorReducer(state, {
+			id: 'text-1',
+			newId: 'text-1-copy',
+			type: 'duplicate-overlay',
+		});
+
+		expect(state.present.overlays.map((item) => item.id)).toEqual([
+			'text-1',
+			'text-1-copy',
+			'text-2',
+		]);
+
+		// Offset: 2% of the smaller image side (1000 x 0.02 = 20).
+
+		expect(state.present.overlays[1]).toMatchObject({x: 120, y: 120});
+	});
+
 	it('round-trips undo and redo with labels', () => {
 		let state = editorReducer(history(), {type: 'rotate-90'});
 

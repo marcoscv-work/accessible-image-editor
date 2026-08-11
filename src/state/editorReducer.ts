@@ -15,6 +15,7 @@ import {
 
 export type EditorAction =
 	| {type: 'add-overlay'; overlay: Overlay}
+	| {id: string; newId: string; type: 'duplicate-overlay'}
 	| {type: 'move-overlay-layer'; direction: -1 | 1; id: string}
 	| {type: 'redo'}
 	| {type: 'remove-overlay'; id: string}
@@ -288,6 +289,47 @@ export function editorReducer(
 			return applyEdit(
 				history,
 				{...present, overlays: [...present.overlays, action.overlay]},
+				t('label-annotation')
+			);
+		}
+
+		case 'duplicate-overlay': {
+			const index = present.overlays.findIndex(
+				(overlay) => overlay.id === action.id
+			);
+
+			if (index < 0) {
+				return history;
+			}
+
+			const source = present.overlays[index];
+
+			// Offset the clone diagonally so it lands visibly on top of
+			// the original: 2% of the smaller image side, at least 16px.
+
+			const offset = Math.round(
+				Math.max(
+					16,
+					Math.min(present.sourceWidth, present.sourceHeight) * 0.02
+				)
+			);
+
+			const clone: Overlay = {
+				...source,
+				id: action.newId,
+				x: source.x + offset,
+				y: source.y + offset,
+			};
+
+			const overlays = [...present.overlays];
+
+			// Right after the original: painted directly above it.
+
+			overlays.splice(index + 1, 0, clone);
+
+			return applyEdit(
+				history,
+				{...present, overlays},
 				t('label-annotation')
 			);
 		}

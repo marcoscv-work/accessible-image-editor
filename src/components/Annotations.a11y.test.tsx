@@ -251,6 +251,29 @@ describe('Annotations, filters, and layers', () => {
 		expect(document.activeElement?.id).toBe('layer-prop-color');
 	});
 
+	it('duplicates a layer from its row and selects the copy', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		fireEvent.click(
+			screen.getByRole('button', {name: 'Duplicate Rectangle'})
+		);
+
+		expect(
+			[...document.querySelectorAll('.editor-layer-name')].map(
+				(node) => node.textContent
+			)
+		).toEqual(['Rectangle', 'Rectangle']);
+
+		// The copy is selected: one pressed row, one light ring on stage.
+
+		expect(
+			screen.getAllByRole('button', {name: 'Rectangle', pressed: true})
+		).toHaveLength(1);
+		expect(container.querySelectorAll('.selection-ring')).toHaveLength(1);
+	});
+
 	it('deletes a layer from its row and hides the empty panel', () => {
 		render(<AnnotationHarness />);
 

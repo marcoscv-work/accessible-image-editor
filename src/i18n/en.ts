@@ -18,6 +18,7 @@ export default {
 	'add-text': 'Add text',
 	'annotate': 'Annotate',
 	'annotation-added': '{0} added to the center of the image',
+	'annotation-duplicated': '{0} duplicated',
 	'annotation-moved': '{0} moved to x {1}, y {2}',
 	'annotation-removed': '{0} removed',
 	'app-description':
@@ -49,6 +50,7 @@ export default {
 	'crop-handle-sw': 'Crop handle: bottom left corner',
 	'crop-handle-w': 'Crop handle: left edge',
 	'delete-layer': 'Delete {0}',
+	'duplicate-layer': 'Duplicate {0}',
 	'edit-controls': 'Edit controls',
 	'filter-cool': 'Cool',
 	'filter-grayscale': 'Grayscale',
