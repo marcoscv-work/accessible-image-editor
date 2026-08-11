@@ -227,6 +227,14 @@ describe('Annotations, filters, and layers', () => {
 		);
 
 		expect(container.querySelectorAll('.selection-ring')).toHaveLength(1);
+
+		// Clicking a non-interactive spot clears the visual selection.
+
+		fireEvent.pointerDown(
+			screen.getByRole('region', {name: 'Image workspace'})
+		);
+
+		expect(container.querySelectorAll('.selection-ring')).toHaveLength(0);
 	});
 
 	it('jumps from the stage node to its property editor on Enter', async () => {

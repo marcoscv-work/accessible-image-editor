@@ -68,6 +68,15 @@ export function Workspace({
 			aria-label={t('workspace')}
 			className="editor-workspace"
 			onKeyDown={handleKeyDown}
+			onPointerDown={(event) => {
+
+				// Clicking anything that is not an annotation clears the
+				// visual selection, drawing-tool style.
+
+				if (!(event.target as Element).closest('.overlay-hit')) {
+					onSelectOverlay(null);
+				}
+			}}
 			ref={workspaceRef}
 			role="region"
 			tabIndex={0}
