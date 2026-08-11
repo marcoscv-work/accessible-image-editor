@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 import {t} from '../i18n';
 import {Overlay, StickerKind, StickerOverlay} from '../state/types';
 
@@ -370,6 +375,9 @@ function StickerBody({color, sticker}: {color: string; sticker: StickerKind}) {
 					/>
 				</>
 			);
+
+		default:
+			return null;
 	}
 }
 
@@ -436,6 +444,9 @@ export function overlayBounds(overlay: Overlay): {
 				x: overlay.x,
 				y: overlay.y - overlay.fontSize,
 			};
+
+		default:
+			throw new Error('Unknown overlay kind');
 	}
 }
 
@@ -472,6 +483,9 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'text':
 			return t('overlay-text-label', overlay.text);
+
+		default:
+			throw new Error('Unknown overlay kind');
 	}
 }
 
@@ -525,5 +539,8 @@ function renderOverlayNode(overlay: Overlay) {
 					{overlay.text}
 				</text>
 			);
+
+		default:
+			return null;
 	}
 }

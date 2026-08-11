@@ -1,4 +1,9 @@
 /**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+/**
  * Clay's scope-based tooltip provider hides on delegated mouseout/blur
  * from the titled anchor. When the anchor unmounts while its tooltip is
  * open (closing the editor modal, deleting a layer row), that event never

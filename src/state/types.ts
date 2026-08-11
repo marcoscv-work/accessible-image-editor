@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 export type Rotation = 0 | 90 | 180 | 270;
 
 export interface CropRect {
@@ -154,8 +159,8 @@ export const RATIO_VALUES: Record<
 	number
 > = {
 	'1:1': 1,
-	'16:9': 16 / 9,
 	'3:4': 3 / 4,
 	'4:3': 4 / 3,
 	'9:16': 9 / 16,
+	'16:9': 16 / 9,
 };

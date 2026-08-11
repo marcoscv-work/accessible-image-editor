@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
 import React, {useEffect, useRef, useState} from 'react';
@@ -48,7 +53,6 @@ function NumberField({
 			id={id}
 			max={max}
 			min={min}
-			sizing="sm"
 			onBlur={commit}
 			onChange={(event) => setDraft(event.target.value)}
 			onKeyDown={(event: React.KeyboardEvent) => {
@@ -57,6 +61,7 @@ function NumberField({
 					commit();
 				}
 			}}
+			sizing="sm"
 			type="number"
 			value={draft}
 		/>
@@ -109,13 +114,13 @@ function TextField({
 				id={id}
 				onBlur={commit}
 				onChange={(event) => setDraft(event.target.value)}
-				sizing="sm"
 				onKeyDown={(event: React.KeyboardEvent) => {
 					if (event.key === 'Enter') {
 						event.preventDefault();
 						commit();
 					}
 				}}
+				sizing="sm"
 				type="text"
 				value={draft}
 			/>
