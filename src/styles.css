@@ -288,6 +288,17 @@
 	cursor: move;
 }
 
+/* Inline text editing on the stage */
+
+.overlay-text-editor {
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid var(--editor-accent);
+	border-radius: 2px;
+	line-height: 1.2;
+	padding: 0 0.1em;
+	width: 100%;
+}
+
 /* Filters */
 
 .editor-filter-grid {

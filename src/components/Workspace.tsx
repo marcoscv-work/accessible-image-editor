@@ -80,7 +80,7 @@ export function Workspace({
 
 				if (
 					!(event.target as Element).closest(
-						'.overlay-hit, .object-handles'
+						'.overlay-hit, .object-handles, .overlay-text-editor'
 					)
 				) {
 					onSelectOverlay(null);

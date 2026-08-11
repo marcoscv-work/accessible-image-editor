@@ -11,6 +11,7 @@ import {
 	overlayBounds,
 	overlayLabel,
 	overlayTransform,
+	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
@@ -72,6 +73,26 @@ function toStageDelta(
 	const sin = Math.sin(radians);
 
 	return [dx * cos - dy * sin, dx * sin + dy * cos];
+}
+
+/**
+ * Background for the inline text editor, picked against the text color's
+ * luminance so the value stays readable whatever color the user chose.
+ */
+function editorBackground(color: string): string {
+	const value = color.replace('#', '');
+
+	if (value.length === 6) {
+		const [r, g, b] = [0, 2, 4].map((index) =>
+			Number.parseInt(value.slice(index, index + 2), 16)
+		);
+
+		if ((0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55) {
+			return 'rgba(20, 21, 31, 0.92)';
+		}
+	}
+
+	return 'rgba(255, 255, 255, 0.92)';
 }
 
 const STRETCH_EDGES = [
@@ -143,6 +164,11 @@ export function OverlaysEditable({
 	} | null>(null);
 
 	const manipGesture = useRef<ManipGesture | null>(null);
+
+	const [editing, setEditing] = useState<{
+		draft: string;
+		id: string;
+	} | null>(null);
 
 	const current = (id: string) =>
 		overlaysRef.current.find((overlay) => overlay.id === id);
@@ -321,6 +347,32 @@ export function OverlaysEditable({
 		}
 	};
 
+	const commitTextEdit = () => {
+		if (!editing) {
+			return;
+		}
+
+		const overlay = current(editing.id);
+		const value = editing.draft.trim();
+
+		setEditing(null);
+
+		if (
+			overlay &&
+			overlay.kind === 'text' &&
+			value &&
+			value !== overlay.text
+		) {
+			dispatch({
+				id: editing.id,
+				patch: {text: value},
+				type: 'update-overlay',
+			});
+
+			onAnnounce(t('layer-updated', overlayLabel(overlay)));
+		}
+	};
+
 	const startManipulation =
 		(
 			overlay: Overlay,
@@ -481,8 +533,9 @@ export function OverlaysEditable({
 					fontSize,
 					x:
 						centerX -
-						Math.max(
-							overlay.text.length * fontSize * 0.6,
+						textWidth(
+							overlay.text,
+							overlay.fontFamily,
 							fontSize
 						) /
 							2,
@@ -560,7 +613,9 @@ export function OverlaysEditable({
 						key={overlay.id}
 						transform={overlayTransform(overlay)}
 					>
-						<OverlayShape overlay={overlay} />
+						{editing?.id !== overlay.id && (
+							<OverlayShape overlay={overlay} />
+						)}
 
 						{focus?.id === overlay.id ? (
 							<FocusRing
@@ -586,6 +641,15 @@ export function OverlaysEditable({
 							fill="transparent"
 							height={bounds.height}
 							onBlur={() => setFocus(null)}
+							onDoubleClick={
+								overlay.kind === 'text'
+									? () =>
+											setEditing({
+												draft: overlay.text,
+												id: overlay.id,
+											})
+									: undefined
+							}
 							onFocus={(event) => {
 								onSelect(overlay.id);
 
@@ -609,6 +673,53 @@ export function OverlaysEditable({
 							x={bounds.x}
 							y={bounds.y}
 						/>
+
+						{editing?.id === overlay.id &&
+							overlay.kind === 'text' && (
+								<foreignObject
+									height={bounds.height * 1.5}
+									width={Math.max(
+										bounds.width * 1.5,
+										overlay.fontSize * 4
+									)}
+									x={bounds.x - overlay.fontSize * 0.25}
+									y={bounds.y - bounds.height * 0.25}
+								>
+									<input
+										aria-label={t('text-content')}
+										autoFocus
+										className="overlay-text-editor"
+										onBlur={commitTextEdit}
+										onChange={(event) =>
+											setEditing({
+												draft: event.target.value,
+												id: overlay.id,
+											})
+										}
+										onKeyDown={(event) => {
+											event.stopPropagation();
+
+											if (event.key === 'Enter') {
+												commitTextEdit();
+											}
+											else if (
+												event.key === 'Escape'
+											) {
+												setEditing(null);
+											}
+										}}
+										style={{
+											background: editorBackground(
+												overlay.color
+											),
+											color: overlay.color,
+											fontFamily: overlay.fontFamily,
+											fontSize: overlay.fontSize,
+										}}
+										value={editing.draft}
+									/>
+								</foreignObject>
+							)}
 
 						{(selectedId === overlay.id ||
 							focus?.id === overlay.id) && (

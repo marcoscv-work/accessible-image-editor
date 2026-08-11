@@ -8,7 +8,10 @@ import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
 import {LoadedImage} from '../imaging/loadImage';
-import {editorReducer, initialHistory} from '../state/editorReducer';
+import {
+	editorReducer,
+	initialHistory,
+} from '../state/editorReducer';
 import {rotatedSize} from '../state/types';
 import {AnnotatePanel} from './AnnotatePanel';
 import {FilterGallery} from './FilterGallery';
@@ -65,6 +68,39 @@ function AnnotationHarness() {
 				selectedId={selectedId}
 			/>
 		</>
+	);
+}
+
+function TextStageHarness() {
+	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
+		editorReducer(initialHistory(IMAGE.width, IMAGE.height), {
+			overlay: {
+				color: '#ffffff',
+				fontFamily: 'sans-serif',
+				fontSize: 48,
+				id: 'text-1',
+				kind: 'text',
+				text: 'Hello',
+				x: 100,
+				y: 100,
+			},
+			type: 'add-overlay',
+		})
+	);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+
+	return (
+		<Workspace
+			dispatch={dispatch}
+			image={IMAGE}
+			onAnnounce={() => {}}
+			onSelectOverlay={setSelectedId}
+			onZoom={() => {}}
+			onZoomFit={() => {}}
+			selectedOverlayId={selectedId}
+			state={history.present}
+			zoom={0.5}
+		/>
 	);
 }
 
@@ -277,6 +313,29 @@ describe('Annotations, filters, and layers', () => {
 			screen.getAllByRole('button', {name: 'Rectangle', pressed: true})
 		).toHaveLength(1);
 		expect(container.querySelectorAll('.selection-ring')).toHaveLength(1);
+	});
+
+	it('edits a text annotation in place on double click', () => {
+		const {container} = render(<TextStageHarness />);
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		fireEvent.doubleClick(hit);
+
+		const editor = container.querySelector(
+			'.overlay-text-editor'
+		) as HTMLInputElement;
+
+		expect(editor).toBeInTheDocument();
+		expect(editor.value).toBe('Hello');
+
+		fireEvent.change(editor, {target: {value: 'Liferay'}});
+		fireEvent.keyDown(editor, {key: 'Enter'});
+
+		expect(container.querySelector('.overlay-text-editor')).toBeNull();
+		expect(
+			container.querySelector('.editor-workspace text')?.textContent
+		).toBe('Liferay');
 	});
 
 	it('deletes a layer from its row and hides the empty panel', () => {
