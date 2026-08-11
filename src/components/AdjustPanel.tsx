@@ -6,7 +6,7 @@
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClaySlider from '@clayui/slider';
-import {useRef} from 'react';
+import React, {useRef} from 'react';
 
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
@@ -113,6 +113,42 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 									transient: true,
 									type: 'set-adjustment',
 									value: next,
+								});
+							}}
+							onKeyDown={(event: React.KeyboardEvent) => {
+
+								// Native ranges step by 1; Shift+arrows
+								// steps by 10.
+
+								if (!event.shiftKey) {
+									return;
+								}
+
+								const delta =
+									event.key === 'ArrowRight' ||
+									event.key === 'ArrowUp'
+										? 10
+										: event.key === 'ArrowLeft' ||
+											  event.key === 'ArrowDown'
+											? -10
+											: 0;
+
+								if (!delta) {
+									return;
+								}
+
+								event.preventDefault();
+
+								activeGesture.current = key;
+
+								dispatch({
+									key,
+									transient: true,
+									type: 'set-adjustment',
+									value: Math.max(
+										-100,
+										Math.min(100, value + delta)
+									),
 								});
 							}}
 							onKeyUp={() => commit(key, label)}

@@ -163,6 +163,17 @@ describe('Editor workspace composition', () => {
 		).toHaveAttribute('slope', '1.4');
 	});
 
+	it('steps an adjustment slider by 10 with shift plus arrows', () => {
+		render(<EditorHarness />);
+
+		const slider = screen.getByLabelText('Brightness');
+
+		fireEvent.keyDown(slider, {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyUp(slider, {key: 'ArrowRight', shiftKey: true});
+
+		expect(screen.getByText('10')).toBeInTheDocument();
+	});
+
 	it('zooms with plus and minus while the workspace has focus', () => {
 		render(<EditorHarness />);
 
