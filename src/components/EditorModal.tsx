@@ -11,6 +11,7 @@ import {
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
+import {AdjustPanel} from './AdjustPanel';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
@@ -167,11 +168,17 @@ export default function EditorModal({image, onClose}: Props) {
 								onAnnounce={announce}
 							/>
 
+							<AdjustPanel
+								adjustments={state.adjustments}
+								dispatch={dispatch}
+								onAnnounce={announce}
+							/>
+
 							<ClayButton
 								className="mt-3"
 								displayType="secondary"
 								onClick={() => setShortcutsOpen(true)}
-								small
+								size="sm"
 							>
 								{t('keyboard-shortcuts')}
 							</ClayButton>

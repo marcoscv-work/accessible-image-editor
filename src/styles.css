@@ -104,10 +104,44 @@
 	width: 280px;
 }
 
+.editor-panel + .editor-panel {
+	border-top: 1px solid #e7e7ed;
+	margin-top: 1rem;
+	padding-top: 1rem;
+}
+
+.editor-panel-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+}
+
+.editor-panel-header .editor-panel-title {
+	margin-bottom: 0;
+}
+
 .editor-panel-title {
 	font-size: 1rem;
 	font-weight: 600;
 	margin-bottom: 0.75rem;
+}
+
+.editor-slider-row {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.editor-slider-row label {
+	flex: 1;
+	margin-bottom: 0;
+}
+
+.editor-slider-value {
+	font-variant-numeric: tabular-nums;
+	min-width: 2.25rem;
+	text-align: right;
 }
 
 .editor-panel-grid {

@@ -4,6 +4,7 @@ import {useReducer, useState} from 'react';
 
 import {LoadedImage} from '../imaging/loadImage';
 import {editorReducer, initialHistory} from '../state/editorReducer';
+import {AdjustPanel} from './AdjustPanel';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
 import {Workspace} from './Workspace';
@@ -43,6 +44,12 @@ function EditorHarness() {
 
 			<CropPanel
 				crop={history.present.crop}
+				dispatch={dispatch}
+				onAnnounce={() => {}}
+			/>
+
+			<AdjustPanel
+				adjustments={history.present.adjustments}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
 			/>
@@ -123,6 +130,27 @@ describe('Editor workspace composition', () => {
 
 		expect(widthInput.value).toBe('600');
 		expect(heightInput.value).toBe('400');
+	});
+
+	it('applies the color pipeline when an adjustment slider commits', () => {
+		const {container} = render(<EditorHarness />);
+
+		expect(container.querySelector('image')).not.toHaveAttribute(
+			'filter'
+		);
+
+		const slider = screen.getByLabelText('Brightness');
+
+		fireEvent.change(slider, {target: {value: '40'}});
+		fireEvent.keyUp(slider, {key: 'ArrowRight'});
+
+		expect(container.querySelector('image')).toHaveAttribute(
+			'filter',
+			'url(#preview-filter)'
+		);
+		expect(
+			container.querySelector('#preview-filter feFuncR')
+		).toHaveAttribute('slope', '1.4');
 	});
 
 	it('zooms with plus and minus while the workspace has focus', () => {
