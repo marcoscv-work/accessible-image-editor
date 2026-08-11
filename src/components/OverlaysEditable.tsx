@@ -26,28 +26,6 @@ function arrowDelta(key: string): [number, number] | null {
 	}
 }
 
-/**
- * The interactive group rotates with the overlay, so screen-space deltas
- * (mouse drags, arrow keys) must be counter-rotated into the overlay's
- * local coordinates for the element to follow the pointer on screen.
- */
-function counterRotateDelta(
-	dx: number,
-	dy: number,
-	rotation: number
-): [number, number] {
-	if (!rotation) {
-		return [dx, dy];
-	}
-
-	const radians = (rotation * Math.PI) / 180;
-
-	const cos = Math.cos(radians);
-	const sin = Math.sin(radians);
-
-	return [dx * cos + dy * sin, -dx * sin + dy * cos];
-}
-
 interface Props {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
@@ -145,17 +123,15 @@ export function OverlaysEditable({
 
 			setFocus({id, modality: 'keyboard'});
 
-			const [dx, dy] = counterRotateDelta(
-				delta[0] * step,
-				delta[1] * step,
-				overlay.rotation ?? 0
-			);
+			// The rotation pivot is the overlay's own center, so it travels
+			// with the element: a plain positional delta already moves the
+			// element exactly along the screen axes, rotated or not.
 
 			dispatch({
 				id,
 				patch: {
-					x: overlay.x + dx,
-					y: overlay.y + dy,
+					x: overlay.x + delta[0] * step,
+					y: overlay.y + delta[1] * step,
 				},
 				transient: true,
 				type: 'update-overlay',
@@ -209,17 +185,11 @@ export function OverlaysEditable({
 			return;
 		}
 
-		const [dx, dy] = counterRotateDelta(
-			(event.clientX - gesture.startX) / zoom,
-			(event.clientY - gesture.startY) / zoom,
-			current(gesture.id)?.rotation ?? 0
-		);
-
 		dispatch({
 			id: gesture.id,
 			patch: {
-				x: gesture.x + dx,
-				y: gesture.y + dy,
+				x: gesture.x + (event.clientX - gesture.startX) / zoom,
+				y: gesture.y + (event.clientY - gesture.startY) / zoom,
 			},
 			transient: true,
 			type: 'update-overlay',
