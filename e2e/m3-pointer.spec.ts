@@ -110,6 +110,40 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 		Math.abs(widthAfter / widthBefore - heightAfter / heightBefore)
 	).toBeLessThan(0.05);
 
+	// Edge handles stretch one dimension freely: dragging the right edge
+	// grows the width and leaves the height untouched.
+
+	const stretchWidthBefore = Number(
+		await page.locator('#layer-prop-width').inputValue()
+	);
+	const stretchHeightBefore = Number(
+		await page.locator('#layer-prop-height').inputValue()
+	);
+
+	// Handles render corners first (4), then edges: n, e, s, w.
+
+	const eastHandle = page.locator('.object-handle').nth(5);
+	const eastBox = (await eastHandle.boundingBox())!;
+
+	await page.mouse.move(
+		eastBox.x + eastBox.width / 2,
+		eastBox.y + eastBox.height / 2
+	);
+	await page.mouse.down();
+	await page.mouse.move(
+		eastBox.x + eastBox.width / 2 + 50,
+		eastBox.y + eastBox.height / 2,
+		{steps: 4}
+	);
+	await page.mouse.up();
+
+	expect(
+		Number(await page.locator('#layer-prop-width').inputValue())
+	).toBeGreaterThan(stretchWidthBefore);
+	expect(
+		Number(await page.locator('#layer-prop-height').inputValue())
+	).toBe(stretchHeightBefore);
+
 	// The rotate handle spins the annotation.
 
 	const rotateHandle = page.locator('.object-handle-rotate');

@@ -52,6 +52,35 @@ function toLocalDelta(
 	return [dx * cos + dy * sin, -dx * sin + dy * cos];
 }
 
+/**
+ * Rotates a local-space vector into stage space (the inverse of
+ * toLocalDelta), used to keep a stretched rectangle's opposite side
+ * anchored in place under rotation.
+ */
+function toStageDelta(
+	dx: number,
+	dy: number,
+	rotation: number
+): [number, number] {
+	if (!rotation) {
+		return [dx, dy];
+	}
+
+	const radians = (rotation * Math.PI) / 180;
+
+	const cos = Math.cos(radians);
+	const sin = Math.sin(radians);
+
+	return [dx * cos - dy * sin, dx * sin + dy * cos];
+}
+
+const STRETCH_EDGES = [
+	{cursor: 'ns-resize', name: 'n', x: 0.5, y: 0},
+	{cursor: 'ew-resize', name: 'e', x: 1, y: 0.5},
+	{cursor: 'ns-resize', name: 's', x: 0.5, y: 1},
+	{cursor: 'ew-resize', name: 'w', x: 0, y: 0.5},
+] as const;
+
 const RESIZE_CORNERS = [
 	{cursor: 'nwse-resize', name: 'nw', x: 0, y: 0},
 	{cursor: 'nesw-resize', name: 'ne', x: 1, y: 0},
@@ -62,6 +91,7 @@ const RESIZE_CORNERS = [
 interface ManipGesture {
 	centerX: number;
 	centerY: number;
+	edge?: 'e' | 'n' | 's' | 'w';
 	id: string;
 	kind: 'resize' | 'rotate';
 	overlay: Overlay;
@@ -296,7 +326,8 @@ export function OverlaysEditable({
 			overlay: Overlay,
 			kind: 'resize' | 'rotate',
 			handleX: number,
-			handleY: number
+			handleY: number,
+			edge?: 'e' | 'n' | 's' | 'w'
 		) =>
 		(event: React.PointerEvent<SVGElement>) => {
 			event.stopPropagation();
@@ -313,6 +344,7 @@ export function OverlaysEditable({
 			manipGesture.current = {
 				centerX,
 				centerY,
+				edge,
 				id: overlay.id,
 				kind,
 				overlay,
@@ -379,8 +411,49 @@ export function OverlaysEditable({
 			return;
 		}
 
-		// Resize: proportional by default, anchored at the center, which
-		// keeps the geometry stable under rotation. Shift resizes a
+		// Edge handles stretch one dimension of a rectangle freely,
+		// anchoring the opposite side: the center shifts by half the size
+		// change along the dragged axis, rotated into stage space.
+
+		if (gesture.edge && overlay.kind === 'shape') {
+			const horizontal = gesture.edge === 'e' || gesture.edge === 'w';
+			const sign = gesture.edge === 'e' || gesture.edge === 's' ? 1 : -1;
+
+			const newSize = Math.max(
+				horizontal
+					? sign * (pointX - centerX) + overlay.width / 2
+					: sign * (pointY - centerY) + overlay.height / 2,
+				8
+			);
+
+			const oldSize = horizontal ? overlay.width : overlay.height;
+
+			const [shiftX, shiftY] = toStageDelta(
+				horizontal ? (sign * (newSize - oldSize)) / 2 : 0,
+				horizontal ? 0 : (sign * (newSize - oldSize)) / 2,
+				overlay.rotation ?? 0
+			);
+
+			const width = horizontal ? newSize : overlay.width;
+			const height = horizontal ? overlay.height : newSize;
+
+			dispatch({
+				id: gesture.id,
+				patch: {
+					height: Math.round(height),
+					width: Math.round(width),
+					x: Math.round(centerX + shiftX - width / 2),
+					y: Math.round(centerY + shiftY - height / 2),
+				},
+				transient: true,
+				type: 'update-overlay',
+			});
+
+			return;
+		}
+
+		// Corner resize: proportional by default, anchored at the center,
+		// which keeps the geometry stable under rotation. Shift resizes a
 		// rectangle's sides freely.
 
 		const scale = Math.max(
@@ -570,6 +643,43 @@ export function OverlaysEditable({
 										/>
 									);
 								})}
+
+								{overlay.kind === 'shape' &&
+									STRETCH_EDGES.map((edge) => {
+										const handleX =
+											bounds.x +
+											edge.x * bounds.width;
+										const handleY =
+											bounds.y +
+											edge.y * bounds.height;
+										const size = 10 / zoom;
+
+										return (
+											<rect
+												className="object-handle"
+												height={size}
+												key={edge.name}
+												onPointerDown={startManipulation(
+													overlay,
+													'resize',
+													handleX,
+													handleY,
+													edge.name
+												)}
+												onPointerMove={
+													handleManipulationMove
+												}
+												onPointerUp={
+													handleManipulationUp
+												}
+												strokeWidth={1.5 / zoom}
+												style={{cursor: edge.cursor}}
+												width={size}
+												x={handleX - size / 2}
+												y={handleY - size / 2}
+											/>
+										);
+									})}
 
 								<line
 									className="object-rotate-stick"
