@@ -11,10 +11,14 @@ import {
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
+import {rotatedSize} from '../state/types';
 import {AdjustPanel} from './AdjustPanel';
+import {AnnotatePanel} from './AnnotatePanel';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
+import {FilterGallery} from './FilterGallery';
+import {LayersPanel} from './LayersPanel';
 import {ShortcutsDialog} from './ShortcutsDialog';
 import {Workspace} from './Workspace';
 
@@ -172,6 +176,25 @@ export default function EditorModal({image, onClose}: Props) {
 								adjustments={state.adjustments}
 								dispatch={dispatch}
 								onAnnounce={announce}
+							/>
+
+							<FilterGallery
+								dispatch={dispatch}
+								filter={state.filter}
+								image={image}
+								onAnnounce={announce}
+							/>
+
+							<AnnotatePanel
+								bounds={rotatedSize(state)}
+								dispatch={dispatch}
+								onAnnounce={announce}
+							/>
+
+							<LayersPanel
+								dispatch={dispatch}
+								onAnnounce={announce}
+								overlays={state.overlays}
 							/>
 
 							<ClayButton

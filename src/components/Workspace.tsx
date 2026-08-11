@@ -7,6 +7,7 @@ import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {EditState, rotatedSize} from '../state/types';
 import {CropMarquee} from './CropMarquee';
+import {OverlaysEditable} from './OverlaysEditable';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -89,6 +90,13 @@ export function Workspace({
 						width={state.sourceWidth}
 					/>
 				</g>
+
+				<OverlaysEditable
+					dispatch={dispatch}
+					onAnnounce={onAnnounce}
+					overlays={state.overlays}
+					zoom={zoom}
+				/>
 
 				<path
 					className="crop-dim"

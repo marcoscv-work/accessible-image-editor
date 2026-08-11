@@ -39,7 +39,7 @@ test('keyboard-only adjustments journey', async ({page}) => {
 
 	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
 
-	const image = page.locator('svg image');
+	const image = page.locator('.editor-workspace image');
 
 	await expect(image).not.toHaveAttribute('filter', /.+/);
 

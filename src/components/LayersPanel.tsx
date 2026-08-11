@@ -1,0 +1,172 @@
+import ClayButton from '@clayui/button';
+import React, {useState} from 'react';
+
+import {t} from '../i18n';
+import {overlayLabel} from '../imaging/overlayShapes';
+import {EditorAction} from '../state/editorReducer';
+import {Overlay} from '../state/types';
+
+interface Props {
+	dispatch: (action: EditorAction) => void;
+	onAnnounce: (message: string) => void;
+	overlays: Overlay[];
+}
+
+/**
+ * Layer management as a single-select listbox: arrow keys move the
+ * selection, Delete removes the selected layer, and the buttons reorder
+ * it. Layers are listed topmost first; the overlays array is painted
+ * bottom to top.
+ */
+export function LayersPanel({dispatch, onAnnounce, overlays}: Props) {
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+
+	const items = [...overlays].reverse();
+
+	const selected =
+		items.find((overlay) => overlay.id === selectedId) ?? items[0] ?? null;
+
+	const selectByOffset = (offset: number) => {
+		if (!selected) {
+			return;
+		}
+
+		const index = items.findIndex(
+			(overlay) => overlay.id === selected.id
+		);
+		const next = items[index + offset];
+
+		if (next) {
+			setSelectedId(next.id);
+		}
+	};
+
+	const removeSelected = () => {
+		if (!selected) {
+			return;
+		}
+
+		dispatch({id: selected.id, type: 'remove-overlay'});
+
+		onAnnounce(t('annotation-removed', overlayLabel(selected)));
+
+		setSelectedId(null);
+	};
+
+	const reorderSelected = (visualDirection: -1 | 1) => {
+		if (!selected) {
+			return;
+		}
+
+		// Visually up (-1) means later in paint order (+1 in the array).
+
+		dispatch({
+			direction: visualDirection === -1 ? 1 : -1,
+			id: selected.id,
+			type: 'move-overlay-layer',
+		});
+
+		onAnnounce(
+			t(
+				visualDirection === -1 ? 'layer-moved-up' : 'layer-moved-down',
+				overlayLabel(selected)
+			)
+		);
+	};
+
+	const handleKeyDown = (event: React.KeyboardEvent) => {
+		switch (event.key) {
+			case 'ArrowDown':
+				event.preventDefault();
+				selectByOffset(1);
+				break;
+
+			case 'ArrowUp':
+				event.preventDefault();
+				selectByOffset(-1);
+				break;
+
+			case 'Backspace':
+			case 'Delete':
+				event.preventDefault();
+				removeSelected();
+				break;
+
+			default:
+				break;
+		}
+	};
+
+	return (
+		<section aria-labelledby="layers-panel-title" className="editor-panel">
+			<h2 className="editor-panel-title" id="layers-panel-title">
+				{t('layers')}
+			</h2>
+
+			{!items.length && (
+				<p className="text-secondary">{t('layers-empty')}</p>
+			)}
+
+			{items.length > 0 && (
+				<>
+					<ul
+						aria-activedescendant={
+							selected ? `layer-${selected.id}` : undefined
+						}
+						aria-labelledby="layers-panel-title"
+						className="editor-layer-list"
+						id="layers-listbox"
+						onKeyDown={handleKeyDown}
+						role="listbox"
+						tabIndex={0}
+					>
+						{items.map((overlay) => (
+							<li
+								aria-selected={overlay.id === selected?.id}
+								className="editor-layer-item"
+								id={`layer-${overlay.id}`}
+								key={overlay.id}
+								onClick={() => setSelectedId(overlay.id)}
+								role="option"
+							>
+								{overlayLabel(overlay)}
+							</li>
+						))}
+					</ul>
+
+					<div className="editor-annotate-actions">
+						<ClayButton
+							disabled={!selected || items[0] === selected}
+							displayType="secondary"
+							onClick={() => reorderSelected(-1)}
+							size="xs"
+						>
+							{t('move-up')}
+						</ClayButton>
+
+						<ClayButton
+							disabled={
+								!selected ||
+								items[items.length - 1] === selected
+							}
+							displayType="secondary"
+							onClick={() => reorderSelected(1)}
+							size="xs"
+						>
+							{t('move-down')}
+						</ClayButton>
+
+						<ClayButton
+							disabled={!selected}
+							displayType="secondary"
+							onClick={removeSelected}
+							size="xs"
+						>
+							{t('delete')}
+						</ClayButton>
+					</div>
+				</>
+			)}
+		</section>
+	);
+}
