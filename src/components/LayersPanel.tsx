@@ -4,13 +4,17 @@
  */
 
 import {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm, {ClayInput} from '@clayui/form';
+import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {overlayLabel} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {Overlay} from '../state/types';
+import {
+	Overlay,
+	RedactOverlay,
+	isBoxOverlay,
+} from '../state/types';
 
 interface FieldProps {
 	id: string;
@@ -170,35 +174,66 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 			)}
 
 			<div className="editor-panel-grid">
-				<ClayForm.Group>
-					<label htmlFor="layer-prop-color">
-						{t('text-color')}
-					</label>
+				{overlay.kind === 'redact' ? (
+					<ClayForm.Group>
+						<label htmlFor="layer-prop-level">
+							{t('redact-level')}
+						</label>
 
-					<input
-						className="editor-color-input form-control form-control-sm"
-						id="layer-prop-color"
-						onBlur={() => {
-							if (colorGesture.current) {
-								colorGesture.current = false;
-
-								commitPatch({color: overlay.color});
+						<ClaySelectWithOption
+							id="layer-prop-level"
+							onChange={(event) =>
+								commitPatch({
+									level: event.target
+										.value as RedactOverlay['level'],
+								})
 							}
-						}}
-						onChange={(event) => {
-							colorGesture.current = true;
+							options={[
+								{
+									label: t('redact-level-coarse'),
+									value: 'coarse',
+								},
+								{
+									label: t('redact-level-medium'),
+									value: 'medium',
+								},
+								{label: t('redact-level-fine'), value: 'fine'},
+							]}
+							sizing="sm"
+							value={overlay.level}
+						/>
+					</ClayForm.Group>
+				) : (
+					<ClayForm.Group>
+						<label htmlFor="layer-prop-color">
+							{t('text-color')}
+						</label>
 
-							dispatch({
-								id: overlay.id,
-								patch: {color: event.target.value},
-								transient: true,
-								type: 'update-overlay',
-							});
-						}}
-						type="color"
-						value={overlay.color}
-					/>
-				</ClayForm.Group>
+						<input
+							className="editor-color-input form-control form-control-sm"
+							id="layer-prop-color"
+							onBlur={() => {
+								if (colorGesture.current) {
+									colorGesture.current = false;
+
+									commitPatch({color: overlay.color});
+								}
+							}}
+							onChange={(event) => {
+								colorGesture.current = true;
+
+								dispatch({
+									id: overlay.id,
+									patch: {color: event.target.value},
+									transient: true,
+									type: 'update-overlay',
+								});
+							}}
+							type="color"
+							value={overlay.color}
+						/>
+					</ClayForm.Group>
+				)}
 
 				<NumberField
 					id="layer-prop-opacity"
@@ -240,7 +275,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					/>
 				)}
 
-				{overlay.kind === 'shape' && (
+				{isBoxOverlay(overlay) && (
 					<>
 						<NumberField
 							id="layer-prop-width"

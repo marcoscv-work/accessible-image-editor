@@ -341,6 +341,7 @@ export function CropMarquee({
 		announceCrop();
 	};
 
+	const gridWidth = 1 / zoom;
 	const hitRadius = 12 / zoom;
 	const visualRadius = 6 / zoom;
 	const strokeWidth = 2 / zoom;
@@ -364,12 +365,16 @@ export function CropMarquee({
 				y={crop.y}
 			/>
 
-			{gesturing && (
-				<g className="crop-grid" pointerEvents="none">
+			<g
+					className={
+						gesturing ? 'crop-grid crop-grid-visible' : 'crop-grid'
+					}
+					pointerEvents="none"
+				>
 					{[1, 2].map((step) => (
 						<line
 							key={`v-${step}`}
-							strokeWidth={strokeWidth}
+							strokeWidth={gridWidth}
 							x1={crop.x + (crop.width * step) / 3}
 							x2={crop.x + (crop.width * step) / 3}
 							y1={crop.y}
@@ -380,7 +385,7 @@ export function CropMarquee({
 					{[1, 2].map((step) => (
 						<line
 							key={`h-${step}`}
-							strokeWidth={strokeWidth}
+							strokeWidth={gridWidth}
 							x1={crop.x}
 							x2={crop.x + crop.width}
 							y1={crop.y + (crop.height * step) / 3}
@@ -388,7 +393,6 @@ export function CropMarquee({
 						/>
 					))}
 				</g>
-			)}
 
 			<rect
 				aria-describedby="crop-area-description"

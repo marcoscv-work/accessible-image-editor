@@ -80,7 +80,15 @@ export async function exportEditedImage(
 
 			{state.overlays.map((overlay) => (
 				<g key={overlay.id} transform={overlayTransform(overlay)}>
-					<OverlayShape overlay={overlay} />
+					<OverlayShape
+						overlay={overlay}
+						redactSource={{
+							pixelUrls: image.pixelUrls,
+							rotation: state.rotation,
+							sourceHeight: state.sourceHeight,
+							sourceWidth: state.sourceWidth,
+						}}
+					/>
 				</g>
 			))}
 		</svg>

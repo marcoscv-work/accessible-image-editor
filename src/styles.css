@@ -91,10 +91,23 @@
 	cursor: move;
 }
 
-/* Composition aid: thirds grid, only while a crop gesture runs. */
+/*
+ * Composition aid: a thirds grid that fades in while a crop gesture runs.
+ * Always mounted so the opacity can transition; the reduced-motion rule
+ * at the end of this file turns the fade into an instant switch.
+ */
+
+.crop-grid {
+	opacity: 0;
+	transition: opacity 400ms ease-out;
+}
+
+.crop-grid-visible {
+	opacity: 1;
+}
 
 .crop-grid line {
-	stroke: rgba(255, 255, 255, 0.65);
+	stroke: rgba(255, 255, 255, 0.5);
 }
 
 /* Recenter control at the middle of the crop. */

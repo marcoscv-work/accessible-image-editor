@@ -22,6 +22,7 @@ const IMAGE: LoadedImage = {
 	blob: new Blob(),
 	fileName: 'test.jpg',
 	height: 800,
+	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png'},
 	previewUrl: 'test.jpg',
 	type: 'image/jpeg',
 	width: 1200,
@@ -347,10 +348,15 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
+		// Add text, Add rectangle, Add redaction, then the stickers.
+
 		fireEvent.keyDown(addText, {key: 'ArrowRight'});
-		fireEvent.keyDown(document.activeElement as Element, {
-			key: 'ArrowRight',
-		});
+
+		for (let step = 0; step < 2; step++) {
+			fireEvent.keyDown(document.activeElement as Element, {
+				key: 'ArrowRight',
+			});
+		}
 
 		expect(document.activeElement).toHaveAccessibleName(
 			'Add star sticker'
@@ -391,6 +397,40 @@ describe('Annotations, filters, and layers', () => {
 		expect(document.activeElement).toBe(
 			container.querySelector('.overlay-hit')
 		);
+	});
+
+	it('adds a redaction that pixelates through a clipped source', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add redaction'}));
+
+		expect(
+			document.querySelector('.editor-layer-name')?.textContent
+		).toBe('Redacted area');
+
+		const pixels = container.querySelector(
+			'[clip-path^="url(#redact-clip-"] image'
+		) as SVGImageElement;
+
+		expect(pixels).toHaveAttribute('href', 'm.png');
+
+		// The level select swaps the downsampled source.
+
+		fireEvent.change(screen.getByLabelText('Pixel size'), {
+			target: {value: 'coarse'},
+		});
+
+		expect(
+			container.querySelector('[clip-path^="url(#redact-clip-"] image')
+		).toHaveAttribute('href', 'c.png');
+
+		// Same box handles as a rectangle: 4 corners + 4 edges + rotate.
+
+		fireEvent.focus(container.querySelector('.overlay-hit') as Element);
+
+		expect(container.querySelectorAll('.object-handle')).toHaveLength(9);
+
+		expect(await axe(container)).toHaveNoViolations();
 	});
 
 	it('deletes a layer from its row and hides the empty panel', () => {

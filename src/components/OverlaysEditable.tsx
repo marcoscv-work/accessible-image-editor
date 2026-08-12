@@ -14,8 +14,10 @@ import {
 	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {Overlay} from '../state/types';
+import {Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
+
+import type {RedactSource} from '../imaging/overlayShapes';
 
 function arrowDelta(key: string): [number, number] | null {
 	switch (key) {
@@ -127,6 +129,7 @@ interface Props {
 	onAnnounce: (message: string) => void;
 	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
+	redactSource: RedactSource;
 	selectedId: string | null;
 	zoom: number;
 }
@@ -141,6 +144,7 @@ export function OverlaysEditable({
 	onAnnounce,
 	onSelect,
 	overlays,
+	redactSource,
 	selectedId,
 	zoom,
 }: Props) {
@@ -467,7 +471,7 @@ export function OverlaysEditable({
 		// anchoring the opposite side: the center shifts by half the size
 		// change along the dragged axis, rotated into stage space.
 
-		if (gesture.edge && overlay.kind === 'shape') {
+		if (gesture.edge && isBoxOverlay(overlay)) {
 			const horizontal = gesture.edge === 'e' || gesture.edge === 'w';
 			const sign = gesture.edge === 'e' || gesture.edge === 's' ? 1 : -1;
 
@@ -545,7 +549,7 @@ export function OverlaysEditable({
 				type: 'update-overlay',
 			});
 		}
-		else if (overlay.kind === 'shape') {
+		else if (isBoxOverlay(overlay)) {
 			let width;
 			let height;
 
@@ -614,7 +618,10 @@ export function OverlaysEditable({
 						transform={overlayTransform(overlay)}
 					>
 						{editing?.id !== overlay.id && (
-							<OverlayShape overlay={overlay} />
+							<OverlayShape
+								overlay={overlay}
+								redactSource={redactSource}
+							/>
 						)}
 
 						{focus?.id === overlay.id ? (
@@ -760,7 +767,7 @@ export function OverlaysEditable({
 									);
 								})}
 
-								{overlay.kind === 'shape' &&
+								{isBoxOverlay(overlay) &&
 									STRETCH_EDGES.map((edge) => {
 										const handleX =
 											bounds.x +

@@ -51,8 +51,11 @@ test('keyboard-only annotation journey', async ({page}) => {
 	// arrow to the star sticker.
 
 	await tabUntil(page, 'Add text');
-	await page.keyboard.press('ArrowRight');
-	await page.keyboard.press('ArrowRight');
+
+	for (let step = 0; step < 3; step++) {
+		await page.keyboard.press('ArrowRight');
+	}
+
 	await page.keyboard.press('Enter');
 
 	await expect(status).toContainText('Star sticker added');
@@ -75,8 +78,11 @@ test('keyboard-only annotation journey', async ({page}) => {
 	// the arrows walk back to Add text.
 
 	await tabUntil(page, 'Add star sticker');
-	await page.keyboard.press('ArrowLeft');
-	await page.keyboard.press('ArrowLeft');
+
+	for (let step = 0; step < 3; step++) {
+		await page.keyboard.press('ArrowLeft');
+	}
+
 	await page.keyboard.press('Enter');
 
 	await expect(page.getByRole('dialog').nth(1)).toBeVisible();

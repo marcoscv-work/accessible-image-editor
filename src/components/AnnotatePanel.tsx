@@ -222,7 +222,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 
 	const panelRef = useRef<HTMLElement>(null);
 
-	const controlCount = 2 + STICKER_KINDS.length;
+	const controlCount = 3 + STICKER_KINDS.length;
 
 	const handlePanelKeyDown = (event: React.KeyboardEvent) => {
 		const origin = (event.target as Element).closest('[data-index]');
@@ -299,6 +299,27 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		focusOverlay(id);
 	};
 
+	const addRedaction = () => {
+		const id = nextId('redact');
+
+		dispatch({
+			overlay: {
+				height: Math.round(bounds.height * 0.15),
+				id,
+				kind: 'redact',
+				level: 'medium',
+				width: Math.round(bounds.width * 0.25),
+				x: Math.round(centerX - bounds.width * 0.125),
+				y: Math.round(centerY - bounds.height * 0.075),
+			},
+			type: 'add-overlay',
+		});
+
+		onAnnounce(t('annotation-added', t('overlay-redact-label')));
+
+		focusOverlay(id);
+	};
+
 	const addSticker = (sticker: StickerKind) => {
 		const id = nextId('sticker');
 
@@ -349,6 +370,15 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 				>
 					{t('add-rectangle')}
 				</ClayButton>
+
+				<ClayButton
+					{...rovingProps(2)}
+					displayType="secondary"
+					onClick={addRedaction}
+					size="sm"
+				>
+					{t('add-redaction')}
+				</ClayButton>
 			</div>
 
 			<div
@@ -358,7 +388,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 			>
 				{STICKER_KINDS.map((sticker, stickerIndex) => (
 					<ClayButton
-						{...rovingProps(2 + stickerIndex)}
+						{...rovingProps(3 + stickerIndex)}
 						aria-label={t(`add-sticker-${sticker}`)}
 						displayType="secondary"
 						key={sticker}

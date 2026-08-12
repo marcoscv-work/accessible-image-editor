@@ -89,7 +89,39 @@ export interface StickerOverlay {
 	y: number;
 }
 
-export type Overlay = ShapeOverlay | StickerOverlay | TextOverlay;
+export type RedactLevel = 'coarse' | 'fine' | 'medium';
+
+/**
+ * A pixelated block: same geometry as a rectangle, but instead of a fill
+ * it reveals a heavily downsampled copy of the image underneath.
+ */
+export interface RedactOverlay {
+	height: number;
+	id: string;
+	kind: 'redact';
+	level: RedactLevel;
+	opacity?: number;
+	rotation?: number;
+	width: number;
+	x: number;
+	y: number;
+}
+
+export type Overlay =
+	| RedactOverlay
+	| ShapeOverlay
+	| StickerOverlay
+	| TextOverlay;
+
+/**
+ * Overlays whose geometry is a box, so they share the free-stretch edge
+ * handles and the width/height properties.
+ */
+export function isBoxOverlay(
+	overlay: Overlay
+): overlay is RedactOverlay | ShapeOverlay {
+	return overlay.kind === 'redact' || overlay.kind === 'shape';
+}
 
 /**
  * The whole edit session as plain, serializable data. Every operation the

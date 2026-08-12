@@ -4,7 +4,14 @@
  */
 
 import {t} from '../i18n';
-import {Overlay, StickerKind, StickerOverlay} from '../state/types';
+import {
+	Overlay,
+	RedactLevel,
+	Rotation,
+	StickerKind,
+	StickerOverlay,
+} from '../state/types';
+import {rotationTransform} from './geometry';
 
 export function starPath(cx: number, cy: number, size: number): string {
 	const outer = size / 2;
@@ -454,6 +461,7 @@ export function overlayBounds(overlay: Overlay): {
 	y: number;
 } {
 	switch (overlay.kind) {
+		case 'redact':
 		case 'shape':
 			return {
 				height: overlay.height,
@@ -512,6 +520,9 @@ export function overlayTransform(overlay: Overlay): string | undefined {
 
 export function overlayLabel(overlay: Overlay): string {
 	switch (overlay.kind) {
+		case 'redact':
+			return t('overlay-redact-label');
+
 		case 'shape':
 			return t('overlay-shape-label');
 
@@ -532,16 +543,96 @@ export function overlayLabel(overlay: Overlay): string {
  * offers no alpha channel) wraps the node as a group attribute, so it
  * rasterizes identically at export.
  */
-export function OverlayShape({overlay}: {overlay: Overlay}) {
+export interface RedactSource {
+	pixelUrls: Record<RedactLevel, string>;
+	rotation: Rotation;
+	sourceHeight: number;
+	sourceWidth: number;
+}
+
+export function OverlayShape({
+	overlay,
+	redactSource,
+}: {
+	overlay: Overlay;
+	redactSource?: RedactSource;
+}) {
 	const opacity = (overlay.opacity ?? 100) / 100;
 
-	const node = renderOverlayNode(overlay);
+	const node = renderOverlayNode(overlay, redactSource);
 
 	return opacity < 1 ? <g opacity={opacity}>{node}</g> : node;
 }
 
-function renderOverlayNode(overlay: Overlay) {
+/**
+ * A redaction reveals a heavily downsampled copy of the image through a
+ * clip, scaled back up with nearest-neighbor: real pixelation, entirely
+ * declarative. The inner counter-rotation keeps the mosaic locked to the
+ * photo when the block itself is rotated.
+ */
+function RedactBlock({
+	overlay,
+	source,
+}: {
+	overlay: Extract<Overlay, {kind: 'redact'}>;
+	source?: RedactSource;
+}) {
+	const clipId = `redact-clip-${overlay.id}`;
+
+	if (!source) {
+		return (
+			<rect
+				fill="#14151f"
+				height={overlay.height}
+				width={overlay.width}
+				x={overlay.x}
+				y={overlay.y}
+			/>
+		);
+	}
+
+	const centerX = overlay.x + overlay.width / 2;
+	const centerY = overlay.y + overlay.height / 2;
+
+	return (
+		<>
+			<defs>
+				<clipPath id={clipId}>
+					<rect
+						height={overlay.height}
+						width={overlay.width}
+						x={overlay.x}
+						y={overlay.y}
+					/>
+				</clipPath>
+			</defs>
+
+			<g clipPath={`url(#${clipId})`}>
+				<g
+					transform={`rotate(${-(
+						overlay.rotation ?? 0
+					)} ${centerX} ${centerY})`}
+				>
+					<g transform={rotationTransform(source)}>
+						<image
+							height={source.sourceHeight}
+							href={source.pixelUrls[overlay.level]}
+							preserveAspectRatio="none"
+							style={{imageRendering: 'pixelated'}}
+							width={source.sourceWidth}
+						/>
+					</g>
+				</g>
+			</g>
+		</>
+	);
+}
+
+function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 	switch (overlay.kind) {
+		case 'redact':
+			return <RedactBlock overlay={overlay} source={redactSource} />;
+
 		case 'shape':
 			return (
 				<rect

@@ -144,6 +144,12 @@ export function Workspace({
 						onAnnounce={onAnnounce}
 						onSelect={onSelectOverlay}
 						overlays={state.overlays}
+						redactSource={{
+							pixelUrls: image.pixelUrls,
+							rotation: state.rotation,
+							sourceHeight: state.sourceHeight,
+							sourceWidth: state.sourceWidth,
+						}}
 						selectedId={selectedOverlayId}
 						zoom={zoom}
 					/>

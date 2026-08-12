@@ -18,6 +18,7 @@ const IMAGE: LoadedImage = {
 	blob: new Blob(),
 	fileName: 'test.jpg',
 	height: 800,
+	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png'},
 	previewUrl: 'test.jpg',
 	type: 'image/jpeg',
 	width: 1200,
@@ -171,15 +172,18 @@ describe('Editor workspace composition', () => {
 			name: 'Crop handle: right edge',
 		});
 
-		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(0);
+		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(4);
+		expect(container.querySelector('.crop-grid-visible')).toBeNull();
 
 		fireEvent.keyDown(handle, {key: 'ArrowLeft'});
 
-		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(4);
+		expect(
+			container.querySelector('.crop-grid-visible')
+		).toBeInTheDocument();
 
 		fireEvent.keyUp(handle, {key: 'ArrowLeft'});
 
-		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(0);
+		expect(container.querySelector('.crop-grid-visible')).toBeNull();
 	});
 
 	it('offers the recenter control only once the crop is a selection', () => {

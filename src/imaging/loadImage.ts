@@ -3,7 +3,20 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {RedactLevel} from '../state/types';
+
 export const PREVIEW_MAX_SIZE = 2048;
+
+/**
+ * Longest side, in pixels, of the downsampled copy behind each redaction
+ * level. Scaling these back up with nearest-neighbor is what produces the
+ * mosaic, so a smaller source means coarser blocks.
+ */
+const REDACT_SIZES: Record<RedactLevel, number> = {
+	coarse: 24,
+	fine: 96,
+	medium: 48,
+};
 
 export interface LoadedImage {
 
@@ -21,8 +34,37 @@ export interface LoadedImage {
 	 */
 	previewUrl: string;
 
+	/**
+	 * Data URLs of the downsampled sources used by redaction blocks, one
+	 * per level. Data (not blob) URLs so the export SVG, which runs in
+	 * secure static mode, can load them too.
+	 */
+	pixelUrls: Record<RedactLevel, string>;
+
 	type: string;
 	width: number;
+}
+
+function downsampleToDataURL(
+	bitmap: ImageBitmap,
+	longestSide: number
+): string {
+	const scale = longestSide / Math.max(bitmap.width, bitmap.height);
+
+	const canvas = document.createElement('canvas');
+
+	canvas.width = Math.max(Math.round(bitmap.width * scale), 1);
+	canvas.height = Math.max(Math.round(bitmap.height * scale), 1);
+
+	const context = canvas.getContext('2d');
+
+	if (!context) {
+		return '';
+	}
+
+	context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+	return canvas.toDataURL('image/png');
 }
 
 /**
@@ -75,12 +117,19 @@ export async function loadImage(
 		previewUrl = URL.createObjectURL(blob);
 	}
 
+	const pixelUrls = {
+		coarse: downsampleToDataURL(bitmap, REDACT_SIZES.coarse),
+		fine: downsampleToDataURL(bitmap, REDACT_SIZES.fine),
+		medium: downsampleToDataURL(bitmap, REDACT_SIZES.medium),
+	};
+
 	bitmap.close();
 
 	return {
 		blob,
 		fileName,
 		height,
+		pixelUrls,
 		previewUrl,
 		type: blob.type || 'image/jpeg',
 		width,
