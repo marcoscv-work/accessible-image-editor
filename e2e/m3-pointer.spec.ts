@@ -24,6 +24,11 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 
 	await expect(status).toContainText('Rectangle added');
 
+	// The first annotation reveals the Layers section; the sidebar
+	// scrolls so it enters the view.
+
+	await expect(page.locator('#layers-panel-title')).toBeInViewport();
+
 	// Drag the rectangle 60px right, 40px down.
 
 	const hit = page

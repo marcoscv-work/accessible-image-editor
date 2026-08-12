@@ -152,6 +152,22 @@ export default function EditorModal({image, onClose}: Props) {
 		[]
 	);
 
+	// When the first annotation appears, the Layers panel materializes
+	// below the fold: scroll the Annotate title to the top so the new
+	// section enters the sidebar viewport.
+
+	const previousOverlayCount = useRef(0);
+
+	useEffect(() => {
+		if (previousOverlayCount.current === 0 && state.overlays.length > 0) {
+			document
+				.getElementById('annotate-panel-title')
+				?.scrollIntoView?.({behavior: 'smooth', block: 'start'});
+		}
+
+		previousOverlayCount.current = state.overlays.length;
+	}, [state.overlays.length]);
+
 	// Rotation swaps the stage bounds without resizing the workspace.
 
 	useEffect(() => {
