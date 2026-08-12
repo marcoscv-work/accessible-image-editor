@@ -382,9 +382,15 @@ export function CropMarquee({
 	const visualRadius = 6 / zoom;
 	const strokeWidth = 2 / zoom;
 
-	// Paint order inside the marquee: border and grid, the move surface,
-	// the annotations, the recenter control (above them, so it stays
-	// clickable), and the resize handles on top.
+	// Paint order inside the marquee: the grid and the move surface, the
+	// annotations, then the dim layer (so anything outside the crop looks
+	// dimmed, annotations included, matching what the export will cut),
+	// the border, the recenter control, and the resize handles on top.
+
+	const dimPath =
+		`M0 0H${bounds.width}V${bounds.height}H0Z` +
+		`M${crop.x} ${crop.y}` +
+		`H${crop.x + crop.width}V${crop.y + crop.height}H${crop.x}Z`;
 
 	if (!showCrop) {
 		return <g>{children}</g>;
@@ -397,17 +403,6 @@ export function CropMarquee({
 			<desc id="crop-handle-description">
 				{t('crop-handle-description')}
 			</desc>
-
-			<rect
-				className="crop-border"
-				fill="none"
-				height={crop.height}
-				pointerEvents="none"
-				strokeWidth={strokeWidth}
-				width={crop.width}
-				x={crop.x}
-				y={crop.y}
-			/>
 
 			<g
 					className={
@@ -475,6 +470,25 @@ export function CropMarquee({
 			)}
 
 			{children}
+
+			<path
+				className="crop-dim"
+				d={dimPath}
+				fillRule="evenodd"
+				pointerEvents="none"
+			/>
+
+			<rect
+				className="crop-border"
+				fill="none"
+				height={crop.height}
+				pointerEvents="none"
+				strokeWidth={strokeWidth}
+				width={crop.width}
+				x={crop.x}
+				y={crop.y}
+			/>
+
 
 			{showRecenter &&
 				(crop.width < bounds.width ||

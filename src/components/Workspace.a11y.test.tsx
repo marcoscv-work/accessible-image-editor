@@ -169,6 +169,26 @@ describe('Editor workspace composition', () => {
 		).toHaveAttribute('slope', '1.4');
 	});
 
+	it('paints the dim layer above the annotations', () => {
+		const {container} = render(<EditorHarness />);
+
+		const classes = [
+			...(container.querySelectorAll(
+				'.editor-stage > g > *'
+			) as NodeListOf<Element>),
+		].map((node) => node.getAttribute('class') ?? node.tagName);
+
+		// The annotations group sits before the dim, so whatever falls
+		// outside the crop looks dimmed exactly like the image under it.
+
+		expect(classes.indexOf('crop-dim')).toBeGreaterThan(
+			classes.indexOf('crop-move')
+		);
+		expect(classes.indexOf('crop-border')).toBeGreaterThan(
+			classes.indexOf('crop-dim')
+		);
+	});
+
 	it('shows the thirds grid only while a crop gesture runs', () => {
 		const {container} = render(<EditorHarness />);
 

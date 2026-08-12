@@ -70,11 +70,6 @@ export function Workspace({
 		}
 	};
 
-	const dimPath =
-		`M0 0H${bounds.width}V${bounds.height}H0Z` +
-		`M${crop.x} ${crop.y}` +
-		`H${crop.x + crop.width}V${crop.y + crop.height}H${crop.x}Z`;
-
 	return (
 		<div
 			aria-describedby="workspace-description"
@@ -130,15 +125,6 @@ export function Workspace({
 						width={state.sourceWidth}
 					/>
 				</g>
-
-				{showCrop && (
-					<path
-						className="crop-dim"
-						d={dimPath}
-						fillRule="evenodd"
-						pointerEvents="none"
-					/>
-				)}
 
 				<CropMarquee
 					bounds={bounds}
