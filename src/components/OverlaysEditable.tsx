@@ -677,13 +677,17 @@ export function OverlaysEditable({
 						{editing?.id === overlay.id &&
 							overlay.kind === 'text' && (
 								<foreignObject
-									height={bounds.height * 1.5}
-									width={Math.max(
-										bounds.width * 1.5,
-										overlay.fontSize * 4
-									)}
+									height={overlay.fontSize * 1.5}
+									width={
+										textWidth(
+											editing.draft || ' ',
+											overlay.fontFamily,
+											overlay.fontSize
+										) +
+										overlay.fontSize * 1.2
+									}
 									x={bounds.x - overlay.fontSize * 0.25}
-									y={bounds.y - bounds.height * 0.25}
+									y={bounds.y - overlay.fontSize * 0.15}
 								>
 									<input
 										aria-label={t('text-content')}
@@ -721,8 +725,9 @@ export function OverlaysEditable({
 								</foreignObject>
 							)}
 
-						{(selectedId === overlay.id ||
-							focus?.id === overlay.id) && (
+						{editing?.id !== overlay.id &&
+							(selectedId === overlay.id ||
+								focus?.id === overlay.id) && (
 							<g aria-hidden="true" className="object-handles">
 								{RESIZE_CORNERS.map((corner) => {
 									const handleX =
