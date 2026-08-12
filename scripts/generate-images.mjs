@@ -16,7 +16,7 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
-const SAMPLE = path.join(ROOT, 'public/sample.jpg');
+const SAMPLE = path.join(ROOT, 'src/assets/sample.jpg');
 const PERF_ASSET = path.join(ROOT, 'e2e/assets/perf-20mp.jpg');
 
 const TARGET_PIXELS = 20_000_000;

@@ -9,6 +9,7 @@ import {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useRef, useState} from 'react';
 
+import sampleUrl from './assets/sample.jpg';
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
@@ -35,9 +36,10 @@ export default function App() {
 	};
 
 	const openSample = async () => {
-		const response = await fetch(
-			`${import.meta.env.BASE_URL}sample.jpg`
-		);
+		// Imported as a module so the bundler fingerprints it: a new
+		// sample can never be masked by a cached URL.
+
+		const response = await fetch(sampleUrl);
 
 		await open(await response.blob(), 'sample.jpg');
 	};

@@ -97,7 +97,7 @@ e2e/            Keyboard-only Playwright journeys, axe scans, 20MP perf budget
 
 ## Credits
 
-The bundled sample image (`public/sample.jpg`) is an [Unsplash](https://unsplash.com) photo, used under the Unsplash License. Photographer credit still to be filled in.
+The bundled sample image (`src/assets/sample.jpg`) is an [Unsplash](https://unsplash.com) photo, used under the Unsplash License. Photographer credit still to be filled in.
 
 ## Out of scope (product-phase concerns)
 
