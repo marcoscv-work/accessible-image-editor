@@ -387,6 +387,30 @@
 }
 
 /*
+ * Focus is signalled on the whole row (the name button's own outline
+ * would be clipped by the actions overlay): a two-tone inset ring on a
+ * pseudo-element painted above the row content, visible against both the
+ * white and the selected primary backgrounds.
+ */
+
+.editor-layer-name:focus-visible {
+	outline: none;
+}
+
+.editor-layer-item::after {
+	content: '';
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+}
+
+.editor-layer-item:focus-within::after {
+	box-shadow:
+		inset 0 0 0 2px #fff,
+		inset 0 0 0 4px var(--primary, #0b5fff);
+}
+
+/*
  * Per-row actions reveal on hover or keyboard focus. They overlay the
  * right edge of the row (no reserved width, so the layer name is never
  * truncated by hidden controls) with the row background inherited to
