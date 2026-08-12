@@ -93,6 +93,24 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await expect(status).toContainText('Text: Hello added');
 
+	// Revealing the layers panel must scroll the sidebar only: the modal
+	// shell itself never scrolls, or the header and the action bar would
+	// be pushed out of view.
+
+	await expect(page.locator('.modal-title')).toBeVisible();
+	await expect(page.locator('.editor-bottom-bar')).toBeVisible();
+	expect(
+		await page.evaluate(
+			() =>
+				[...document.querySelectorAll('*')].filter(
+					(element) =>
+						element.scrollTop > 0 &&
+						!element.classList.contains('editor-sidebar') &&
+						!element.classList.contains('editor-workspace')
+				).length
+		)
+	).toBe(0);
+
 	// Pick a filter preset with the arrow keys inside the radio group.
 
 	await tabUntil(page, 'filter-none');

@@ -172,16 +172,35 @@ export default function EditorModal({image, onClose, sections}: Props) {
 	);
 
 	// When the first annotation appears, the Layers panel materializes
-	// below the fold: scroll the Annotate title to the top so the new
-	// section enters the sidebar viewport.
+	// below the fold: bring the Annotate title to the top of the sidebar
+	// so the new section enters the view.
+	//
+	// This scrolls the sidebar explicitly rather than through
+	// scrollIntoView, which walks up the ancestors and would also scroll
+	// the modal itself, pushing the header out of sight.
+
+	const sidebarRef = useRef<HTMLElement>(null);
 
 	const previousOverlayCount = useRef(0);
 
 	useEffect(() => {
-		if (previousOverlayCount.current === 0 && state.overlays.length > 0) {
-			document
-				.getElementById('annotate-panel-title')
-				?.scrollIntoView?.({behavior: 'smooth', block: 'start'});
+		const sidebar = sidebarRef.current;
+		const title = document.getElementById('annotate-panel-title');
+
+		if (
+			previousOverlayCount.current === 0 &&
+			state.overlays.length > 0 &&
+			sidebar &&
+			title
+		) {
+			const delta =
+				title.getBoundingClientRect().top -
+				sidebar.getBoundingClientRect().top;
+
+			sidebar.scrollTo({
+				behavior: 'smooth',
+				top: sidebar.scrollTop + delta,
+			});
 		}
 
 		previousOverlayCount.current = state.overlays.length;
@@ -404,6 +423,7 @@ export default function EditorModal({image, onClose, sections}: Props) {
 						<aside
 							aria-label={t('edit-controls')}
 							className="editor-sidebar"
+							ref={sidebarRef}
 						>
 							{enabled.crop && (
 								<CropPanel

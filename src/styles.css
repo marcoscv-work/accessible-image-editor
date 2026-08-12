@@ -26,10 +26,21 @@
 
 /* Editor layout */
 
+/*
+ * The workspace and the sidebar are the only scroll containers: if the
+ * modal shell could scroll, a stray scroll (a focus jump, an anchored
+ * reveal) would push the header and the action bar out of view.
+ */
+
 .image-editor-modal .modal-content {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	overflow: hidden;
+}
+
+.image-editor-modal .modal-body {
+	overflow: hidden;
 }
 
 .image-editor {
