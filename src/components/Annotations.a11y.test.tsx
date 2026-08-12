@@ -39,6 +39,7 @@ function AnnotationHarness() {
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
+				onCenterCrop={() => {}}
 				onSelectOverlay={setSelectedId}
 				onZoom={() => {}}
 				onZoomFit={() => {}}
@@ -94,6 +95,7 @@ function TextStageHarness() {
 			dispatch={dispatch}
 			image={IMAGE}
 			onAnnounce={() => {}}
+			onCenterCrop={() => {}}
 			onSelectOverlay={setSelectedId}
 			onZoom={() => {}}
 			onZoomFit={() => {}}

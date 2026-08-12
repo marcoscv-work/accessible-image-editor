@@ -18,6 +18,7 @@ interface Props {
 	dispatch: (action: EditorAction) => void;
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
+	onCenterCrop: () => void;
 	onSelectOverlay: (id: string | null) => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
@@ -36,6 +37,7 @@ export function Workspace({
 	dispatch,
 	image,
 	onAnnounce,
+	onCenterCrop,
 	onSelectOverlay,
 	onZoom,
 	onZoomFit,
@@ -130,9 +132,11 @@ export function Workspace({
 				/>
 
 				<CropMarquee
+					bounds={bounds}
 					crop={crop}
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
+					onCenterCrop={onCenterCrop}
 					zoom={zoom}
 				>
 					<OverlaysEditable

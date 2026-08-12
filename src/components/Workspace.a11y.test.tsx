@@ -40,6 +40,7 @@ function EditorHarness() {
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
+				onCenterCrop={() => {}}
 				onSelectOverlay={() => {}}
 				onZoom={(direction) =>
 					setZoom((current) => current + direction * 0.25)
@@ -161,6 +162,37 @@ describe('Editor workspace composition', () => {
 		expect(
 			container.querySelector('#preview-filter feFuncR')
 		).toHaveAttribute('slope', '1.4');
+	});
+
+	it('shows the thirds grid only while a crop gesture runs', () => {
+		const {container} = render(<EditorHarness />);
+
+		const handle = screen.getByRole('button', {
+			name: 'Crop handle: right edge',
+		});
+
+		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(0);
+
+		fireEvent.keyDown(handle, {key: 'ArrowLeft'});
+
+		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(4);
+
+		fireEvent.keyUp(handle, {key: 'ArrowLeft'});
+
+		expect(container.querySelectorAll('.crop-grid line')).toHaveLength(0);
+	});
+
+	it('offers the recenter control only once the crop is a selection', () => {
+		const {container} = render(<EditorHarness />);
+
+		expect(container.querySelector('.crop-recenter')).toBeNull();
+
+		const widthInput = screen.getByLabelText('Width');
+
+		fireEvent.change(widthInput, {target: {value: '400'}});
+		fireEvent.keyDown(widthInput, {key: 'Enter'});
+
+		expect(container.querySelector('.crop-recenter')).toBeInTheDocument();
 	});
 
 	it('steps an adjustment slider by 10 with shift plus arrows', () => {

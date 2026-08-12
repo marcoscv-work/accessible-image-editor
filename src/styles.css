@@ -91,6 +91,34 @@
 	cursor: move;
 }
 
+/* Composition aid: thirds grid, only while a crop gesture runs. */
+
+.crop-grid line {
+	stroke: rgba(255, 255, 255, 0.65);
+}
+
+/* Recenter control at the middle of the crop. */
+
+.crop-recenter {
+	cursor: pointer;
+}
+
+.crop-recenter-disc {
+	fill: rgba(255, 255, 255, 0.85);
+}
+
+.crop-recenter-dot,
+.crop-recenter-mark {
+	fill: #14151f;
+	pointer-events: none;
+	stroke: #14151f;
+}
+
+.crop-recenter:focus-visible .crop-recenter-disc {
+	stroke: var(--editor-accent);
+	stroke-width: 3px;
+}
+
 .crop-handle-visual {
 	fill: #fff;
 	stroke: var(--editor-accent);

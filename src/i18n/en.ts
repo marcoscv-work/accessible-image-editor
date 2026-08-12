@@ -44,6 +44,7 @@ export default {
 	'crop-area': 'Crop area',
 	'crop-area-description':
 		'Use the arrow keys to move the crop area by 1 pixel, hold Shift for 10 pixels. Tab to reach each resize handle.',
+	'crop-centered': 'Crop centered in the view at {0}% zoom',
 	'crop-handle-description':
 		'Use the arrow keys to move this handle by 1 pixel, hold Shift for 10 pixels.',
 	'crop-handle-e': 'Crop handle: right edge',

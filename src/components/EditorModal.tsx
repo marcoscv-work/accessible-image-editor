@@ -21,7 +21,7 @@ import {
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
-import {rotatedSize} from '../state/types';
+import {CropRect, rotatedSize} from '../state/types';
 import {AdjustPanel} from './AdjustPanel';
 import {AnnotatePanel} from './AnnotatePanel';
 import {useAnnouncer} from './Announcer';
@@ -208,6 +208,71 @@ export default function EditorModal({image, onClose}: Props) {
 		announce(t('zoom-level', Math.round(next * 100)));
 	};
 
+	/**
+	 * Focus the view on the crop: fit that region to the workspace and
+	 * scroll it to the center. A view operation only, so it never enters
+	 * the edit history.
+	 */
+	const pendingCenterRef = useRef<{crop: CropRect; zoom: number} | null>(
+		null
+	);
+
+	const scrollCropToCenter = (crop: CropRect, level: number) => {
+		const element = workspaceRef.current;
+
+		if (!element) {
+			return;
+		}
+
+		element.scrollLeft =
+			STAGE_PADDING / 2 +
+			(crop.x + crop.width / 2) * level -
+			element.clientWidth / 2;
+		element.scrollTop =
+			STAGE_PADDING / 2 +
+			(crop.y + crop.height / 2) * level -
+			element.clientHeight / 2;
+	};
+
+	// The scroll can only be applied once the stage has re-laid out at
+	// the new zoom, or the browser clamps it to the previous scroll
+	// range. Effects run after the DOM update, so this is the safe spot.
+
+	useEffect(() => {
+		const pending = pendingCenterRef.current;
+
+		if (pending && pending.zoom === zoom) {
+			pendingCenterRef.current = null;
+
+			scrollCropToCenter(pending.crop, zoom);
+		}
+	});
+
+	const centerCrop = () => {
+		autoFitRef.current = false;
+
+		const element = workspaceRef.current;
+
+		if (!element) {
+			return;
+		}
+
+		const {crop} = state;
+
+		const next = fitZoom(element, crop.width, crop.height);
+
+		if (next === zoom) {
+			scrollCropToCenter(crop, next);
+		}
+		else {
+			pendingCenterRef.current = {crop, zoom: next};
+
+			setZoom(next);
+		}
+
+		announce(t('crop-centered', Math.round(next * 100)));
+	};
+
 	const undo = () => {
 		const label = undoLabel(history);
 
@@ -287,6 +352,7 @@ export default function EditorModal({image, onClose}: Props) {
 							dispatch={dispatch}
 							image={image}
 							onAnnounce={announce}
+							onCenterCrop={centerCrop}
 							onSelectOverlay={setSelectedOverlayId}
 							onZoom={zoomBy}
 							onZoomFit={zoomToFit}

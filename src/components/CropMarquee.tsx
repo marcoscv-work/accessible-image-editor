@@ -176,11 +176,18 @@ interface Props {
 	 * must sit above the whole-area move rect (or it swallows their
 	 * pointer events) but below the handles.
 	 */
+	/**
+	 * Size of the rotated image, so the marquee knows whether the crop
+	 * is a real selection (and worth offering the recenter control).
+	 */
+	bounds: {height: number; width: number};
+
 	children?: React.ReactNode;
 
 	crop: CropRect;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onCenterCrop: () => void;
 
 	/**
 	 * CSS pixels per SVG user unit, used to keep handle hit targets at
@@ -190,10 +197,12 @@ interface Props {
 }
 
 export function CropMarquee({
+	bounds,
 	children,
 	crop,
 	dispatch,
 	onAnnounce,
+	onCenterCrop,
 	zoom,
 }: Props) {
 	const cropRef = useRef(crop);
@@ -204,6 +213,12 @@ export function CropMarquee({
 		key: string;
 		modality: FocusModality;
 	} | null>(null);
+
+	/**
+	 * True while a resize or move gesture runs: the thirds grid shows
+	 * only then, as a composition aid that never clutters the idle view.
+	 */
+	const [gesturing, setGesturing] = useState(false);
 
 	const keyboardGesture = useRef(false);
 
@@ -242,6 +257,8 @@ export function CropMarquee({
 
 		keyboardGesture.current = true;
 
+		setGesturing(true);
+
 		// Arrow keys are keyboard interaction even after a mouse focus:
 		// surface the full ring.
 
@@ -266,6 +283,8 @@ export function CropMarquee({
 
 		keyboardGesture.current = false;
 
+		setGesturing(false);
+
 		dispatch({crop: cropRef.current, type: 'set-crop'});
 
 		announceCrop();
@@ -273,6 +292,8 @@ export function CropMarquee({
 
 	const handlePointerDown = (event: React.PointerEvent<SVGElement>) => {
 		event.currentTarget.setPointerCapture?.(event.pointerId);
+
+		setGesturing(true);
 
 		pointerGesture.current = {
 			crop: cropRef.current,
@@ -313,6 +334,8 @@ export function CropMarquee({
 
 		pointerGesture.current = null;
 
+		setGesturing(false);
+
 		dispatch({crop: cropRef.current, type: 'set-crop'});
 
 		announceCrop();
@@ -340,6 +363,32 @@ export function CropMarquee({
 				x={crop.x}
 				y={crop.y}
 			/>
+
+			{gesturing && (
+				<g className="crop-grid" pointerEvents="none">
+					{[1, 2].map((step) => (
+						<line
+							key={`v-${step}`}
+							strokeWidth={strokeWidth}
+							x1={crop.x + (crop.width * step) / 3}
+							x2={crop.x + (crop.width * step) / 3}
+							y1={crop.y}
+							y2={crop.y + crop.height}
+						/>
+					))}
+
+					{[1, 2].map((step) => (
+						<line
+							key={`h-${step}`}
+							strokeWidth={strokeWidth}
+							x1={crop.x}
+							x2={crop.x + crop.width}
+							y1={crop.y + (crop.height * step) / 3}
+							y2={crop.y + (crop.height * step) / 3}
+						/>
+					))}
+				</g>
+			)}
 
 			<rect
 				aria-describedby="crop-area-description"
@@ -375,6 +424,48 @@ export function CropMarquee({
 					zoom={zoom}
 				/>
 			)}
+
+			{!gesturing &&
+				(crop.width < bounds.width || crop.height < bounds.height) && (
+					<g
+						className="crop-recenter"
+						onClick={onCenterCrop}
+						onKeyDown={(event: React.KeyboardEvent) => {
+							if (event.key === 'Enter' || event.key === ' ') {
+								event.preventDefault();
+								onCenterCrop();
+							}
+						}}
+						role="button"
+						tabIndex={0}
+					>
+						<title>{t('center-crop')}</title>
+
+						<circle
+							className="crop-recenter-disc"
+							cx={crop.x + crop.width / 2}
+							cy={crop.y + crop.height / 2}
+							r={14 / zoom}
+						/>
+
+						<rect
+							className="crop-recenter-mark"
+							fill="none"
+							height={12 / zoom}
+							strokeWidth={2 / zoom}
+							width={12 / zoom}
+							x={crop.x + crop.width / 2 - 6 / zoom}
+							y={crop.y + crop.height / 2 - 6 / zoom}
+						/>
+
+						<circle
+							className="crop-recenter-dot"
+							cx={crop.x + crop.width / 2}
+							cy={crop.y + crop.height / 2}
+							r={2.5 / zoom}
+						/>
+					</g>
+				)}
 
 			{children}
 

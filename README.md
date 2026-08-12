@@ -12,6 +12,7 @@ The editor is **parametric and declarative**:
 - The preview is **SVG in the DOM**, not canvas: the raster image is an `<image>` element, color adjustments are declarative SVG filter primitives (`feComponentTransfer`, `feColorMatrix`), and every annotation is a real, focusable, labelled DOM node.
 - The export serializes **the same SVG** at full resolution and rasterizes it offscreen; a canvas exists only as the final encoder, invisible to the user and absent from the accessibility tree. Preview and export share the same components (`FilterDefs`, `rotationTransform`, `OverlayShape`), so what you see is what you save by construction.
 - Focus on the stage (crop area, handles, annotations) is a **Clay-style double ring** (white inner + accent outer) drawn as real SVG geometry, because browsers do not reliably paint CSS outlines on SVG children.
+- While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop fits and centers that region in the view (a view operation, so it never enters the edit history).
 - Selected annotations expose **on-stage resize and rotate handles** (proportional by default, Shift for free rectangle resize or 15-degree rotation snaps). They are a pointer-only affordance: the layer properties panel is the accessible, keyboard-first equivalent for the same operations.
 - The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps 20MP images responsive.
 
