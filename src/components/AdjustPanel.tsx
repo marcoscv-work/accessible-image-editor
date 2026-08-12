@@ -53,35 +53,6 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 
 	return (
 		<EditorSection title={t('adjustments')} titleId="adjust-panel-title">
-			{hasAdjustments && (
-				<div className="editor-panel-actions">
-					<ClayButton
-					displayType="secondary"
-					onClick={() => {
-						dispatch({type: 'reset-adjustments'});
-						onAnnounce(t('adjustments-reset'));
-
-						// This button disappears once everything is back
-						// to zero: hand focus to the first slider so it
-						// is never dropped.
-
-						window.setTimeout(
-							() =>
-								document
-									.getElementById(
-										`adjust-${SLIDERS[0].key}`
-									)
-									?.focus(),
-							0
-						);
-					}}
-					size="xs"
-					>
-						{t('reset-all')}
-					</ClayButton>
-				</div>
-			)}
-
 			{SLIDERS.map(({key, labelKey}) => {
 				const label = t(labelKey);
 				const value = adjustments[key];
@@ -176,6 +147,35 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 					</ClayForm.Group>
 				);
 			})}
+
+			{hasAdjustments && (
+				<div className="editor-panel-actions">
+					<ClayButton
+					displayType="secondary"
+					onClick={() => {
+						dispatch({type: 'reset-adjustments'});
+						onAnnounce(t('adjustments-reset'));
+
+						// This button disappears once everything is back
+						// to zero: hand focus to the adjacent slider so
+						// it is never dropped.
+
+						window.setTimeout(
+							() =>
+								document
+									.getElementById(
+										`adjust-${SLIDERS[SLIDERS.length - 1].key}`
+									)
+									?.focus(),
+							0
+						);
+					}}
+					size="xs"
+					>
+						{t('reset-all')}
+					</ClayButton>
+				</div>
+			)}
 		</EditorSection>
 	);
 }

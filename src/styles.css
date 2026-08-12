@@ -282,7 +282,7 @@
 .editor-panel-actions {
 	display: flex;
 	justify-content: flex-end;
-	margin-bottom: 0.5rem;
+	margin-top: 0.25rem;
 }
 
 .editor-panel-title {
