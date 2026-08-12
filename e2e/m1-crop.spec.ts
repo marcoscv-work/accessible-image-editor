@@ -153,6 +153,49 @@ test('keyboard-only crop journey', async ({page}) => {
 	await expect(sampleButton).toBeFocused();
 });
 
+test('recenter fills the view with the crop', async ({page}) => {
+	await page.goto('/');
+
+	await page.getByRole('button', {name: 'Edit sample image'}).click();
+	await waitForModalSettled(page);
+
+	// A small crop, far from the center of the image.
+
+	for (const [id, value] of [
+		['crop-width', '400'],
+		['crop-height', '260'],
+		['crop-x', '900'],
+		['crop-y', '500'],
+	]) {
+		await page.locator(`#${id}`).fill(value);
+		await page.locator(`#${id}`).press('Enter');
+	}
+
+	await page.locator('.crop-recenter').click();
+
+	await expect(page.getByRole('status')).toContainText('Crop centered');
+
+	const framing = await page.evaluate(() => {
+		const workspace = document.querySelector('.editor-workspace')!;
+		const view = workspace.getBoundingClientRect();
+		const crop = document
+			.querySelector('.crop-border')!
+			.getBoundingClientRect();
+
+		return {
+			dx: Math.abs(crop.x + crop.width / 2 - view.x - view.width / 2),
+			dy: Math.abs(crop.y + crop.height / 2 - view.y - view.height / 2),
+			fill: Math.max(crop.width / view.width, crop.height / view.height),
+		};
+	});
+
+	// Centered within a pixel, and zoomed in until it fills the view.
+
+	expect(framing.dx).toBeLessThanOrEqual(2);
+	expect(framing.dy).toBeLessThanOrEqual(2);
+	expect(framing.fill).toBeGreaterThan(0.9);
+});
+
 test('escape cancels the editor and restores focus', async ({page}) => {
 	await page.goto('/');
 

@@ -44,15 +44,22 @@ const ZOOM_LEVELS = [0.05, 0.1, 0.15, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3];
  */
 const STAGE_PADDING = 48;
 
+const MAX_ZOOM = ZOOM_LEVELS[ZOOM_LEVELS.length - 1];
+
 /**
- * Zoom that fits the image inside the actual workspace element, which
- * already accounts for the header, the bottom bar, and the sidebar.
+ * Zoom that fits the given size inside the actual workspace element,
+ * which already accounts for the header, the bottom bar, and the sidebar.
  * Falls back to a window-based estimate until the workspace exists.
+ *
+ * `max` caps the result: fitting the whole image never upscales it past
+ * its natural size, while focusing on a crop is allowed to zoom in so the
+ * region fills the view.
  */
 function fitZoom(
 	workspace: HTMLElement | null,
 	width: number,
-	height: number
+	height: number,
+	max = 1
 ): number {
 	const availableWidth = workspace
 		? workspace.clientWidth - STAGE_PADDING
@@ -61,7 +68,7 @@ function fitZoom(
 		? workspace.clientHeight - STAGE_PADDING
 		: Math.max(window.innerHeight - 200, 240);
 
-	const fit = Math.min(availableWidth / width, availableHeight / height, 1);
+	const fit = Math.min(availableWidth / width, availableHeight / height, max);
 
 	return Math.max(Math.floor(fit * 100) / 100, 0.01);
 }
@@ -305,7 +312,12 @@ export default function EditorModal({image, onClose, sections}: Props) {
 
 		const {crop} = state;
 
-		const next = fitZoom(element, crop.width, crop.height);
+		const next = fitZoom(
+			element,
+			crop.width,
+			crop.height,
+			MAX_ZOOM
+		);
 
 		if (next === zoom) {
 			scrollCropToCenter(crop, next);
