@@ -239,12 +239,12 @@ describe('Annotations, filters, and layers', () => {
 
 		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
 
-		// The overlay's visual rect is the only rect without a class (the
-		// crop border, move surface, and hit targets are all classed).
+		// The overlay's visual rect is the only filled rect without a
+		// class (crop chrome is classed, the clip rect has no fill).
 
 		const shape = () =>
 			container.querySelector(
-				'.editor-workspace rect:not([class])'
+				'.editor-workspace rect[fill]:not([class])'
 			) as SVGRectElement;
 
 		expect(shape()).toHaveAttribute('fill', '#0b5fff');

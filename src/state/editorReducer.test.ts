@@ -189,6 +189,27 @@ describe('editorReducer', () => {
 		expect(state.present.overlays[1]).toMatchObject({x: 120, y: 120});
 	});
 
+	it('collapses a straighten gesture into one undo step', () => {
+		let state = history();
+
+		for (const angle of [2, 4, 6]) {
+			state = editorReducer(state, {
+				angle,
+				transient: true,
+				type: 'set-angle',
+			});
+		}
+
+		state = editorReducer(state, {angle: 6, type: 'set-angle'});
+
+		expect(state.present.angle).toBe(6);
+		expect(state.past).toHaveLength(1);
+
+		state = editorReducer(state, {type: 'undo'});
+
+		expect(state.present.angle).toBe(0);
+	});
+
 	it('round-trips undo and redo with labels', () => {
 		let state = editorReducer(history(), {type: 'rotate-90'});
 

@@ -8,10 +8,11 @@ The original feasibility goal lives in [GOAL.md](GOAL.md). The engineering concl
 
 The editor is **parametric and declarative**:
 
-- Every operation is serializable data: a crop is `{x, y, width, height}`, brightness is a number, a text overlay is an object. The whole session is one JSON-friendly `EditState` managed by a pure reducer with an undo/redo history.
+- Every operation is serializable data: a crop is `{x, y, width, height}`, brightness is a number, the straighten angle is a number of degrees, a text overlay is an object. The whole session is one JSON-friendly `EditState` managed by a pure reducer with an undo/redo history.
 - The preview is **SVG in the DOM**, not canvas: the raster image is an `<image>` element, color adjustments are declarative SVG filter primitives (`feComponentTransfer`, `feColorMatrix`), and every annotation is a real, focusable, labelled DOM node.
 - The export serializes **the same SVG** at full resolution and rasterizes it offscreen; a canvas exists only as the final encoder, invisible to the user and absent from the accessibility tree. Preview and export share the same components (`FilterDefs`, `rotationTransform`, `OverlayShape`), so what you see is what you save by construction.
 - Focus on the stage (crop area, handles, annotations) is a **Clay-style double ring** (white inner + accent outer) drawn as real SVG geometry, because browsers do not reliably paint CSS outlines on SVG children.
+- **Straightening** is a free angle in degrees on top of the quarter turns: the image is scaled by exactly the factor needed to keep covering the frame, so no empty corners appear and the crop and annotation coordinate space is untouched.
 - While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop fits and centers that region in the view (a view operation, so it never enters the edit history).
 - **Redactions** pixelate an area for real: tiny downsampled copies of the image (three block sizes) are prepared once at load time and revealed through a clip, scaled back up with nearest-neighbor, and passed through the same color pipeline as the image so the mosaic matches what is on screen. They behave exactly like a rectangle otherwise, and the mosaic stays locked to the photo even when the block is rotated.
 - Selected annotations expose **on-stage resize and rotate handles** (proportional by default, Shift for free rectangle resize or 15-degree rotation snaps). They are a pointer-only affordance: the layer properties panel is the accessible, keyboard-first equivalent for the same operations.
@@ -71,6 +72,7 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `Ctrl/Cmd + Z` | Undo (announced with the operation name) |
 | `Ctrl/Cmd + Shift + Z` | Redo |
 | `Delete` | Remove the focused annotation or layer row |
+| `Shift + Arrow keys` on a slider | Step adjustments and the straighten angle by 10 |
 | `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor; on a layer row, jump to that element on the image |
 | `0` | Fit the image to the window while the workspace has focus |
 | `Shift + drag` | Keep the crop proportions while resizing a handle |

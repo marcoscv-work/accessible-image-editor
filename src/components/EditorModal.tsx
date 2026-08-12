@@ -407,6 +407,7 @@ export default function EditorModal({image, onClose, sections}: Props) {
 						>
 							{enabled.crop && (
 								<CropPanel
+									angle={state.angle}
 									crop={state.crop}
 									dispatch={dispatch}
 									onAnnounce={announce}

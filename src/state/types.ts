@@ -130,6 +130,14 @@ export function isBoxOverlay(
  */
 export interface EditState {
 	adjustments: Adjustments;
+
+	/**
+	 * Free rotation in degrees (straighten), on top of the quarter turns
+	 * in `rotation`. The image is scaled just enough to keep covering the
+	 * frame, so no empty corners appear and the crop coordinate space is
+	 * unaffected.
+	 */
+	angle: number;
 	crop: CropRect;
 	filter: FilterPreset;
 	overlays: Overlay[];

@@ -7,7 +7,7 @@ import React from 'react';
 
 import {t} from '../i18n';
 import {FilterDefs, isIdentityFilter} from '../imaging/FilterDefs';
-import {rotationTransform} from '../imaging/geometry';
+import {imageTransform} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {EditState, rotatedSize} from '../state/types';
@@ -105,6 +105,20 @@ export function Workspace({
 				width={bounds.width * zoom}
 			>
 				<defs>
+					{/*
+					  * A straighten angle scales the image up, so it
+					  * spills past the stage: clip it to the image area
+					  * to keep the surrounding padding clean.
+					  */}
+					<clipPath id="stage-clip">
+						<rect
+							height={bounds.height}
+							width={bounds.width}
+							x={0}
+							y={0}
+						/>
+					</clipPath>
+
 					<FilterDefs
 						adjustments={state.adjustments}
 						filter={state.filter}
@@ -112,8 +126,9 @@ export function Workspace({
 					/>
 				</defs>
 
-				<g transform={rotationTransform(state)}>
-					<image
+				<g clipPath="url(#stage-clip)">
+					<g transform={imageTransform(state)}>
+						<image
 						filter={
 							isIdentityFilter(state.adjustments, state.filter)
 								? undefined
@@ -121,9 +136,10 @@ export function Workspace({
 						}
 						height={state.sourceHeight}
 						href={image.previewUrl}
-						preserveAspectRatio="none"
-						width={state.sourceWidth}
-					/>
+							preserveAspectRatio="none"
+							width={state.sourceWidth}
+						/>
+					</g>
 				</g>
 
 				<CropMarquee
@@ -149,9 +165,9 @@ export function Workspace({
 								? undefined
 								: 'url(#preview-filter)',
 							pixelUrls: image.pixelUrls,
-							rotation: state.rotation,
 							sourceHeight: state.sourceHeight,
 							sourceWidth: state.sourceWidth,
+							transform: imageTransform(state),
 						}}
 						selectedId={selectedOverlayId}
 						zoom={zoom}

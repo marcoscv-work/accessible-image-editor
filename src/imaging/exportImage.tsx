@@ -7,7 +7,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 
 import {EditState} from '../state/types';
 import {FilterDefs, isIdentityFilter} from './FilterDefs';
-import {rotationTransform} from './geometry';
+import {imageTransform} from './geometry';
 import {LoadedImage} from './loadImage';
 import {OverlayShape, overlayTransform} from './overlayShapes';
 
@@ -65,7 +65,7 @@ export async function exportEditedImage(
 				/>
 			</defs>
 
-			<g transform={rotationTransform(state)}>
+			<g transform={imageTransform(state)}>
 				<image
 					filter={
 						isIdentityFilter(state.adjustments, state.filter)
@@ -90,9 +90,9 @@ export async function exportEditedImage(
 								? undefined
 								: 'url(#export-filter)',
 							pixelUrls: image.pixelUrls,
-							rotation: state.rotation,
 							sourceHeight: state.sourceHeight,
 							sourceWidth: state.sourceWidth,
+							transform: imageTransform(state),
 						}}
 					/>
 				</g>

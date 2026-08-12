@@ -56,6 +56,7 @@ function EditorHarness() {
 			/>
 
 			<CropPanel
+				angle={history.present.angle}
 				crop={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}

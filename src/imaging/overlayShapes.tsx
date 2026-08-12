@@ -7,11 +7,9 @@ import {t} from '../i18n';
 import {
 	Overlay,
 	RedactLevel,
-	Rotation,
 	StickerKind,
 	StickerOverlay,
 } from '../state/types';
-import {rotationTransform} from './geometry';
 
 export function starPath(cx: number, cy: number, size: number): string {
 	const outer = size / 2;
@@ -553,9 +551,14 @@ export interface RedactSource {
 	filter?: string;
 
 	pixelUrls: Record<RedactLevel, string>;
-	rotation: Rotation;
 	sourceHeight: number;
 	sourceWidth: number;
+
+	/**
+	 * The same transform the base image uses, so the mosaic lines up with
+	 * the photo whatever the rotation and straighten angle.
+	 */
+	transform?: string;
 }
 
 export function OverlayShape({
@@ -621,7 +624,7 @@ function RedactBlock({
 						overlay.rotation ?? 0
 					)} ${centerX} ${centerY})`}
 				>
-					<g transform={rotationTransform(source)}>
+					<g transform={source.transform}>
 						<image
 							filter={source.filter}
 							height={source.sourceHeight}
