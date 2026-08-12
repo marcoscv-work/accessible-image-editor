@@ -295,9 +295,13 @@
 
 /*
  * Clay has no small variant of the range input (no `clay-range-sm`), so
- * the compact look is scoped here: a thinner track, and a shorter control
- * so the rows sit closer together. The thumb keeps Clay's 24x24, both as
- * the pointer target and as the visible affordance.
+ * the compact look is scoped here: a thinner track and a smaller painted
+ * thumb.
+ *
+ * The pointer target is not the painted dot: the transparent
+ * `input[type="range"]` spans the full width and keeps a 24px height, so
+ * the whole band is draggable and clickable. The dot is decorative, which
+ * is why it can be smaller than the minimum target size.
  */
 
 .editor-panel .clay-range-input .form-control-range {
@@ -308,6 +312,14 @@
 .editor-panel .clay-range-input .clay-range-progress {
 	height: 2px;
 	margin-top: -1px;
+}
+
+.editor-panel .clay-range-input .clay-range-thumb {
+	height: 0.875rem;
+	pointer-events: none;
+	right: -0.4375rem;
+	top: 0.375rem;
+	width: 0.875rem;
 }
 
 .editor-slider-row {

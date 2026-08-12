@@ -56,4 +56,5 @@ Legend: **Pass** â€” implemented and verified by tests/inspection. **Pass\*** â€
 - Run the manual VoiceOver script ([VOICEOVER.md](VOICEOVER.md)), then NVDA and JAWS passes, and clear the Pass\* entries.
 - Add an automated 320px-wide / 400%-zoom Playwright viewport test for 1.4.10.
 - The crop widget exposes 9 tab stops (area + 8 handles). Reachable and operable today; a product refinement could make it a single composite stop with roving focus to shorten the tab sequence.
+- The compact sliders paint a 14px dot, but the pointer target is the transparent range input: a 24px-tall band spanning the full width, verified by clicking 2px from either edge and by dragging from the top edge. The dot is decorative (`pointer-events: none`).
 - Verify SVG filter and focus-ring rendering on Firefox and Safari (Chromium verified; the rings are plain SVG geometry, so no outline-support differences apply).
