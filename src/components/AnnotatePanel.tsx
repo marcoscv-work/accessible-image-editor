@@ -17,6 +17,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect, StickerKind, TextOverlay} from '../state/types';
+import {FONT_FAMILIES} from '../textFonts';
 import {EditorSection} from './EditorSection';
 
 function nextId(kind: string): string {
@@ -143,13 +144,12 @@ function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 								onChange={(event) =>
 									setFontFamily(event.target.value)
 								}
-								options={[
-									{
-										label: t('font-sans-serif'),
-										value: 'sans-serif',
-									},
-									{label: t('font-serif'), value: 'serif'},
-								]}
+								options={FONT_FAMILIES.map(
+									({labelKey, value}) => ({
+										label: t(labelKey),
+										value,
+									})
+								)}
 								value={fontFamily}
 							/>
 						</ClayForm.Group>

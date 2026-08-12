@@ -74,6 +74,7 @@ export default {
 	'filter-warm': 'Warm',
 	filters: 'Filters',
 	'font-family': 'Font family',
+	'font-monospace': 'Monospace',
 	'font-sans-serif': 'Sans serif',
 	'font-serif': 'Serif',
 	'font-size': 'Font size',

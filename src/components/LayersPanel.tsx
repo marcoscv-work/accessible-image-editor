@@ -15,6 +15,7 @@ import {
 	RedactOverlay,
 	isBoxOverlay,
 } from '../state/types';
+import {FONT_FAMILIES} from '../textFonts';
 import {EditorSection} from './EditorSection';
 
 interface FieldProps {
@@ -269,6 +270,31 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						onCommit={(size) => commitPatch({size})}
 						value={overlay.size}
 					/>
+				)}
+
+				{overlay.kind === 'text' && (
+					<ClayForm.Group>
+						<label htmlFor="layer-prop-font-family">
+							{t('font-family')}
+						</label>
+
+						<ClaySelectWithOption
+							id="layer-prop-font-family"
+							onChange={(event) =>
+								commitPatch({
+									fontFamily: event.target.value,
+								})
+							}
+							options={FONT_FAMILIES.map(
+								({labelKey, value}) => ({
+									label: t(labelKey),
+									value,
+								})
+							)}
+							sizing="sm"
+							value={overlay.fontFamily}
+						/>
+					</ClayForm.Group>
 				)}
 
 				{overlay.kind === 'text' && (

@@ -94,21 +94,31 @@ function TextStageHarness() {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
 	return (
-		<Workspace
-			dispatch={dispatch}
-			image={IMAGE}
-			onAnnounce={() => {}}
-			onCenterCrop={() => {}}
+		<>
+			<Workspace
+				dispatch={dispatch}
+				image={IMAGE}
+				onAnnounce={() => {}}
+				onCenterCrop={() => {}}
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
-			onZoomFit={() => {}}
-			selectedOverlayId={selectedId}
-			showCrop
-			showRecenter
-			state={history.present}
-			zoom={0.5}
-		/>
+				onZoomFit={() => {}}
+				selectedOverlayId={selectedId}
+				showCrop
+				showRecenter
+				state={history.present}
+				zoom={0.5}
+			/>
+
+			<LayersPanel
+				dispatch={dispatch}
+				onAnnounce={() => {}}
+				onSelect={setSelectedId}
+				overlays={history.present.overlays}
+				selectedId={selectedId}
+			/>
+		</>
 	);
 }
 
@@ -384,6 +394,20 @@ describe('Annotations, filters, and layers', () => {
 		expect(
 			container.querySelector('.editor-workspace text')?.textContent
 		).toBe('Liferay');
+	});
+
+	it('changes the font family of an existing text layer', () => {
+		const {container} = render(<TextStageHarness />);
+
+		const label = () => container.querySelector('.editor-workspace text');
+
+		expect(label()).toHaveAttribute('font-family', 'sans-serif');
+
+		fireEvent.change(screen.getByLabelText('Font family'), {
+			target: {value: 'monospace'},
+		});
+
+		expect(label()).toHaveAttribute('font-family', 'monospace');
 	});
 
 	it('roves a single tab stop through the annotate controls', () => {
