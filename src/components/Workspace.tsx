@@ -156,6 +156,12 @@ export function Workspace({
 						onSelect={onSelectOverlay}
 						overlays={state.overlays}
 						redactSource={{
+							filter: isIdentityFilter(
+								state.adjustments,
+								state.filter
+							)
+								? undefined
+								: 'url(#preview-filter)',
 							pixelUrls: image.pixelUrls,
 							rotation: state.rotation,
 							sourceHeight: state.sourceHeight,

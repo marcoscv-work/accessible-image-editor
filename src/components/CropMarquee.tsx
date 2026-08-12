@@ -382,6 +382,10 @@ export function CropMarquee({
 	const visualRadius = 6 / zoom;
 	const strokeWidth = 2 / zoom;
 
+	// Paint order inside the marquee: border and grid, the move surface,
+	// the annotations, the recenter control (above them, so it stays
+	// clickable), and the resize handles on top.
+
 	if (!showCrop) {
 		return <g>{children}</g>;
 	}
@@ -470,6 +474,8 @@ export function CropMarquee({
 				/>
 			)}
 
+			{children}
+
 			{showRecenter &&
 				(crop.width < bounds.width ||
 					crop.height < bounds.height) && (
@@ -521,7 +527,6 @@ export function CropMarquee({
 					</g>
 				)}
 
-			{children}
 
 			{HANDLES.map(({direction, edges}) => {
 				const position = handlePosition(crop, direction);

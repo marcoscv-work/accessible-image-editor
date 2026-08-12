@@ -83,6 +83,12 @@ export async function exportEditedImage(
 					<OverlayShape
 						overlay={overlay}
 						redactSource={{
+							filter: isIdentityFilter(
+								state.adjustments,
+								state.filter
+							)
+								? undefined
+								: 'url(#export-filter)',
 							pixelUrls: image.pixelUrls,
 							rotation: state.rotation,
 							sourceHeight: state.sourceHeight,

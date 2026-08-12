@@ -544,6 +544,14 @@ export function overlayLabel(overlay: Overlay): string {
  * rasterizes identically at export.
  */
 export interface RedactSource {
+
+	/**
+	 * Reference to the color pipeline in use (`url(#...)`), so the mosaic
+	 * carries the same adjustments and filter as the image underneath.
+	 * Undefined when the pipeline is the identity.
+	 */
+	filter?: string;
+
 	pixelUrls: Record<RedactLevel, string>;
 	rotation: Rotation;
 	sourceHeight: number;
@@ -615,6 +623,7 @@ function RedactBlock({
 				>
 					<g transform={rotationTransform(source)}>
 						<image
+							filter={source.filter}
 							height={source.sourceHeight}
 							href={source.pixelUrls[overlay.level]}
 							preserveAspectRatio="none"
