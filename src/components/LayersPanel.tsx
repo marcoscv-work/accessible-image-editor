@@ -74,7 +74,7 @@ function NumberField({
 	);
 
 	return (
-		<ClayForm.Group>
+		<ClayForm.Group small>
 			<label htmlFor={id}>{label}</label>
 
 			{suffix ? (
@@ -113,7 +113,7 @@ function TextField({
 	};
 
 	return (
-		<ClayForm.Group>
+		<ClayForm.Group small>
 			<label htmlFor={id}>{label}</label>
 
 			<ClayInput
@@ -182,7 +182,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 
 			<div className="editor-panel-grid">
 				{overlay.kind === 'redact' ? (
-					<ClayForm.Group>
+					<ClayForm.Group small>
 						<label htmlFor="layer-prop-level">
 							{t('redact-level')}
 						</label>
@@ -211,7 +211,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						/>
 					</ClayForm.Group>
 				) : (
-					<ClayForm.Group>
+					<ClayForm.Group small>
 						<label htmlFor="layer-prop-color">
 							{t('text-color')}
 						</label>
@@ -273,7 +273,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 				)}
 
 				{overlay.kind === 'text' && (
-					<ClayForm.Group>
+					<ClayForm.Group small>
 						<label htmlFor="layer-prop-font-family">
 							{t('font-family')}
 						</label>

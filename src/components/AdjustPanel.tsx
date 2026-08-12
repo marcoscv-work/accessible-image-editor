@@ -87,7 +87,7 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 				const value = adjustments[key];
 
 				return (
-					<ClayForm.Group key={key}>
+					<ClayForm.Group key={key} small>
 						<div className="editor-slider-row">
 							<label htmlFor={`adjust-${key}`}>{label}</label>
 

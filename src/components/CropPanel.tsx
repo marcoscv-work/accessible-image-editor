@@ -110,7 +110,7 @@ export function CropPanel({angle, crop, dispatch, onAnnounce}: Props) {
 	};
 
 	const renderField = (field: Field) => (
-		<ClayForm.Group key={field}>
+		<ClayForm.Group key={field} small>
 			<label htmlFor={`crop-${field}`}>{t(FIELD_LABELS[field])}</label>
 
 			<ClayInput
@@ -176,7 +176,7 @@ export function CropPanel({angle, crop, dispatch, onAnnounce}: Props) {
 				{renderField('height')}
 			</div>
 
-			<ClayForm.Group>
+			<ClayForm.Group small>
 				<div className="editor-slider-row">
 					<label htmlFor="crop-angle">{t('straighten')}</label>
 
