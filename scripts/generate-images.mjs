@@ -86,40 +86,248 @@ function clamp(value) {
 }
 
 /**
- * A smooth, photo-like scene: sky gradient, sun, and rolling hills.
+ * Deterministic value noise, so the generated sample is reproducible.
+ */
+function makeNoise(seed) {
+	const size = 256;
+	const lattice = new Float64Array(size * size);
+
+	let state = seed;
+
+	for (let i = 0; i < lattice.length; i++) {
+		state = (state * 1664525 + 1013904223) % 4294967296;
+		lattice[i] = state / 4294967296;
+	}
+
+	const at = (x, y) =>
+		lattice[(((y % size) + size) % size) * size + (((x % size) + size) % size)];
+
+	const smooth = (t) => t * t * (3 - 2 * t);
+
+	return function noise(x, y) {
+		const x0 = Math.floor(x);
+		const y0 = Math.floor(y);
+
+		const tx = smooth(x - x0);
+		const ty = smooth(y - y0);
+
+		const top = at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx;
+		const bottom = at(x0, y0 + 1) * (1 - tx) + at(x0 + 1, y0 + 1) * tx;
+
+		return top * (1 - ty) + bottom * ty;
+	};
+}
+
+const noise = makeNoise(20260812);
+
+/**
+ * Fractal sum of the noise: several octaves give the fine texture that
+ * makes adjustments, filters and pixelation readable.
+ */
+function fbm(x, y, octaves = 5) {
+	let value = 0;
+	let amplitude = 0.5;
+	let frequency = 1;
+
+	for (let octave = 0; octave < octaves; octave++) {
+		value += amplitude * noise(x * frequency, y * frequency);
+
+		amplitude *= 0.5;
+		frequency *= 2.07;
+	}
+
+	return value;
+}
+
+function mix(a, b, t) {
+	return [
+		a[0] + (b[0] - a[0]) * t,
+		a[1] + (b[1] - a[1]) * t,
+		a[2] + (b[2] - a[2]) * t,
+	];
+}
+
+/**
+ * Ridge height of a mountain range, in normalized units from the top.
+ */
+function ridge(nx, layer) {
+	return (
+		0.34 +
+		layer * 0.07 +
+		0.06 * Math.sin(nx * 6.1 + layer * 2.3) +
+		0.03 * Math.sin(nx * 14.7 + layer) +
+		0.05 * fbm(nx * 6 + layer * 40, layer * 7, 4)
+	);
+}
+
+const CABIN = {height: 0.1, roof: 0.05, width: 0.12, x: 0.1, y: 0.66};
+
+/**
+ * A lake scene with layered ridges, procedural clouds, reflections and a
+ * cabin: smooth gradients, fine texture and hard edges in one frame, which
+ * is what makes every editing tool visible on the sample.
  */
 function scenePixel(x, y, width, height) {
 	const nx = x / width;
 	const ny = y / height;
 
-	let r = 90 + 120 * ny;
-	let g = 150 + 60 * ny;
-	let b = 235 - 60 * ny;
+	const horizon = 0.56;
 
-	const sunDx = nx - 0.72;
-	const sunDy = ny - 0.28;
-	const sunDistance = Math.sqrt(sunDx * sunDx * 2.2 + sunDy * sunDy);
+	// Above the horizon: graded sky, sun glow and fractal clouds.
 
-	if (sunDistance < 0.09) {
-		const glow = 1 - sunDistance / 0.09;
+	let color;
 
-		r += 160 * glow;
-		g += 120 * glow;
-		b += 40 * glow;
+	if (ny <= horizon) {
+		const t = ny / horizon;
+
+		color = mix([64, 104, 190], [214, 176, 168], Math.pow(t, 1.3));
+
+		const sunX = 0.71;
+		const sunY = 0.3;
+
+		const sunDistance = Math.hypot((nx - sunX) * 1.35, ny - sunY);
+
+		if (sunDistance < 0.26) {
+			const glow = Math.pow(1 - sunDistance / 0.26, 2.4);
+
+			color = mix(color, [255, 244, 214], glow * 0.95);
+		}
+
+		const cloud = fbm(nx * 5.5, ny * 9 + 3);
+		const cover = Math.max(0, cloud - 0.47) * 1.7;
+
+		if (cover > 0) {
+			const lit = mix([236, 226, 232], [122, 116, 142], 0.55 - cloud);
+
+			color = mix(color, lit, Math.min(cover, 0.85) * (1 - t * 0.35));
+		}
 	}
+	else {
 
-	const horizon =
-		0.62 + 0.08 * Math.sin(nx * 5.1) + 0.04 * Math.sin(nx * 13.7);
+		// Below the horizon: the lake, mirroring the sky and the ridges.
 
-	if (ny > horizon) {
 		const depth = (ny - horizon) / (1 - horizon);
 
-		r = 60 + 40 * depth + 18 * Math.sin(nx * 40);
-		g = 120 + 50 * depth + 14 * Math.sin(nx * 31 + 2);
-		b = 60 + 30 * depth;
+		const mirrored = horizon - (ny - horizon) * 0.82;
+		const mirrorT = Math.max(mirrored, 0) / horizon;
+
+		color = mix([46, 66, 104], [150, 130, 140], Math.pow(mirrorT, 1.5));
+
+		const ripple =
+			fbm(nx * 26, mirrored * 90 + depth * 12, 3) - 0.5 + 0.06 * Math.sin(ny * 260);
+
+		color = mix(color, [232, 214, 206], Math.max(0, ripple) * 0.5);
+
+		color = mix(color, [18, 24, 40], depth * 0.55);
 	}
 
-	return [clamp(r), clamp(g), clamp(b)];
+	// Mountain ranges, far to near, fading into haze.
+
+	for (let layer = 2; layer >= 0; layer--) {
+		const line = ridge(nx, layer);
+
+		if (ny > line && ny <= horizon) {
+			const rock = fbm(nx * 22 + layer * 15, ny * 22, 4);
+
+			const base = mix([70, 78, 104], [38, 44, 62], layer / 2);
+			const shade = mix(base, [126, 132, 150], rock * 0.8);
+
+			const haze = 0.34 - layer * 0.14;
+
+			color = mix(mix(shade, [186, 176, 186], haze), color, 0);
+		}
+	}
+
+	// A treeline along the far shore, for depth and fine detail.
+
+	const treeTop =
+		horizon - 0.022 - 0.016 * fbm(nx * 26, 11, 3) - 0.006 * Math.sin(nx * 120);
+
+	if (ny > treeTop && ny <= horizon) {
+		const canopy = fbm(nx * 80, ny * 60, 3);
+
+		const forest = mix([34, 52, 42], [66, 88, 62], canopy);
+
+		// Muted into the haze, so it reads as the far shore.
+
+		color = mix(color, mix(forest, [172, 168, 182], 0.42), 0.9);
+	}
+
+	// Near shore: textured grass with a soft edge into the water.
+
+	const shore = 0.76 + 0.012 * Math.sin(nx * 9.3) + 0.02 * fbm(nx * 12, 5, 3);
+
+	if (ny > shore) {
+		const blade = fbm(nx * 70, ny * 120, 4);
+		const grass = mix([44, 68, 42], [104, 128, 62], blade);
+
+		color = mix(color, grass, Math.min((ny - shore) * 40, 1));
+	}
+
+	// Cabin: hard geometry, so pixelation and redaction read clearly.
+
+	const inCabin =
+		nx > CABIN.x &&
+		nx < CABIN.x + CABIN.width &&
+		ny > CABIN.y &&
+		ny < CABIN.y + CABIN.height;
+
+	if (inCabin) {
+		const localX = (nx - CABIN.x) / CABIN.width;
+		const localY = (ny - CABIN.y) / CABIN.height;
+
+		const plank = fbm(localX * 18, localY * 26, 3);
+
+		color = mix([96, 74, 62], [138, 108, 86], plank);
+
+		const window =
+			(localX > 0.16 && localX < 0.42) || (localX > 0.58 && localX < 0.84);
+
+		if (window && localY > 0.28 && localY < 0.68) {
+			color = mix([248, 216, 130], [212, 158, 74], fbm(localX * 40, localY * 40, 2));
+		}
+	}
+
+	const roofBase = CABIN.y;
+	const roofTop = CABIN.y - CABIN.roof;
+
+	if (ny > roofTop && ny <= roofBase) {
+		const spread = (ny - roofTop) / CABIN.roof;
+		const halfWidth = (CABIN.width / 2) * (0.25 + spread * 0.95);
+		const center = CABIN.x + CABIN.width / 2;
+
+		if (Math.abs(nx - center) < halfWidth) {
+			color = mix([62, 52, 54], [96, 84, 84], fbm(nx * 60, ny * 60, 2));
+		}
+	}
+
+	// A few birds, small and dark against the sky.
+
+	for (const bird of [
+		{scale: 0.010, x: 0.36, y: 0.16},
+		{scale: 0.008, x: 0.42, y: 0.2},
+		{scale: 0.007, x: 0.31, y: 0.22},
+	]) {
+		const dx = (nx - bird.x) / bird.scale;
+		const dy = (ny - bird.y) / bird.scale;
+
+		if (
+			Math.abs(dx) < 1.6 &&
+			Math.abs(dy - 0.35 * Math.abs(dx) * Math.abs(dx)) < 0.22
+		) {
+			color = mix(color, [46, 46, 58], 0.8);
+		}
+	}
+
+	// Grain, to keep the frame from looking synthetic.
+
+	const grain = (noise(x * 0.7, y * 0.7) - 0.5) * 7;
+
+	return [
+		clamp(color[0] + grain),
+		clamp(color[1] + grain),
+		clamp(color[2] + grain),
+	];
 }
 
 function generate(filePath, width, height) {
