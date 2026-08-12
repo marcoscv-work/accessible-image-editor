@@ -20,6 +20,7 @@ const IMAGE: LoadedImage = {
 	height: 800,
 	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png'},
 	previewUrl: 'test.jpg',
+	thumbUrl: 'thumb.jpg',
 	type: 'image/jpeg',
 	width: 1200,
 };

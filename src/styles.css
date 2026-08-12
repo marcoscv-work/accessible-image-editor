@@ -416,39 +416,82 @@
 	width: 100%;
 }
 
-/* Filters */
-
-.editor-filter-grid {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.editor-filter-option .custom-control-label {
-	align-items: center;
-	display: flex;
-	gap: 0.5rem;
-}
-
 /*
- * Clay positions the radio ring (::before, 16px) and dot (::after, 24px
- * box) for a single-line text label; our label is taller because of the
- * filter thumbnail. Recenter through `top` only: Atlas drives `transform`
- * on ::after for the check animation, so it must stay untouched.
+ * Filters: a two-column card grid. The radio input stays in the DOM and
+ * in the tab order (screen-reader visible, visually hidden), so the cards
+ * keep the radio-group semantics; selection is conveyed by a ring and a
+ * check badge, never by colour alone.
  */
 
-.editor-filter-option .custom-control-label::before {
-	top: calc(50% - 8px);
+.editor-filter-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 1fr 1fr;
 }
 
-.editor-filter-option .custom-control-label::after {
-	top: calc(50% - 12px);
+.editor-filter-option {
+	padding: 0;
+}
+
+.editor-filter-label {
+	cursor: pointer;
+	display: block;
+	margin: 0;
+	text-align: center;
+}
+
+.editor-filter-card {
+	border: 2px solid #e7e7ed;
+	border-radius: 4px;
+	display: block;
+	overflow: hidden;
+	position: relative;
 }
 
 .editor-filter-thumb {
-	border: 1px solid #e7e7ed;
-	border-radius: 4px;
-	flex-shrink: 0;
+	display: block;
+	height: auto;
+	width: 100%;
+}
+
+.editor-filter-name {
+	display: block;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card {
+	border-color: var(--primary, #0b5fff);
+}
+
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-name {
+	color: var(--primary, #0b5fff);
+	font-weight: 600;
+}
+
+/* A check badge, so the selected card does not rely on colour alone. */
+
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card::after {
+	background: var(--primary, #0b5fff);
+	border-radius: 50%;
+	color: #fff;
+	content: '\2713';
+	font-size: 0.625rem;
+	height: 1rem;
+	line-height: 1rem;
+	position: absolute;
+	right: 0.25rem;
+	text-align: center;
+	top: 0.25rem;
+	width: 1rem;
+}
+
+.editor-filter-input:focus-visible ~ .editor-filter-label .editor-filter-card {
+	outline: 2px solid var(--primary, #0b5fff);
+	outline-offset: 2px;
 }
 
 /* Annotate */

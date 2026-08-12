@@ -6,7 +6,11 @@
 import {renderToStaticMarkup} from 'react-dom/server';
 
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
-import {FilterDefs, isIdentityFilter} from './FilterDefs';
+import {
+	FILTER_PRESETS,
+	FilterDefs,
+	isIdentityFilter,
+} from './FilterDefs';
 
 function markup(
 	adjustments: Partial<typeof DEFAULT_ADJUSTMENTS>,
@@ -48,6 +52,33 @@ describe('FilterDefs', () => {
 	it('lifts the blacks with positive shadows and clamps at zero', () => {
 		expect(markup({shadows: 100})).toContain('tableValues="0.3500');
 		expect(markup({shadows: -100})).toContain('tableValues="0.0000');
+	});
+
+	it('renders every preset without throwing', () => {
+		expect(FILTER_PRESETS).toHaveLength(19);
+
+		for (const preset of FILTER_PRESETS) {
+			expect(markup({}, preset)).toContain('filter');
+		}
+	});
+
+	it('emits a shared tone curve for a faded look', () => {
+		expect(markup({}, 'fade')).toContain('tableValues');
+	});
+
+	it('emits per-channel curves for cross processing', () => {
+		const output = markup({}, 'crossprocess');
+
+		const tables = output.match(/tableValues="[^"]+"/g) ?? [];
+
+		// One table per channel, and they differ from each other.
+
+		expect(tables).toHaveLength(3);
+		expect(new Set(tables).size).toBe(3);
+	});
+
+	it('quantises the channels for the posterize preset', () => {
+		expect(markup({}, 'posterize')).toContain('type="discrete"');
 	});
 
 	it('drops saturation to zero for the grayscale preset', () => {

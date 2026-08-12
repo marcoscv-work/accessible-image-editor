@@ -41,13 +41,21 @@ export interface LoadedImage {
 	 */
 	pixelUrls: Record<RedactLevel, string>;
 
+	/**
+	 * Tiny copy used by the filter gallery: running a colour pipeline per
+	 * preset over the full preview bitmap would mean dozens of filtered
+	 * draws of a multi-megapixel image just to paint 64x40 cards.
+	 */
+	thumbUrl: string;
+
 	type: string;
 	width: number;
 }
 
 function downsampleToDataURL(
 	bitmap: ImageBitmap,
-	longestSide: number
+	longestSide: number,
+	type = 'image/png'
 ): string {
 	const scale = longestSide / Math.max(bitmap.width, bitmap.height);
 
@@ -64,7 +72,7 @@ function downsampleToDataURL(
 
 	context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
 
-	return canvas.toDataURL('image/png');
+	return canvas.toDataURL(type, 0.8);
 }
 
 /**
@@ -117,6 +125,8 @@ export async function loadImage(
 		previewUrl = URL.createObjectURL(blob);
 	}
 
+	const thumbUrl = downsampleToDataURL(bitmap, 160, 'image/jpeg');
+
 	const pixelUrls = {
 		coarse: downsampleToDataURL(bitmap, REDACT_SIZES.coarse),
 		fine: downsampleToDataURL(bitmap, REDACT_SIZES.fine),
@@ -131,6 +141,7 @@ export async function loadImage(
 		height,
 		pixelUrls,
 		previewUrl,
+		thumbUrl,
 		type: blob.type || 'image/jpeg',
 		width,
 	};

@@ -23,6 +23,7 @@ const IMAGE: LoadedImage = {
 	height: 800,
 	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png'},
 	previewUrl: 'test.jpg',
+	thumbUrl: 'thumb.jpg',
 	type: 'image/jpeg',
 	width: 1200,
 };
@@ -208,6 +209,34 @@ describe('Annotations, filters, and layers', () => {
 		expect(
 			container.querySelector('.editor-workspace image')
 		).toHaveAttribute('filter', 'url(#preview-filter)');
+	});
+
+	it('renders the filters as cards backed by hidden radios', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		const radios = screen.getAllByRole('radio');
+
+		expect(radios).toHaveLength(19);
+
+		// The inputs are visually hidden but still real radios, so the
+		// group keeps its semantics and its keyboard behaviour.
+
+		for (const radio of radios) {
+			expect(radio).toHaveClass('sr-only');
+			expect(radio).not.toBeDisabled();
+		}
+
+		// Every card paints from the tiny thumbnail source, never from the
+		// full preview bitmap.
+
+		const thumbs = [
+			...container.querySelectorAll('.editor-filter-thumb image'),
+		];
+
+		expect(thumbs).toHaveLength(19);
+		expect(
+			thumbs.every((thumb) => thumb.getAttribute('href') === 'thumb.jpg')
+		).toBe(true);
 	});
 
 	it('lists layers topmost first and reorders them from the listbox', () => {

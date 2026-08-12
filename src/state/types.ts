@@ -21,12 +21,22 @@ export interface Adjustments {
 }
 
 export type FilterPreset =
+	| 'bleach'
 	| 'cool'
+	| 'crossprocess'
+	| 'cyanotype'
+	| 'fade'
 	| 'grayscale'
 	| 'invert'
+	| 'matte'
 	| 'noir'
 	| 'none'
+	| 'polaroid'
+	| 'posterize'
 	| 'sepia'
+	| 'splittone'
+	| 'tealorange'
+	| 'technicolor'
 	| 'vintage'
 	| 'vivid'
 	| 'warm';
