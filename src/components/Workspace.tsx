@@ -126,7 +126,15 @@ export function Workspace({
 					/>
 				</defs>
 
-				<g clipPath="url(#stage-clip)">
+				<g
+					clipPath={
+
+						// Only needed while straightening, and clipping a
+						// filtered 20MP-derived bitmap is not free.
+
+						state.angle ? 'url(#stage-clip)' : undefined
+					}
+				>
 					<g transform={imageTransform(state)}>
 						<image
 						filter={
