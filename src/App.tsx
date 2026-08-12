@@ -12,6 +12,7 @@ import {useEffect, useRef, useState} from 'react';
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
+import {sectionsFromSearch} from './editorSections';
 import {t} from './i18n';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 
@@ -102,7 +103,13 @@ export default function App() {
 					)}
 				</main>
 
-				{image && <EditorModal image={image} onClose={close} />}
+				{image && (
+					<EditorModal
+						image={image}
+						onClose={close}
+						sections={sectionsFromSearch(window.location.search)}
+					/>
+				)}
 			</AnnouncerProvider>
 		</ClayIconSpriteContext.Provider>
 	);

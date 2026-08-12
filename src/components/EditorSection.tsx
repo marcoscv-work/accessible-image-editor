@@ -39,6 +39,7 @@ export function EditorSection({
 		<ClayPanel
 			className="editor-panel"
 			collapsable
+			collapseHeaderClassNames="mb-3"
 			defaultExpanded={defaultExpanded}
 			displayTitle={
 				<span className="editor-panel-title panel-title" id={titleId}>
@@ -47,6 +48,7 @@ export function EditorSection({
 			}
 			displayType="unstyled"
 			showCollapseIcon
+			size="sm"
 		>
 			<ClayPanel.Body>{children}</ClayPanel.Body>
 		</ClayPanel>

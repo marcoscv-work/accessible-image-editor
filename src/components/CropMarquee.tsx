@@ -4,7 +4,7 @@
  */
 
 import {ClayIconSpriteContext} from '@clayui/icon';
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
@@ -191,6 +191,18 @@ interface Props {
 	onCenterCrop: () => void;
 
 	/**
+	 * False once the view already frames the crop, so the control does
+	 * not offer an action that would change nothing.
+	 */
+	showRecenter: boolean;
+
+	/**
+	 * The crop chrome (marquee, handles, recenter) is only rendered when
+	 * the crop section is enabled; the children still are.
+	 */
+	showCrop: boolean;
+
+	/**
 	 * CSS pixels per SVG user unit, used to keep handle hit targets at
 	 * least 24x24 CSS pixels regardless of zoom.
 	 */
@@ -204,6 +216,8 @@ export function CropMarquee({
 	dispatch,
 	onAnnounce,
 	onCenterCrop,
+	showCrop,
+	showRecenter,
 	zoom,
 }: Props) {
 	const cropRef = useRef(crop);
@@ -224,6 +238,23 @@ export function CropMarquee({
 	const [recenterFocused, setRecenterFocused] = useState(false);
 
 	const spritemap = useContext(ClayIconSpriteContext);
+
+	const moveRef = useRef<SVGRectElement>(null);
+
+	/**
+	 * Whether the recenter control currently holds focus, regardless of
+	 * modality: hiding a focused control would drop focus to the body, so
+	 * it is handed to the crop area instead.
+	 */
+	const recenterHasFocus = useRef(false);
+
+	useEffect(() => {
+		if (!showRecenter && recenterHasFocus.current) {
+			recenterHasFocus.current = false;
+
+			moveRef.current?.focus();
+		}
+	}, [showRecenter]);
 
 	const keyboardGesture = useRef(false);
 
@@ -351,6 +382,10 @@ export function CropMarquee({
 	const visualRadius = 6 / zoom;
 	const strokeWidth = 2 / zoom;
 
+	if (!showCrop) {
+		return <g>{children}</g>;
+	}
+
 	return (
 		<g>
 			<desc id="crop-area-description">{t('crop-area-description')}</desc>
@@ -419,6 +454,7 @@ export function CropMarquee({
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove(MOVE_EDGES)}
 				onPointerUp={handlePointerUp}
+				ref={moveRef}
 				role="button"
 				tabIndex={0}
 				width={crop.width}
@@ -434,20 +470,28 @@ export function CropMarquee({
 				/>
 			)}
 
-			{(crop.width < bounds.width || crop.height < bounds.height) && (
+			{showRecenter &&
+				(crop.width < bounds.width ||
+					crop.height < bounds.height) && (
 				<g
 					className={
 						recenterFocused
 							? 'crop-recenter crop-recenter-focused'
 							: 'crop-recenter'
 					}
-					onBlur={() => setRecenterFocused(false)}
+					onBlur={() => {
+						recenterHasFocus.current = false;
+
+						setRecenterFocused(false);
+					}}
 					onClick={onCenterCrop}
-					onFocus={(event) =>
+					onFocus={(event) => {
+						recenterHasFocus.current = true;
+
 						setRecenterFocused(
 							matchesFocusVisible(event.currentTarget)
-						)
-					}
+						);
+					}}
 					onKeyDown={(event: React.KeyboardEvent) => {
 						if (event.key === 'Enter' || event.key === ' ') {
 							event.preventDefault();
@@ -474,8 +518,8 @@ export function CropMarquee({
 						x={crop.x + crop.width / 2 - 9 / zoom}
 						y={crop.y + crop.height / 2 - 9 / zoom}
 					/>
-				</g>
-			)}
+					</g>
+				)}
 
 			{children}
 

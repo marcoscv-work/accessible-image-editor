@@ -47,20 +47,40 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 		onAnnounce(t('adjustment-set', label, adjustments[key]));
 	};
 
+	const hasAdjustments = Object.values(adjustments).some(
+		(value) => value !== 0
+	);
+
 	return (
 		<EditorSection title={t('adjustments')} titleId="adjust-panel-title">
-			<div className="editor-panel-actions">
-				<ClayButton
+			{hasAdjustments && (
+				<div className="editor-panel-actions">
+					<ClayButton
 					displayType="secondary"
 					onClick={() => {
 						dispatch({type: 'reset-adjustments'});
 						onAnnounce(t('adjustments-reset'));
+
+						// This button disappears once everything is back
+						// to zero: hand focus to the first slider so it
+						// is never dropped.
+
+						window.setTimeout(
+							() =>
+								document
+									.getElementById(
+										`adjust-${SLIDERS[0].key}`
+									)
+									?.focus(),
+							0
+						);
 					}}
 					size="xs"
-				>
-					{t('reset-all')}
-				</ClayButton>
-			</div>
+					>
+						{t('reset-all')}
+					</ClayButton>
+				</div>
+			)}
 
 			{SLIDERS.map(({key, labelKey}) => {
 				const label = t(labelKey);

@@ -34,6 +34,7 @@ interface Props {
 	onZoomFit: () => void;
 	ratio: RatioPreset;
 	saving: boolean;
+	showRatio: boolean;
 	zoom: number;
 }
 
@@ -51,17 +52,20 @@ export function BottomBar({
 	onZoomFit,
 	ratio,
 	saving,
+	showRatio,
 	zoom,
 }: Props) {
 	return (
 		<div className="editor-bottom-bar">
 			<div className="editor-bar-group">
-				<label
-					className="editor-ratio-label"
-					htmlFor="crop-ratio-select"
-				>
-					{t('ratio')}
-				</label>
+				{showRatio && (
+					<>
+						<label
+							className="editor-ratio-label"
+							htmlFor="crop-ratio-select"
+						>
+							{t('ratio')}
+						</label>
 
 				<ClaySelectWithOption
 					className="editor-ratio-select"
@@ -76,9 +80,11 @@ export function BottomBar({
 						label: t(labelKey),
 						value,
 					}))}
-					sizing="sm"
-					value={ratio}
-				/>
+							sizing="sm"
+							value={ratio}
+						/>
+					</>
+				)}
 
 				<ClayButtonWithIcon
 					aria-label={t('rotate-90')}

@@ -43,11 +43,14 @@ function EditorHarness() {
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
 				onSelectOverlay={() => {}}
+				onWorkspaceScroll={() => {}}
 				onZoom={(direction) =>
 					setZoom((current) => current + direction * 0.25)
 				}
 				onZoomFit={() => {}}
 				selectedOverlayId={null}
+				showCrop
+				showRecenter
 				state={history.present}
 				zoom={zoom}
 			/>
@@ -78,6 +81,7 @@ function EditorHarness() {
 				onZoomFit={() => {}}
 				ratio={history.present.ratio}
 				saving={false}
+				showRatio
 				zoom={zoom}
 			/>
 		</>

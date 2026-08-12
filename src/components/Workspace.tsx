@@ -20,9 +20,12 @@ interface Props {
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
 	onSelectOverlay: (id: string | null) => void;
+	onWorkspaceScroll: () => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
 	selectedOverlayId: string | null;
+	showCrop: boolean;
+	showRecenter: boolean;
 	state: EditState;
 	workspaceRef?: React.Ref<HTMLDivElement>;
 	zoom: number;
@@ -39,9 +42,12 @@ export function Workspace({
 	onAnnounce,
 	onCenterCrop,
 	onSelectOverlay,
+	onWorkspaceScroll,
 	onZoom,
 	onZoomFit,
 	selectedOverlayId,
+	showCrop,
+	showRecenter,
 	state,
 	workspaceRef,
 	zoom,
@@ -88,6 +94,7 @@ export function Workspace({
 					onSelectOverlay(null);
 				}
 			}}
+			onScroll={onWorkspaceScroll}
 			ref={workspaceRef}
 			role="region"
 			tabIndex={0}
@@ -124,12 +131,14 @@ export function Workspace({
 					/>
 				</g>
 
-				<path
-					className="crop-dim"
-					d={dimPath}
-					fillRule="evenodd"
-					pointerEvents="none"
-				/>
+				{showCrop && (
+					<path
+						className="crop-dim"
+						d={dimPath}
+						fillRule="evenodd"
+						pointerEvents="none"
+					/>
+				)}
 
 				<CropMarquee
 					bounds={bounds}
@@ -137,6 +146,8 @@ export function Workspace({
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
 					onCenterCrop={onCenterCrop}
+					showCrop={showCrop}
+					showRecenter={showRecenter}
 					zoom={zoom}
 				>
 					<OverlaysEditable

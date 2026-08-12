@@ -12,6 +12,10 @@ import React, {
 	useState,
 } from 'react';
 
+import {
+	EditorSections,
+	resolveSections,
+} from '../editorSections';
 import {t} from '../i18n';
 import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
 import {LoadedImage} from '../imaging/loadImage';
@@ -75,9 +79,16 @@ function stepZoom(zoom: number, direction: -1 | 1): number {
 interface Props {
 	image: LoadedImage;
 	onClose: () => void;
+
+	/**
+	 * Which editing blocks to expose; omitted keys keep their default.
+	 */
+	sections?: Partial<EditorSections>;
 }
 
-export default function EditorModal({image, onClose}: Props) {
+export default function EditorModal({image, onClose, sections}: Props) {
+	const enabled = resolveSections(sections);
+
 	const announce = useAnnouncer();
 
 	const {observer, onClose: closeModal} = useModal({onClose});
@@ -94,6 +105,14 @@ export default function EditorModal({image, onClose}: Props) {
 		null
 	);
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+	/**
+	 * True while the view already frames the crop, so the recenter
+	 * control can hide instead of offering a no-op.
+	 */
+	const [cropFramed, setCropFramed] = useState(false);
+
+	const programmaticScrollRef = useRef(false);
 
 	const workspaceRef = useRef<HTMLDivElement | null>(null);
 
@@ -168,6 +187,8 @@ export default function EditorModal({image, onClose}: Props) {
 		previousOverlayCount.current = state.overlays.length;
 	}, [state.overlays.length]);
 
+	useEffect(() => setCropFramed(false), [state.crop]);
+
 	// Rotation swaps the stage bounds without resizing the workspace.
 
 	useEffect(() => {
@@ -185,6 +206,8 @@ export default function EditorModal({image, onClose}: Props) {
 	const zoomBy = (direction: -1 | 1) => {
 		autoFitRef.current = false;
 
+		setCropFramed(false);
+
 		const next = stepZoom(zoom, direction);
 
 		if (next !== zoom) {
@@ -195,6 +218,8 @@ export default function EditorModal({image, onClose}: Props) {
 
 	const zoomToFit = () => {
 		autoFitRef.current = true;
+
+		setCropFramed(false);
 
 		const bounds = rotatedSize(state);
 
@@ -223,6 +248,8 @@ export default function EditorModal({image, onClose}: Props) {
 		if (!element) {
 			return;
 		}
+
+		programmaticScrollRef.current = true;
 
 		element.scrollLeft =
 			STAGE_PADDING / 2 +
@@ -269,6 +296,8 @@ export default function EditorModal({image, onClose}: Props) {
 
 			setZoom(next);
 		}
+
+		setCropFramed(true);
 
 		announce(t('crop-centered', Math.round(next * 100)));
 	};
@@ -354,9 +383,19 @@ export default function EditorModal({image, onClose}: Props) {
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
 							onSelectOverlay={setSelectedOverlayId}
+							onWorkspaceScroll={() => {
+								if (programmaticScrollRef.current) {
+									programmaticScrollRef.current = false;
+								}
+								else {
+									setCropFramed(false);
+								}
+							}}
 							onZoom={zoomBy}
 							onZoomFit={zoomToFit}
 							selectedOverlayId={selectedOverlayId}
+							showCrop={enabled.crop}
+							showRecenter={!cropFramed}
 							state={state}
 							workspaceRef={handleWorkspaceRef}
 							zoom={zoom}
@@ -366,38 +405,48 @@ export default function EditorModal({image, onClose}: Props) {
 							aria-label={t('edit-controls')}
 							className="editor-sidebar"
 						>
-							<CropPanel
-								crop={state.crop}
-								dispatch={dispatch}
-								onAnnounce={announce}
-							/>
+							{enabled.crop && (
+								<CropPanel
+									crop={state.crop}
+									dispatch={dispatch}
+									onAnnounce={announce}
+								/>
+							)}
 
-							<AdjustPanel
-								adjustments={state.adjustments}
-								dispatch={dispatch}
-								onAnnounce={announce}
-							/>
+							{enabled.adjustments && (
+								<AdjustPanel
+									adjustments={state.adjustments}
+									dispatch={dispatch}
+									onAnnounce={announce}
+								/>
+							)}
 
-							<FilterGallery
-								dispatch={dispatch}
-								filter={state.filter}
-								image={image}
-								onAnnounce={announce}
-							/>
+							{enabled.filters && (
+								<FilterGallery
+									dispatch={dispatch}
+									filter={state.filter}
+									image={image}
+									onAnnounce={announce}
+								/>
+							)}
 
-							<AnnotatePanel
-								bounds={rotatedSize(state)}
-								dispatch={dispatch}
-								onAnnounce={announce}
-							/>
+							{enabled.annotate && (
+								<>
+									<AnnotatePanel
+										bounds={rotatedSize(state)}
+										dispatch={dispatch}
+										onAnnounce={announce}
+									/>
 
-							<LayersPanel
-								dispatch={dispatch}
-								onAnnounce={announce}
-								onSelect={setSelectedOverlayId}
-								overlays={state.overlays}
-								selectedId={selectedOverlayId}
-							/>
+									<LayersPanel
+										dispatch={dispatch}
+										onAnnounce={announce}
+										onSelect={setSelectedOverlayId}
+										overlays={state.overlays}
+										selectedId={selectedOverlayId}
+									/>
+								</>
+							)}
 						</aside>
 					</div>
 
@@ -415,6 +464,7 @@ export default function EditorModal({image, onClose}: Props) {
 						onZoomFit={zoomToFit}
 						ratio={state.ratio}
 						saving={saving}
+						showRatio={enabled.crop}
 						zoom={zoom}
 					/>
 				</div>

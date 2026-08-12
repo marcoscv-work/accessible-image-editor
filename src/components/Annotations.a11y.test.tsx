@@ -42,9 +42,12 @@ function AnnotationHarness() {
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
 				onSelectOverlay={setSelectedId}
+				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
 				onZoomFit={() => {}}
 				selectedOverlayId={selectedId}
+				showCrop
+				showRecenter
 				state={history.present}
 				zoom={0.5}
 			/>
@@ -97,10 +100,13 @@ function TextStageHarness() {
 			image={IMAGE}
 			onAnnounce={() => {}}
 			onCenterCrop={() => {}}
-			onSelectOverlay={setSelectedId}
-			onZoom={() => {}}
+				onSelectOverlay={setSelectedId}
+				onWorkspaceScroll={() => {}}
+				onZoom={() => {}}
 			onZoomFit={() => {}}
 			selectedOverlayId={selectedId}
+			showCrop
+			showRecenter
 			state={history.present}
 			zoom={0.5}
 		/>

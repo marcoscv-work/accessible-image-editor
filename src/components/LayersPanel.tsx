@@ -468,7 +468,11 @@ export function LayersPanel({
 		onSelect(newId);
 	};
 
-	const reorder = (overlay: Overlay, visualDirection: -1 | 1) => {
+	const reorder = (
+		overlay: Overlay,
+		visualDirection: -1 | 1,
+		row?: number
+	) => {
 
 		// Visually up (-1) means later in paint order (+1 in the array).
 
@@ -477,6 +481,29 @@ export function LayersPanel({
 			id: overlay.id,
 			type: 'move-overlay-layer',
 		});
+
+		// The layer moves to a new row, and the button just used may now
+		// be disabled (it reached the end): follow the layer and fall back
+		// to its name so focus is never dropped.
+
+		if (row !== undefined) {
+			const targetRow = row + visualDirection;
+			const column = visualDirection === -1 ? 1 : 2;
+
+			window.setTimeout(() => {
+				const list = listRef.current;
+
+				const action = list?.querySelector<HTMLButtonElement>(
+					`[data-row="${targetRow}"][data-column="${column}"]`
+				);
+
+				const fallback = list?.querySelector<HTMLButtonElement>(
+					`[data-row="${targetRow}"][data-column="0"]`
+				);
+
+				(action && !action.disabled ? action : fallback)?.focus();
+			}, 0);
+		}
 
 		onAnnounce(
 			t(
@@ -558,7 +585,7 @@ export function LayersPanel({
 									aria-label={t('move-layer-up', label)}
 									disabled={index === 0}
 									displayType="unstyled"
-									onClick={() => reorder(overlay, -1)}
+									onClick={() => reorder(overlay, -1, row)}
 									size="xs"
 									symbol="angle-up"
 									title={t('move-layer-up', label)}
@@ -569,7 +596,7 @@ export function LayersPanel({
 									aria-label={t('move-layer-down', label)}
 									disabled={index === items.length - 1}
 									displayType="unstyled"
-									onClick={() => reorder(overlay, 1)}
+									onClick={() => reorder(overlay, 1, row)}
 									size="xs"
 									symbol="angle-down"
 									title={t('move-layer-down', label)}
