@@ -10,6 +10,7 @@ import React, {useEffect, useState} from 'react';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
+import {EditorSection} from './EditorSection';
 
 interface Props {
 	crop: CropRect;
@@ -120,10 +121,7 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 	);
 
 	return (
-		<section aria-labelledby="crop-panel-title" className="editor-panel">
-			<h2 className="editor-panel-title" id="crop-panel-title">
-				{t('crop')}
-			</h2>
+		<EditorSection title={t('crop')} titleId="crop-panel-title">
 
 			<div className="editor-panel-grid">
 				{renderField('x')}
@@ -158,6 +156,6 @@ export function CropPanel({crop, dispatch, onAnnounce}: Props) {
 
 				{renderField('height')}
 			</div>
-		</section>
+		</EditorSection>
 	);
 }

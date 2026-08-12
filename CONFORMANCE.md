@@ -32,7 +32,7 @@ Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** �
 | 2.4.3 Focus Order | A | Pass | Workspace → crop area → handles → panels → bottom bar; verified in journeys. |
 | 2.4.4 Link Purpose | A | N/A | No links. |
 | 2.4.5 Multiple Ways | AA | N/A | Single-page tool. |
-| 2.4.6 Headings and Labels | AA | Pass | Panel headings (Crop, Adjustments, Filters, Annotate, Layers) and explicit labels everywhere. |
+| 2.4.6 Headings and Labels | AA | Pass | Sidebar sections are Clay disclosure buttons carrying `aria-expanded` (their names describe the section); explicit labels everywhere else. See the FINDINGS note on the heading-structure trade-off. |
 | 2.4.7 Focus Visible | AA | Pass | Clay-style double focus rings (white inner + accent outer). Stage nodes (crop area, handles, annotations) draw them as real SVG geometry because browsers do not reliably paint CSS outlines on SVG children; the two-tone pair stays evident over any image content. |
 | 2.5.1 Pointer Gestures | A | Pass | All pointer interaction is single-pointer dragging with full keyboard equivalents. |
 | 2.5.2 Pointer Cancellation | A | Pass | Gestures commit on pointer-up; pointer-down only captures. |

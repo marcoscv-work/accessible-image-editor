@@ -15,6 +15,7 @@ import {
 	RedactOverlay,
 	isBoxOverlay,
 } from '../state/types';
+import {EditorSection} from './EditorSection';
 
 interface FieldProps {
 	id: string;
@@ -160,9 +161,14 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 			className="editor-layer-properties"
 			role="group"
 		>
-			<h3 className="editor-panel-subtitle" id="layer-properties-title">
+			{/*
+			  * Not a heading: the sidebar sections are disclosure buttons
+			  * now, so a heading here would break the document's heading
+			  * order. The group is labelled by this text instead.
+			  */}
+			<div className="editor-panel-subtitle" id="layer-properties-title">
 				{t('selected-layer', label)}
-			</h3>
+			</div>
 
 			{overlay.kind === 'text' && (
 				<TextField
@@ -481,10 +487,7 @@ export function LayersPanel({
 	};
 
 	return (
-		<section aria-labelledby="layers-panel-title" className="editor-panel">
-			<h2 className="editor-panel-title" id="layers-panel-title">
-				{t('layers')}
-			</h2>
+		<EditorSection title={t('layers')} titleId="layers-panel-title">
 
 			<span className="sr-only" id="layer-name-description">
 				{t('layer-name-description')}
@@ -605,6 +608,6 @@ export function LayersPanel({
 					overlay={selected}
 				/>
 			)}
-		</section>
+		</EditorSection>
 	);
 }

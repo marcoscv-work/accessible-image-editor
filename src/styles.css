@@ -194,27 +194,35 @@
 	width: 280px;
 }
 
-.editor-panel + .editor-panel {
-	border-top: 1px solid #e7e7ed;
-	margin-top: 1rem;
-	padding-top: 1rem;
-}
+/*
+ * Collapsible sections (ClayPanel, unstyled): flat rows separated by a
+ * rule, with the disclosure button spanning the full width.
+ */
 
-.editor-panel-header {
-	align-items: center;
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 0.75rem;
-}
-
-.editor-panel-header .editor-panel-title {
+.editor-panel {
+	border-bottom: 1px solid #e7e7ed;
 	margin-bottom: 0;
 }
 
+.editor-panel .panel-header {
+	padding: 0.75rem 0;
+	width: 100%;
+}
+
+.editor-panel .panel-body {
+	padding: 0 0 0.75rem;
+}
+
+.editor-panel-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 0.5rem;
+}
+
 .editor-panel-title {
-	font-size: 1rem;
+	font-size: 0.9375rem;
 	font-weight: 600;
-	margin-bottom: 0.75rem;
+	margin-bottom: 0;
 }
 
 .editor-slider-row {

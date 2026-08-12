@@ -15,6 +15,7 @@ The editor is **parametric and declarative**:
 - While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop fits and centers that region in the view (a view operation, so it never enters the edit history).
 - **Redactions** pixelate an area for real: tiny downsampled copies of the image (three block sizes) are prepared once at load time and revealed through a clip, scaled back up with nearest-neighbor. They behave exactly like a rectangle otherwise, and the mosaic stays locked to the photo even when the block is rotated.
 - Selected annotations expose **on-stage resize and rotate handles** (proportional by default, Shift for free rectangle resize or 15-degree rotation snaps). They are a pointer-only affordance: the layer properties panel is the accessible, keyboard-first equivalent for the same operations.
+- Sidebar sections are **collapsible Clay panels**: the header is a real button with `aria-expanded`/`aria-controls`, and collapsed content leaves the tab order.
 - The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps 20MP images responsive.
 
 ## Run

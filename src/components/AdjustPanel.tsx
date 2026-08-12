@@ -11,6 +11,7 @@ import React, {useRef} from 'react';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
+import {EditorSection} from './EditorSection';
 
 const SLIDERS: Array<{key: keyof Adjustments; labelKey: string}> = [
 	{key: 'brightness', labelKey: 'brightness'},
@@ -47,12 +48,8 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 	};
 
 	return (
-		<section aria-labelledby="adjust-panel-title" className="editor-panel">
-			<div className="editor-panel-header">
-				<h2 className="editor-panel-title" id="adjust-panel-title">
-					{t('adjustments')}
-				</h2>
-
+		<EditorSection title={t('adjustments')} titleId="adjust-panel-title">
+			<div className="editor-panel-actions">
 				<ClayButton
 					displayType="secondary"
 					onClick={() => {
@@ -159,6 +156,6 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 					</ClayForm.Group>
 				);
 			})}
-		</section>
+		</EditorSection>
 	);
 }

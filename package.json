@@ -20,6 +20,7 @@
 		"@clayui/form": "^3.166.0",
 		"@clayui/icon": "^3.166.0",
 		"@clayui/modal": "^3.166.0",
+		"@clayui/panel": "^3.166.0",
 		"@clayui/slider": "^3.166.0",
 		"@clayui/tabs": "^3.166.0",
 		"@clayui/tooltip": "^3.166.0",

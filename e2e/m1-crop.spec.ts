@@ -83,7 +83,7 @@ test('keyboard-only crop journey', async ({page}) => {
 		await page.keyboard.press('Shift+ArrowLeft');
 	}
 
-	const widthInput = page.getByLabel('Width');
+	const widthInput = page.locator('#crop-width');
 
 	await expect(widthInput).toHaveValue('1570');
 
@@ -103,9 +103,9 @@ test('keyboard-only crop journey', async ({page}) => {
 	// Ratio preset from the select, keyboard only (letter typeahead).
 
 	await tabUntil(page, 'crop-ratio-select');
-	await page.getByLabel('Ratio:').press('o');
+	await page.locator('#crop-ratio-select').press('o');
 
-	await expect(page.getByLabel('Ratio:')).toHaveValue('original');
+	await expect(page.locator('#crop-ratio-select')).toHaveValue('original');
 	await expect(widthInput).toHaveValue('1600');
 
 	// Undo everything back to the initial crop. Each discrete arrow press

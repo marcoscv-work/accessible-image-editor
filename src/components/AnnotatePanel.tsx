@@ -17,6 +17,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {StickerKind, TextOverlay} from '../state/types';
+import {EditorSection} from './EditorSection';
 
 function nextId(kind: string): string {
 	return `${kind}-${crypto.randomUUID().slice(0, 8)}`;
@@ -220,7 +221,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 	 */
 	const [rovingIndex, setRovingIndex] = useState(0);
 
-	const panelRef = useRef<HTMLElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
 
 	const controlCount = 3 + STICKER_KINDS.length;
 
@@ -342,15 +343,8 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 	};
 
 	return (
-		<section
-			aria-labelledby="annotate-panel-title"
-			className="editor-panel"
-			onKeyDown={handlePanelKeyDown}
-			ref={panelRef}
-		>
-			<h2 className="editor-panel-title" id="annotate-panel-title">
-				{t('annotate')}
-			</h2>
+		<EditorSection title={t('annotate')} titleId="annotate-panel-title">
+			<div onKeyDown={handlePanelKeyDown} ref={panelRef}>
 
 			<div className="editor-annotate-actions">
 				<ClayButton
@@ -439,9 +433,10 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 
 					focusOverlay(overlay.id, 450);
 				}}
-				onOpenChange={setTextDialogOpen}
-				open={textDialogOpen}
-			/>
-		</section>
+					onOpenChange={setTextDialogOpen}
+					open={textDialogOpen}
+				/>
+			</div>
+		</EditorSection>
 	);
 }

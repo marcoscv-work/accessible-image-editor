@@ -8,6 +8,7 @@ import {FilterDefs} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
+import {EditorSection} from './EditorSection';
 
 const PRESETS: FilterPreset[] = [
 	'none',
@@ -35,10 +36,11 @@ interface Props {
  */
 export function FilterGallery({dispatch, filter, image, onAnnounce}: Props) {
 	return (
-		<fieldset className="editor-panel">
-			<legend className="editor-panel-title">{t('filters')}</legend>
+		<EditorSection title={t('filters')} titleId="filters-panel-title">
+			<fieldset>
+				<legend className="sr-only">{t('filters')}</legend>
 
-			<div className="editor-filter-grid">
+				<div className="editor-filter-grid">
 				{PRESETS.map((preset) => {
 					const label = t(`filter-${preset}`);
 
@@ -99,8 +101,9 @@ export function FilterGallery({dispatch, filter, image, onAnnounce}: Props) {
 							</label>
 						</div>
 					);
-				})}
-			</div>
-		</fieldset>
+					})}
+				</div>
+			</fieldset>
+		</EditorSection>
 	);
 }
