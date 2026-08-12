@@ -289,9 +289,125 @@ export function LayersPanel({
 	const selected =
 		items.find((overlay) => overlay.id === selectedId) ?? items[0] ?? null;
 
+	/**
+	 * Roving tabindex (APG): the whole list is a single tab stop, and the
+	 * position marks which control carries tabIndex 0. Arrow keys move
+	 * it; entering the list lands on the selected layer's name.
+	 */
+	const [rovingPos, setRovingPos] = useState({column: 0, row: 0});
+
+	const listRef = useRef<HTMLUListElement>(null);
+
+	const selectedRow = items.findIndex(
+		(overlay) => overlay.id === selected?.id
+	);
+
+	useEffect(() => {
+		if (selectedRow >= 0) {
+			setRovingPos((pos) =>
+				pos.row === selectedRow ? pos : {column: 0, row: selectedRow}
+			);
+		}
+	}, [selectedRow]);
+
 	if (!items.length) {
 		return null;
 	}
+
+	const handleListKeyDown = (event: React.KeyboardEvent) => {
+		const origin = (event.target as Element).closest('[data-row]');
+
+		if (!origin) {
+			return;
+		}
+
+		let row = Number(origin.getAttribute('data-row'));
+		let column = Number(origin.getAttribute('data-column'));
+
+		const lastRow = items.length - 1;
+		const lastColumn = 4;
+
+		let horizontal = 0;
+
+		switch (event.key) {
+			case 'ArrowDown':
+				row = Math.min(row + 1, lastRow);
+				break;
+
+			case 'ArrowUp':
+				row = Math.max(row - 1, 0);
+				break;
+
+			case 'ArrowRight':
+				horizontal = 1;
+				break;
+
+			case 'ArrowLeft':
+				horizontal = -1;
+				break;
+
+			case 'End':
+				row = lastRow;
+				column = 0;
+				break;
+
+			case 'Home':
+				row = 0;
+				column = 0;
+				break;
+
+			default:
+				return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		const buttonAt = (targetRow: number, targetColumn: number) =>
+			listRef.current?.querySelector<HTMLButtonElement>(
+				`[data-row="${targetRow}"][data-column="${targetColumn}"]`
+			);
+
+		if (horizontal) {
+
+			// Move within the row, skipping disabled actions.
+
+			let next = column + horizontal;
+
+			while (next >= 0 && next <= lastColumn) {
+				if (!buttonAt(row, next)?.disabled) {
+					break;
+				}
+
+				next += horizontal;
+			}
+
+			if (next < 0 || next > lastColumn) {
+				return;
+			}
+
+			column = next;
+		}
+		else if (buttonAt(row, column)?.disabled) {
+			column = 0;
+		}
+
+		const target = buttonAt(row, column);
+
+		if (target) {
+			setRovingPos({column, row});
+
+			target.focus();
+		}
+	};
+
+	const rovingProps = (row: number, column: number) => ({
+		'data-column': column,
+		'data-row': row,
+		onFocus: () => setRovingPos({column, row}),
+		tabIndex:
+			rovingPos.row === row && rovingPos.column === column ? 0 : -1,
+	});
 
 	const remove = (overlay: Overlay) => {
 		dispatch({id: overlay.id, type: 'remove-overlay'});
@@ -335,10 +451,15 @@ export function LayersPanel({
 				{t('layers')}
 			</h2>
 
-			<ul className="editor-layer-list list-unstyled small">
+			<ul
+				className="editor-layer-list list-unstyled small"
+				onKeyDown={handleListKeyDown}
+				ref={listRef}
+			>
 				{items.map((overlay, index) => {
 					const label = overlayLabel(overlay);
 					const isSelected = overlay.id === selected?.id;
+					const row = index;
 
 					return (
 						<li
@@ -350,6 +471,7 @@ export function LayersPanel({
 							key={overlay.id}
 						>
 							<button
+								{...rovingProps(row, 0)}
 								aria-pressed={isSelected}
 								className="editor-layer-name"
 								onClick={() => onSelect(overlay.id)}
@@ -369,6 +491,7 @@ export function LayersPanel({
 
 							<span className="editor-layer-actions">
 								<ClayButtonWithIcon
+									{...rovingProps(row, 1)}
 									aria-label={t('move-layer-up', label)}
 									disabled={index === 0}
 									displayType="unstyled"
@@ -379,6 +502,7 @@ export function LayersPanel({
 								/>
 
 								<ClayButtonWithIcon
+									{...rovingProps(row, 2)}
 									aria-label={t('move-layer-down', label)}
 									disabled={index === items.length - 1}
 									displayType="unstyled"
@@ -389,6 +513,7 @@ export function LayersPanel({
 								/>
 
 								<ClayButtonWithIcon
+									{...rovingProps(row, 3)}
 									aria-label={t('duplicate-layer', label)}
 									displayType="unstyled"
 									onClick={() => duplicate(overlay)}
@@ -398,6 +523,7 @@ export function LayersPanel({
 								/>
 
 								<ClayButtonWithIcon
+									{...rovingProps(row, 4)}
 									aria-label={t('delete-layer', label)}
 									displayType="unstyled"
 									onClick={() => remove(overlay)}
