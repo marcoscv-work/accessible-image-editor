@@ -34,7 +34,9 @@ export default function App() {
 	};
 
 	const openSample = async () => {
-		const response = await fetch('/sample.jpg');
+		const response = await fetch(
+			`${import.meta.env.BASE_URL}sample.jpg`
+		);
 
 		await open(await response.blob(), 'sample.jpg');
 	};
