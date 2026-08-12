@@ -12,7 +12,6 @@ import {
 	editorReducer,
 	initialHistory,
 } from '../state/editorReducer';
-import {rotatedSize} from '../state/types';
 import {AnnotatePanel} from './AnnotatePanel';
 import {FilterGallery} from './FilterGallery';
 import {LayersPanel} from './LayersPanel';
@@ -60,7 +59,7 @@ function AnnotationHarness() {
 			/>
 
 			<AnnotatePanel
-				bounds={rotatedSize(history.present)}
+				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
 			/>
@@ -110,6 +109,46 @@ function TextStageHarness() {
 			state={history.present}
 			zoom={0.5}
 		/>
+	);
+}
+
+/**
+ * A stage cropped to the bottom-right quadrant, to check where new
+ * annotations land.
+ */
+function CroppedHarness() {
+	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
+		editorReducer(initialHistory(IMAGE.width, IMAGE.height), {
+			crop: {height: 400, width: 600, x: 600, y: 400},
+			type: 'set-crop',
+		})
+	);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+
+	return (
+		<>
+			<Workspace
+				dispatch={dispatch}
+				image={IMAGE}
+				onAnnounce={() => {}}
+				onCenterCrop={() => {}}
+				onSelectOverlay={setSelectedId}
+				onWorkspaceScroll={() => {}}
+				onZoom={() => {}}
+				onZoomFit={() => {}}
+				selectedOverlayId={selectedId}
+				showCrop
+				showRecenter
+				state={history.present}
+				zoom={0.5}
+			/>
+
+			<AnnotatePanel
+				area={history.present.crop}
+				dispatch={dispatch}
+				onAnnounce={() => {}}
+			/>
+		</>
 	);
 }
 
@@ -437,6 +476,30 @@ describe('Annotations, filters, and layers', () => {
 		expect(container.querySelectorAll('.object-handle')).toHaveLength(9);
 
 		expect(await axe(container)).toHaveNoViolations();
+	});
+
+	it('centers a new annotation on the crop, not on the image', () => {
+		const {container} = render(<CroppedHarness />);
+
+		fireEvent.click(
+			screen.getByRole('button', {name: 'Add star sticker'})
+		);
+
+		const sticker = container.querySelector(
+			'.overlay-hit'
+		) as SVGRectElement;
+
+		const centerX =
+			Number(sticker.getAttribute('x')) +
+			Number(sticker.getAttribute('width')) / 2;
+		const centerY =
+			Number(sticker.getAttribute('y')) +
+			Number(sticker.getAttribute('height')) / 2;
+
+		// Center of the crop (900, 600), not of the image (600, 400).
+
+		expect(Math.round(centerX)).toBe(900);
+		expect(Math.round(centerY)).toBe(600);
 	});
 
 	it('deletes a layer from its row and hides the empty panel', () => {

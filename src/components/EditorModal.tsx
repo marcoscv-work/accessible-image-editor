@@ -433,7 +433,7 @@ export default function EditorModal({image, onClose, sections}: Props) {
 							{enabled.annotate && (
 								<>
 									<AnnotatePanel
-										bounds={rotatedSize(state)}
+										area={state.crop}
 										dispatch={dispatch}
 										onAnnounce={announce}
 									/>

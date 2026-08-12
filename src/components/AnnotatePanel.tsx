@@ -16,7 +16,7 @@ import {
 	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {StickerKind, TextOverlay} from '../state/types';
+import {CropRect, StickerKind, TextOverlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 
 function nextId(kind: string): string {
@@ -201,7 +201,13 @@ function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 }
 
 interface Props {
-	bounds: {height: number; width: number};
+
+	/**
+	 * The current crop rectangle: new annotations are centered on it and
+	 * sized relative to it, so they always land inside what the user is
+	 * working on rather than at the center of the whole image.
+	 */
+	area: CropRect;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
 }
@@ -211,7 +217,7 @@ interface Props {
  * added through regular form controls, never through freehand pointer
  * drawing.
  */
-export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
+export function AnnotatePanel({area, dispatch, onAnnounce}: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
 	/**
@@ -276,8 +282,8 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		tabIndex: rovingIndex === index ? 0 : -1,
 	});
 
-	const centerX = Math.round(bounds.width / 2);
-	const centerY = Math.round(bounds.height / 2);
+	const centerX = Math.round(area.x + area.width / 2);
+	const centerY = Math.round(area.y + area.height / 2);
 
 	const addRectangle = () => {
 		const id = nextId('shape');
@@ -285,12 +291,12 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		dispatch({
 			overlay: {
 				color: '#0b5fff',
-				height: Math.round(bounds.height * 0.15),
+				height: Math.round(area.height * 0.15),
 				id,
 				kind: 'shape',
-				width: Math.round(bounds.width * 0.25),
-				x: Math.round(centerX - bounds.width * 0.125),
-				y: Math.round(centerY - bounds.height * 0.075),
+				width: Math.round(area.width * 0.25),
+				x: Math.round(centerX - area.width * 0.125),
+				y: Math.round(centerY - area.height * 0.075),
 			},
 			type: 'add-overlay',
 		});
@@ -305,13 +311,13 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 
 		dispatch({
 			overlay: {
-				height: Math.round(bounds.height * 0.15),
+				height: Math.round(area.height * 0.15),
 				id,
 				kind: 'redact',
 				level: 'medium',
-				width: Math.round(bounds.width * 0.25),
-				x: Math.round(centerX - bounds.width * 0.125),
-				y: Math.round(centerY - bounds.height * 0.075),
+				width: Math.round(area.width * 0.25),
+				x: Math.round(centerX - area.width * 0.125),
+				y: Math.round(centerY - area.height * 0.075),
 			},
 			type: 'add-overlay',
 		});
@@ -329,7 +335,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 				color: STICKER_DEFAULT_COLORS[sticker],
 				id,
 				kind: 'sticker',
-				size: Math.round(Math.min(bounds.width, bounds.height) * 0.2),
+				size: Math.round(Math.min(area.width, area.height) * 0.2),
 				sticker,
 				x: centerX,
 				y: centerY,

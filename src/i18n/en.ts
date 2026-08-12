@@ -26,7 +26,7 @@ export default {
 	adjustments: 'Adjustments',
 	'adjustments-reset': 'All adjustments reset',
 	annotate: 'Annotate',
-	'annotation-added': '{0} added to the center of the image',
+	'annotation-added': '{0} added to the center of the crop area',
 	'annotation-duplicated': '{0} duplicated',
 	'annotation-moved': '{0} moved to x {1}, y {2}',
 	'annotation-removed': '{0} removed',
