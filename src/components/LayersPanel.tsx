@@ -451,6 +451,10 @@ export function LayersPanel({
 				{t('layers')}
 			</h2>
 
+			<span className="sr-only" id="layer-name-description">
+				{t('layer-name-description')}
+			</span>
+
 			<ul
 				className="editor-layer-list list-unstyled small"
 				onKeyDown={handleListKeyDown}
@@ -472,11 +476,32 @@ export function LayersPanel({
 						>
 							<button
 								{...rovingProps(row, 0)}
+								aria-describedby="layer-name-description"
 								aria-pressed={isSelected}
 								className="editor-layer-name"
 								onClick={() => onSelect(overlay.id)}
 								onKeyDown={(event: React.KeyboardEvent) => {
-									if (
+									if (event.key === 'Enter') {
+
+										// Jump to the element on the
+										// stage, ready to be moved.
+
+										event.preventDefault();
+
+										onSelect(overlay.id);
+
+										window.setTimeout(() => {
+											const node =
+												document.querySelector(
+													`[data-overlay-id="${overlay.id}"]`
+												);
+
+											(
+												node as unknown as HTMLElement | null
+											)?.focus?.();
+										}, 0);
+									}
+									else if (
 										event.key === 'Delete' ||
 										event.key === 'Backspace'
 									) {

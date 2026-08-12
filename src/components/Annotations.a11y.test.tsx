@@ -367,6 +367,30 @@ describe('Annotations, filters, and layers', () => {
 		expect(document.activeElement).toHaveAccessibleName('Add text');
 	});
 
+	it('jumps from a layer row to its element on the stage on Enter', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		const row = screen.getByRole('button', {
+			name: 'Rectangle',
+			pressed: true,
+		});
+
+		expect(row).toHaveAttribute(
+			'aria-describedby',
+			'layer-name-description'
+		);
+
+		fireEvent.keyDown(row, {key: 'Enter'});
+
+		await new Promise((resolve) => setTimeout(resolve, 20));
+
+		expect(document.activeElement).toBe(
+			container.querySelector('.overlay-hit')
+		);
+	});
+
 	it('deletes a layer from its row and hides the empty panel', () => {
 		render(<AnnotationHarness />);
 

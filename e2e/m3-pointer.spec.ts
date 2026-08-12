@@ -72,6 +72,15 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 		page.locator('.editor-workspace rect[fill="#00ff00"]')
 	).toHaveAttribute('width', '500');
 
+	// Enter on the layer name jumps to the element on the stage.
+
+	await page.locator('.editor-layer-name').first().click();
+	await page.keyboard.press('Enter');
+
+	await expect(
+		page.locator('.editor-workspace .overlay-hit')
+	).toBeFocused();
+
 	// On-stage manipulation: dragging a corner handle resizes
 	// proportionally around the center. Re-select the rectangle first
 	// (the earlier crop drag cleared the selection).

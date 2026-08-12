@@ -87,6 +87,8 @@ export default {
 	'label-rotate': 'rotation',
 	'layer-moved-down': '{0} moved down',
 	'layer-moved-up': '{0} moved up',
+	'layer-name-description':
+		'Press Enter to move focus to this element on the image. Press Delete to remove it.',
 	'layer-updated': '{0} updated',
 	layers: 'Layers',
 	'load-failed': 'The image could not be opened. Try a different file.',

@@ -47,7 +47,7 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `Ctrl/Cmd + Z` | Undo (announced with the operation name) |
 | `Ctrl/Cmd + Shift + Z` | Redo |
 | `Delete` | Remove the focused annotation or layer row |
-| `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor |
+| `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor; on a layer row, jump to that element on the image |
 | `0` | Fit the image to the window while the workspace has focus |
 | `Shift + drag` | Keep the crop proportions while resizing a handle |
 | `Alt + drag` | Resize the crop from its center |
