@@ -59,7 +59,7 @@ npm run lint      # @liferay/eslint-config (react preset)
 
 The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state. A dedicated pointer-parity spec exercises the same annotation operations with mouse drags (WCAG 2.5.x).
 
-`npm run generate:images` regenerates the bundled sample and the 20MP performance asset (macOS `sips` required).
+`npm run generate:images` rebuilds the 20MP performance asset from the bundled sample (macOS `sips` required); it is kept out of the repository.
 
 ## Keyboard map
 
@@ -94,6 +94,10 @@ src/
   i18n/         t() + English dictionary (Language.properties-shaped keys)
 e2e/            Keyboard-only Playwright journeys, axe scans, 20MP perf budget
 ```
+
+## Credits
+
+The bundled sample image (`public/sample.jpg`) is an [Unsplash](https://unsplash.com) photo, used under the Unsplash License. Photographer credit still to be filled in.
 
 ## Out of scope (product-phase concerns)
 

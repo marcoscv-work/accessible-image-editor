@@ -70,7 +70,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await page.keyboard.press('Shift+ArrowRight');
 
-	await expect(status).toContainText('Star sticker moved to x 810');
+	await expect(status).toContainText('Star sticker moved to x 785');
 
 	// Add a text overlay through the dialog.
 

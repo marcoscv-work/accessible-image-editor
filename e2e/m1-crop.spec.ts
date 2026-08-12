@@ -85,11 +85,11 @@ test('keyboard-only crop journey', async ({page}) => {
 
 	const widthInput = page.locator('#crop-width');
 
-	await expect(widthInput).toHaveValue('1570');
+	await expect(widthInput).toHaveValue('1520');
 
 	// The live region reports the crop geometry.
 
-	await expect(page.getByRole('status')).toContainText('width 1570');
+	await expect(page.getByRole('status')).toContainText('width 1520');
 
 	// Precise crop through the numeric panel.
 
@@ -106,7 +106,7 @@ test('keyboard-only crop journey', async ({page}) => {
 	await page.locator('#crop-ratio-select').press('o');
 
 	await expect(page.locator('#crop-ratio-select')).toHaveValue('original');
-	await expect(widthInput).toHaveValue('1600');
+	await expect(widthInput).toHaveValue('1550');
 
 	// Undo everything back to the initial crop. Each discrete arrow press
 	// was its own undoable step, so the three 10px nudges undo one by one.
@@ -115,9 +115,9 @@ test('keyboard-only crop journey', async ({page}) => {
 	await expect(widthInput).toHaveValue('800');
 
 	await page.keyboard.press('ControlOrMeta+z');
-	await expect(widthInput).toHaveValue('1570');
+	await expect(widthInput).toHaveValue('1520');
 
-	for (const width of ['1580', '1590', '1600']) {
+	for (const width of ['1530', '1540', '1550']) {
 		await page.keyboard.press('ControlOrMeta+z');
 		await expect(widthInput).toHaveValue(width);
 	}
@@ -125,7 +125,7 @@ test('keyboard-only crop journey', async ({page}) => {
 	// Redo one step.
 
 	await page.keyboard.press('ControlOrMeta+Shift+z');
-	await expect(widthInput).toHaveValue('1590');
+	await expect(widthInput).toHaveValue('1540');
 
 	// Zoom from the workspace with the keyboard and hear the result.
 
