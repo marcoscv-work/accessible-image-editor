@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import React, {useRef, useState} from 'react';
+import {ClayIconSpriteContext} from '@clayui/icon';
+import React, {useContext, useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
@@ -220,6 +221,10 @@ export function CropMarquee({
 	 */
 	const [gesturing, setGesturing] = useState(false);
 
+	const [recenterFocused, setRecenterFocused] = useState(false);
+
+	const spritemap = useContext(ClayIconSpriteContext);
+
 	const keyboardGesture = useRef(false);
 
 	const pointerGesture = useRef<{
@@ -429,47 +434,48 @@ export function CropMarquee({
 				/>
 			)}
 
-			{!gesturing &&
-				(crop.width < bounds.width || crop.height < bounds.height) && (
-					<g
-						className="crop-recenter"
-						onClick={onCenterCrop}
-						onKeyDown={(event: React.KeyboardEvent) => {
-							if (event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								onCenterCrop();
-							}
-						}}
-						role="button"
-						tabIndex={0}
-					>
-						<title>{t('center-crop')}</title>
+			{(crop.width < bounds.width || crop.height < bounds.height) && (
+				<g
+					className={
+						recenterFocused
+							? 'crop-recenter crop-recenter-focused'
+							: 'crop-recenter'
+					}
+					onBlur={() => setRecenterFocused(false)}
+					onClick={onCenterCrop}
+					onFocus={(event) =>
+						setRecenterFocused(
+							matchesFocusVisible(event.currentTarget)
+						)
+					}
+					onKeyDown={(event: React.KeyboardEvent) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							onCenterCrop();
+						}
+					}}
+					role="button"
+					tabIndex={0}
+				>
+					<title>{t('center-crop')}</title>
 
-						<circle
-							className="crop-recenter-disc"
-							cx={crop.x + crop.width / 2}
-							cy={crop.y + crop.height / 2}
-							r={14 / zoom}
-						/>
+					<circle
+						className="crop-recenter-disc"
+						cx={crop.x + crop.width / 2}
+						cy={crop.y + crop.height / 2}
+						r={16 / zoom}
+					/>
 
-						<rect
-							className="crop-recenter-mark"
-							fill="none"
-							height={12 / zoom}
-							strokeWidth={2 / zoom}
-							width={12 / zoom}
-							x={crop.x + crop.width / 2 - 6 / zoom}
-							y={crop.y + crop.height / 2 - 6 / zoom}
-						/>
-
-						<circle
-							className="crop-recenter-dot"
-							cx={crop.x + crop.width / 2}
-							cy={crop.y + crop.height / 2}
-							r={2.5 / zoom}
-						/>
-					</g>
-				)}
+					<use
+						className="crop-recenter-icon"
+						height={18 / zoom}
+						href={`${spritemap}#autosize`}
+						width={18 / zoom}
+						x={crop.x + crop.width / 2 - 9 / zoom}
+						y={crop.y + crop.height / 2 - 9 / zoom}
+					/>
+				</g>
+			)}
 
 			{children}
 

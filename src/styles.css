@@ -110,24 +110,35 @@
 	stroke: rgba(255, 255, 255, 0.5);
 }
 
-/* Recenter control at the middle of the crop. */
+/*
+ * Recenter control at the middle of the crop: revealed on hover over the
+ * crop area (or when it takes keyboard focus). Always mounted so it stays
+ * reachable with Tab even while invisible.
+ */
 
 .crop-recenter {
 	cursor: pointer;
+	opacity: 0;
+	outline: none;
+	transition: opacity 250ms ease-out;
+}
+
+.crop-move:hover ~ .crop-recenter,
+.crop-recenter-focused,
+.crop-recenter:hover {
+	opacity: 1;
 }
 
 .crop-recenter-disc {
-	fill: rgba(255, 255, 255, 0.85);
+	fill: rgba(255, 255, 255, 0.9);
 }
 
-.crop-recenter-dot,
-.crop-recenter-mark {
-	fill: #14151f;
+.crop-recenter-icon {
+	color: #14151f;
 	pointer-events: none;
-	stroke: #14151f;
 }
 
-.crop-recenter:focus-visible .crop-recenter-disc {
+.crop-recenter-focused .crop-recenter-disc {
 	stroke: var(--editor-accent);
 	stroke-width: 3px;
 }
@@ -152,6 +163,30 @@
 .crop-move,
 .overlay-hit {
 	outline: none;
+}
+
+/*
+ * Stage affordances mount and unmount with selection, so they fade in
+ * with an animation rather than a transition (which would need a stable
+ * element). The reduced-motion rule below neutralizes both.
+ */
+
+@keyframes stage-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.crop-handle-visual,
+.focus-ring-inner,
+.focus-ring-outer,
+.object-handles,
+.selection-ring {
+	animation: stage-fade-in 220ms ease-out;
 }
 
 .focus-ring-inner {

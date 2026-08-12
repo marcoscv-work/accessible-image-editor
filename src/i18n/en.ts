@@ -38,6 +38,7 @@ export default {
 	'aspect-ratio-unlocked': 'Aspect ratio unlocked',
 	brightness: 'Brightness',
 	cancel: 'Cancel',
+	'center-crop': 'Center the crop in the view',
 	close: 'Close',
 	contrast: 'Contrast',
 	crop: 'Crop',
