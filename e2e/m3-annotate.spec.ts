@@ -47,7 +47,12 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// Add a star sticker from the panel.
 
-	await tabUntil(page, 'Add star sticker');
+	// The Annotate panel is one roving tab stop: enter at Add text, then
+	// arrow to the star sticker.
+
+	await tabUntil(page, 'Add text');
+	await page.keyboard.press('ArrowRight');
+	await page.keyboard.press('ArrowRight');
 	await page.keyboard.press('Enter');
 
 	await expect(status).toContainText('Star sticker added');
@@ -66,7 +71,12 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// Add a text overlay through the dialog.
 
-	await tabUntil(page, 'Add text');
+	// Tab re-enters the panel at the last used control (the star), and
+	// the arrows walk back to Add text.
+
+	await tabUntil(page, 'Add star sticker');
+	await page.keyboard.press('ArrowLeft');
+	await page.keyboard.press('ArrowLeft');
 	await page.keyboard.press('Enter');
 
 	await expect(page.getByRole('dialog').nth(1)).toBeVisible();

@@ -338,6 +338,35 @@ describe('Annotations, filters, and layers', () => {
 		).toBe('Liferay');
 	});
 
+	it('roves a single tab stop through the annotate controls', () => {
+		render(<AnnotationHarness />);
+
+		const addText = screen.getByRole('button', {name: 'Add text'});
+
+		addText.focus();
+
+		fireEvent.keyDown(addText, {key: 'ArrowRight'});
+		fireEvent.keyDown(document.activeElement as Element, {
+			key: 'ArrowRight',
+		});
+
+		expect(document.activeElement).toHaveAccessibleName(
+			'Add star sticker'
+		);
+
+		// Exactly one tab stop across the whole panel.
+
+		expect(
+			document.querySelectorAll(
+				'.editor-panel [data-index][tabindex="0"]'
+			)
+		).toHaveLength(1);
+
+		fireEvent.keyDown(document.activeElement as Element, {key: 'Home'});
+
+		expect(document.activeElement).toHaveAccessibleName('Add text');
+	});
+
 	it('deletes a layer from its row and hides the empty panel', () => {
 		render(<AnnotationHarness />);
 

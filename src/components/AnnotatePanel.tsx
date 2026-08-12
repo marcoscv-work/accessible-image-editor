@@ -213,6 +213,68 @@ interface Props {
 export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
+	/**
+	 * Roving tabindex (APG): the whole Annotate panel is one tab stop;
+	 * arrows move between the add buttons and the sticker picker, and
+	 * Tab re-enters at the last used control.
+	 */
+	const [rovingIndex, setRovingIndex] = useState(0);
+
+	const panelRef = useRef<HTMLElement>(null);
+
+	const controlCount = 2 + STICKER_KINDS.length;
+
+	const handlePanelKeyDown = (event: React.KeyboardEvent) => {
+		const origin = (event.target as Element).closest('[data-index]');
+
+		if (!origin) {
+			return;
+		}
+
+		let index = Number(origin.getAttribute('data-index'));
+
+		switch (event.key) {
+			case 'ArrowDown':
+			case 'ArrowRight':
+				index = Math.min(index + 1, controlCount - 1);
+				break;
+
+			case 'ArrowLeft':
+			case 'ArrowUp':
+				index = Math.max(index - 1, 0);
+				break;
+
+			case 'End':
+				index = controlCount - 1;
+				break;
+
+			case 'Home':
+				index = 0;
+				break;
+
+			default:
+				return;
+		}
+
+		event.preventDefault();
+
+		const target = panelRef.current?.querySelector<HTMLButtonElement>(
+			`[data-index="${index}"]`
+		);
+
+		if (target) {
+			setRovingIndex(index);
+
+			target.focus();
+		}
+	};
+
+	const rovingProps = (index: number) => ({
+		'data-index': index,
+		onFocus: () => setRovingIndex(index),
+		tabIndex: rovingIndex === index ? 0 : -1,
+	});
+
 	const centerX = Math.round(bounds.width / 2);
 	const centerY = Math.round(bounds.height / 2);
 
@@ -262,6 +324,8 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 		<section
 			aria-labelledby="annotate-panel-title"
 			className="editor-panel"
+			onKeyDown={handlePanelKeyDown}
+			ref={panelRef}
 		>
 			<h2 className="editor-panel-title" id="annotate-panel-title">
 				{t('annotate')}
@@ -269,6 +333,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 
 			<div className="editor-annotate-actions">
 				<ClayButton
+					{...rovingProps(0)}
 					displayType="secondary"
 					onClick={() => setTextDialogOpen(true)}
 					size="sm"
@@ -277,6 +342,7 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 				</ClayButton>
 
 				<ClayButton
+					{...rovingProps(1)}
 					displayType="secondary"
 					onClick={addRectangle}
 					size="sm"
@@ -290,8 +356,9 @@ export function AnnotatePanel({bounds, dispatch, onAnnounce}: Props) {
 				className="editor-sticker-picker"
 				role="group"
 			>
-				{STICKER_KINDS.map((sticker) => (
+				{STICKER_KINDS.map((sticker, stickerIndex) => (
 					<ClayButton
+						{...rovingProps(2 + stickerIndex)}
 						aria-label={t(`add-sticker-${sticker}`)}
 						displayType="secondary"
 						key={sticker}
