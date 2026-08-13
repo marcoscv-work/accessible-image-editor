@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Accessible Image Editor — an image editor everyone can operate</title>
+		<meta
+			name="description"
+			content="A non-canvas, keyboard-first image editor built with React and Clay: crop, adjust, filter, annotate and redact, with WCAG 2.1 AA behaviour built into the architecture."
+		/>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<a class="skip" href="#main">Skip to main content</a>
+
+		<header class="site-header">
+			<div class="container">
+				<a class="brand" href="#top">
+					<span class="brand-mark" aria-hidden="true">
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+							<path
+								d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5v-9Zm1.5 0v6.2l2.1-2.1a.75.75 0 0 1 1.06 0l1.64 1.64 2.14-2.14a.75.75 0 0 1 1.06 0l1 1V3.5h-9Z"
+							/>
+							<circle cx="6" cy="6" r="1.1" />
+						</svg>
+					</span>
+					Accessible Image Editor
+				</a>
+
+				<nav class="site-nav" aria-label="Sections">
+					<a href="#architecture">Architecture</a>
+					<a href="#features">Features</a>
+					<a href="#accessibility">Accessibility</a>
+					<a href="#small-screens">Small screens</a>
+					<a href="#configure">Configure</a>
+				</nav>
+
+				<a class="btn btn-primary btn-sm" href="../">Open the editor</a>
+			</div>
+		</header>
+
+		<main id="main">
+			<section class="hero" id="top">
+				<div class="container hero-grid">
+					<div>
+						<p class="badge-row">
+							<span class="badge">
+								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
+								WCAG 2.1 AA
+							</span>
+							<span class="badge">
+								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
+								No canvas in the UI
+							</span>
+							<span class="badge">
+								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
+								React + Clay
+							</span>
+							<span class="badge">
+								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
+								84 automated checks
+							</span>
+						</p>
+
+						<h1>An image editor everyone can operate</h1>
+
+						<p class="lead">
+							Crop, straighten, adjust, filter, annotate and redact images
+							with the keyboard alone, with a screen reader, or with a
+							mouse on a phone-sized screen. Every editable thing is a real
+							DOM node with a name, a role and a value, because the stage is
+							SVG instead of a canvas.
+						</p>
+
+						<p class="hero-actions">
+							<a class="btn btn-primary" href="../">Open the editor</a>
+							<a class="btn btn-secondary" href="../storybook/">
+								Try the Storybook
+							</a>
+							<a
+								class="btn btn-secondary"
+								href="https://github.com/marcoscv-work/accessible-image-editor"
+							>
+								Source on GitHub
+							</a>
+						</p>
+					</div>
+
+					<figure class="figure reveal">
+						<div class="window hero-window">
+							<div class="window-bar">
+								<span class="window-dot" aria-hidden="true"></span>
+								<span class="window-dot" aria-hidden="true"></span>
+								<span class="window-dot" aria-hidden="true"></span>
+								<span class="window-title">marcoscv-work.github.io/accessible-image-editor</span>
+							</div>
+							<img
+								src="screenshots/editor.jpg"
+								width="2380"
+								height="1620"
+								alt="The editor open on a photograph of a domed building. The crop marquee covers the image, and the sidebar shows the Crop and rotation, Adjustments and Filters sections."
+							/>
+						</div>
+						<figcaption>
+							The editor itself. Every screenshot on this page is captured
+							from the running application by a script, never mocked up.
+						</figcaption>
+					</figure>
+				</div>
+			</section>
+
+			<section class="section" id="architecture">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Why it is different</p>
+						<h2>Accessibility comes from the architecture, not from a patch</h2>
+						<p>
+							Canvas-based editors put the entire editing surface in one
+							opaque element. Assistive technology sees a single box, the
+							keyboard has nothing to land on, and no amount of ARIA can
+							invent the parts that were never there.
+						</p>
+					</div>
+
+					<div class="grid">
+						<article class="card reveal">
+							<span class="card-icon" aria-hidden="true">
+								<svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v1.5H3.5V7H2V2Zm7 0h5v5h-1.5V3.5H9V2ZM2 9h1.5v3.5H7V14H2V9Zm10.5 0H14v5H9v-1.5h3.5V9Z"/></svg>
+							</span>
+							<h3>An SVG stage, in the DOM</h3>
+							<p>
+								The photograph is an
+								<code>&lt;image&gt;</code> element. Colour work is
+								declarative SVG filter primitives. Every annotation is a
+								focusable node with a label, so the editor is navigable
+								before a single ARIA attribute is added.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-icon" aria-hidden="true">
+								<svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5 14.5 5 8 8.5 1.5 5 8 1.5Zm0 1.7L4.4 5 8 6.8 11.6 5 8 3.2ZM1.5 7.6 8 11l6.5-3.4v1.7L8 12.7 1.5 9.3V7.6Z"/></svg>
+							</span>
+							<h3>The edit is data, not pixels</h3>
+							<p>
+								A session is a plain, serialisable state object run through
+								a pure reducer. That is what makes labelled undo, redo and
+								non-destructive editing fall out for free, and what lets a
+								whole session be stored or replayed.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-icon" aria-hidden="true">
+								<svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3c3 0 5.4 1.9 6.5 5-1.1 3.1-3.5 5-6.5 5S2.6 11.1 1.5 8C2.6 4.9 5 3 8 3Zm0 1.5C5.9 4.5 4.2 5.7 3.2 8c1 2.3 2.7 3.5 4.8 3.5s3.8-1.2 4.8-3.5c-1-2.3-2.7-3.5-4.8-3.5Zm0 1.3a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4Z"/></svg>
+							</span>
+							<h3>What you preview is what you export</h3>
+							<p>
+								The preview and the exported file are produced by the same
+								components and the same filter definitions. Canvas appears
+								once, at the very end, as an encoder, so the two can never
+								drift apart.
+							</p>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="section section-alt" id="features">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Everything it does</p>
+						<h2>The full feature set</h2>
+						<p>
+							Each group below can be switched off, and so can each
+							individual control inside it.
+						</p>
+					</div>
+
+					<div class="grid">
+						<article class="card reveal">
+							<span class="card-count">Crop and rotation</span>
+							<h3>Framing</h3>
+							<ul>
+								<li>Free crop with eight handles, movable as a whole</li>
+								<li>
+									Seven ratios: custom, original, 1:1, 4:3, 16:9, 3:4,
+									9:16
+								</li>
+								<li>Numeric X, Y, width and height, with a ratio lock</li>
+								<li>Straighten at any angle, with automatic cover scaling</li>
+								<li>Rotate 90 degrees, and recenter on the crop</li>
+								<li>Zoom in, out, and fit to the window</li>
+								<li>
+									<kbd>Shift</kbd> keeps proportions,
+									<kbd>Alt</kbd> resizes from the centre
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">Adjustments</span>
+							<h3>Tone and colour</h3>
+							<ul>
+								<li>Brightness, contrast, saturation</li>
+								<li>Shadows and highlights, as separate tone curves</li>
+								<li>Per-slider reset, plus a Reset all</li>
+								<li>
+									Real slider elements, so arrows, Home, End and Page keys
+									all work
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">20 presets</span>
+							<h3>Filters</h3>
+							<ul>
+								<li>
+									Grayscale, Noir, Sepia, Cyanotype, Vintage, Fade, Matte
+								</li>
+								<li>
+									Warm, Cool, Split tone, Cross process, Teal and orange
+								</li>
+								<li>
+									Vivid, Technicolor, Instant, Bleach, Posterize,
+									Solarize, Inverted
+								</li>
+								<li>
+									Live thumbnails, painted from a small bitmap prepared at
+									load time
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">Annotations</span>
+							<h3>Marking things up</h3>
+							<ul>
+								<li>
+									Text, with three font families, size, colour, and
+									editing in place on the stage
+								</li>
+								<li>Rectangles, freely resizable in any direction</li>
+								<li>
+									Redactions that pixelate for real, in four block sizes
+								</li>
+								<li>Ten stickers, each recoloured from its own palette</li>
+								<li>
+									Inserted at the centre of the current crop, and clipped
+									by it
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">Layers</span>
+							<h3>Composition</h3>
+							<ul>
+								<li>A list that mirrors the stage, in both directions</li>
+								<li>Reorder, duplicate with an offset, and delete</li>
+								<li>
+									Per-layer colour, opacity, rotation and size, plus font
+									for text
+								</li>
+								<li>Two-dimensional roving tabindex over the list</li>
+								<li><kbd>Enter</kbd> jumps from a row to the stage node</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">History and output</span>
+							<h3>Undo and export</h3>
+							<ul>
+								<li>Labelled undo and redo of every change</li>
+								<li>One drag is one history step, not forty</li>
+								<li>
+									Export keeps PNG for PNG input, and encodes everything
+									else as JPEG
+								</li>
+								<li>
+									Editing runs on a downscaled preview, so a 20 megapixel
+									photograph stays responsive
+								</li>
+							</ul>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="section" id="tour">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">A closer look</p>
+						<h2>The editor, section by section</h2>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>Framing you can type</h3>
+							<p>
+								The crop is a marquee with eight handles on the stage and a
+								numeric form in the sidebar. Both edit the same values, so
+								anyone who cannot drag can still crop to an exact box.
+							</p>
+							<ul class="tick-list">
+								<li>Ratio presets and a proportion lock</li>
+								<li>Straighten at any angle, with no empty corners</li>
+								<li>Rule-of-thirds guides that fade in while adjusting</li>
+							</ul>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window shot-sm"
+								src="screenshots/crop.png"
+								width="964"
+								height="798"
+								alt="The Crop and rotation panel: X position, Y position, width and height fields with a proportion lock between them, and a Straighten slider reading zero degrees."
+							/>
+						</figure>
+					</div>
+
+					<div class="showcase showcase-reverse">
+						<div class="showcase-text">
+							<h3>Twenty looks, one recipe table</h3>
+							<p>
+								Every filter is a row of data: a colour matrix, a
+								saturation factor, a tone curve or a quantisation step.
+								The same row drives the thumbnail, the preview and the
+								exported file.
+							</p>
+							<p>
+								Selection is never signalled by colour alone: the chosen
+								card carries a ring, a bold label and a check badge.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<div class="compare" id="compare" data-playing="true">
+								<img
+									src="screenshots/stage.jpg"
+									width="1836"
+									height="1362"
+									alt="The photograph with no filter applied."
+								/>
+								<img
+									class="compare-top"
+									src="screenshots/stage-filtered.jpg"
+									width="1836"
+									height="1362"
+									alt="The same photograph with the Vintage filter applied: warmer, lower in contrast."
+								/>
+								<div class="compare-controls">
+									<span class="compare-label" id="compare-state">
+										Original and Vintage
+									</span>
+									<button
+										class="btn btn-sm"
+										id="compare-toggle"
+										type="button"
+										aria-describedby="compare-state"
+									>
+										Pause
+									</button>
+								</div>
+							</div>
+							<figcaption>
+								The same stage before and after the Vintage preset. The
+								animation can be paused, and it does not start at all when
+								the operating system asks for reduced motion.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>Annotations that are really there</h3>
+							<p>
+								A sticker is not a brush stroke burned into pixels. It is a
+								node with a name, a position and a size, which is why it
+								can be selected from a list, nudged with the arrow keys,
+								rotated by typing a number, and undone by name.
+							</p>
+							<ul class="tick-list">
+								<li>Text, rectangles, redactions and stickers</li>
+								<li>Handles for the pointer, a panel for the keyboard</li>
+								<li>
+									Redactions pixelate through the same colour pipeline as
+									the photograph
+								</li>
+							</ul>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/annotate.jpg"
+								width="1836"
+								height="1362"
+								alt="The stage with four annotations: a blue rectangle, a star sticker selected with resize and rotate handles, a pixelated redaction over the clock, and the words Golden hour in white."
+							/>
+						</figure>
+					</div>
+
+					<div class="showcase showcase-reverse">
+						<div class="showcase-text">
+							<h3>A layers list that mirrors the stage</h3>
+							<p>
+								Selecting a row selects the annotation, and selecting an
+								annotation moves the list. Each row carries its own
+								reorder, duplicate and delete actions, and the properties
+								below edit the selected layer numerically.
+							</p>
+							<p>
+								When a control disappears after being used, focus is handed
+								somewhere sensible instead of falling to the page.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window shot-sm"
+								src="screenshots/layers.png"
+								width="964"
+								height="1096"
+								alt="The Layers panel listing a star sticker, a text layer, a redaction and a rectangle, with move, duplicate and delete buttons on the selected row."
+							/>
+						</figure>
+					</div>
+				</div>
+			</section>
+
+			<section class="section section-alt" id="accessibility">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Accessibility</p>
+						<h2>Built to WCAG 2.1 AA, and checked on every commit</h2>
+						<p>
+							The conformance table lives in the repository, criterion by
+							criterion, with the evidence for each one.
+						</p>
+					</div>
+
+					<div class="grid">
+						<article class="card reveal">
+							<h3>Operable with the keyboard alone</h3>
+							<p>
+								Every task in the editor has a keyboard path, and the test
+								suite walks those paths end to end rather than asserting
+								that attributes exist.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<h3>Two focus indicators, on purpose</h3>
+							<p>
+								Arriving with the keyboard paints a thick double ring, in
+								the Clay manner. Selecting with the pointer paints a single
+								thin ring. Both are SVG geometry, because CSS outlines do
+								not render on SVG children.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<h3>It says what happened</h3>
+							<p>
+								Every change announces itself in a live region, with the
+								new value: a filter set, an annotation added, a layer moved
+								to a position.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<h3>Targets stay big</h3>
+							<p>
+								Controls keep a 24 pixel interactive band even where the
+								painted dot is smaller, so a dense panel never costs
+								pointer accuracy.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<h3>Never colour alone</h3>
+							<p>
+								Selection, state and errors are carried by shape, weight
+								and text as well as colour, and the contrast of every pair
+								was checked.
+							</p>
+						</article>
+
+						<article class="card reveal">
+							<h3>Motion is optional</h3>
+							<p>
+								Guides, transitions and this page's own animations all
+								stand down when the system asks for reduced motion.
+							</p>
+						</article>
+					</div>
+
+					<div class="showcase" style="margin-top: 3.5rem">
+						<div class="showcase-text">
+							<h3>The same node, two indicators</h3>
+							<p>
+								The difference is not decoration. A keyboard user needs to
+								find focus at a glance; a pointer user already knows where
+								they clicked and only needs to know what is selected.
+							</p>
+						</div>
+						<div class="phone-row">
+							<figure class="figure reveal">
+								<img
+									class="window shot-xs"
+									src="screenshots/selection.png"
+									width="592"
+									height="592"
+									alt="A star sticker with a single thin selection ring and square resize handles."
+								/>
+								<figcaption>Selected with the pointer</figcaption>
+							</figure>
+							<figure class="figure reveal">
+								<img
+									class="window shot-xs"
+									src="screenshots/focus.png"
+									width="592"
+									height="592"
+									alt="The same star sticker with a thicker two-tone focus ring, white inside and blue outside."
+								/>
+								<figcaption>Reached with the keyboard</figcaption>
+							</figure>
+						</div>
+					</div>
+
+					<div class="table-wrap reveal" style="margin-top: 3.5rem">
+						<table>
+							<caption>
+								The shortcuts, which the editor also lists in its own help
+								dialog.
+							</caption>
+							<thead>
+								<tr>
+									<th scope="col">Keys</th>
+									<th scope="col">What it does</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><kbd>Tab</kbd></td>
+									<td>
+										Move between the stage, the panels and the action bar
+									</td>
+								</tr>
+								<tr>
+									<td><kbd>Arrow keys</kbd></td>
+									<td>Move or adjust the focused control by one</td>
+								</tr>
+								<tr>
+									<td><kbd>Shift</kbd> + <kbd>Arrow keys</kbd></td>
+									<td>Move or adjust the focused control by ten</td>
+								</tr>
+								<tr>
+									<td><kbd>Enter</kbd></td>
+									<td>
+										Jump from a layer row to its node on the stage, and
+										back to its properties
+									</td>
+								</tr>
+								<tr>
+									<td><kbd>Shift</kbd> + drag</td>
+									<td>Keep proportions while resizing</td>
+								</tr>
+								<tr>
+									<td><kbd>Alt</kbd> + drag</td>
+									<td>Resize the crop from its centre</td>
+								</tr>
+								<tr>
+									<td><kbd>+</kbd> / <kbd>−</kbd> / <kbd>0</kbd></td>
+									<td>Zoom in, zoom out, fit to the window</td>
+								</tr>
+								<tr>
+									<td><kbd>Ctrl/Cmd</kbd> + <kbd>Z</kbd></td>
+									<td>Undo, and with <kbd>Shift</kbd>, redo</td>
+								</tr>
+								<tr>
+									<td><kbd>Esc</kbd></td>
+									<td>Close the editor, or the open dialog</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p class="callout reveal">
+						<strong>Still open:</strong> the automated suite cannot certify a
+						screen reader. Manual passes with VoiceOver, NVDA and JAWS are
+						scripted in the repository and remain the honest gap in the
+						conformance table.
+					</p>
+				</div>
+			</section>
+
+			<section class="section" id="small-screens">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Small screens</p>
+						<h2>Fully operable on a phone</h2>
+						<p>
+							Below the breakpoint the sidebar stacks under the stage, and
+							the panels that would wrap into three rows become one row you
+							can swipe.
+						</p>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>The same editor, rearranged</h3>
+							<ul class="tick-list">
+								<li>
+									Stage on top, panels below, nothing hidden behind a menu
+								</li>
+								<li>
+									Filters and stickers become swipeable rows with snap
+									points
+								</li>
+								<li>
+									Paging arrows appear only when there is something off
+									screen, and they are hidden from assistive technology
+									because the arrow keys already do the job
+								</li>
+								<li>
+									No scrollbar taking vertical space: the arrows and the
+									cut-off card carry the affordance
+								</li>
+								<li>
+									Cancel and Save keep the trailing edge even when the
+									action bar wraps
+								</li>
+								<li>Reflows down to 320 pixels with no loss of function</li>
+							</ul>
+						</div>
+
+						<div class="phone reveal">
+							<img
+								src="screenshots/mobile.jpg"
+								width="800"
+								height="1640"
+								alt="The editor on a phone-sized screen: the image and crop marquee on top, the Crop and rotation panel below, and an action bar where Cancel and Save sit at the right edge."
+							/>
+						</div>
+					</div>
+
+					<div class="phone-row" style="margin-top: 3.5rem">
+						<figure class="figure reveal">
+							<img
+								class="window shot-xs"
+								src="screenshots/mobile-filters.png"
+								width="736"
+								height="620"
+								alt="The Filters panel on a narrow screen: filter cards in a single horizontal row with a paging arrow on each side."
+							/>
+							<figcaption>Filters as a swipeable row</figcaption>
+						</figure>
+						<figure class="figure reveal">
+							<img
+								class="window shot-xs"
+								src="screenshots/mobile-stickers.png"
+								width="736"
+								height="560"
+								alt="The Annotate panel on a narrow screen: the sticker buttons in a single horizontal row with paging arrows."
+							/>
+							<figcaption>Stickers, the same treatment</figcaption>
+						</figure>
+					</div>
+				</div>
+			</section>
+
+			<section class="section section-alt" id="configure">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Configuration</p>
+						<h2>Ship only the parts you want</h2>
+						<p>
+							Sections, and every individual filter, adjustment, tool,
+							sticker and ratio, are chosen through props. Unknown names are
+							dropped, and the canonical order is preserved.
+						</p>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>One prop, any subset</h3>
+							<p>
+								A profile-picture editor might want a square crop and
+								nothing else. A support tool might want redactions and no
+								colour work at all. Both are the same component.
+							</p>
+							<p>
+								The Storybook exposes every one of these as a live control,
+								so a combination can be tried before it is coded.
+							</p>
+							<p style="margin-top: 1.5rem">
+								<a class="btn btn-primary" href="../storybook/">
+									Open the Storybook
+								</a>
+							</p>
+						</div>
+
+						<div class="reveal">
+							<!--
+								The block scrolls sideways on a narrow screen and has
+								no interactive content, so it is focusable and named:
+								without that, a keyboard user cannot reach the part of
+								the snippet that is off screen.
+							-->
+							<pre
+								role="region"
+								aria-label="Configuration example"
+								tabindex="0"
+							><code>&lt;<span class="tok-key">ImageEditor</span>
+  <span class="tok-key">config</span>={{
+    <span class="tok-com">// Only these two sliders</span>
+    <span class="tok-key">adjustments</span>: {<span class="tok-key">sliders</span>: [<span class="tok-str">'brightness'</span>, <span class="tok-str">'contrast'</span>]},
+
+    <span class="tok-com">// Redactions only, no stickers or text</span>
+    <span class="tok-key">annotate</span>: {<span class="tok-key">tools</span>: [<span class="tok-str">'redaction'</span>]},
+
+    <span class="tok-com">// Square crop, no straighten</span>
+    <span class="tok-key">crop</span>: {<span class="tok-key">ratios</span>: [<span class="tok-str">'1:1'</span>], <span class="tok-key">straighten</span>: <span class="tok-key">false</span>},
+
+    <span class="tok-com">// Section off entirely</span>
+    <span class="tok-key">filters</span>: <span class="tok-key">false</span>,
+  }}
+/&gt;</code></pre>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="section" id="verification">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Verification</p>
+						<h2>What is actually proven</h2>
+						<p>
+							Numbers from the suite that runs before every deployment, not
+							estimates.
+						</p>
+					</div>
+
+					<div class="stats reveal">
+						<div class="stat">
+							<span class="stat-value" data-count="74">74</span>
+							<span class="stat-label">unit tests, axe clean</span>
+						</div>
+						<div class="stat">
+							<span class="stat-value" data-count="10">10</span>
+							<span class="stat-label">browser journeys</span>
+						</div>
+						<div class="stat">
+							<span class="stat-value" data-count="0">0</span>
+							<span class="stat-label">axe violations</span>
+						</div>
+						<div class="stat">
+							<span class="stat-value" data-count="20">20</span>
+							<span class="stat-label">megapixels, still fluid</span>
+						</div>
+						<div class="stat">
+							<span class="stat-value" data-count="30" data-suffix="ms">30ms</span>
+							<span class="stat-label">per slider step</span>
+						</div>
+					</div>
+
+					<p class="callout reveal">
+						The browser journeys are keyboard-only by design: they tab, arrow
+						and type their way through a real crop, a real adjustment and a
+						real annotation. A suite that clicks cannot tell you whether the
+						editor is operable.
+					</p>
+				</div>
+			</section>
+		</main>
+
+		<footer class="site-footer">
+			<div class="container">
+				<div class="footer-grid">
+					<div>
+						<h2>Accessible Image Editor</h2>
+						<p style="margin-top: 0.75rem; color: var(--gray-500)">
+							A non-canvas, keyboard-first image editor built with React and
+							Clay.
+						</p>
+					</div>
+
+					<div>
+						<h3 style="color: var(--white); font-size: 1rem">Try it</h3>
+						<ul>
+							<li><a href="../">The editor</a></li>
+							<li><a href="../storybook/">Storybook</a></li>
+						</ul>
+					</div>
+
+					<div>
+						<h3 style="color: var(--white); font-size: 1rem">Read it</h3>
+						<ul>
+							<li>
+								<a
+									href="https://github.com/marcoscv-work/accessible-image-editor"
+								>
+									Source
+								</a>
+							</li>
+							<li>
+								<a
+									href="https://github.com/marcoscv-work/accessible-image-editor/blob/master/CONFORMANCE.md"
+								>
+									Conformance table
+								</a>
+							</li>
+							<li>
+								<a
+									href="https://github.com/marcoscv-work/accessible-image-editor/blob/master/FINDINGS.md"
+								>
+									Engineering findings
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<p class="footer-note">
+					Every screenshot here is captured from the running editor by
+					<code>scripts/capture-presentation.mjs</code>. Sample photograph
+					from Unsplash.
+				</p>
+			</div>
+		</footer>
+
+		<script src="app.js"></script>
+	</body>
+</html>

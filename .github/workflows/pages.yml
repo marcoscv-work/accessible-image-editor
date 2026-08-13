@@ -39,6 +39,10 @@ jobs:
           STORYBOOK_BASE_PATH: /${{ github.event.repository.name }}/storybook/
         run: npm run build:storybook
 
+      # The presentation is plain static files, so it only needs copying in
+      # after both builds have written dist.
+      - run: cp -r presentation dist/presentation
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
