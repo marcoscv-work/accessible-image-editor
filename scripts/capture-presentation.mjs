@@ -90,10 +90,21 @@ async function panelRegion(page, selector, padding = 16) {
 	const panel = await region(page, selector);
 	const sidebar = await region(page, '.editor-sidebar');
 
+	// Where the next panel begins, so the padding below never turns into a
+	// sliver of somebody else's title.
+
+	const nextTop = await page.evaluate(
+		(selector) =>
+			document.querySelector(selector).nextElementSibling
+				?.getBoundingClientRect().top ?? Infinity,
+		selector
+	);
+
 	const top = Math.max(panel.y - padding, sidebar.y);
 	const bottom = Math.min(
 		panel.y + panel.height + padding,
-		sidebar.y + sidebar.height
+		sidebar.y + sidebar.height,
+		nextTop
 	);
 
 	return {
