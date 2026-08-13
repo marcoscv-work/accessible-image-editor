@@ -244,6 +244,22 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 				)}
 
 				<NumberField
+					id="layer-prop-x"
+					label={t('x-position')}
+					min={-Infinity}
+					onCommit={(x) => commitPatch({x})}
+					value={Math.round(overlay.x)}
+				/>
+
+				<NumberField
+					id="layer-prop-y"
+					label={t('y-position')}
+					min={-Infinity}
+					onCommit={(y) => commitPatch({y})}
+					value={Math.round(overlay.y)}
+				/>
+
+				<NumberField
 					id="layer-prop-opacity"
 					label={t('opacity')}
 					max={100}

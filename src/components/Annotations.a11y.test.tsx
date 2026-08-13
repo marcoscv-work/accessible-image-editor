@@ -321,6 +321,20 @@ describe('Annotations, filters, and layers', () => {
 			'0.5'
 		);
 
+		// Position, which is what makes dragging optional for a pointer user
+		// who cannot drag (WCAG 2.2, 2.5.7 Dragging Movements).
+
+		const xInput = screen.getByLabelText('X position');
+		const yInput = screen.getByLabelText('Y position');
+
+		fireEvent.change(xInput, {target: {value: '120'}});
+		fireEvent.keyDown(xInput, {key: 'Enter'});
+		fireEvent.change(yInput, {target: {value: '340'}});
+		fireEvent.keyDown(yInput, {key: 'Enter'});
+
+		expect(shape()).toHaveAttribute('x', '120');
+		expect(shape()).toHaveAttribute('y', '340');
+
 		// Rotation spins the whole interactive group around the center.
 
 		const rotationInput = screen.getByLabelText('Rotation');
