@@ -158,7 +158,7 @@ export function BottomBar({
 					className="editor-bar-button"
 					displayType="unstyled"
 					onClick={() => onZoom(1)}
-					symbol="plus"
+					symbol="plus-circle-full"
 					title={t('zoom-in')}
 				/>
 
