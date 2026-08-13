@@ -18,6 +18,7 @@ import {
 import {EditorAction} from '../state/editorReducer';
 import {CropRect, StickerKind, TextOverlay} from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
+import {Carousel} from './Carousel';
 import {EditorSection} from './EditorSection';
 
 function nextId(kind: string): string {
@@ -302,11 +303,31 @@ export function AnnotatePanel({
 		}
 	};
 
-	const rovingProps = (index: number) => ({
-		'data-index': index,
-		onFocus: () => setRovingIndex(index),
-		tabIndex: rovingIndex === index ? 0 : -1,
-	});
+	/*
+	 * Roving tabindex over the whole panel: the arrows walk the tools and
+	 * the stickers as one sequence. Each of the two containers keeps a
+	 * tabbable item of its own, though, because in the stacked layout the
+	 * sticker picker is a horizontal scroll container, and a scrollable
+	 * region holding nothing tabbable cannot be reached at all by someone
+	 * arriving with Tab.
+	 */
+
+	const rovingProps = (index: number) => {
+		const inStickers = index >= shownTools.length;
+		const activeInStickers = rovingIndex >= shownTools.length;
+
+		const entryPoint = inStickers ? shownTools.length : 0;
+
+		return {
+			'data-index': index,
+			onFocus: () => setRovingIndex(index),
+			tabIndex:
+				rovingIndex === index ||
+				(inStickers !== activeInStickers && index === entryPoint)
+					? 0
+					: -1,
+		};
+	};
 
 	const centerX = Math.round(area.x + area.width / 2);
 	const centerY = Math.round(area.y + area.height / 2);
@@ -417,9 +438,14 @@ export function AnnotatePanel({
 				)}
 			</div>
 
-			<div
+			{/*
+			  * Stacked layout: the stickers would wrap onto three rows, so
+			  * they run in one swipeable row instead.
+			  */}
+			<Carousel
 				aria-label={t('stickers')}
 				className="editor-sticker-picker"
+				itemCount={shownStickers.length}
 				role="group"
 			>
 				{shownStickers.map((sticker, stickerIndex) => (
@@ -449,7 +475,7 @@ export function AnnotatePanel({
 						</svg>
 					</ClayButton>
 				))}
-			</div>
+			</Carousel>
 
 			<TextDialog
 				onAdd={(overlay) => {

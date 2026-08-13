@@ -473,11 +473,19 @@ describe('Annotations, filters, and layers', () => {
 			'Add star sticker'
 		);
 
-		// Exactly one tab stop across the whole panel.
+		// One tab stop per container, so the sticker picker is reachable
+		// with Tab even while the roving index sits on a tool: in the
+		// stacked layout the picker is a horizontal scroll container.
 
 		expect(
 			document.querySelectorAll(
-				'.editor-panel [data-index][tabindex="0"]'
+				'.editor-annotate-actions [data-index][tabindex="0"]'
+			)
+		).toHaveLength(1);
+
+		expect(
+			document.querySelectorAll(
+				'.editor-sticker-picker [data-index][tabindex="0"]'
 			)
 		).toHaveLength(1);
 

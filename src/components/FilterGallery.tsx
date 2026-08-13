@@ -3,14 +3,12 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
-import {useCallback, useEffect, useRef, useState} from 'react';
-
 import {t} from '../i18n';
 import {FilterDefs} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
+import {Carousel} from './Carousel';
 import {EditorSection} from './EditorSection';
 
 interface Props {
@@ -37,42 +35,6 @@ export function FilterGallery({
 	onAnnounce,
 	presets,
 }: Props) {
-	const scrollerRef = useRef<HTMLDivElement>(null);
-
-	const [canScroll, setCanScroll] = useState({left: false, right: false});
-
-	const updateScroll = useCallback(() => {
-		const element = scrollerRef.current;
-
-		if (!element) {
-			return;
-		}
-
-		setCanScroll({
-			left: element.scrollLeft > 4,
-			right:
-				element.scrollLeft + element.clientWidth <
-				element.scrollWidth - 4,
-		});
-	}, []);
-
-	useEffect(() => {
-		updateScroll();
-
-		window.addEventListener('resize', updateScroll);
-
-		return () => window.removeEventListener('resize', updateScroll);
-	}, [presets, updateScroll]);
-
-	const scrollByPage = (direction: -1 | 1) => {
-		const element = scrollerRef.current;
-
-		element?.scrollBy({
-			behavior: 'smooth',
-			left: direction * element.clientWidth * 0.8,
-		});
-	};
-
 	return (
 		<EditorSection title={t('filters')} titleId="filters-panel-title">
 			<fieldset>
@@ -80,28 +42,12 @@ export function FilterGallery({
 
 				{/*
 				  * Below the sidebar breakpoint the cards become a single
-				  * scrollable row. The arrows are a pointer affordance
-				  * (hidden from assistive tech, never focusable) because
-				  * the radio group is already navigable with the arrow
-				  * keys, which scrolls the focused card into view.
+				  * swipeable row.
 				  */}
-				<div className="editor-filter-carousel">
-					<ClayButtonWithIcon
-						aria-hidden="true"
-						className="border-0 editor-filter-arrow"
-						disabled={!canScroll.left}
-						displayType="secondary"
-						onClick={() => scrollByPage(-1)}
-						size="sm"
-						symbol="angle-left"
-						tabIndex={-1}
-					/>
-
-					<div
-						className="editor-filter-grid"
-						onScroll={updateScroll}
-						ref={scrollerRef}
-					>
+				<Carousel
+					className="editor-filter-grid"
+					itemCount={presets.length}
+				>
 					{presets.map((preset) => {
 						const label = t(`filter-${preset}`);
 
@@ -168,20 +114,8 @@ export function FilterGallery({
 								</label>
 							</div>
 						);
-						})}
-					</div>
-
-					<ClayButtonWithIcon
-						aria-hidden="true"
-						className="border-0 editor-filter-arrow"
-						disabled={!canScroll.right}
-						displayType="secondary"
-						onClick={() => scrollByPage(1)}
-						size="sm"
-						symbol="angle-right"
-						tabIndex={-1}
-					/>
-				</div>
+					})}
+				</Carousel>
 			</fieldset>
 		</EditorSection>
 	);

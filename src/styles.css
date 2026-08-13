@@ -452,24 +452,10 @@
  * check badge, never by colour alone.
  */
 
-.editor-filter-carousel {
-	align-items: center;
-	display: flex;
-	gap: 0.25rem;
-}
-
 .editor-filter-grid {
 	display: grid;
-	flex: 1;
 	gap: 0.75rem;
 	grid-template-columns: 1fr 1fr;
-	min-width: 0;
-}
-
-/* The arrows only exist in the stacked layout. */
-
-.editor-filter-arrow {
-	display: none;
 }
 
 .editor-filter-option {
@@ -647,6 +633,25 @@
 	margin-bottom: 0.5rem;
 }
 
+/* Carousel: a track that scrolls sideways in the stacked layout */
+
+.editor-carousel {
+	align-items: center;
+	display: flex;
+	gap: 0.25rem;
+}
+
+.editor-carousel-track {
+	flex: 1;
+	min-width: 0;
+}
+
+/* The arrows only exist in the stacked layout. */
+
+.editor-carousel-arrow {
+	display: none;
+}
+
 /* Sticker picker */
 
 .editor-sticker-picker {
@@ -702,25 +707,33 @@
 	}
 
 	/*
-	 * Stacked layout: the filter cards run in one swipeable row with
-	 * snap points, and the arrows page through them.
+	 * Stacked layout: every carousel track runs in one swipeable row with
+	 * snap points, and the arrows page through it.
 	 */
 
-	.editor-filter-grid {
+	.editor-carousel-track {
 		display: flex;
+		flex-wrap: nowrap;
 		grid-template-columns: none;
 		overflow-x: auto;
 		scroll-snap-type: x proximity;
 		scrollbar-width: thin;
 	}
 
-	.editor-filter-option {
-		flex: 0 0 6rem;
+	.editor-carousel-track > * {
 		scroll-snap-align: start;
 	}
 
-	.editor-filter-arrow {
+	.editor-carousel-arrow {
 		display: inline-flex;
+		flex: 0 0 auto;
+	}
+
+	.editor-filter-option {
+		flex: 0 0 6rem;
+	}
+
+	.editor-sticker-picker .btn {
 		flex: 0 0 auto;
 	}
 
