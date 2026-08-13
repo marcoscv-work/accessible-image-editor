@@ -711,13 +711,24 @@
 	 * snap points, and the arrows page through it.
 	 */
 
+	/*
+	 * No scrollbar: the arrows already carry the affordance (they disable
+	 * at either end), the last card is cut off mid-card, and a touch
+	 * scrollbar is an overlay that fades on its own. It would only spend
+	 * vertical space in a sidebar that is 45% of the screen here.
+	 */
+
 	.editor-carousel-track {
 		display: flex;
 		flex-wrap: nowrap;
 		grid-template-columns: none;
 		overflow-x: auto;
 		scroll-snap-type: x proximity;
-		scrollbar-width: thin;
+		scrollbar-width: none;
+	}
+
+	.editor-carousel-track::-webkit-scrollbar {
+		display: none;
 	}
 
 	.editor-carousel-track > * {
