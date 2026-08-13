@@ -78,6 +78,7 @@ export default {
 	'filter-posterize': 'Posterize',
 	'filter-sepia': 'Sepia',
 	'filter-set': 'Filter set to {0}',
+	'filter-solarize': 'Solarize',
 	'filter-splittone': 'Split tone',
 	'filter-tealorange': 'Teal and orange',
 	'filter-technicolor': 'Technicolor',

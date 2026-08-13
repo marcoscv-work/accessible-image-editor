@@ -84,6 +84,12 @@ const FILTER_RECIPES: Record<FilterPreset, FilterRecipe> = {
 		matrix:
 			'0.393 0.769 0.189 0 0  0.349 0.686 0.168 0 0  0.272 0.534 0.131 0 0  0 0 0 1 0',
 	},
+
+	/**
+	 * A darkroom solarisation: the tone curve rises to the midtones and
+	 * falls back, so blacks and whites both end up dark.
+	 */
+	solarize: {curve: '0 0.25 0.5 0.75 1 0.75 0.5 0.25 0'},
 	splittone: {
 		channels: {
 			b: curve(0.1, 0.78, 1.2),
@@ -135,6 +141,7 @@ export const FILTER_PRESETS: FilterPreset[] = [
 	'polaroid',
 	'bleach',
 	'posterize',
+	'solarize',
 	'invert',
 ];
 

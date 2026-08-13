@@ -55,7 +55,7 @@ describe('FilterDefs', () => {
 	});
 
 	it('renders every preset without throwing', () => {
-		expect(FILTER_PRESETS).toHaveLength(19);
+		expect(FILTER_PRESETS).toHaveLength(20);
 
 		for (const preset of FILTER_PRESETS) {
 			expect(markup({}, preset)).toContain('filter');

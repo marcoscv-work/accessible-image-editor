@@ -229,7 +229,7 @@ describe('Annotations, filters, and layers', () => {
 
 		const radios = screen.getAllByRole('radio');
 
-		expect(radios).toHaveLength(19);
+		expect(radios).toHaveLength(20);
 
 		// The inputs are visually hidden but still real radios, so the
 		// group keeps its semantics and its keyboard behaviour.
@@ -246,7 +246,7 @@ describe('Annotations, filters, and layers', () => {
 			...container.querySelectorAll('.editor-filter-thumb image'),
 		];
 
-		expect(thumbs).toHaveLength(19);
+		expect(thumbs).toHaveLength(20);
 		expect(
 			thumbs.every((thumb) => thumb.getAttribute('href') === 'thumb.jpg')
 		).toBe(true);

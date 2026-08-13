@@ -34,6 +34,7 @@ export type FilterPreset =
 	| 'polaroid'
 	| 'posterize'
 	| 'sepia'
+	| 'solarize'
 	| 'splittone'
 	| 'tealorange'
 	| 'technicolor'
