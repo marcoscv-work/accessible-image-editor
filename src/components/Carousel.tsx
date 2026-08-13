@@ -40,7 +40,11 @@ export function Carousel({
 }: Props) {
 	const trackRef = useRef<HTMLDivElement>(null);
 
-	const [canScroll, setCanScroll] = useState({left: false, right: false});
+	const [scroll, setScroll] = useState({
+		left: false,
+		overflows: false,
+		right: false,
+	});
 
 	const updateScroll = useCallback(() => {
 		const element = trackRef.current;
@@ -49,26 +53,44 @@ export function Carousel({
 			return;
 		}
 
+		// Only a track the layout actually made scrollable can overflow:
+		// above the breakpoint these tracks are a grid, or they wrap, and
+		// nothing is ever off screen.
+
+		const overflows =
+			getComputedStyle(element).overflowX === 'auto' &&
+			element.scrollWidth > element.clientWidth + 4;
+
 		const left = element.scrollLeft > 4;
 		const right =
 			element.scrollLeft + element.clientWidth < element.scrollWidth - 4;
 
-		// Bail on an unchanged pair: the effect below runs on every set
-		// change, and a fresh object would re-render for nothing.
+		// Bail on an unchanged set: a fresh object would re-render for
+		// nothing on every scroll event.
 
-		setCanScroll((current) =>
-			current.left === left && current.right === right
+		setScroll((current) =>
+			current.left === left &&
+			current.overflows === overflows &&
+			current.right === right
 				? current
-				: {left, right}
+				: {left, overflows, right}
 		);
 	}, []);
 
 	useEffect(() => {
 		updateScroll();
 
-		window.addEventListener('resize', updateScroll);
+		// The track is observed rather than the window: it also resizes when
+		// its section is expanded, which is when a collapsed panel finally
+		// has a width to measure.
 
-		return () => window.removeEventListener('resize', updateScroll);
+		const observer = new ResizeObserver(updateScroll);
+
+		if (trackRef.current) {
+			observer.observe(trackRef.current);
+		}
+
+		return () => observer.disconnect();
 	}, [itemCount, updateScroll]);
 
 	const scrollByPage = (direction: -1 | 1) => {
@@ -82,16 +104,18 @@ export function Carousel({
 
 	return (
 		<div className="editor-carousel">
-			<ClayButtonWithIcon
-				aria-hidden="true"
-				className="border-0 editor-carousel-arrow"
-				disabled={!canScroll.left}
+			{scroll.overflows && (
+				<ClayButtonWithIcon
+					aria-hidden="true"
+					className="border-0 editor-carousel-arrow"
+					disabled={!scroll.left}
 				displayType="secondary"
-				onClick={() => scrollByPage(-1)}
-				size="sm"
-				symbol="angle-left"
-				tabIndex={-1}
-			/>
+					onClick={() => scrollByPage(-1)}
+					size="sm"
+					symbol="angle-left"
+					tabIndex={-1}
+				/>
+			)}
 
 			<div
 				{...trackProps}
@@ -102,16 +126,18 @@ export function Carousel({
 				{children}
 			</div>
 
-			<ClayButtonWithIcon
-				aria-hidden="true"
-				className="border-0 editor-carousel-arrow"
-				disabled={!canScroll.right}
-				displayType="secondary"
-				onClick={() => scrollByPage(1)}
-				size="sm"
-				symbol="angle-right"
-				tabIndex={-1}
-			/>
+			{scroll.overflows && (
+				<ClayButtonWithIcon
+					aria-hidden="true"
+					className="border-0 editor-carousel-arrow"
+					disabled={!scroll.right}
+					displayType="secondary"
+					onClick={() => scrollByPage(1)}
+					size="sm"
+					symbol="angle-right"
+					tabIndex={-1}
+				/>
+			)}
 		</div>
 	);
 }

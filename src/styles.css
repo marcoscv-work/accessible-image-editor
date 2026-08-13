@@ -646,10 +646,8 @@
 	min-width: 0;
 }
 
-/* The arrows only exist in the stacked layout. */
-
 .editor-carousel-arrow {
-	display: none;
+	flex: 0 0 auto;
 }
 
 /* Sticker picker */
@@ -733,11 +731,6 @@
 
 	.editor-carousel-track > * {
 		scroll-snap-align: start;
-	}
-
-	.editor-carousel-arrow {
-		display: inline-flex;
-		flex: 0 0 auto;
 	}
 
 	.editor-filter-option {
