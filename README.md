@@ -2,7 +2,7 @@
 
 A **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system): a finished component, proposed as the image editing solution for the new CMS (epic LPD-58956). It covers the functional scope expected of an image editor while being **accessible by architecture** rather than by remediation, which is the accessible route LPD-93990 requires.
 
-**Live:** the [editor](https://marcoscv-work.github.io/accessible-image-editor/), a [presentation of the whole feature set](https://marcoscv-work.github.io/accessible-image-editor/presentation/), and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
+**Live:** the [editor](https://marcoscv-work.github.io/accessible-image-editor/), the [website](https://marcoscv-work.github.io/accessible-image-editor/website/), which walks through the whole feature set, and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
 
 The design brief lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.2 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
 

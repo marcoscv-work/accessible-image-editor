@@ -4,11 +4,11 @@
  */
 
 /**
- * Regenerates the screenshots the presentation page uses, straight from the
- * running editor: every image there is the real UI, never a mockup.
+ * Regenerates the screenshots the website uses, straight from the running
+ * editor: every image there is the real UI, never a mockup.
  *
  *     npm run dev              # in another shell
- *     node scripts/capture-presentation.mjs
+ *     node scripts/capture-website.mjs
  *
  * Set EDITOR_URL to point somewhere other than the default dev server.
  */
@@ -20,7 +20,7 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
-const SHOTS = path.join(ROOT, 'presentation/screenshots');
+const SHOTS = path.join(ROOT, 'website/screenshots');
 
 const URL = process.env.EDITOR_URL ?? 'http://localhost:5273';
 
