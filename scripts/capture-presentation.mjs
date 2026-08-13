@@ -80,23 +80,26 @@ async function focusedRegion(page, padding = 0) {
 }
 
 /**
- * A sidebar panel, clipped to what is actually visible: panels can be taller
- * than the sidebar, and their bounding box then runs under the action bar and
- * past the bottom of the modal.
+ * A sidebar panel, taken with room around it. The panel's own box is flush
+ * with its content, which crops the text at the edges, so the clip spans the
+ * whole sidebar horizontally (its padding becomes the margin) and is padded
+ * vertically, then clamped to the sidebar: panels can be taller than it, and
+ * their box then runs under the action bar and past the bottom of the modal.
  */
-async function panelRegion(page, selector) {
+async function panelRegion(page, selector, padding = 16) {
 	const panel = await region(page, selector);
 	const sidebar = await region(page, '.editor-sidebar');
 
-	const top = Math.max(panel.y, sidebar.y);
-	const bottom = Math.min(panel.y + panel.height, sidebar.y + sidebar.height);
-	const left = Math.max(panel.x, sidebar.x);
-	const right = Math.min(panel.x + panel.width, sidebar.x + sidebar.width);
+	const top = Math.max(panel.y - padding, sidebar.y);
+	const bottom = Math.min(
+		panel.y + panel.height + padding,
+		sidebar.y + sidebar.height
+	);
 
 	return {
 		height: Math.max(0, bottom - top),
-		width: Math.max(0, right - left),
-		x: left,
+		width: sidebar.width,
+		x: sidebar.x,
 		y: top,
 	};
 }
