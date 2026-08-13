@@ -88,7 +88,7 @@ export function FilterGallery({
 				<div className="editor-filter-carousel">
 					<ClayButtonWithIcon
 						aria-hidden="true"
-						className="editor-filter-arrow"
+						className="border-0 editor-filter-arrow"
 						disabled={!canScroll.left}
 						displayType="secondary"
 						onClick={() => scrollByPage(-1)}
@@ -173,7 +173,7 @@ export function FilterGallery({
 
 					<ClayButtonWithIcon
 						aria-hidden="true"
-						className="editor-filter-arrow"
+						className="border-0 editor-filter-arrow"
 						disabled={!canScroll.right}
 						displayType="secondary"
 						onClick={() => scrollByPage(1)}
