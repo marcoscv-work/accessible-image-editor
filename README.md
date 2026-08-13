@@ -4,7 +4,7 @@ A **fully accessible, non-canvas image editor** built with React and [Clay](http
 
 **Live:** the [editor](https://marcoscv-work.github.io/accessible-image-editor/), a [presentation of the whole feature set](https://marcoscv-work.github.io/accessible-image-editor/presentation/), and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
 
-The design brief lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
+The design brief lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.2 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
 
 ## Core idea
 

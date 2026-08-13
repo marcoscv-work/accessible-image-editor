@@ -6,7 +6,7 @@
 		<title>Accessible Image Editor — an image editor everyone can operate</title>
 		<meta
 			name="description"
-			content="A non-canvas, keyboard-first image editor built with React and Clay: crop, adjust, filter, annotate and redact, with WCAG 2.1 AA behaviour built into the architecture."
+			content="A non-canvas, keyboard-first image editor built with React and Clay: crop, adjust, filter, annotate and redact, with WCAG 2.2 AA behaviour built into the architecture."
 		/>
 		<link rel="stylesheet" href="styles.css" />
 	</head>
@@ -47,7 +47,7 @@
 						<p class="badge-row">
 							<span class="badge">
 								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
-								WCAG 2.1 AA
+								WCAG 2.2 AA
 							</span>
 							<span class="badge">
 								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
@@ -495,7 +495,8 @@
 								Selecting a row selects the annotation, and selecting an
 								annotation moves the list. Each row carries its own
 								reorder, duplicate and delete actions, and the properties
-								below edit the selected layer numerically.
+								below edit the selected layer numerically: position,
+								rotation, size, opacity, colour.
 							</p>
 							<p>
 								When a control disappears after being used, focus is handed
@@ -508,7 +509,7 @@
 									class="window"
 									src="screenshots/layers.png"
 									width="560"
-									height="802"
+									height="922"
 									style="max-width: min(100%, 280px)"
 									alt="The Layers panel listing a star sticker, a text layer, a redaction and a rectangle, with the star sticker selected and its colour, opacity, rotation and size below."
 								/>
@@ -522,10 +523,12 @@
 				<div class="container">
 					<div class="section-head">
 						<p class="eyebrow">Accessibility</p>
-						<h2>Built to WCAG 2.1 AA, and checked on every commit</h2>
+						<h2>Built to WCAG 2.2 AA, and checked on every commit</h2>
 						<p>
-							The conformance table lives in the repository, criterion by
-							criterion, with the evidence for each one.
+							Against 2.2, not 2.1: the criteria that version added are the
+							ones an image editor is most likely to fail, and they are
+							covered. The conformance table lives in the repository,
+							criterion by criterion, with the evidence for each one.
 						</p>
 					</div>
 
@@ -559,10 +562,22 @@
 						</article>
 
 						<article class="card reveal">
+							<h3>Nothing has to be dragged</h3>
+							<p>
+								Every drag has a route that needs no dragging at all: the
+								crop and each annotation carry numeric position, size and
+								rotation fields, and one click on a slider track sets its
+								value. That is WCAG 2.2's hardest new requirement for an
+								editor, and it falls out of editing by parameters.
+							</p>
+						</article>
+
+						<article class="card reveal">
 							<h3>Targets stay big</h3>
 							<p>
-								Controls keep a 24 pixel interactive band even where the
-								painted dot is smaller, so a dense panel never costs
+								No target is under 24 by 24 pixels, the size WCAG 2.2 asks
+								for. Controls keep a 24 pixel interactive band even where
+								the painted dot is smaller, so a dense panel never costs
 								pointer accuracy.
 							</p>
 						</article>

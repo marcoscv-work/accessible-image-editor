@@ -4,7 +4,7 @@ An honest engineering log of this editor: what the architecture gave for free, w
 
 ## Verdict
 
-**It works.** The editor covers the functional scope of the epic (crop and transform, adjustments, filters, text, shape, sticker and redaction annotations, layers, undo and redo, export), conforms to WCAG 2.1 AA by architecture, stays within its performance budget on 20 megapixel images, and is built on Clay, so bringing it into the portal is packaging rather than rewriting. The one permanent exclusion is freehand drawing, which is inaccessible in any technology — exactly as stated in LPD-93990.
+**It works.** The editor covers the functional scope of the epic (crop and transform, adjustments, filters, text, shape, sticker and redaction annotations, layers, undo and redo, export), conforms to WCAG 2.2 AA by architecture, stays within its performance budget on 20 megapixel images, and is built on Clay, so bringing it into the portal is packaging rather than rewriting. The one permanent exclusion is freehand drawing, which is inaccessible in any technology — exactly as stated in LPD-93990.
 
 The decisive move is not avoiding `<canvas>`; it is making **every operation parametric** (serializable data manipulated through real DOM controls) and treating the SVG scene as the single source of truth for both preview and export. Accessibility then stops being a remediation backlog and becomes a property of the architecture: the axe scans and keyboard-only journeys were green throughout development, not fixed after the fact.
 

@@ -1,6 +1,6 @@
-# WCAG 2.1 AA Conformance Checklist
+# WCAG 2.2 AA Conformance Checklist
 
-Status of every WCAG 2.1 Level A and AA success criterion for the implemented scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, and code inspection. Manual assistive technology passes are pending (see [VOICEOVER.md](VOICEOVER.md)); criteria whose full verification depends on them are marked accordingly.
+Status of every WCAG 2.2 Level A and AA success criterion for the implemented scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, and code inspection. Manual assistive technology passes are pending (see [VOICEOVER.md](VOICEOVER.md)); criteria whose full verification depends on them are marked accordingly.
 
 Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** — implemented; final confirmation pending the manual AT pass. **N/A** — no content of this type in the editor.
 
@@ -34,10 +34,13 @@ Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** �
 | 2.4.5 Multiple Ways | AA | N/A | Single-page tool. |
 | 2.4.6 Headings and Labels | AA | Pass | Sidebar sections are Clay disclosure buttons carrying `aria-expanded` (their names describe the section); explicit labels everywhere else. See the FINDINGS note on the heading-structure trade-off. |
 | 2.4.7 Focus Visible | AA | Pass | Clay-style double focus rings (white inner + accent outer). Stage nodes (crop area, handles, annotations) draw them as real SVG geometry because browsers do not reliably paint CSS outlines on SVG children; the two-tone pair stays evident over any image content. |
-| 2.5.1 Pointer Gestures | A | Pass | All pointer interaction is single-pointer dragging with full keyboard equivalents. |
+| 2.4.11 Focus Not Obscured (Minimum) | AA | Pass | Nothing overlays the focused control: the action bar is a sibling of the scrolling areas rather than a floating layer, the sidebar scrolls its own focused control into view, and the modal shell itself never scrolls. Verified by focusing every control in turn and asking the document what is painted at its centre. The filter radios are the one deliberate case of a hidden control: each is covered by its own label, which is where the focus ring is painted. |
+| 2.5.1 Pointer Gestures | A | Pass | All pointer interaction is single-pointer dragging; no path-based or multipoint gesture exists. |
 | 2.5.2 Pointer Cancellation | A | Pass | Gestures commit on pointer-up; pointer-down only captures. |
 | 2.5.3 Label in Name | A | Pass | Visible text is contained in accessible names. |
 | 2.5.4 Motion Actuation | A | N/A | No motion input. |
+| 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value. |
+| 2.5.8 Target Size (Minimum) | AA | Pass | No target is under 24 by 24 CSS pixels. The crop handles are exactly 24 by 24 with a painted dot smaller than the hit area, the compact sliders keep a 24 pixel band under a 14 pixel dot, and the filter radios are visually hidden so their target is the whole card. Measured across every button, input and stage handle. |
 | 3.1.1 Language of Page | A | Pass | `<html lang="en">`. |
 | 3.1.2 Language of Parts | AA | N/A | Single language. |
 | 3.2.1 On Focus | A | Pass | Focus never triggers context changes. |
@@ -45,9 +48,12 @@ Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** �
 | 3.2.3 / 3.2.4 Consistency | AA | Pass | One consistent layout; identical controls are identified identically. |
 | 3.3.1 Error Identification | A | Pass | Load failures render a `role="alert"` message; numeric inputs prevent invalid commits by clamping/reverting. |
 | 3.3.2 Labels or Instructions | A | Pass | Labels on all fields; operation instructions via `aria-describedby` and the shortcuts dialog. |
+| 3.2.6 Consistent Help | A | Pass | The help mechanism is the shortcuts dialog, reachable from the same place in the action bar at all times, and from the same key. |
 | 3.3.3 Error Suggestion | AA | Pass | The only error state (unreadable file) says what to do (try a different file). |
 | 3.3.4 Error Prevention | AA | N/A | No legal/financial/data-deletion transactions. |
-| 4.1.1 Parsing | A | Pass | React-generated markup; axe reports no parsing/ARIA violations. |
+| 3.3.7 Redundant Entry | A | N/A | Nothing is entered twice: there is no multi-step process, and every value stays in the edit state for as long as the editor is open. |
+| 3.3.8 Accessible Authentication (Minimum) | AA | N/A | No authentication. |
+| 4.1.1 Parsing | — | Removed | Obsolete in WCAG 2.2. The markup is React-generated and axe reports no parsing or ARIA violations, which is why it stayed green while the criterion existed. |
 | 4.1.2 Name, Role, Value | A | Pass\* | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs); axe-clean. Final AT confirmation pending. |
 | 4.1.3 Status Messages | AA | Pass\* | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e. AT confirmation pending. |
 

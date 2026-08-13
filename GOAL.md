@@ -7,7 +7,7 @@ Principle: parametric editor. Every operation is serializable data (crop {x,y,w,
 Hard constraints:
 1. No canvas in the interactive UI; preview is SVG in the DOM. Canvas only offscreen as export encoder.
 2. Edit session = ordered JSON operation list; pure reducer + history stack (undo/redo).
-3. WCAG 2.1 AA at 100% for shipped scope; an a11y failure blocks the milestone.
+3. WCAG 2.2 AA at 100% for shipped scope; an a11y failure blocks the milestone.
 4. Clay for all chrome; custom widgets (crop handles, overlays, workspace) follow WAI-ARIA APG and use Clay CSS variables.
 5. React/tooling compatible with Clay v3 peer deps (portal-compatible).
 6. i18n: all strings through a translation function (dictionary now, Language.properties later).
@@ -27,6 +27,6 @@ A11y (normative): APG-conformant name/role/value everywhere; crop announces its 
 
 Verification per milestone: reducer unit tests + jest-axe zero violations per view state; one keyboard-only Playwright journey + axe scan; manual VoiceOver pass logged (NVDA/JAWS pending); perf check with a 20MP image.
 
-Deliverables: repo + README (architecture, keyboard map, run/test, out-of-scope); CONFORMANCE.md (WCAG 2.1 AA per-criterion checklist); FINDINGS.md (engineering log: what the architecture gave, what fought back, what stays open).
+Deliverables: repo + README (architecture, keyboard map, run/test, out-of-scope); CONFORMANCE.md (WCAG 2.2 AA per-criterion checklist); FINDINGS.md (engineering log: what the architecture gave, what fought back, what stays open).
 
 Agreements: commits in English, title-only, small. Accessibility beats speed; speed beats gold-plating.
