@@ -90,47 +90,57 @@
 
 	/*
 	 * The before and after pair. An animation that repeats for longer than
-	 * five seconds needs a way to stop it (WCAG 2.2.2), so the control is
-	 * real, and reduced motion means it never starts: the button becomes a
-	 * plain switch between the two images instead.
+	 * five seconds needs a way to stop it (WCAG 2.2, 2.2.2), so the control
+	 * is real: a play/pause button, plus a switch that flips between the two
+	 * images while it is stopped. Reduced motion means it never starts, and
+	 * the play button steps aside so only the switch remains.
 	 */
 
 	var compare = document.getElementById('compare');
 	var toggle = document.getElementById('compare-toggle');
+	var switcher = document.getElementById('compare-switch');
 	var state = document.getElementById('compare-state');
 
-	if (compare && toggle && state) {
+	if (compare && toggle && switcher && state) {
 		var playing = !reduceMotion.matches;
 
 		var render = function () {
+			var showingAfter = compare.classList.contains('is-after');
+
 			compare.classList.toggle('is-playing', playing);
 
-			if (playing) {
-				compare.classList.remove('is-after');
+			toggle.hidden = reduceMotion.matches;
+			toggle.setAttribute(
+				'aria-label',
+				playing ? 'Pause the comparison' : 'Play the comparison'
+			);
 
-				toggle.textContent = 'Pause';
-				state.textContent = 'Cross-fading between original and Vintage';
-			}
-			else {
-				toggle.textContent = compare.classList.contains('is-after')
-					? 'Show the original'
-					: 'Show Vintage';
-				state.textContent = compare.classList.contains('is-after')
-					? 'Showing Vintage'
-					: 'Showing the original';
-			}
+			switcher.hidden = playing;
+			switcher.textContent = showingAfter
+				? 'Show the original'
+				: 'Show Vintage';
+
+			state.innerHTML = playing
+				? 'Original <span aria-hidden="true">⇄</span> Vintage'
+				: showingAfter
+					? 'Vintage'
+					: 'Original';
 		};
 
 		toggle.addEventListener('click', function () {
+			playing = !playing;
+
 			if (playing) {
-				playing = false;
+				compare.classList.remove('is-after');
 			}
-			else if (reduceMotion.matches) {
-				compare.classList.toggle('is-after');
-			}
-			else {
-				playing = true;
-			}
+
+			render();
+		});
+
+		switcher.addEventListener('click', function () {
+			playing = false;
+
+			compare.classList.toggle('is-after');
 
 			render();
 		});
