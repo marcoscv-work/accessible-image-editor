@@ -31,6 +31,15 @@
 			"rules": {
 				"no-console": "off"
 			}
+		},
+		{
+			"files": [
+				"*.stories.tsx",
+				".storybook/**"
+			],
+			"rules": {
+				"sort-keys": "off"
+			}
 		}
 	],
 	"root": true

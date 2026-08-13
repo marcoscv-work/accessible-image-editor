@@ -33,8 +33,14 @@ interface Props {
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
 	ratio: RatioPreset;
+
+	/**
+	 * Ratio presets to offer; an empty list hides the control.
+	 */
+	ratios: RatioPreset[];
+
 	saving: boolean;
-	showRatio: boolean;
+	showRotate: boolean;
 	zoom: number;
 }
 
@@ -51,14 +57,15 @@ export function BottomBar({
 	onZoom,
 	onZoomFit,
 	ratio,
+	ratios,
 	saving,
-	showRatio,
+	showRotate,
 	zoom,
 }: Props) {
 	return (
 		<div className="editor-bottom-bar">
 			<div className="editor-bar-group">
-				{showRatio && (
+				{ratios.length > 0 && (
 					<>
 						<label
 							className="editor-ratio-label"
@@ -76,27 +83,31 @@ export function BottomBar({
 							type: 'set-ratio',
 						});
 					}}
-					options={RATIO_OPTIONS.map(({labelKey, value}) => ({
-						label: t(labelKey),
-						value,
-					}))}
+							options={RATIO_OPTIONS.filter(({value}) =>
+								ratios.includes(value)
+							).map(({labelKey, value}) => ({
+								label: t(labelKey),
+								value,
+							}))}
 							sizing="sm"
 							value={ratio}
 						/>
 					</>
 				)}
 
-				<ClayButtonWithIcon
-					aria-label={t('rotate-90')}
-					className="editor-bar-button"
-					displayType="unstyled"
-					onClick={() => {
-						dispatch({type: 'rotate-90'});
-						onAnnounce(t('rotated-90'));
-					}}
-					symbol="rotate"
-					title={t('rotate-90')}
-				/>
+				{showRotate && (
+					<ClayButtonWithIcon
+						aria-label={t('rotate-90')}
+						className="editor-bar-button"
+						displayType="unstyled"
+						onClick={() => {
+							dispatch({type: 'rotate-90'});
+							onAnnounce(t('rotated-90'));
+						}}
+						symbol="rotate"
+						title={t('rotate-90')}
+					/>
+				)}
 
 				<ClayButtonWithIcon
 					aria-label={t('undo')}

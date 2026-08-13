@@ -16,6 +16,7 @@ import {EditorSection} from './EditorSection';
 interface Props {
 	angle: number;
 	crop: CropRect;
+	showStraighten: boolean;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
 }
@@ -35,7 +36,13 @@ const FIELD_LABELS: Record<Field, string> = {
  * full number without fighting live clamping. The aspect ratio lock is a
  * padlock toggle between Width and Height, drawing-tool style.
  */
-export function CropPanel({angle, crop, dispatch, onAnnounce}: Props) {
+export function CropPanel({
+	angle,
+	crop,
+	dispatch,
+	onAnnounce,
+	showStraighten,
+}: Props) {
 	const [drafts, setDrafts] = useState<Record<Field, string>>({
 		height: String(crop.height),
 		width: String(crop.width),
@@ -176,9 +183,10 @@ export function CropPanel({angle, crop, dispatch, onAnnounce}: Props) {
 				{renderField('height')}
 			</div>
 
-			<ClayForm.Group small>
-				<div className="editor-slider-row">
-					<label htmlFor="crop-angle">{t('straighten')}</label>
+			{showStraighten && (
+				<ClayForm.Group small>
+					<div className="editor-slider-row">
+						<label htmlFor="crop-angle">{t('straighten')}</label>
 
 					<span aria-hidden="true" className="editor-slider-value">
 						{angle}&deg;
@@ -246,10 +254,11 @@ export function CropPanel({angle, crop, dispatch, onAnnounce}: Props) {
 					}}
 					onKeyUp={commitAngle}
 					onPointerUp={commitAngle}
-					showTooltip={false}
-					value={angle}
-				/>
-			</ClayForm.Group>
+						showTooltip={false}
+						value={angle}
+					/>
+				</ClayForm.Group>
+			)}
 		</EditorSection>
 	);
 }

@@ -5,3 +5,4 @@ playwright-report
 e2e/assets/perf-20mp.jpg
 .DS_Store
 *.local
+storybook-static

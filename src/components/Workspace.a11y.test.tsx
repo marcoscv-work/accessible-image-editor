@@ -7,6 +7,7 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
+import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../editorConfig';
 import {LoadedImage} from '../imaging/loadImage';
 import {editorReducer, initialHistory} from '../state/editorReducer';
 import {AdjustPanel} from './AdjustPanel';
@@ -61,12 +62,14 @@ function EditorHarness() {
 				crop={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				showStraighten
 			/>
 
 			<AdjustPanel
 				adjustments={history.present.adjustments}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				sliders={ADJUSTMENT_KEYS}
 			/>
 
 			<BottomBar
@@ -82,8 +85,9 @@ function EditorHarness() {
 				onZoom={() => {}}
 				onZoomFit={() => {}}
 				ratio={history.present.ratio}
+				ratios={RATIO_PRESETS}
 				saving={false}
-				showRatio
+				showRotate
 				zoom={zoom}
 			/>
 		</>

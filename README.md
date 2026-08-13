@@ -20,28 +20,60 @@ The editor is **parametric and declarative**:
 - Sidebar sections are **collapsible Clay panels**, and each one can be switched off through the `sections` prop: the header is a real button with `aria-expanded`/`aria-controls`, and collapsed content leaves the tab order.
 - The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps 20MP images responsive.
 
-## Configurable sections
+## Configuration
 
-The editor is meant to be embedded like any Clay component: every editing
-block can be turned off, and omitted keys keep their default (all on).
+The editor is meant to be embedded like any Clay component. Every section
+can be switched off, and every section can be narrowed to a subset of its
+own tools; anything omitted keeps the full default, so `{}` is the
+complete editor.
 
 ```tsx
 <EditorModal
   image={image}
   onClose={close}
-  sections={{annotate: false, filters: false}}  // a crop + adjustments tool
+  config={{
+    adjustments: {sliders: ['brightness', 'contrast']},
+    annotate: {stickers: ['star', 'heart'], tools: ['text', 'stickers']},
+    crop: {ratios: ['original', '1:1'], rotate: false},
+    filters: {presets: ['none', 'grayscale', 'sepia']},
+  }}
 />
 ```
 
-The hosted build reads the same allowlist from the URL, so a configuration
-can be tried without a code change:
-[`?sections=crop`](https://marcoscv-work.github.io/accessible-image-editor/?sections=crop),
-`?sections=annotate`, `?sections=crop,filters`.
+| Key | `false` | Object |
+| --- | --- | --- |
+| `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
+| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, redaction, stickers · `stickers`: any of the 10 shapes |
+| `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn button · `straighten`: the angle slider |
+| `filters` | hides the gallery | `presets`: any of the 19 looks |
 
-Disabling `crop` also removes the on-stage marquee and the ratio control;
-disabling `annotate` removes the layers panel with it.
+Lists are always applied in the component's canonical order, and unknown
+names are ignored, so a caller cannot reshuffle or break the UI.
 
-## Run
+The hosted build reads the same configuration from the URL, so any
+combination can be tried without a code change:
+
+- [`?filters=none,sepia,noir`](https://marcoscv-work.github.io/accessible-image-editor/?filters=none,sepia,noir)
+- [`?adjustments=brightness,contrast`](https://marcoscv-work.github.io/accessible-image-editor/?adjustments=brightness,contrast)
+- [`?annotate=redaction`](https://marcoscv-work.github.io/accessible-image-editor/?annotate=redaction)
+- [`?crop=straighten`](https://marcoscv-work.github.io/accessible-image-editor/?crop=straighten) (crop without the quarter-turn button)
+- `?annotate=` switches a section off entirely.
+
+## Storybook
+
+Every combination is also explorable live, with the configuration exposed
+as toolbar controls:
+
+```bash
+npm run storybook
+```
+
+Published alongside the app at
+[`/storybook/`](https://marcoscv-work.github.io/accessible-image-editor/storybook/),
+with stories for the complete editor, a crop-only picker, a colour-grading
+panel, a redaction-only workflow and a reduced annotation kit.
+
+## Run## Run
 
 ```bash
 npm install
@@ -56,6 +88,7 @@ Open http://localhost:5173, then "Edit sample image" (bundled) or open one of yo
 npm test          # vitest: reducer, filter pipeline, jest-axe scans
 npm run test:e2e  # Playwright: keyboard-only journeys + axe + 20MP perf budget
 npm run lint      # @liferay/eslint-config (react preset)
+npm run storybook # every configuration, live
 ```
 
 The Playwright journeys are **keyboard-only by design**: no mouse events are synthesized at any point. They cover crop (handles, numeric panel, ratio presets), adjustments, annotations, layers, undo/redo, save, and focus restoration, with axe-core scans on every screen state. A dedicated pointer-parity spec exercises the same annotation operations with mouse drags (WCAG 2.5.x).

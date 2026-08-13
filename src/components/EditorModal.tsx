@@ -12,10 +12,7 @@ import React, {
 	useState,
 } from 'react';
 
-import {
-	EditorSections,
-	resolveSections,
-} from '../editorSections';
+import {EditorConfig, resolveConfig} from '../editorConfig';
 import {t} from '../i18n';
 import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
 import {LoadedImage} from '../imaging/loadImage';
@@ -88,13 +85,14 @@ interface Props {
 	onClose: () => void;
 
 	/**
-	 * Which editing blocks to expose; omitted keys keep their default.
+	 * Which editing blocks and tools to expose; anything omitted keeps
+	 * its default, so `{}` is the complete editor.
 	 */
-	sections?: Partial<EditorSections>;
+	config?: EditorConfig;
 }
 
-export default function EditorModal({image, onClose, sections}: Props) {
-	const enabled = resolveSections(sections);
+export default function EditorModal({config, image, onClose}: Props) {
+	const enabled = resolveConfig(config);
 
 	const announce = useAnnouncer();
 
@@ -425,7 +423,7 @@ export default function EditorModal({image, onClose, sections}: Props) {
 							onZoom={zoomBy}
 							onZoomFit={zoomToFit}
 							selectedOverlayId={selectedOverlayId}
-							showCrop={enabled.crop}
+							showCrop={enabled.crop.enabled}
 							showRecenter={!cropFramed}
 							state={state}
 							workspaceRef={handleWorkspaceRef}
@@ -437,38 +435,43 @@ export default function EditorModal({image, onClose, sections}: Props) {
 							className="editor-sidebar"
 							ref={sidebarRef}
 						>
-							{enabled.crop && (
+							{enabled.crop.enabled && (
 								<CropPanel
 									angle={state.angle}
 									crop={state.crop}
 									dispatch={dispatch}
 									onAnnounce={announce}
+									showStraighten={enabled.crop.straighten}
 								/>
 							)}
 
-							{enabled.adjustments && (
+							{enabled.adjustments.length > 0 && (
 								<AdjustPanel
 									adjustments={state.adjustments}
 									dispatch={dispatch}
 									onAnnounce={announce}
+									sliders={enabled.adjustments}
 								/>
 							)}
 
-							{enabled.filters && (
+							{enabled.filters.length > 0 && (
 								<FilterGallery
 									dispatch={dispatch}
 									filter={state.filter}
 									image={image}
 									onAnnounce={announce}
+									presets={enabled.filters}
 								/>
 							)}
 
-							{enabled.annotate && (
+							{enabled.annotate.tools.length > 0 && (
 								<>
 									<AnnotatePanel
 										area={state.crop}
 										dispatch={dispatch}
 										onAnnounce={announce}
+										stickers={enabled.annotate.stickers}
+										tools={enabled.annotate.tools}
 									/>
 
 									<LayersPanel
@@ -496,8 +499,9 @@ export default function EditorModal({image, onClose, sections}: Props) {
 						onZoom={zoomBy}
 						onZoomFit={zoomToFit}
 						ratio={state.ratio}
+						ratios={enabled.crop.ratios}
 						saving={saving}
-						showRatio={enabled.crop}
+						showRotate={enabled.crop.rotate}
 						zoom={zoom}
 					/>
 				</div>

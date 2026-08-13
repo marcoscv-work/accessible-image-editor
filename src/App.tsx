@@ -13,7 +13,7 @@ import sampleUrl from './assets/sample.jpg';
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
-import {sectionsFromSearch} from './editorSections';
+import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 
@@ -107,9 +107,9 @@ export default function App() {
 
 				{image && (
 					<EditorModal
+						config={configFromSearch(window.location.search)}
 						image={image}
 						onClose={close}
-						sections={sectionsFromSearch(window.location.search)}
 					/>
 				)}
 			</AnnouncerProvider>

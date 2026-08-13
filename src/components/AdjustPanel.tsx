@@ -8,6 +8,7 @@ import ClayForm from '@clayui/form';
 import ClaySlider from '@clayui/slider';
 import React, {useRef} from 'react';
 
+import {AdjustmentKey} from '../editorConfig';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
@@ -25,6 +26,11 @@ interface Props {
 	adjustments: Adjustments;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+
+	/**
+	 * Which sliders to expose, in canonical order.
+	 */
+	sliders: AdjustmentKey[];
 }
 
 /**
@@ -32,7 +38,14 @@ interface Props {
  * transient edits; releasing the pointer, releasing a key, or leaving the
  * slider commits the gesture as a single undo step and announces it.
  */
-export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
+export function AdjustPanel({
+	adjustments,
+	dispatch,
+	onAnnounce,
+	sliders,
+}: Props) {
+	const shown = SLIDERS.filter(({key}) => sliders.includes(key));
+
 	const activeGesture = useRef<keyof Adjustments | null>(null);
 
 	const commit = (key: keyof Adjustments, label: string) => {
@@ -47,13 +60,11 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 		onAnnounce(t('adjustment-set', label, adjustments[key]));
 	};
 
-	const hasAdjustments = Object.values(adjustments).some(
-		(value) => value !== 0
-	);
+	const hasAdjustments = shown.some(({key}) => adjustments[key] !== 0);
 
 	return (
 		<EditorSection title={t('adjustments')} titleId="adjust-panel-title">
-			{SLIDERS.map(({key, labelKey}) => {
+			{shown.map(({key, labelKey}) => {
 				const label = t(labelKey);
 				const value = adjustments[key];
 
@@ -164,7 +175,7 @@ export function AdjustPanel({adjustments, dispatch, onAnnounce}: Props) {
 							() =>
 								document
 									.getElementById(
-										`adjust-${SLIDERS[SLIDERS.length - 1].key}`
+										`adjust-${shown[shown.length - 1].key}`
 									)
 									?.focus(),
 							0

@@ -8,10 +8,10 @@ import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import ClayModal, {useModal} from '@clayui/modal';
 import React, {useEffect, useRef, useState} from 'react';
 
+import {AnnotateTool} from '../editorConfig';
 import {t} from '../i18n';
 import {
 	STICKER_DEFAULT_COLORS,
-	STICKER_KINDS,
 	StickerArt,
 	textWidth,
 } from '../imaging/overlayShapes';
@@ -210,6 +210,16 @@ interface Props {
 	area: CropRect;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+
+	/**
+	 * Which sticker shapes to offer, in canonical order.
+	 */
+	stickers: StickerKind[];
+
+	/**
+	 * Which annotation tools to offer.
+	 */
+	tools: AnnotateTool[];
 }
 
 /**
@@ -217,7 +227,13 @@ interface Props {
  * added through regular form controls, never through freehand pointer
  * drawing.
  */
-export function AnnotatePanel({area, dispatch, onAnnounce}: Props) {
+export function AnnotatePanel({
+	area,
+	dispatch,
+	onAnnounce,
+	stickers,
+	tools,
+}: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
 	/**
@@ -229,7 +245,17 @@ export function AnnotatePanel({area, dispatch, onAnnounce}: Props) {
 
 	const panelRef = useRef<HTMLDivElement>(null);
 
-	const controlCount = 3 + STICKER_KINDS.length;
+	// The roving order follows what is actually rendered, so a reduced
+	// tool set still behaves as one tab stop with contiguous arrows.
+
+	const shownStickers = tools.includes('stickers') ? stickers : [];
+
+	const shownTools = tools.filter((tool) => tool !== 'stickers');
+
+	const controlCount = shownTools.length + shownStickers.length;
+
+	const toolIndex = (tool: AnnotateTool) =>
+		shownTools.indexOf(tool as (typeof shownTools)[number]);
 
 	const handlePanelKeyDown = (event: React.KeyboardEvent) => {
 		const origin = (event.target as Element).closest('[data-index]');
@@ -353,32 +379,38 @@ export function AnnotatePanel({area, dispatch, onAnnounce}: Props) {
 			<div onKeyDown={handlePanelKeyDown} ref={panelRef}>
 
 			<div className="editor-annotate-actions">
-				<ClayButton
-					{...rovingProps(0)}
-					displayType="secondary"
-					onClick={() => setTextDialogOpen(true)}
-					size="sm"
-				>
-					{t('add-text')}
-				</ClayButton>
+				{tools.includes('text') && (
+					<ClayButton
+						{...rovingProps(toolIndex('text'))}
+						displayType="secondary"
+						onClick={() => setTextDialogOpen(true)}
+						size="sm"
+					>
+						{t('add-text')}
+					</ClayButton>
+				)}
 
-				<ClayButton
-					{...rovingProps(1)}
-					displayType="secondary"
-					onClick={addRectangle}
-					size="sm"
-				>
-					{t('add-rectangle')}
-				</ClayButton>
+				{tools.includes('rectangle') && (
+					<ClayButton
+						{...rovingProps(toolIndex('rectangle'))}
+						displayType="secondary"
+						onClick={addRectangle}
+						size="sm"
+					>
+						{t('add-rectangle')}
+					</ClayButton>
+				)}
 
-				<ClayButton
-					{...rovingProps(2)}
-					displayType="secondary"
-					onClick={addRedaction}
-					size="sm"
-				>
-					{t('add-redaction')}
-				</ClayButton>
+				{tools.includes('redaction') && (
+					<ClayButton
+						{...rovingProps(toolIndex('redaction'))}
+						displayType="secondary"
+						onClick={addRedaction}
+						size="sm"
+					>
+						{t('add-redaction')}
+					</ClayButton>
+				)}
 			</div>
 
 			<div
@@ -386,9 +418,9 @@ export function AnnotatePanel({area, dispatch, onAnnounce}: Props) {
 				className="editor-sticker-picker"
 				role="group"
 			>
-				{STICKER_KINDS.map((sticker, stickerIndex) => (
+				{shownStickers.map((sticker, stickerIndex) => (
 					<ClayButton
-						{...rovingProps(3 + stickerIndex)}
+						{...rovingProps(shownTools.length + stickerIndex)}
 						aria-label={t(`add-sticker-${sticker}`)}
 						displayType="secondary"
 						key={sticker}

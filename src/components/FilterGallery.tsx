@@ -4,7 +4,7 @@
  */
 
 import {t} from '../i18n';
-import {FILTER_PRESETS, FilterDefs} from '../imaging/FilterDefs';
+import {FilterDefs} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
@@ -15,6 +15,11 @@ interface Props {
 	filter: FilterPreset;
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
+
+	/**
+	 * Which presets to offer, in canonical order.
+	 */
+	presets: FilterPreset[];
 }
 
 /**
@@ -22,14 +27,20 @@ interface Props {
  * each option carries a live thumbnail rendered through the exact same
  * filter pipeline the preview and the export use.
  */
-export function FilterGallery({dispatch, filter, image, onAnnounce}: Props) {
+export function FilterGallery({
+	dispatch,
+	filter,
+	image,
+	onAnnounce,
+	presets,
+}: Props) {
 	return (
 		<EditorSection title={t('filters')} titleId="filters-panel-title">
 			<fieldset>
 				<legend className="sr-only">{t('filters')}</legend>
 
 				<div className="editor-filter-grid">
-					{FILTER_PRESETS.map((preset) => {
+					{presets.map((preset) => {
 						const label = t(`filter-${preset}`);
 
 						return (

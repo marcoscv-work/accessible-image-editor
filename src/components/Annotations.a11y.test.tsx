@@ -7,7 +7,10 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
+import {ANNOTATE_TOOLS} from '../editorConfig';
+import {FILTER_PRESETS} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
+import {STICKER_KINDS} from '../imaging/overlayShapes';
 import {
 	editorReducer,
 	initialHistory,
@@ -57,12 +60,15 @@ function AnnotationHarness() {
 				filter={history.present.filter}
 				image={IMAGE}
 				onAnnounce={() => {}}
+				presets={FILTER_PRESETS}
 			/>
 
 			<AnnotatePanel
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				stickers={STICKER_KINDS}
+				tools={ANNOTATE_TOOLS}
 			/>
 
 			<LayersPanel
@@ -158,6 +164,8 @@ function CroppedHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				stickers={STICKER_KINDS}
+				tools={ANNOTATE_TOOLS}
 			/>
 		</>
 	);

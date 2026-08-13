@@ -35,6 +35,10 @@ jobs:
           BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build
 
+      - env:
+          STORYBOOK_BASE_PATH: /${{ github.event.repository.name }}/storybook/
+        run: npm run build:storybook
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
