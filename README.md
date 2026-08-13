@@ -109,7 +109,7 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `Shift + Arrow keys` on a slider | Step adjustments and the straighten angle by 10 |
 | `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor; on a layer row, jump to that element on the image |
 | `0` | Fit the image to the window while the workspace has focus |
-| `Shift + drag` | Keep the crop proportions while resizing a handle |
+| `Shift + drag` | Keep the proportions while resizing the crop or a box annotation (free by default) |
 | `Alt + drag` | Resize the crop from its center |
 | `Esc` | Close the editor or the open dialog |
 

@@ -115,13 +115,41 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 		await page.locator('#layer-prop-height').inputValue()
 	);
 
+	// Free by default: both sides follow the pointer independently, so a
+	// diagonal drag does not preserve the ratio.
+
 	expect(widthAfter).toBeGreaterThan(widthBefore);
-
-	// Proportional: both sides scaled by the same factor (within
-	// rounding).
-
 	expect(
 		Math.abs(widthAfter / widthBefore - heightAfter / heightBefore)
+	).toBeGreaterThan(0.05);
+
+	// With Shift the proportions are kept, as with the crop.
+
+	const shiftBox = (await seHandle.boundingBox())!;
+
+	await page.keyboard.down('Shift');
+	await page.mouse.move(
+		shiftBox.x + shiftBox.width / 2,
+		shiftBox.y + shiftBox.height / 2
+	);
+	await page.mouse.down();
+	await page.mouse.move(
+		shiftBox.x + shiftBox.width / 2 + 40,
+		shiftBox.y + shiftBox.height / 2 + 10,
+		{steps: 4}
+	);
+	await page.mouse.up();
+	await page.keyboard.up('Shift');
+
+	const widthShift = Number(
+		await page.locator('#layer-prop-width').inputValue()
+	);
+	const heightShift = Number(
+		await page.locator('#layer-prop-height').inputValue()
+	);
+
+	expect(
+		Math.abs(widthShift / widthAfter - heightShift / heightAfter)
 	).toBeLessThan(0.05);
 
 	// Edge handles stretch one dimension freely: dragging the right edge

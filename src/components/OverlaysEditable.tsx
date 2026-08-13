@@ -508,9 +508,10 @@ export function OverlaysEditable({
 			return;
 		}
 
-		// Corner resize: proportional by default, anchored at the center,
-		// which keeps the geometry stable under rotation. Shift resizes a
-		// rectangle's sides freely.
+		// Corner resize, anchored at the center so the geometry stays
+		// stable under rotation. Boxes resize freely by default and keep
+		// their proportions with Shift, matching the crop; stickers and
+		// text scale proportionally because size is a single value.
 
 		const scale = Math.max(
 			Math.hypot(pointX - centerX, pointY - centerY) /
@@ -554,12 +555,12 @@ export function OverlaysEditable({
 			let height;
 
 			if (event.shiftKey) {
-				width = Math.max(Math.abs(pointX - centerX) * 2, 8);
-				height = Math.max(Math.abs(pointY - centerY) * 2, 8);
-			}
-			else {
 				width = Math.max(overlay.width * scale, 8);
 				height = Math.max(overlay.height * scale, 8);
+			}
+			else {
+				width = Math.max(Math.abs(pointX - centerX) * 2, 8);
+				height = Math.max(Math.abs(pointY - centerY) * 2, 8);
 			}
 
 			dispatch({

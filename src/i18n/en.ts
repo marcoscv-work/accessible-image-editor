@@ -144,7 +144,8 @@ export default {
 	'shortcut-escape': 'Close the editor or the open dialog',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move or adjust the focused control by 10',
-	'shortcut-shift-drag': 'Keep the crop proportions while dragging',
+	'shortcut-shift-drag':
+		'Keep the proportions while resizing the crop or a box annotation',
 	'shortcut-undo': 'Undo the last change',
 	'shortcut-zoom': 'Zoom in and out while the workspace has focus',
 	'shortcut-zoom-fit':
