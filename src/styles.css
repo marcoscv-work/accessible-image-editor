@@ -379,9 +379,16 @@
 	padding: 0.5rem 1rem;
 }
 
+/*
+ * The groups wrap too, not just the bar: at 320px (the 400% zoom width) the
+ * ratio group alone is wider than the bar, and without this its last
+ * controls are simply clipped.
+ */
+
 .editor-bar-group {
 	align-items: center;
 	display: flex;
+	flex-wrap: wrap;
 	gap: 0.5rem;
 }
 

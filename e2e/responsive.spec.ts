@@ -127,6 +127,76 @@ test('the sticker picker becomes a carousel when stacked', async ({page}) => {
 	await expect(first).toHaveAttribute('tabindex', '-1');
 });
 
+test('reflows at 320 pixels, the 400% zoom equivalent', async ({page}) => {
+	await page.setViewportSize({height: 512, width: 320});
+	await openEditor(page);
+
+	// 1.4.10 asks for no loss of content or function, and no scrolling in
+	// two directions, at 320 CSS pixels wide.
+
+	// Nothing may be clipped: the page must not scroll sideways, and the
+	// containers that are not meant to scroll must hold their content. The
+	// carousel tracks are excluded on purpose, since scrolling sideways is
+	// exactly what they are for.
+
+	const overflow = await page.evaluate(() => ({
+		bar: document.querySelector('.editor-bottom-bar')!.scrollWidth,
+		barWidth: document.querySelector('.editor-bottom-bar')!.clientWidth,
+		doc: document.documentElement.scrollWidth,
+		sidebar: document.querySelector('.editor-sidebar')!.scrollWidth,
+		sidebarWidth: document.querySelector('.editor-sidebar')!.clientWidth,
+		view: window.innerWidth,
+	}));
+
+	expect(overflow.doc).toBeLessThanOrEqual(overflow.view);
+	expect(overflow.bar).toBeLessThanOrEqual(overflow.barWidth);
+	expect(overflow.sidebar).toBeLessThanOrEqual(overflow.sidebarWidth);
+
+	// Everything still there and operable: the stage, the panels, and the
+	// actions that end the session.
+
+	await expect(page.locator('.editor-workspace')).toBeVisible();
+	await expect(page.getByRole('button', {name: 'Save'})).toBeVisible();
+
+	for (const name of ['Crop and rotation', 'Adjustments', 'Filters']) {
+		await expect(page.getByRole('button', {exact: true, name})).toBeVisible();
+	}
+
+	// A crop still commits from the numeric field, which is the route that
+	// does not depend on dragging.
+
+	const width = page.locator('#crop-width');
+
+	await width.fill('600');
+	await width.press('Enter');
+
+	await expect(width).toHaveValue('600');
+
+	const results = await new AxeBuilder({page}).analyze();
+
+	expect(results.violations).toEqual([]);
+});
+
+test('survives text set to 200%', async ({page}) => {
+	await openEditor(page);
+
+	// 1.4.4 is about text scaling on its own, not page zoom.
+
+	await page.evaluate(() => {
+		document.documentElement.style.fontSize = '32px';
+	});
+	await page.waitForTimeout(300);
+
+	const overflow = await page.evaluate(() => ({
+		doc: document.documentElement.scrollWidth,
+		view: window.innerWidth,
+	}));
+
+	expect(overflow.doc).toBeLessThanOrEqual(overflow.view);
+
+	await expect(page.getByRole('button', {name: 'Save'})).toBeVisible();
+});
+
 test('the actions keep the trailing edge when the bar wraps', async ({
 	page,
 }) => {
