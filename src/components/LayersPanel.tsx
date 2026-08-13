@@ -205,6 +205,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 									value: 'medium',
 								},
 								{label: t('redact-level-fine'), value: 'fine'},
+								{label: t('redact-level-tiny'), value: 'tiny'},
 							]}
 							sizing="sm"
 							value={overlay.level}

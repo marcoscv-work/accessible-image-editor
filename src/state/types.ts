@@ -99,7 +99,7 @@ export interface StickerOverlay {
 	y: number;
 }
 
-export type RedactLevel = 'coarse' | 'fine' | 'medium';
+export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
 
 /**
  * A pixelated block: same geometry as a rectangle, but instead of a fill

@@ -126,6 +126,7 @@ export default {
 	'redact-level-coarse': 'Large blocks',
 	'redact-level-fine': 'Small blocks',
 	'redact-level-medium': 'Medium blocks',
+	'redact-level-tiny': 'Tiny blocks',
 	redo: 'Redo',
 	'redo-done': 'Redo: {0}',
 	'reset-adjustment': 'Reset {0}',

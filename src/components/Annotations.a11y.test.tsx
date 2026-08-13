@@ -24,7 +24,12 @@ const IMAGE: LoadedImage = {
 	blob: new Blob(),
 	fileName: 'test.jpg',
 	height: 800,
-	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png'},
+	pixelUrls: {
+		coarse: 'c.png',
+		fine: 'f.png',
+		medium: 'm.png',
+		tiny: 't.png',
+	},
 	previewUrl: 'test.jpg',
 	thumbUrl: 'thumb.jpg',
 	type: 'image/jpeg',
@@ -518,17 +523,19 @@ describe('Annotations, filters, and layers', () => {
 			'[clip-path^="url(#redact-clip-"] image'
 		) as SVGImageElement;
 
-		expect(pixels).toHaveAttribute('href', 'm.png');
+		// New redactions start at the small-block level.
+
+		expect(pixels).toHaveAttribute('href', 'f.png');
 
 		// The level select swaps the downsampled source.
 
 		fireEvent.change(screen.getByLabelText('Pixel size'), {
-			target: {value: 'coarse'},
+			target: {value: 'tiny'},
 		});
 
 		expect(
 			container.querySelector('[clip-path^="url(#redact-clip-"] image')
-		).toHaveAttribute('href', 'c.png');
+		).toHaveAttribute('href', 't.png');
 
 		// Same box handles as a rectangle: 4 corners + 4 edges + rotate.
 

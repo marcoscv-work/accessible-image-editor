@@ -340,7 +340,11 @@ export function AnnotatePanel({
 				height: Math.round(area.height * 0.15),
 				id,
 				kind: 'redact',
-				level: 'medium',
+
+				// Small blocks by default: coarse enough to hide, fine
+				// enough to keep the frame readable.
+
+				level: 'fine',
 				width: Math.round(area.width * 0.25),
 				x: Math.round(centerX - area.width * 0.125),
 				y: Math.round(centerY - area.height * 0.075),

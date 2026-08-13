@@ -16,6 +16,7 @@ const REDACT_SIZES: Record<RedactLevel, number> = {
 	coarse: 24,
 	fine: 96,
 	medium: 48,
+	tiny: 192,
 };
 
 export interface LoadedImage {
@@ -131,6 +132,7 @@ export async function loadImage(
 		coarse: downsampleToDataURL(bitmap, REDACT_SIZES.coarse),
 		fine: downsampleToDataURL(bitmap, REDACT_SIZES.fine),
 		medium: downsampleToDataURL(bitmap, REDACT_SIZES.medium),
+		tiny: downsampleToDataURL(bitmap, REDACT_SIZES.tiny),
 	};
 
 	bitmap.close();
