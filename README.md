@@ -1,10 +1,10 @@
 # Accessible Image Editor
 
-A **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system), proposed as the accessible image editing solution for the new CMS (epic LPD-58956): instead of remediating a canvas-based third-party editor (discovery LPD-93990, estimation LPD-102096), it covers the same functional scope while being **accessible by architecture**.
+A **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system): a finished component, proposed as the image editing solution for the new CMS (epic LPD-58956). It covers the functional scope expected of an image editor while being **accessible by architecture** rather than by remediation, which is the accessible route LPD-93990 requires.
 
 **Live:** the [editor](https://marcoscv-work.github.io/accessible-image-editor/), a [presentation of the whole feature set](https://marcoscv-work.github.io/accessible-image-editor/presentation/), and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
 
-The original feasibility goal lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
+The design brief lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), and the WCAG 2.1 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md).
 
 ## Core idea
 
@@ -136,11 +136,10 @@ e2e/            Keyboard-only Playwright journeys, axe scans, 20MP perf budget
 
 The bundled sample image (`src/assets/sample.jpg`) is an [Unsplash](https://unsplash.com) photo, used under the Unsplash License. Photographer credit still to be filled in.
 
-## Out of scope (product-phase concerns)
+## Out of scope
 
 - **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, and stickers.
 - Background removal.
-- Touch/mobile polish (pointer events work, but no touch-specific UX).
 - EXIF orientation/metadata preservation and color management (ICC).
 - HEIC input.
 - NVDA/JAWS passes (a VoiceOver script is prepared in [VOICEOVER.md](VOICEOVER.md); all are pending human runs).

@@ -1,10 +1,10 @@
 # Findings
 
-An honest engineering log of this PoC, written to feed the team decision around the Pintura adoption (epic LPD-58956), the remediation estimate (LPD-102096), and the accessible-alternative-path requirement recorded in LPD-93990.
+An honest engineering log of this editor: what the architecture gave for free, what fought back, and what is still open. It is the record behind the accessible image editing route required by LPD-93990 and proposed for the new CMS under epic LPD-58956.
 
 ## Verdict
 
-**The hypothesis holds.** For the functional scope of the epic (crop/transform, adjustments, filters, text/shape/sticker annotations, undo/redo, save), an image editor that is 100% WCAG 2.1 AA conformant by architecture is technically feasible, performs within budget on 20MP images, and can be built on Clay so portal integration is packaging rather than rewrite. The one permanent exclusion is freehand drawing, which is inaccessible in any technology — exactly as stated in LPD-93990.
+**It works.** The editor covers the functional scope of the epic (crop and transform, adjustments, filters, text, shape, sticker and redaction annotations, layers, undo and redo, export), conforms to WCAG 2.1 AA by architecture, stays within its performance budget on 20 megapixel images, and is built on Clay, so bringing it into the portal is packaging rather than rewriting. The one permanent exclusion is freehand drawing, which is inaccessible in any technology — exactly as stated in LPD-93990.
 
 The decisive move is not avoiding `<canvas>`; it is making **every operation parametric** (serializable data manipulated through real DOM controls) and treating the SVG scene as the single source of truth for both preview and export. Accessibility then stops being a remediation backlog and becomes a property of the architecture: the axe scans and keyboard-only journeys were green throughout development, not fixed after the fact.
 
@@ -38,7 +38,7 @@ The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original fi
 6. **Cross-platform keyboard behavior.** On macOS, ArrowDown on a closed `<select>` opens the native picker instead of changing the value; the journey uses letter typeahead. AT/OS interaction matrices need explicit test strategy, not assumptions.
 7. **CSS outlines do not paint on SVG children.** The first focus-indicator attempt (CSS `outline` on the stage nodes) silently rendered nothing in Chromium. The fix: focus rings as real SVG geometry (`FocusRing`, a Clay-style white inner + accent outer pair with zoom-compensated thickness), driven by React focus state. Anything interactive inside the SVG stage must own its focus visuals.
 8. **Clay's collapsible panel labels its own region.** `ClayPanel` with `collapsable` renders the body inside a `role="region"` whose `aria-labelledby` points at the region's own id, so its accessible name becomes its entire text content (announced as "region, X position 0 Y position 0 ..."). Not an axe violation, but noisy for screen reader users and worth reporting upstream; it also broke test locators that resolved by accessible name.
-9. **Disclosure headers cost heading structure.** Moving the sidebar sections to `ClayPanel` turned their `h2` titles into buttons (Clay does not support the APG `h3 > button` accordion shape), which left an orphan `h3` and an axe `heading-order` violation. The layer-properties subtitle became a labelled group instead. A product-phase improvement would be a Clay enhancement allowing a heading wrapper around the disclosure button.
+9. **Disclosure headers cost heading structure.** Moving the sidebar sections to `ClayPanel` turned their `h2` titles into buttons (Clay does not support the APG `h3 > button` accordion shape), which left an orphan `h3` and an axe `heading-order` violation. The layer-properties subtitle became a labelled group instead. The improvement belongs upstream: a Clay enhancement allowing a heading wrapper around the disclosure button.
 10. **Hiding a focused control drops focus.** Three controls in this UI legitimately disappear right after being used (the crop recenter once the view frames the crop, a layer reorder button when it reaches the end, "Reset all" when nothing is left to reset). Each needed an explicit focus hand-off: without it focus falls to `body`, and because the undo/redo shortcuts are scoped to the editor, they silently stopped working, which is how the e2e journey caught it.
 11. **`scrollIntoView` scrolls every scrollable ancestor.** Revealing the layers panel with `scrollIntoView` also scrolled the modal shell (`.modal-content` ended at `scrollTop: 124`), pushing the header off screen and leaving a blank band under the action bar. Two fixes: scroll the intended container explicitly with `scrollTo` on measured deltas, and make the shell non-scrollable so only the workspace and the sidebar can ever scroll. Worth knowing for any full-screen editor built on a Clay modal.
 12. **Clay has no small range input.** `form-control-sm`, `input-group-sm`, `form-group-sm` and `panel-sm` all exist, but the slider ships in a single size (no `clay-range-sm`, and `ClaySlider` has no sizing prop), which is a visible gap in a dense tool panel. Scoped CSS gives a thinner track and a 14px painted dot, with the transparent range input kept at a 24px height: the target is the whole band, not the dot, so density costs nothing in target size. Verified by clicking and dragging at the band edges. Worth requesting a proper `clay-range-sm` upstream.
@@ -48,31 +48,20 @@ The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original fi
 16. **A carousel must measure, not assume.** Paging arrows tied to a media query paint themselves in states where they do nothing: at widths where all the stickers already fit, both arrows rendered permanently disabled. Gating them on a measurement instead (the track is scrollable *and* its content is wider than its box) means they appear exactly when there is something off screen, at any width, and disappear otherwise. The measurement has to be driven by a `ResizeObserver` on the track rather than a window `resize` listener, because a collapsed section only has a width to measure once it is expanded.
 17. **Clay tooltips live outside every landmark.** Tooltips are portaled to a body-level `div`, so while one is showing, axe reports a `region` violation for content no landmark contains. It is a best-practice rule rather than a real barrier, but it means an axe scan must not run while a tooltip is up: scan before focusing or hovering the control, the same discipline the modal fade already required.
 
-## Risks and open items at product scale
+## Open items
 
 - **Manual AT passes are pending.** axe + APG patterns + keyboard journeys are strong evidence, not proof; the VoiceOver script ([VOICEOVER.md](VOICEOVER.md)) needs a human run, then NVDA/JAWS. This is the main open risk to the "100%" claim.
 - **Convolution-based adjustments** (clarity, sharpness) still need `feConvolveMatrix` validation; curves are proven, convolutions are not yet.
 - **Cross-browser**: Chromium is verified; Firefox/Safari need the SVG focus-outline and filter-fidelity checks.
-- **Text metrics**: overlay hit boxes estimate text width; product should measure via `getBBox()`.
-- Product-phase scope deliberately not attempted: touch UX, EXIF/ICC, HEIC, arbitrary-angle rotation, in-place text editing, sticker/font libraries, i18n/RTL beyond the `t()` seam.
+- **Text metrics**: overlay hit boxes compute text width from font metrics; measuring via `getBBox()` would be exact.
+- Deliberately out of scope: EXIF and ICC handling, HEIC input, background removal, and freehand drawing.
 
-## Effort projection (PoC → product)
+## Integrating it
 
-The PoC took one intensive build session for the three milestones (shell+crop, adjustments, annotations+layers) with 31 unit tests and 5 e2e journeys. Projection to product quality for the epic's requirement list, assuming this architecture:
+The editor is a self-contained React component: one `<ImageEditor>` with an `image` and a `config` prop, built on `@clayui` components and Atlas CSS so it already looks and behaves like the rest of the product. Bringing it into the portal is mechanical work rather than design work:
 
-| Workstream | Estimate (1 senior FE) |
-| --- | --- |
-| Portal packaging (OSGi module, Language.properties, Documents & Media wiring, permissions) | 3–4 weeks |
-| Crop/transform parity (aspect-locked handle drags, arbitrary rotation, flip) | 2–3 weeks |
-| Full adjustment set (temperature, exposure, gamma, clarity/sharpness via convolution) | 2–3 weeks |
-| Annotations to product level (in-place text editing, measured hit boxes, sticker/font catalogs) | 3–4 weeks |
-| Robustness (EXIF orientation, ICC awareness, HEIC decision, large-file limits, error states) | 2–3 weeks |
-| AT matrix + cross-browser hardening (VoiceOver/NVDA/JAWS, FF/Safari), CONFORMANCE upkeep | 2–3 weeks |
-| Touch/mobile UX | 2 weeks |
-| **Total** | **~16–22 weeks of one senior dev (≈ 2 devs × 2–2.5 months)** |
+- Wrap it in an OSGi module and mount it where the CMS needs it (Documents and Media, the page editor, an asset picker).
+- Point the `t()` seam at `Language.properties` instead of the bundled English catalogue; every string in the UI already goes through it.
+- Hand it a `File` or a URL, and take the `Blob` it hands back on save.
 
-Compare against LPD-102096's remediation estimate for Pintura, remembering the structural difference: here the accessibility work is *inside* the numbers above (it is the architecture), whereas remediation is a permanent tax on top of a third-party dependency that ships no VPAT and owns its own roadmap.
-
-## Strategic note
-
-Even if Pintura ships, LPD-93990 requires an accessible, non-canvas alternative path for the same tasks. This PoC *is* that path's feasibility proof and cost baseline: the two decisions (adopt Pintura; build the accessible route) can now both be priced with working software instead of speculation.
+Nothing in the editor assumes the standalone shell: the shell exists so the component can be run, tested and demonstrated on its own.

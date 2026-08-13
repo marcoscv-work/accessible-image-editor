@@ -1,6 +1,6 @@
 # VoiceOver Manual Test Script
 
-Status: **prepared, pending a human run** (VoiceOver cannot be exercised meaningfully by automation; the numbers below come from the keyboard journeys and need auditory confirmation). Log results inline and mirror conclusions into [FINDINGS.md](FINDINGS.md). NVDA and JAWS passes are product-phase work.
+Status: **prepared, pending a human run** (VoiceOver cannot be exercised meaningfully by automation; the numbers below come from the keyboard journeys and need auditory confirmation). Log results inline and mirror conclusions into [FINDINGS.md](FINDINGS.md). NVDA and JAWS passes follow the same script.
 
 Setup: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), `npm run dev`, http://localhost:5173.
 

@@ -1,6 +1,6 @@
-Accessible Image Editor PoC (non-canvas, Clay, standalone React)
+Accessible Image Editor: design brief (non-canvas, Clay, React)
 
-Context: Liferay adopts Pintura (epic LPD-58956) despite discovery LPD-93990 (canvas-based, pointer-only, no VPAT). LPD-102096 estimates its remediation. This PoC tests the alternative: same functional scope, accessible by architecture. Standalone React app (not coupled to portal) built with Clay (@clayui) + Clay tokens so later integration is packaging, not rewrite.
+Context: the new CMS needs image editing that everyone can operate. Discovery LPD-93990 found the canvas-based third-party route pointer-only and without a VPAT, and required an accessible alternative for the same tasks. This is that alternative: the same functional scope, accessible by architecture. A React component built with Clay (@clayui) and Clay tokens, developed in its own repository so it can be run and tested on its own, and integrated into the portal as packaging rather than a rewrite.
 
 Principle: parametric editor. Every operation is serializable data (crop {x,y,w,h}, brightness number, text overlay object); the UI manipulating it is real DOM.
 
@@ -21,12 +21,12 @@ Milestones:
 M1 shell + crop: load image (picker + sample); modal focus trap, Esc, focus restore; crop via pointer drag and keyboard per handle (arrows 1px, Shift 10px), numeric X/Y/W/H panel with aspect lock, ratio presets; zoom/pan incl. keyboard; undo/redo (buttons + Ctrl/Cmd+Z, +Shift+Z); Cancel; Save downloads the export.
 M2 adjustments: brightness/contrast/saturation as Clay sliders (label, value, keyboard steps, per-slider and global reset) plus one hard one (shadows/highlights or clarity) to stress SVG filters. Do not skip it.
 M3 annotations: filter gallery as labelled radio group with previews; text overlay (dialog: content/font/size/color), one shape, one sticker, each a focusable SVG node movable by keyboard and pointer; layers panel as listbox (select, keyboard reorder, delete).
-Out of scope (README): freehand, background removal, touch polish, EXIF/color management, HEIC.
+Out of scope (README): freehand, background removal, EXIF/color management, HEIC.
 
 A11y (normative): APG-conformant name/role/value everywhere; crop announces its state, every handle keyboard-operable (roving tabindex ok); polite live region announces results ("Crop applied"); workspace focusable with aria-describedby instructions, no keyboard traps; contrast 4.5:1 text, 3:1 UI/focus on the dark theme, visible focus; 400% zoom + 320px reflow; targets min 24x24px; prefers-reduced-motion; keyboard map in README + shortcuts dialog; follow Liferay DXP a11y conventions.
 
 Verification per milestone: reducer unit tests + jest-axe zero violations per view state; one keyboard-only Playwright journey + axe scan; manual VoiceOver pass logged (NVDA/JAWS pending); perf check with a 20MP image.
 
-Deliverables: repo + README (architecture, keyboard map, run/test, out-of-scope); CONFORMANCE.md (WCAG 2.1 AA per-criterion checklist); FINDINGS.md (log feeding LPD-102096: easy/hard/risks + PoC-to-product effort projection).
+Deliverables: repo + README (architecture, keyboard map, run/test, out-of-scope); CONFORMANCE.md (WCAG 2.1 AA per-criterion checklist); FINDINGS.md (engineering log: what the architecture gave, what fought back, what stays open).
 
 Agreements: commits in English, title-only, small. Accessibility beats speed; speed beats gold-plating.
