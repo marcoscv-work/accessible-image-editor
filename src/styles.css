@@ -452,10 +452,24 @@
  * check badge, never by colour alone.
  */
 
+.editor-filter-carousel {
+	align-items: center;
+	display: flex;
+	gap: 0.25rem;
+}
+
 .editor-filter-grid {
 	display: grid;
+	flex: 1;
 	gap: 0.75rem;
 	grid-template-columns: 1fr 1fr;
+	min-width: 0;
+}
+
+/* The arrows only exist in the stacked layout. */
+
+.editor-filter-arrow {
+	display: none;
 }
 
 .editor-filter-option {
@@ -685,6 +699,29 @@
 		border-top: 1px solid #e7e7ed;
 		max-height: 45%;
 		width: 100%;
+	}
+
+	/*
+	 * Stacked layout: the filter cards run in one swipeable row with
+	 * snap points, and the arrows page through them.
+	 */
+
+	.editor-filter-grid {
+		display: flex;
+		grid-template-columns: none;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scrollbar-width: thin;
+	}
+
+	.editor-filter-option {
+		flex: 0 0 6rem;
+		scroll-snap-align: start;
+	}
+
+	.editor-filter-arrow {
+		display: inline-flex;
+		flex: 0 0 auto;
 	}
 }
 

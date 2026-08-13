@@ -18,7 +18,7 @@ Legend: **Pass** â€” implemented and verified by tests/inspection. **Pass\*** â€
 | 1.4.3 Contrast (Minimum) | AA | Pass | axe color-contrast checks pass on the light chrome and the dark workspace/bottom bar (white on `#14151f`). |
 | 1.4.4 Resize Text | AA | Pass | rem-based sizing; layout reflows. |
 | 1.4.5 Images of Text | AA | Pass | All text is real text. |
-| 1.4.10 Reflow | AA | Pass\* | Sidebar stacks below the workspace under 700px; spot-checked. A dedicated 320px/400% automated viewport test is future work. |
+| 1.4.10 Reflow | AA | Pass | Sidebar stacks below the workspace under 700px, and the filter gallery turns into one swipeable row with paging arrows; covered by a 400px-wide Playwright spec including an axe scan. A 320px/400%-zoom variant is still future work. |
 | 1.4.11 Non-text Contrast | AA | Pass | Focus indicators are white on dark (>12:1); crop border `#4b9bff` on the dark workspace >3:1; handles are white with accent stroke. |
 | 1.4.12 Text Spacing | AA | Pass | No fixed-height text containers. |
 | 1.4.13 Content on Hover or Focus | AA | Pass | No hover-only content; slider tooltips are disabled in favor of a persistent value display. |
