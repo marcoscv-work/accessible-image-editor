@@ -15,6 +15,7 @@ import React, {
 import {EditorConfig, resolveConfig} from '../editorConfig';
 import {t} from '../i18n';
 import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
+import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
 import {
 	editorReducer,
@@ -227,6 +228,46 @@ export default function EditorModal({config, image, onClose}: Props) {
 		}
 	}, [state.rotation]);
 
+	/**
+	 * The last pointer position over the workspace, in its coordinates, and
+	 * null whenever the pointer is elsewhere, which is the normal state for
+	 * someone working from the keyboard.
+	 */
+	const pointerRef = useRef<{x: number; y: number} | null>(null);
+
+	const handleWorkspacePointerMove = (event: React.PointerEvent) => {
+		const element = workspaceRef.current;
+
+		if (!element) {
+			return;
+		}
+
+		const rect = element.getBoundingClientRect();
+
+		pointerRef.current = {
+			x: event.clientX - rect.left,
+			y: event.clientY - rect.top,
+		};
+	};
+
+	const handleWorkspacePointerLeave = () => {
+		pointerRef.current = null;
+	};
+
+	/**
+	 * A zoom step keeps one point of the image still: the one under the
+	 * pointer while it is over the stage, and the centre of the view
+	 * otherwise. Anchoring the keyboard shortcut to a pointer parked
+	 * somewhere else would drag the image to a place nobody chose, so the
+	 * fallback is the one place the reader is certainly looking at.
+	 */
+	const pendingAnchorRef = useRef<{
+		anchor: {x: number; y: number};
+		from: number;
+		scroll: {left: number; top: number};
+		zoom: number;
+	} | null>(null);
+
 	const zoomBy = (direction: -1 | 1) => {
 		autoFitRef.current = false;
 
@@ -234,10 +275,38 @@ export default function EditorModal({config, image, onClose}: Props) {
 
 		const next = stepZoom(zoom, direction);
 
-		if (next !== zoom) {
-			setZoom(next);
-			announce(t('zoom-level', Math.round(next * 100)));
+		if (next === zoom) {
+			return;
 		}
+
+		const element = workspaceRef.current;
+
+		if (element) {
+			const pointer = pointerRef.current;
+
+			const inside =
+				pointer &&
+				pointer.x >= 0 &&
+				pointer.y >= 0 &&
+				pointer.x <= element.clientWidth &&
+				pointer.y <= element.clientHeight;
+
+			pendingAnchorRef.current = {
+				anchor:
+					inside && pointer
+						? pointer
+						: {
+								x: element.clientWidth / 2,
+								y: element.clientHeight / 2,
+							},
+				from: zoom,
+				scroll: {left: element.scrollLeft, top: element.scrollTop},
+				zoom: next,
+			};
+		}
+
+		setZoom(next);
+		announce(t('zoom-level', Math.round(next * 100)));
 	};
 
 	const zoomToFit = () => {
@@ -296,6 +365,26 @@ export default function EditorModal({config, image, onClose}: Props) {
 			pendingCenterRef.current = null;
 
 			scrollCropToCenter(pending.crop, zoom);
+		}
+
+		const anchored = pendingAnchorRef.current;
+		const element = workspaceRef.current;
+
+		if (anchored && anchored.zoom === zoom && element) {
+			pendingAnchorRef.current = null;
+
+			const scroll = anchoredScroll({
+				anchor: anchored.anchor,
+				next: zoom,
+				padding: STAGE_PADDING,
+				scroll: anchored.scroll,
+				zoom: anchored.from,
+			});
+
+			programmaticScrollRef.current = true;
+
+			element.scrollLeft = scroll.left;
+			element.scrollTop = scroll.top;
 		}
 	});
 
@@ -412,6 +501,8 @@ export default function EditorModal({config, image, onClose}: Props) {
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
 							onSelectOverlay={setSelectedOverlayId}
+							onWorkspacePointerLeave={handleWorkspacePointerLeave}
+							onWorkspacePointerMove={handleWorkspacePointerMove}
 							onWorkspaceScroll={() => {
 								if (programmaticScrollRef.current) {
 									programmaticScrollRef.current = false;

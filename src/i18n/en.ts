@@ -149,7 +149,8 @@ export default {
 	'shortcut-shift-drag':
 		'Keep the proportions while resizing the crop or a box annotation',
 	'shortcut-undo': 'Undo the last change',
-	'shortcut-zoom': 'Zoom in and out while the workspace has focus',
+	'shortcut-zoom':
+		'Zoom in and out while the workspace has focus, towards the pointer when it is over the image and towards the center of the view otherwise',
 	'shortcut-zoom-fit':
 		'Fit the image to the window while the workspace has focus',
 	size: 'Size',

@@ -20,6 +20,8 @@ interface Props {
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
 	onSelectOverlay: (id: string | null) => void;
+	onWorkspacePointerLeave?: () => void;
+	onWorkspacePointerMove?: (event: React.PointerEvent) => void;
 	onWorkspaceScroll: () => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomFit: () => void;
@@ -42,6 +44,8 @@ export function Workspace({
 	onAnnounce,
 	onCenterCrop,
 	onSelectOverlay,
+	onWorkspacePointerLeave,
+	onWorkspacePointerMove,
 	onWorkspaceScroll,
 	onZoom,
 	onZoomFit,
@@ -89,6 +93,8 @@ export function Workspace({
 					onSelectOverlay(null);
 				}
 			}}
+			onPointerLeave={onWorkspacePointerLeave}
+			onPointerMove={onWorkspacePointerMove}
 			onScroll={onWorkspaceScroll}
 			ref={workspaceRef}
 			role="region"

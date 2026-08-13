@@ -105,7 +105,7 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `Tab` / `Shift+Tab` | Move between all controls, including the crop area, each of its 8 handles, and every annotation |
 | `Arrow keys` | Move the focused crop control or annotation by 1 pixel |
 | `Shift + Arrow keys` | Move by 10 pixels |
-| `+` / `-` | Zoom in/out while the workspace has focus |
+| `+` / `-` | Zoom in/out while the workspace has focus, anchored to the pointer when it is over the image and to the center of the view otherwise |
 | `Ctrl/Cmd + Z` | Undo (announced with the operation name) |
 | `Ctrl/Cmd + Shift + Z` | Redo |
 | `Delete` | Remove the focused annotation or layer row |

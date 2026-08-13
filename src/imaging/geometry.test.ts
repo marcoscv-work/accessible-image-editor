@@ -4,7 +4,7 @@
  */
 
 import {initialEditState} from '../state/editorReducer';
-import {coverScale, imageTransform} from './geometry';
+import {anchoredScroll, coverScale, imageTransform} from './geometry';
 
 describe('coverScale', () => {
 	it('is neutral without an angle', () => {
@@ -42,5 +42,62 @@ describe('imageTransform', () => {
 		expect(transform).toContain('rotate(8');
 		expect(transform).toContain('rotate(90)');
 		expect(transform).toContain('scale(');
+	});
+});
+
+describe('anchoredScroll', () => {
+	const padding = 48;
+
+	it('keeps the point under the anchor in place when zooming in', () => {
+		// The point 100,50 of the image sits under the anchor at 1x.
+
+		const scroll = anchoredScroll({
+			anchor: {x: 124, y: 74},
+			next: 2,
+			padding,
+			scroll: {left: 0, top: 0},
+			zoom: 1,
+		});
+
+		// At 2x that same point is twice as far into the stage, so the
+		// scroll has to make up the difference.
+
+		expect(scroll.left).toBe(24 + 200 - 124);
+		expect(scroll.top).toBe(24 + 100 - 74);
+	});
+
+	it('is the inverse of itself when zooming back out', () => {
+		const anchor = {x: 310, y: 180};
+		const first = anchoredScroll({
+			anchor,
+			next: 2,
+			padding,
+			scroll: {left: 40, top: 20},
+			zoom: 1,
+		});
+
+		const back = anchoredScroll({
+			anchor,
+			next: 1,
+			padding,
+			scroll: first,
+			zoom: 2,
+		});
+
+		expect(back.left).toBeCloseTo(40);
+		expect(back.top).toBeCloseTo(20);
+	});
+
+	it('leaves the scroll alone when the zoom does not change', () => {
+		const scroll = anchoredScroll({
+			anchor: {x: 200, y: 120},
+			next: 1.5,
+			padding,
+			scroll: {left: 90, top: 60},
+			zoom: 1.5,
+		});
+
+		expect(scroll.left).toBeCloseTo(90);
+		expect(scroll.top).toBeCloseTo(60);
 	});
 });
