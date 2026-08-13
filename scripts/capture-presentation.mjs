@@ -104,8 +104,42 @@ async function panelRegion(page, selector, padding = 16) {
 	};
 }
 
+/**
+ * Scrolls the sidebar so a panel has room under it: without this the last
+ * panel sits flush against the sidebar's bottom edge, and the padding the
+ * clip asks for is exactly what gets clamped away.
+ */
+async function revealPanel(page, selector, padding = 16) {
+	await page.locator(selector).scrollIntoViewIfNeeded();
+
+	await page.evaluate(
+		({padding, selector}) => {
+			const sidebar = document.querySelector('.editor-sidebar');
+			const panel = document.querySelector(selector);
+
+			const overflow =
+				panel.getBoundingClientRect().bottom +
+				padding -
+				sidebar.getBoundingClientRect().bottom;
+
+			if (overflow > 0) {
+				sidebar.scrollTop += overflow;
+			}
+		},
+		{padding, selector}
+	);
+
+	await page.waitForTimeout(400);
+}
+
 async function shot(page, name, options = {}) {
 	const jpeg = name.endsWith('.jpg');
+
+	// The pointer rests wherever the last click left it, which paints a
+	// hover state into the capture. Park it in the corner first.
+
+	await page.mouse.move(0, 0);
+	await page.waitForTimeout(150);
 
 	await page.screenshot({
 		path: path.join(SHOTS, name),
@@ -276,10 +310,7 @@ async function dragLast(page, dx, dy) {
 		'Annotate'
 	);
 
-	await page
-		.locator('.editor-panel:has(#layers-panel-title)')
-		.scrollIntoViewIfNeeded();
-	await page.waitForTimeout(400);
+	await revealPanel(page, '.editor-panel:has(#layers-panel-title)');
 
 	await shot(page, 'layers.png', {
 		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
@@ -344,8 +375,7 @@ async function dragLast(page, dx, dy) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments');
 
-	await page.locator('.editor-filter-grid').scrollIntoViewIfNeeded();
-	await page.waitForTimeout(400);
+	await revealPanel(page, '.editor-panel:has(#filters-panel-title)');
 
 	await shot(page, 'mobile-filters.png', {
 		clip: await panelRegion(page, '.editor-panel:has(#filters-panel-title)'),
@@ -353,8 +383,7 @@ async function dragLast(page, dx, dy) {
 
 	await collapse(page, 'Filters');
 
-	await page.locator('.editor-sticker-picker').scrollIntoViewIfNeeded();
-	await page.waitForTimeout(400);
+	await revealPanel(page, '.editor-panel:has(#annotate-panel-title)');
 
 	await shot(page, 'mobile-stickers.png', {
 		clip: await panelRegion(
