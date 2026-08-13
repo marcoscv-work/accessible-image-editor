@@ -79,3 +79,34 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 
 	expect(results.violations).toEqual([]);
 });
+
+test('the actions keep the trailing edge when the bar wraps', async ({
+	page,
+}) => {
+	await page.goto('/');
+
+	await page.getByRole('button', {name: 'Edit sample image'}).click();
+	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
+
+	// Narrow enough that Cancel and Save wrap onto a line of their own,
+	// which is where space-between used to strand them on the left.
+
+	for (const width of [320, 360, 400]) {
+		await page.setViewportSize({height: 820, width});
+
+		const offset = await page
+			.locator('.editor-bottom-bar')
+			.evaluate((bar) => {
+				const save = bar.querySelector('.btn-primary');
+
+				return Math.round(
+					bar.getBoundingClientRect().right -
+						save.getBoundingClientRect().right
+				);
+			});
+
+		// Only the bar's own padding separates Save from the trailing edge.
+
+		expect(offset).toBeLessThanOrEqual(16);
+	}
+});

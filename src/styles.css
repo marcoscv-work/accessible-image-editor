@@ -723,6 +723,21 @@
 		display: inline-flex;
 		flex: 0 0 auto;
 	}
+
+	/*
+	 * The action bar wraps on a narrow screen, so the groups are laid out
+	 * explicitly: the actions keep the trailing edge, which is where the
+	 * primary button is expected to be.
+	 */
+
+	.editor-bottom-bar {
+		justify-content: flex-start;
+	}
+
+	.editor-bar-group:last-child {
+		flex: 1;
+		justify-content: flex-end;
+	}
 }
 
 /* Reduced motion */
