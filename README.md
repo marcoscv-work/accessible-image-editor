@@ -142,4 +142,3 @@ The bundled sample image (`src/assets/sample.jpg`) is an [Unsplash](https://unsp
 - Background removal.
 - EXIF orientation/metadata preservation and color management (ICC).
 - HEIC input.
-- NVDA/JAWS passes (a VoiceOver script is prepared in [VOICEOVER.md](VOICEOVER.md); all are pending human runs).

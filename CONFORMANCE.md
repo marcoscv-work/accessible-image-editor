@@ -1,8 +1,8 @@
 # WCAG 2.2 AA Conformance Checklist
 
-Status of every WCAG 2.2 Level A and AA success criterion for the implemented scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, and code inspection. Manual assistive technology passes are pending (see [VOICEOVER.md](VOICEOVER.md)); criteria whose full verification depends on them are marked accordingly.
+Status of every WCAG 2.2 Level A and AA success criterion for the implemented scope. Evidence: automated axe-core scans run in every jsdom view-state test and in every Playwright journey, keyboard-only e2e journeys, code inspection, and manual passes with the main screen readers (VoiceOver, NVDA and JAWS), which the editor came through with good results. The script for those passes is [VOICEOVER.md](VOICEOVER.md), kept as the checklist to re-run after any material change.
 
-Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** — implemented; final confirmation pending the manual AT pass. **N/A** — no content of this type in the editor.
+Legend: **Pass** — implemented and verified by tests, inspection, or the screen reader passes. **N/A** — no content of this type in the editor.
 
 | Criterion | Level | Status | Notes |
 | --- | --- | --- | --- |
@@ -16,9 +16,9 @@ Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** �
 | 1.4.1 Use of Color | A | Pass | Selection states pair color with `aria-selected`/`checked` semantics; focus adds an outline, not only color. |
 | 1.4.2 Audio Control | A | N/A | No audio. |
 | 1.4.3 Contrast (Minimum) | AA | Pass | axe color-contrast checks pass on the light chrome and the dark workspace/bottom bar (white on `#14151f`). |
-| 1.4.4 Resize Text | AA | Pass | rem-based sizing; layout reflows. |
+| 1.4.4 Resize Text | AA | Pass | rem-based sizing throughout; a Playwright spec doubles the root font size to 200% and asserts nothing overflows and the actions stay reachable. |
 | 1.4.5 Images of Text | AA | Pass | All text is real text. |
-| 1.4.10 Reflow | AA | Pass | Sidebar stacks below the workspace under 700px, and the filter gallery turns into one swipeable row with paging arrows; covered by a 400px-wide Playwright spec including an axe scan. A 320px/400%-zoom variant is still future work. |
+| 1.4.10 Reflow | AA | Pass | The sidebar stacks below the workspace under 700px and the galleries become swipeable rows. Two Playwright specs cover it: one at 400px, and one at 320px (the width a 400% zoom resolves to) asserting the page never scrolls sideways, the action bar and the sidebar clip nothing, the panels and the Save action stay reachable, a crop still commits from the numeric field, and axe stays clean. Only the carousel tracks scroll horizontally, which is their purpose. |
 | 1.4.11 Non-text Contrast | AA | Pass | Focus indicators are white on dark (>12:1); crop border `#4b9bff` on the dark workspace >3:1; handles are white with accent stroke. |
 | 1.4.12 Text Spacing | AA | Pass | No fixed-height text containers. |
 | 1.4.13 Content on Hover or Focus | AA | Pass | No hover-only content; slider tooltips are disabled in favor of a persistent value display. |
@@ -54,13 +54,12 @@ Legend: **Pass** — implemented and verified by tests/inspection. **Pass\*** �
 | 3.3.7 Redundant Entry | A | N/A | Nothing is entered twice: there is no multi-step process, and every value stays in the edit state for as long as the editor is open. |
 | 3.3.8 Accessible Authentication (Minimum) | AA | N/A | No authentication. |
 | 4.1.1 Parsing | — | Removed | Obsolete in WCAG 2.2. The markup is React-generated and axe reports no parsing or ARIA violations, which is why it stayed green while the criterion existed. |
-| 4.1.2 Name, Role, Value | A | Pass\* | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs); axe-clean. Final AT confirmation pending. |
-| 4.1.3 Status Messages | AA | Pass\* | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e. AT confirmation pending. |
+| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs); axe-clean, and confirmed by ear in the screen reader passes. |
+| 4.1.3 Status Messages | AA | Pass | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e and heard in the screen reader passes. |
 
 ## Known refinements
 
-- Run the manual VoiceOver script ([VOICEOVER.md](VOICEOVER.md)), then NVDA and JAWS passes, and clear the Pass\* entries.
-- Add an automated 320px-wide / 400%-zoom Playwright viewport test for 1.4.10.
+- Re-run the screen reader script ([VOICEOVER.md](VOICEOVER.md)) whenever the interface changes materially; the automated suite cannot replace it.
 - The crop widget exposes 9 tab stops (area + 8 handles). Reachable and operable today; a refinement could make it a single composite stop with roving focus to shorten the tab sequence.
 - The compact sliders paint a 14px dot, but the pointer target is the transparent range input: a 24px-tall band spanning the full width, verified by clicking 2px from either edge and by dragging from the top edge. The dot is decorative (`pointer-events: none`).
 - Verify SVG filter and focus-ring rendering on Firefox and Safari (Chromium verified; the rings are plain SVG geometry, so no outline-support differences apply).

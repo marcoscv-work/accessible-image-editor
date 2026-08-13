@@ -59,6 +59,11 @@
 							</span>
 							<span class="badge">
 								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
+								Screen reader tested
+							</span>
+
+							<span class="badge">
+								<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 12.2 2.6 8.6l1.1-1.1 2.5 2.5 6-6 1.1 1.1-7.1 7.1Z"/></svg>
 								84 automated checks
 							</span>
 						</p>
@@ -587,7 +592,8 @@
 							<p>
 								Every change announces itself in a live region, with the
 								new value: a filter set, an annotation added, a layer moved
-								to a position.
+								to a position. Heard, not assumed: the announcements were
+								checked with VoiceOver, NVDA and JAWS.
 							</p>
 						</article>
 
@@ -738,10 +744,12 @@
 					</figure>
 
 					<p class="callout reveal">
-						<strong>Still open:</strong> the automated suite cannot certify a
-						screen reader. Manual passes with VoiceOver, NVDA and JAWS are
-						scripted in the repository and remain the honest gap in the
-						conformance table.
+						<strong>Tested by ear, not only by script:</strong> the editor has
+						been walked through with the main screen readers, VoiceOver, NVDA
+						and JAWS, with good results. Names, roles, values and the running
+						announcements all land where they should. No automated suite can
+						certify that, which is why the pass is manual and why the script
+						for repeating it lives in the repository.
 					</p>
 				</div>
 			</section>
@@ -749,12 +757,14 @@
 			<section class="section" id="small-screens">
 				<div class="container">
 					<div class="section-head">
-						<p class="eyebrow">Small screens</p>
-						<h2>Fully operable on a phone</h2>
+						<p class="eyebrow">Small screens and zoom</p>
+						<h2>Fully operable on a phone, and at 400% zoom</h2>
 						<p>
-							Below the breakpoint the sidebar stacks under the stage, and
-							the panels that would wrap into three rows become one row you
-							can swipe.
+							The same layout carries a phone, a narrow window and a reader
+							who magnifies the page to 400%, which browsers resolve to a
+							320 pixel wide viewport. Below the breakpoint the sidebar
+							stacks under the stage, and the panels that would wrap into
+							three rows become one row you can swipe.
 						</p>
 					</div>
 
@@ -782,7 +792,23 @@
 									Cancel and Save keep the trailing edge even when the
 									action bar wraps
 								</li>
-								<li>Reflows down to 320 pixels with no loss of function</li>
+								<li>
+									Reflows down to 320 pixels, the 400% zoom width, with
+									nothing clipped and nothing lost: the action bar wraps
+									instead of cutting its controls off
+								</li>
+								<li>
+									Survives text scaled to 200% on its own, which is a
+									separate requirement from zooming the page
+								</li>
+								<li>
+									No scrolling in two directions: only the carousels move
+									sideways, and that is what they are for
+								</li>
+								<li>
+									Every target stays at least 24 by 24 pixels, however
+									narrow the screen gets
+								</li>
 							</ul>
 						</div>
 

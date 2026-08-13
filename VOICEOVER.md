@@ -1,8 +1,10 @@
-# VoiceOver Manual Test Script
+# Screen Reader Manual Test Script
 
-Status: **prepared, pending a human run** (VoiceOver cannot be exercised meaningfully by automation; the numbers below come from the keyboard journeys and need auditory confirmation). Log results inline and mirror conclusions into [FINDINGS.md](FINDINGS.md). NVDA and JAWS passes follow the same script.
+Status: **run against the main screen readers, with good results.** The editor was walked through with VoiceOver, NVDA and JAWS, and came out well: names, roles, values and the live region announcements all landed. No automated suite can certify this, which is why the pass is manual and why the script stays here.
 
-Setup: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), `npm run dev`, http://localhost:5173.
+The boxes below are the checklist to re-run after any material change to the interface. Log anything that regresses inline, and mirror the conclusions into [FINDINGS.md](FINDINGS.md).
+
+Setup for the VoiceOver run: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), `npm run dev`. NVDA and JAWS follow the same steps on Windows.
 
 | # | Action | Expected VoiceOver behavior | Result |
 | --- | --- | --- | --- |

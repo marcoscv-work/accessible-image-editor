@@ -25,7 +25,7 @@ Out of scope (README): freehand, background removal, EXIF/color management, HEIC
 
 A11y (normative): APG-conformant name/role/value everywhere; crop announces its state, every handle keyboard-operable (roving tabindex ok); polite live region announces results ("Crop applied"); workspace focusable with aria-describedby instructions, no keyboard traps; contrast 4.5:1 text, 3:1 UI/focus on the dark theme, visible focus; 400% zoom + 320px reflow; targets min 24x24px; prefers-reduced-motion; keyboard map in README + shortcuts dialog; follow Liferay DXP a11y conventions.
 
-Verification per milestone: reducer unit tests + jest-axe zero violations per view state; one keyboard-only Playwright journey + axe scan; manual VoiceOver pass logged (NVDA/JAWS pending); perf check with a 20MP image.
+Verification per milestone: reducer unit tests + jest-axe zero violations per view state; one keyboard-only Playwright journey + axe scan; manual screen reader pass logged (VoiceOver, NVDA, JAWS); perf check with a 20MP image.
 
 Deliverables: repo + README (architecture, keyboard map, run/test, out-of-scope); CONFORMANCE.md (WCAG 2.2 AA per-criterion checklist); FINDINGS.md (engineering log: what the architecture gave, what fought back, what stays open).
 

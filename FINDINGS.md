@@ -50,7 +50,7 @@ The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original fi
 
 ## Open items
 
-- **Manual AT passes are pending.** axe + APG patterns + keyboard journeys are strong evidence, not proof; the VoiceOver script ([VOICEOVER.md](VOICEOVER.md)) needs a human run, then NVDA/JAWS. This is the main open risk to the "100%" claim.
+- **Screen reader passes are done, and stay a manual duty.** The editor was walked through with VoiceOver, NVDA and JAWS with good results, which is what turns axe, the APG patterns and the keyboard journeys from strong evidence into a verified claim. No automation replaces that pass, so the script ([VOICEOVER.md](VOICEOVER.md)) has to be re-run whenever the interface changes materially.
 - **Convolution-based adjustments** (clarity, sharpness) still need `feConvolveMatrix` validation; curves are proven, convolutions are not yet.
 - **Cross-browser**: Chromium is verified; Firefox/Safari need the SVG focus-outline and filter-fidelity checks.
 - **Text metrics**: overlay hit boxes compute text width from font metrics; measuring via `getBBox()` would be exact.
