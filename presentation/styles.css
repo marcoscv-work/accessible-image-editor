@@ -568,14 +568,27 @@ kbd {
  * beside them instead of looking blown up.
  */
 
-.shot-sm {
-	margin: 0 auto;
-	max-width: 30rem;
+/*
+ * Panel captures are narrow strips of UI taken at twice the pixel density,
+ * so they are shown at life size (never upscaled, which is what made their
+ * type look bigger than the prose beside them) on a tinted backdrop that
+ * gives the strip somewhere to sit.
+ */
+
+.shot-frame {
+	align-items: center;
+	background: linear-gradient(180deg, var(--gray-200), var(--white));
+	border: 1px solid var(--gray-300);
+	border-radius: var(--radius-lg);
+	display: flex;
+	justify-content: center;
+	padding: clamp(1rem, 3vw, 2rem);
 }
 
-.shot-xs {
-	margin: 0 auto;
-	max-width: 23rem;
+.shot-pair {
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
 }
 
 .figure figcaption {

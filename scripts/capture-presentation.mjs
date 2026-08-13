@@ -79,6 +79,28 @@ async function focusedRegion(page, padding = 0) {
 	};
 }
 
+/**
+ * A sidebar panel, clipped to what is actually visible: panels can be taller
+ * than the sidebar, and their bounding box then runs under the action bar and
+ * past the bottom of the modal.
+ */
+async function panelRegion(page, selector) {
+	const panel = await region(page, selector);
+	const sidebar = await region(page, '.editor-sidebar');
+
+	const top = Math.max(panel.y, sidebar.y);
+	const bottom = Math.min(panel.y + panel.height, sidebar.y + sidebar.height);
+	const left = Math.max(panel.x, sidebar.x);
+	const right = Math.min(panel.x + panel.width, sidebar.x + sidebar.width);
+
+	return {
+		height: Math.max(0, bottom - top),
+		width: Math.max(0, right - left),
+		x: left,
+		y: top,
+	};
+}
+
 async function shot(page, name, options = {}) {
 	const jpeg = name.endsWith('.jpg');
 
@@ -109,7 +131,7 @@ async function collapse(page, ...titles) {
 	// 2. Crop and rotation: ratios, numeric box, straighten.
 
 	await shot(page, 'crop.png', {
-		clip: await region(page, '.editor-panel:has(#crop-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has(#crop-panel-title)'),
 	});
 
 	// 3. Adjustments: the five sliders and Reset all.
@@ -117,7 +139,7 @@ async function collapse(page, ...titles) {
 	await collapse(page, 'Crop and rotation');
 
 	await shot(page, 'adjust.png', {
-		clip: await region(page, '.editor-panel:has(#adjust-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has(#adjust-panel-title)'),
 	});
 
 	await page.close();
@@ -140,10 +162,13 @@ async function collapse(page, ...titles) {
 	await page.getByText('Vintage', {exact: true}).click();
 	await page.waitForTimeout(600);
 
-	const panel = await region(page, '.editor-panel:has(#filters-panel-title)');
+	const panel = await panelRegion(
+		page,
+		'.editor-panel:has(#filters-panel-title)'
+	);
 
 	await shot(page, 'filters.png', {
-		clip: {...panel, height: Math.min(panel.height, 470)},
+		clip: {...panel, height: Math.min(panel.height, 420)},
 	});
 
 	await shot(page, 'stage-filtered.jpg', {
@@ -237,14 +262,24 @@ async function dragLast(page, dx, dy) {
 
 	await shot(page, 'focus.png', {clip: await focusedRegion(page, 40)});
 
-	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
+	// Everything else folded away, so the whole panel (the list and the
+	// properties of the selected layer) fits the sidebar in one piece.
+
+	await collapse(
+		page,
+		'Crop and rotation',
+		'Adjustments',
+		'Filters',
+		'Annotate'
+	);
+
+	await page
+		.locator('.editor-panel:has(#layers-panel-title)')
+		.scrollIntoViewIfNeeded();
+	await page.waitForTimeout(400);
 
 	await shot(page, 'layers.png', {
-		clip: await region(page, '.editor-panel:has(#layers-panel-title)'),
-	});
-
-	await shot(page, 'annotate-panel.png', {
-		clip: await region(page, '.editor-panel:has(#annotate-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
 	});
 
 	await page.close();
@@ -310,7 +345,7 @@ async function dragLast(page, dx, dy) {
 	await page.waitForTimeout(400);
 
 	await shot(page, 'mobile-filters.png', {
-		clip: await region(page, '.editor-panel:has(#filters-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has(#filters-panel-title)'),
 	});
 
 	await collapse(page, 'Filters');
@@ -319,7 +354,10 @@ async function dragLast(page, dx, dy) {
 	await page.waitForTimeout(400);
 
 	await shot(page, 'mobile-stickers.png', {
-		clip: await region(page, '.editor-panel:has(#annotate-panel-title)'),
+		clip: await panelRegion(
+			page,
+			'.editor-panel:has(#annotate-panel-title)'
+		),
 	});
 
 	await page.close();
