@@ -5,7 +5,7 @@
 
 import ClayButton from '@clayui/button';
 import spritemap from '@clayui/css/lib/images/icons/icons.svg';
-import {ClayIconSpriteContext} from '@clayui/icon';
+import ClayIcon, {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useRef, useState} from 'react';
 
@@ -20,6 +20,7 @@ import {LoadedImage, loadImage} from './imaging/loadImage';
 export default function App() {
 	const [image, setImage] = useState<LoadedImage | null>(null);
 	const [loadError, setLoadError] = useState(false);
+	const [dropping, setDropping] = useState(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,6 +45,22 @@ export default function App() {
 		await open(await response.blob(), 'sample.jpg');
 	};
 
+	/**
+	 * Dropping a file is an extra route, never the only one: the button
+	 * beside it opens the same picker for anyone who cannot drag.
+	 */
+	const handleDrop = (event: React.DragEvent) => {
+		event.preventDefault();
+
+		setDropping(false);
+
+		const file = event.dataTransfer.files?.[0];
+
+		if (file) {
+			open(file, file.name);
+		}
+	};
+
 	const close = () => {
 		if (image) {
 			URL.revokeObjectURL(image.previewUrl);
@@ -61,25 +78,56 @@ export default function App() {
 			<ClayTooltipProvider autoAlign delay={200} scope="[title]" />
 
 			<AnnouncerProvider>
-				<main className="landing">
-					<h1>{t('app-title')}</h1>
+				<main
+					className={`landing${dropping ? ' is-dropping' : ''}`}
+					onDragLeave={(event) => {
+						if (event.currentTarget === event.target) {
+							setDropping(false);
+						}
+					}}
+					onDragOver={(event) => {
+						event.preventDefault();
+						setDropping(true);
+					}}
+					onDrop={handleDrop}
+				>
+					<div className="landing-shell">
+						<div className="landing-intro">
+							<p className="landing-eyebrow">
+								{t('landing-tagline')}
+							</p>
 
-					<p className="text-secondary">{t('app-description')}</p>
+							<h1>{t('app-title')}</h1>
 
-					<div className="landing-actions">
-						<ClayButton
-							displayType="primary"
-							onClick={openSample}
-						>
-							{t('open-sample-image')}
-						</ClayButton>
+							<p className="landing-lead">
+								{t('app-description')}
+							</p>
 
-						<ClayButton
-							displayType="secondary"
-							onClick={() => fileInputRef.current?.click()}
-						>
-							{t('open-an-image')}
-						</ClayButton>
+							<div className="landing-open">
+								<div className="landing-actions">
+								<ClayButton
+									displayType="primary"
+									onClick={openSample}
+								>
+									<span className="inline-item inline-item-before">
+										<ClayIcon symbol="picture" />
+									</span>
+
+									{t('open-sample-image')}
+								</ClayButton>
+
+								<ClayButton
+									displayType="secondary"
+									onClick={() =>
+										fileInputRef.current?.click()
+									}
+								>
+									<span className="inline-item inline-item-before">
+										<ClayIcon symbol="upload" />
+									</span>
+
+									{t('open-an-image')}
+								</ClayButton>
 
 						<input
 							accept="image/jpeg,image/png,image/webp"
@@ -93,16 +141,53 @@ export default function App() {
 
 								event.target.value = '';
 							}}
-							ref={fileInputRef}
-							type="file"
-						/>
-					</div>
+									ref={fileInputRef}
+									type="file"
+								/>
+							</div>
 
-					{loadError && (
-						<p className="text-danger" role="alert">
-							{t('load-failed')}
-						</p>
-					)}
+							{/*
+							  * A pointer affordance: it explains and accepts a
+							  * drop, and clicking it opens the same picker as
+							  * the button above, which is the route that does
+							  * not depend on dragging. It is deliberately not a
+							  * second tab stop for the same action.
+							  */}
+							<div
+								className="landing-dropzone"
+								onClick={() => fileInputRef.current?.click()}
+							>
+								<span
+									aria-hidden="true"
+									className="landing-dropzone-icon"
+								>
+									<ClayIcon symbol="download" />
+								</span>
+
+								<p className="landing-dropzone-title">
+									{dropping
+										? t('landing-dropping')
+										: t('landing-drop')}
+								</p>
+
+								<p className="landing-dropzone-hint">
+									{t('landing-drop-anywhere')}
+								</p>
+								</div>
+							</div>
+
+							{loadError && (
+								<p className="text-danger" role="alert">
+									{t('load-failed')}
+								</p>
+							)}
+
+						</div>
+
+						<figure className="landing-preview">
+							<img alt={t('landing-sample-alt')} src={sampleUrl} />
+						</figure>
+					</div>
 				</main>
 
 				{image && (

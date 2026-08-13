@@ -103,6 +103,12 @@ export default {
 	'label-layer-order': 'layer order change',
 	'label-ratio': 'ratio change',
 	'label-rotate': 'rotation',
+	'landing-drop': 'Drop an image here',
+	'landing-drop-anywhere': 'or anywhere on this page',
+	'landing-dropping': 'Drop to open it',
+	'landing-sample-alt':
+		'The bundled sample photograph: the dome of a building at sunset, with a clock and a half moon in a blue sky',
+	'landing-tagline': 'Everything works with the keyboard alone',
 	'layer-moved-down': '{0} moved down',
 	'layer-moved-up': '{0} moved up',
 	'layer-name-description':
