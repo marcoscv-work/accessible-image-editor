@@ -17,6 +17,8 @@ import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 
+const SCHEME_KEY = 'accessible-image-editor-color-scheme';
+
 /**
  * The colour scheme switch, and the only place the demonstration differs
  * from what the portal will do: DXP sets `data-color-scheme` on the
@@ -24,17 +26,20 @@ import {LoadedImage, loadImage} from './imaging/loadImage';
  * the page sets it itself so dark mode can be previewed.
  */
 function ThemeToggle() {
-	// Optional call because jsdom has no matchMedia, and the demo renders
-	// there too.
+	// Portal keeps the choice in the session and defaults to light rather
+	// than to the operating system, so the demonstration remembers it too
+	// and starts the same way. localStorage stands in for the session.
 
-	const [scheme, setScheme] = useState<'dark' | 'light'>(() =>
-		window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
-			? 'dark'
-			: 'light'
-	);
+	const [scheme, setScheme] = useState<'dark' | 'light'>(() => {
+		const stored = window.localStorage?.getItem(SCHEME_KEY);
+
+		return stored === 'dark' ? 'dark' : 'light';
+	});
 
 	useEffect(() => {
 		document.documentElement.dataset.colorScheme = scheme;
+
+		window.localStorage?.setItem(SCHEME_KEY, scheme);
 	}, [scheme]);
 
 	const dark = scheme === 'dark';
