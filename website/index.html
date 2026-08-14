@@ -193,18 +193,19 @@
 							<ul>
 								<li>Free crop with eight handles, movable as a whole</li>
 								<li>
-									Seven ratios: custom, original, 1:1, 4:3, 16:9, 3:4,
-									9:16
-								</li>
-								<li>Numeric X, Y, width and height, with a ratio lock</li>
-								<li>Straighten at any angle, with automatic cover scaling</li>
-								<li>Rotate 90 degrees, and recenter on the crop</li>
-								<li>
-									Zoom in, out, and fit to the window, anchored to the
-									pointer when it is over the image
+									Seven ratios, from original to 9:16, with a
+									proportion lock
 								</li>
 								<li>
-									<kbd>Shift</kbd> keeps proportions,
+									Numeric X, Y, width and height for an exact frame
+								</li>
+								<li>
+									Straighten at any angle with automatic cover scaling,
+									and rotate 90 degrees
+								</li>
+								<li>
+									Zoom and fit, anchored to the pointer;
+									<kbd>Shift</kbd> keeps proportions and
 									<kbd>Alt</kbd> resizes from the centre
 								</li>
 							</ul>
@@ -220,6 +221,10 @@
 								<li>
 									Real slider elements, so arrows, Home, End and Page keys
 									all work
+								</li>
+								<li>
+									Every value is a number in the edit state, never baked
+									into the pixels
 								</li>
 							</ul>
 						</article>
@@ -241,6 +246,10 @@
 								<li>
 									Live thumbnails, painted from a small bitmap prepared at
 									load time
+								</li>
+								<li>
+									The chosen card shows a ring, a bold label and a check
+									badge, never colour alone
 								</li>
 							</ul>
 						</article>
@@ -293,6 +302,10 @@
 								<li>
 									Editing runs on a downscaled preview, so a 20 megapixel
 									photograph stays responsive
+								</li>
+								<li>
+									Cancel leaves the file untouched: until it is saved, the
+									edit exists only as data
 								</li>
 							</ul>
 						</article>
@@ -622,19 +635,13 @@
 						</article>
 
 						<article class="card reveal">
-							<h3>Never colour alone</h3>
+							<h3>Colour and motion are optional</h3>
 							<p>
 								Selection, state and errors are carried by shape, weight
 								and text as well as colour, and the contrast of every pair
-								was checked.
-							</p>
-						</article>
-
-						<article class="card reveal">
-							<h3>Motion is optional</h3>
-							<p>
-								Guides, transitions and this page's own animations all
-								stand down when the system asks for reduced motion.
+								was checked. Guides, transitions and this page's own
+								animations all stand down when the system asks for reduced
+								motion.
 							</p>
 						</article>
 					</div>
@@ -736,9 +743,9 @@
 						<img
 							class="window"
 							src="screenshots/shortcuts.png"
-									width="1200"
-									height="916"
-									style="margin: 0 auto; max-width: min(100%, 600px)"
+									width="1192"
+									height="1004"
+									style="margin: 0 auto; max-width: min(100%, 596px)"
 							alt="The editor's own keyboard shortcuts dialog, listing the arrow keys, Shift and Alt modifiers, zoom keys, undo, redo and Escape."
 						/>
 						<figcaption style="text-align: center">

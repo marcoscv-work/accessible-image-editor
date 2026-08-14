@@ -358,19 +358,25 @@ async function dragLast(page, dx, dy) {
 	await page.getByRole('button', {name: 'Keyboard shortcuts'}).click();
 	await page.waitForTimeout(900);
 
-	const dialogs = page.locator('.modal-dialog');
+	// The dialog box carries margins, and clipping to it left a strip of the
+	// dark workspace down each edge. The card itself is the content.
+
+	const box = await page
+		.locator('.modal-dialog')
+		.last()
+		.locator('.modal-content')
+		.boundingBox();
+
+	// Inset by a pixel: the card's own rounded corners let whatever is
+	// behind them show, and the editor is right there.
 
 	await shot(page, 'shortcuts.png', {
-		clip: await (async () => {
-			const box = await dialogs.last().boundingBox();
-
-			return {
-				height: box.height,
-				width: box.width,
-				x: box.x,
-				y: box.y,
-			};
-		})(),
+		clip: {
+			height: box.height - 4,
+			width: box.width - 4,
+			x: box.x + 2,
+			y: box.y + 2,
+		},
 	});
 
 	await page.close();
