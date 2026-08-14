@@ -7,16 +7,25 @@
 	--editor-accent: #4b9bff;
 
 	/*
-	 * The few surfaces the editor paints itself, as variables rather than
-	 * literals: everything else is standard Clay chrome and follows the
-	 * theme's colour scheme on its own. A host that switches to dark only
-	 * has to redefine these.
+	 * The few surfaces the editor paints itself. Everything else is standard
+	 * Clay chrome and follows the theme's colour scheme on its own, and
+	 * these read the theme's tokens so they do the same.
+	 *
+	 * The chain is deliberate. Inside `.cadmin` the admin tokens apply.
+	 * Clay mounts dialogs through a portal that can land outside that
+	 * element, and the unprefixed tokens are declared on `:root`, so they
+	 * reach any node in the document. The literal is what a standalone page
+	 * with no theme falls back to, and it is the value each token resolves
+	 * to in a light scheme, so nothing moves today.
 	 */
 
-	--editor-border: #e7e7ed;
-	--editor-surface: #fff;
-	--editor-surface-subtle: #f7f8f9;
-	--editor-text-muted: #6b6c7e;
+	--editor-border: var(--cadmin-gray-300, var(--gray-300, #e7e7ed));
+	--editor-surface: var(--cadmin-body-bg, var(--body-bg, #fff));
+	--editor-surface-subtle: var(
+		--cadmin-gray-100,
+		var(--gray-100, #f7f8f9)
+	);
+	--editor-text-muted: var(--cadmin-secondary, var(--secondary, #6b6c7e));
 
 	/*
 	 * The stage stays dark in either scheme: a neutral surround is what

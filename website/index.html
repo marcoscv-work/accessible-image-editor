@@ -578,9 +578,10 @@
 						<h2>It takes its colours from the theme</h2>
 						<p>
 							The editor does not own a palette. Its chrome is standard
-							Clay, and the few surfaces it paints itself are variables, so
-							a theme that switches to a dark colour scheme inverts the
-							whole dialog without the component knowing anything about it.
+							Clay, and the few surfaces it paints itself read the theme's
+							own tokens, so a theme that switches to a dark colour scheme
+							inverts the whole dialog without the component knowing
+							anything about it.
 						</p>
 					</div>
 
@@ -615,6 +616,11 @@
 							Nothing in the editor decides the scheme: it reads the
 							<code>data-color-scheme</code> the theme already sets, the
 							same attribute Liferay's own switch writes
+						</li>
+						<li>
+							Its surfaces resolve through the theme's tokens, admin scope
+							first and page scope after, with the light value as the
+							fallback for a page that has no theme at all
 						</li>
 						<li>
 							The stage stays dark in both, on purpose: a neutral surround
