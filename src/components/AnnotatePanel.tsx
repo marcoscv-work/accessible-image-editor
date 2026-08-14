@@ -452,6 +452,7 @@ export function AnnotatePanel({
 					<ClayButton
 						{...rovingProps(shownTools.length + stickerIndex)}
 						aria-label={t(`add-sticker-${sticker}`)}
+						className="btn-monospaced"
 						displayType="secondary"
 						key={sticker}
 						onClick={() => addSticker(sticker)}
