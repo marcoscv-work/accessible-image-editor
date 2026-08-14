@@ -160,8 +160,9 @@ export function CropPanel({
 				<ClayButtonWithIcon
 					aria-label={t('aspect-lock')}
 					aria-pressed={aspectLocked}
+					borderless
 					className="editor-aspect-lock"
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={() => {
 						setAspectLocked((locked) => {
 							onAnnounce(
@@ -195,8 +196,9 @@ export function CropPanel({
 					{angle !== 0 && (
 						<ClayButtonWithIcon
 							aria-label={t('reset-angle')}
+							borderless
 							className="editor-slider-reset"
-							displayType="unstyled"
+							displayType="secondary"
 							onClick={() => {
 								dispatch({angle: 0, type: 'set-angle'});
 								onAnnounce(t('angle-set', 0));

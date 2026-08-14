@@ -124,6 +124,24 @@ html[data-color-scheme='dark'] .btn-unstyled {
 	color: var(--demo-text);
 }
 
+/*
+ * A borderless secondary button hovers towards the dark ink of the light
+ * palette, which on a dark surface is text you cannot read. Portal's dark
+ * token map covers this; the light-only build does not.
+ */
+
+html[data-color-scheme='dark'] .btn-outline-borderless.btn-outline-secondary {
+	color: var(--editor-text-muted);
+}
+
+html[data-color-scheme='dark']
+	.btn-outline-borderless.btn-outline-secondary:hover,
+html[data-color-scheme='dark']
+	.btn-outline-borderless.btn-outline-secondary:focus {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: var(--demo-text);
+}
+
 html[data-color-scheme='dark'] .clay-range-track {
 	background: var(--editor-border);
 }

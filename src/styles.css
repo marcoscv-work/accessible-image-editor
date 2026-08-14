@@ -694,15 +694,6 @@
 	min-width: 24px;
 }
 
-.editor-bar-button:hover,
-.editor-cancel-button:hover {
-	color: #d6e3ff;
-}
-
-.editor-bar-button:disabled {
-	color: #9496ab;
-}
-
 .editor-zoom-level {
 	min-width: 3.5rem;
 	text-align: center;

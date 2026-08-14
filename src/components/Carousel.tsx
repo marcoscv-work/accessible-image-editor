@@ -107,7 +107,8 @@ export function Carousel({
 			{scroll.overflows && (
 				<ClayButtonWithIcon
 					aria-hidden="true"
-					className="border-0 editor-carousel-arrow"
+					borderless
+					className="editor-carousel-arrow"
 					disabled={!scroll.left}
 				displayType="secondary"
 					onClick={() => scrollByPage(-1)}
@@ -129,7 +130,8 @@ export function Carousel({
 			{scroll.overflows && (
 				<ClayButtonWithIcon
 					aria-hidden="true"
-					className="border-0 editor-carousel-arrow"
+					borderless
+					className="editor-carousel-arrow"
 					disabled={!scroll.right}
 					displayType="secondary"
 					onClick={() => scrollByPage(1)}

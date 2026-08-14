@@ -626,8 +626,9 @@ export function LayersPanel({
 								<ClayButtonWithIcon
 									{...rovingProps(row, 1)}
 									aria-label={t('move-layer-up', label)}
+									borderless
 									disabled={index === 0}
-									displayType="unstyled"
+							displayType="secondary"
 									onClick={() => reorder(overlay, -1, row)}
 									size="xs"
 									symbol="angle-up"
@@ -637,8 +638,9 @@ export function LayersPanel({
 								<ClayButtonWithIcon
 									{...rovingProps(row, 2)}
 									aria-label={t('move-layer-down', label)}
+									borderless
 									disabled={index === items.length - 1}
-									displayType="unstyled"
+							displayType="secondary"
 									onClick={() => reorder(overlay, 1, row)}
 									size="xs"
 									symbol="angle-down"
@@ -648,7 +650,8 @@ export function LayersPanel({
 								<ClayButtonWithIcon
 									{...rovingProps(row, 3)}
 									aria-label={t('duplicate-layer', label)}
-									displayType="unstyled"
+									borderless
+							displayType="secondary"
 									onClick={() => duplicate(overlay)}
 									size="xs"
 									symbol="copy"
@@ -658,7 +661,8 @@ export function LayersPanel({
 								<ClayButtonWithIcon
 									{...rovingProps(row, 4)}
 									aria-label={t('delete-layer', label)}
-									displayType="unstyled"
+									borderless
+							displayType="secondary"
 									onClick={() => remove(overlay)}
 									size="xs"
 									symbol="trash"

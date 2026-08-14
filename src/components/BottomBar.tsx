@@ -109,8 +109,9 @@ export function BottomBar({
 					<>
 						<ClayButtonWithIcon
 							aria-label={t('rotate-90')}
+							borderless
 							className="editor-bar-button"
-							displayType="unstyled"
+							displayType="secondary"
 							onClick={() => {
 								dispatch({type: 'rotate-90'});
 								onAnnounce(t('rotated-90'));
@@ -126,8 +127,9 @@ export function BottomBar({
 						  */}
 						<ClayButton
 							aria-label={t('flip-horizontal')}
+							borderless
 							className="btn-monospaced editor-bar-button"
-							displayType="unstyled"
+							displayType="secondary"
 							onClick={() => {
 								dispatch({type: 'flip-horizontal'});
 								onAnnounce(t('flipped-horizontal'));
@@ -163,9 +165,10 @@ export function BottomBar({
 
 				<ClayButtonWithIcon
 					aria-label={t('undo')}
+					borderless
 					className="editor-bar-button"
 					disabled={!canUndo}
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={onUndo}
 					symbol="undo"
 					title={t('undo')}
@@ -173,9 +176,10 @@ export function BottomBar({
 
 				<ClayButtonWithIcon
 					aria-label={t('redo')}
+					borderless
 					className="editor-bar-button"
 					disabled={!canRedo}
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={onRedo}
 					symbol="redo"
 					title={t('redo')}
@@ -183,8 +187,9 @@ export function BottomBar({
 
 				<ClayButtonWithIcon
 					aria-label={t('keyboard-shortcuts')}
+					borderless
 					className="editor-bar-button"
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={onShowShortcuts}
 					symbol="question-circle"
 					title={t('keyboard-shortcuts')}
@@ -213,8 +218,9 @@ export function BottomBar({
 				<div className="editor-bar-group">
 					<ClayButtonWithIcon
 						aria-label={t('zoom-out')}
+					borderless
 					className="editor-bar-button"
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={() => onZoom(-1)}
 					symbol="minus-circle"
 					title={t('zoom-out')}
@@ -226,8 +232,9 @@ export function BottomBar({
 
 				<ClayButtonWithIcon
 					aria-label={t('zoom-in')}
+					borderless
 					className="editor-bar-button"
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={() => onZoom(1)}
 					symbol="plus-circle-full"
 					title={t('zoom-in')}
@@ -235,8 +242,9 @@ export function BottomBar({
 
 				<ClayButtonWithIcon
 					aria-label={t('zoom-fit')}
+					borderless
 					className="editor-bar-button"
-					displayType="unstyled"
+							displayType="secondary"
 					onClick={onZoomFit}
 						symbol="autosize"
 						title={t('zoom-fit')}

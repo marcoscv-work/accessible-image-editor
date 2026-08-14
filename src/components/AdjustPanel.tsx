@@ -82,9 +82,10 @@ export function AdjustPanel({
 
 							<ClayButtonWithIcon
 								aria-label={t('reset-adjustment', label)}
+								borderless
 								className="editor-slider-reset"
 								disabled={value === 0}
-								displayType="unstyled"
+							displayType="secondary"
 								onClick={() => {
 									dispatch({
 										key,
