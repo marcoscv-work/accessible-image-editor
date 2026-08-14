@@ -4,47 +4,54 @@
  */
 
 /*
- * Dark scheme for the demonstration only, and imported by the demo entry
- * point rather than by the editor.
+ * Dark scheme for the demonstration only, imported by the demo entry point
+ * and never by the editor.
  *
- * Portal compiles Clay's own dark token maps, so in DXP the scheme comes
- * from the theme and nothing here is needed. The published @clayui/css
- * package ships only the light build, so previewing dark in this standalone
- * page means restating the surfaces by hand. Treat this file as a preview
- * harness: it is not part of the component and must never be.
+ * Two different things happen below. The editor's own surfaces are
+ * variables, so redefining that handful turns the whole component dark:
+ * that is what a theme does, and it is the part that carries over to DXP.
+ * The rest restates Clay's own chrome, and only because the published
+ * @clayui/css package ships a light-only build with no custom properties to
+ * override. Portal compiles Clay's dark token maps, so that second part is
+ * not needed there.
  */
 
-[data-color-scheme='dark'] {
+html[data-color-scheme='dark'] {
 	--demo-accent: #4b9bff;
-	--demo-border: #3b3b49;
 	--demo-surface: #1c1c24;
 	--demo-surface-raised: #24242f;
 	--demo-text: #f1f2f5;
-	--demo-text-muted: #a7a9bc;
+
+	/* What a theme sets: the editor follows these on its own. */
+
+	--editor-border: #3b3b49;
+	--editor-surface: #1c1c24;
+	--editor-surface-subtle: #24242f;
+	--editor-text-muted: #a7a9bc;
 }
 
-/* The page itself */
+/* The demonstration page itself */
 
-[data-color-scheme='dark'] body,
-[data-color-scheme='dark'] .landing {
+html[data-color-scheme='dark'] body,
+html[data-color-scheme='dark'] .landing {
 	background: var(--demo-surface);
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .landing h1,
-[data-color-scheme='dark'] .landing-dropzone-title {
+html[data-color-scheme='dark'] .landing h1,
+html[data-color-scheme='dark'] .landing-dropzone-title {
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .landing-lead,
-[data-color-scheme='dark'] .landing-dropzone,
-[data-color-scheme='dark'] .landing-dropzone-hint {
-	color: var(--demo-text-muted);
+html[data-color-scheme='dark'] .landing-lead,
+html[data-color-scheme='dark'] .landing-dropzone,
+html[data-color-scheme='dark'] .landing-dropzone-hint {
+	color: var(--editor-text-muted);
 }
 
-[data-color-scheme='dark'] .landing-dropzone {
+html[data-color-scheme='dark'] .landing-dropzone {
 	background: rgba(255, 255, 255, 0.03);
-	border-color: var(--demo-border);
+	border-color: var(--editor-border);
 }
 
 /*
@@ -52,106 +59,73 @@
  * blank sheet with unreadable text.
  */
 
-[data-color-scheme='dark'] .landing-dropzone:hover {
+html[data-color-scheme='dark'] .landing-dropzone:hover {
 	background: rgba(255, 255, 255, 0.08);
 	border-color: var(--demo-accent);
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .landing-dropzone:hover .landing-dropzone-title {
+html[data-color-scheme='dark'] .landing-dropzone:hover .landing-dropzone-title {
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .landing-dropzone-icon {
+html[data-color-scheme='dark'] .landing-dropzone-icon {
 	background: rgba(75, 155, 255, 0.18);
 	color: var(--demo-accent);
 }
 
-[data-color-scheme='dark'] .landing.is-dropping {
+html[data-color-scheme='dark'] .landing.is-dropping {
 	background-color: #1f2532;
 }
 
-[data-color-scheme='dark'] .landing.is-dropping .landing-dropzone {
+html[data-color-scheme='dark'] .landing.is-dropping .landing-dropzone {
 	background: rgba(75, 155, 255, 0.12);
 	border-color: var(--demo-accent);
 }
 
-[data-color-scheme='dark'] .landing-preview,
-[data-color-scheme='dark'] .landing-eyebrow {
-	border-color: var(--demo-border);
+html[data-color-scheme='dark'] .landing-preview {
+	border-color: var(--editor-border);
 }
 
-/* The dialog chrome */
+/* Clay's own chrome, which a light-only build cannot invert */
 
-[data-color-scheme='dark'] .modal-content,
-[data-color-scheme='dark'] .editor-sidebar {
+html[data-color-scheme='dark'] .modal-content {
 	background: var(--demo-surface);
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .modal-header,
-[data-color-scheme='dark'] .modal-footer,
-[data-color-scheme='dark'] .editor-sidebar,
-[data-color-scheme='dark'] .editor-panel + .editor-panel,
-[data-color-scheme='dark'] .editor-panel .panel-header {
-	border-color: var(--demo-border);
+html[data-color-scheme='dark'] .modal-header,
+html[data-color-scheme='dark'] .modal-footer {
+	border-color: var(--editor-border);
 }
 
-[data-color-scheme='dark'] .modal-title,
-[data-color-scheme='dark'] .editor-panel-title,
-[data-color-scheme='dark'] .editor-zoom-level,
-[data-color-scheme='dark'] .editor-layer-name,
-[data-color-scheme='dark'] label,
-[data-color-scheme='dark'] .modal-header .close {
+html[data-color-scheme='dark'] .editor-panel-title,
+html[data-color-scheme='dark'] .modal-header .close,
+html[data-color-scheme='dark'] .modal-title,
+html[data-color-scheme='dark'] label {
 	color: var(--demo-text);
 }
 
-/* Controls */
-
-[data-color-scheme='dark'] .form-control,
-[data-color-scheme='dark'] .input-group-text,
-[data-color-scheme='dark'] select.form-control {
+html[data-color-scheme='dark'] .form-control,
+html[data-color-scheme='dark'] .input-group-text,
+html[data-color-scheme='dark'] select.form-control {
 	background: var(--demo-surface-raised);
-	border-color: var(--demo-border);
+	border-color: var(--editor-border);
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .btn-secondary {
+html[data-color-scheme='dark'] .btn-secondary {
 	background: transparent;
-	border-color: var(--demo-border);
+	border-color: var(--editor-border);
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .btn-unstyled {
+html[data-color-scheme='dark'] .btn-unstyled {
 	color: var(--demo-text);
 }
 
-[data-color-scheme='dark'] .clay-range-track {
-	background: var(--demo-border);
-}
-
-/* Filter cards, layers, redaction levels */
-
-[data-color-scheme='dark'] .editor-filter-card {
-	border-color: var(--demo-border);
-}
-
-[data-color-scheme='dark'] .editor-filter-name {
-	color: var(--demo-text-muted);
-}
-
-[data-color-scheme='dark'] .editor-filter-input:checked + .editor-filter-label
-	.editor-filter-name {
-	color: var(--demo-accent);
-}
-
-[data-color-scheme='dark'] .editor-layer-list,
-[data-color-scheme='dark'] .editor-layer-row + .editor-layer-row {
-	border-color: var(--demo-border);
-}
-
-[data-color-scheme='dark'] .editor-layer-row:hover {
-	background: var(--demo-surface-raised);
+html[data-color-scheme='dark'] .clay-range-track {
+	background: var(--editor-border);
 }
 
 /* The switch and the row that holds it, both demo chrome */

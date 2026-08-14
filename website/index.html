@@ -30,6 +30,7 @@
 				<nav class="site-nav" aria-label="Sections">
 					<a href="#architecture">Architecture</a>
 					<a href="#features">Features</a>
+					<a href="#theme">Light and dark</a>
 					<a href="#accessibility">Accessibility</a>
 					<a href="#small-screens">Small screens</a>
 					<a href="#configure">Configure</a>
@@ -567,6 +568,65 @@
 							</div>
 						</figure>
 					</div>
+				</div>
+			</section>
+
+			<section class="section" id="theme">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Light and dark</p>
+						<h2>It takes its colours from the theme</h2>
+						<p>
+							The editor does not own a palette. Its chrome is standard
+							Clay, and the few surfaces it paints itself are variables, so
+							a theme that switches to a dark colour scheme inverts the
+							whole dialog without the component knowing anything about it.
+						</p>
+					</div>
+
+					<div class="showcase">
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/scheme-light.jpg"
+								width="2220"
+								height="1540"
+								style="max-width: min(100%, 1110px)"
+								alt="The editor in the light colour scheme: white dialog, light sidebar and panels, dark workspace around the photograph."
+							/>
+							<figcaption>Light</figcaption>
+						</figure>
+
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/scheme-dark.jpg"
+								width="2220"
+								height="1540"
+								style="max-width: min(100%, 1110px)"
+								alt="The same editor in the dark colour scheme: dark dialog, dark sidebar and panels, the same workspace and the same photograph."
+							/>
+							<figcaption>Dark, the same build</figcaption>
+						</figure>
+					</div>
+
+					<ul class="tick-list" style="margin: 2rem auto 0; max-width: 46rem">
+						<li>
+							Nothing in the editor decides the scheme: it reads the
+							<code>data-color-scheme</code> the theme already sets, the
+							same attribute Liferay's own switch writes
+						</li>
+						<li>
+							The stage stays dark in both, on purpose: a neutral surround
+							is what keeps the eye honest about the colours in the
+							photograph
+						</li>
+						<li>
+							Contrast is checked in both schemes, not only in the light
+							one, which is how a white layer row on a dark panel was
+							caught
+						</li>
+					</ul>
 				</div>
 			</section>
 

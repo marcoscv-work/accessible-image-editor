@@ -350,6 +350,39 @@ async function dragLast(page, dx, dy) {
 	await page.close();
 }
 
+// 6b. The same editor in both colour schemes, for the theme section.
+
+for (const scheme of ['light', 'dark']) {
+	const page = await openEditor({height: 860, width: 1200});
+
+	if (scheme === 'dark') {
+		// The demonstration page carries the switch; the editor itself only
+		// reads the attribute the theme sets.
+
+		await page.getByRole('button', {name: 'Close'}).click();
+		await page.waitForTimeout(600);
+		await page
+			.getByRole('button', {name: 'Switch to the dark theme'})
+			.click();
+
+		// Clicking leaves the switch focused and hovered, and its tooltip
+		// would sit in the middle of the capture.
+
+		await page.evaluate(() => document.activeElement?.blur());
+		await page.mouse.move(0, 0);
+		await page.waitForTimeout(500);
+		await page.getByRole('button', {name: 'Edit sample image'}).click();
+		await page.locator('.modal').waitFor();
+		await page.waitForTimeout(1400);
+	}
+
+	await shot(page, `scheme-${scheme}.jpg`, {
+		clip: await region(page, '.modal-content'),
+	});
+
+	await page.close();
+}
+
 // 7. The keyboard shortcuts dialog.
 
 {
