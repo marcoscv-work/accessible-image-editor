@@ -32,16 +32,19 @@ jobs:
       - run: npm test
 
       - env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+          BASE_PATH: /${{ github.event.repository.name }}/demo/
+          BUILD_OUT_DIR: dist/demo
         run: npm run build
 
       - env:
           STORYBOOK_BASE_PATH: /${{ github.event.repository.name }}/storybook/
         run: npm run build:storybook
 
-      # The website is plain static files, so it only needs copying in after
-      # both builds have written dist.
-      - run: cp -r website dist/website
+      # The website is the home page, so it lands at the root. The old
+      # /website/ address stays alive as a redirect because it was shared.
+      - run: |
+          cp -r website/. dist/
+          cp -r redirects/website dist/website
 
       - uses: actions/upload-pages-artifact@v3
         with:

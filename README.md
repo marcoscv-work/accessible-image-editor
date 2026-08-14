@@ -2,7 +2,7 @@
 
 A **fully accessible, non-canvas image editor** built with React and [Clay](https://clayui.com) (Liferay's design system): a finished component, proposed as the image editing solution for the new CMS (epic LPD-58956). It covers the functional scope expected of an image editor while being **accessible by architecture** rather than by remediation, which is the accessible route LPD-93990 requires.
 
-**Live:** the [editor](https://marcoscv-work.github.io/accessible-image-editor/), the [website](https://marcoscv-work.github.io/accessible-image-editor/website/), which walks through the whole feature set, and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
+**Live:** the [website](https://marcoscv-work.github.io/accessible-image-editor/), which walks through the whole feature set, the [editor itself](https://marcoscv-work.github.io/accessible-image-editor/demo/), and the [Storybook](https://marcoscv-work.github.io/accessible-image-editor/storybook/).
 
 The design brief lives in [GOAL.md](GOAL.md). The engineering conclusions live in [FINDINGS.md](FINDINGS.md), the WCAG 2.2 AA status per criterion in [CONFORMANCE.md](CONFORMANCE.md), and the code provenance in [THIRD-PARTY.md](THIRD-PARTY.md).
 
@@ -57,10 +57,10 @@ names are ignored, so a caller cannot reshuffle or break the UI.
 The hosted build reads the same configuration from the URL, so any
 combination can be tried without a code change:
 
-- [`?filters=none,sepia,noir`](https://marcoscv-work.github.io/accessible-image-editor/?filters=none,sepia,noir)
-- [`?adjustments=brightness,contrast`](https://marcoscv-work.github.io/accessible-image-editor/?adjustments=brightness,contrast)
-- [`?annotate=redaction`](https://marcoscv-work.github.io/accessible-image-editor/?annotate=redaction)
-- [`?crop=straighten`](https://marcoscv-work.github.io/accessible-image-editor/?crop=straighten) (crop without the quarter-turn button)
+- [`?filters=none,sepia,noir`](https://marcoscv-work.github.io/accessible-image-editor/demo/?filters=none,sepia,noir)
+- [`?adjustments=brightness,contrast`](https://marcoscv-work.github.io/accessible-image-editor/demo/?adjustments=brightness,contrast)
+- [`?annotate=redaction`](https://marcoscv-work.github.io/accessible-image-editor/demo/?annotate=redaction)
+- [`?crop=straighten`](https://marcoscv-work.github.io/accessible-image-editor/demo/?crop=straighten) (crop without the quarter-turn button)
 - `?annotate=` switches a section off entirely.
 
 ## Storybook
@@ -77,7 +77,7 @@ Published alongside the app at
 with stories for the complete editor, a crop-only picker, a colour-grading
 panel, a redaction-only workflow and a reduced annotation kit.
 
-## Run## Run
+## Run
 
 ```bash
 npm install
