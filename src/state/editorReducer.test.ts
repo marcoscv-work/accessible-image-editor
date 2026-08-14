@@ -298,3 +298,73 @@ describe('editorReducer', () => {
 		expect(state.present.overlays).toHaveLength(1);
 	});
 });
+
+describe('flip-horizontal', () => {
+	const start = () => initialHistory(1000, 600);
+
+	it('mirrors the composition and returns on the second flip', () => {
+		const once = editorReducer(start(), {type: 'flip-horizontal'});
+
+		expect(once.present.flipHorizontal).toBe(true);
+
+		const twice = editorReducer(once, {type: 'flip-horizontal'});
+
+		expect(twice.present.flipHorizontal).toBe(false);
+	});
+
+	it('carries the crop, so the frame keeps its subject', () => {
+		const cropped = editorReducer(start(), {
+			crop: {height: 200, width: 300, x: 100, y: 50},
+			type: 'set-crop',
+		});
+
+		const flipped = editorReducer(cropped, {type: 'flip-horizontal'});
+
+		// 1000 - 100 - 300
+
+		expect(flipped.present.crop).toEqual({
+			height: 200,
+			width: 300,
+			x: 600,
+			y: 50,
+		});
+
+		const back = editorReducer(flipped, {type: 'flip-horizontal'});
+
+		expect(back.present.crop).toEqual(cropped.present.crop);
+	});
+
+	it('carries the annotations, so a redaction keeps what it covers', () => {
+		const withRedaction = editorReducer(start(), {
+			overlay: {
+				height: 80,
+				id: 'redact-1',
+				kind: 'redact',
+				level: 'fine',
+				width: 120,
+				x: 200,
+				y: 40,
+			},
+			type: 'add-overlay',
+		});
+
+		const flipped = editorReducer(withRedaction, {
+			type: 'flip-horizontal',
+		});
+
+		// 1000 - 200 - 120
+
+		expect(flipped.present.overlays[0]).toMatchObject({x: 680, y: 40});
+
+		const back = editorReducer(flipped, {type: 'flip-horizontal'});
+
+		expect(back.present.overlays[0]).toMatchObject({x: 200, y: 40});
+	});
+
+	it('is one undoable step', () => {
+		const flipped = editorReducer(start(), {type: 'flip-horizontal'});
+		const undone = editorReducer(flipped, {type: 'undo'});
+
+		expect(undone.present.flipHorizontal).toBe(false);
+	});
+});

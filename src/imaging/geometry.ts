@@ -58,13 +58,17 @@ export function coverScale(
 export function imageTransform(
 	state: Pick<
 		EditState,
-		'angle' | 'rotation' | 'sourceHeight' | 'sourceWidth'
+		'angle' | 'flipHorizontal' | 'rotation' | 'sourceHeight' | 'sourceWidth'
 	>
 ): string | undefined {
 	const quarter = rotationTransform(state);
 
+	const mirror = state.flipHorizontal
+		? `translate(${rotatedSize(state as EditState).width} 0) scale(-1 1)`
+		: undefined;
+
 	if (!state.angle) {
-		return quarter;
+		return [mirror, quarter].filter(Boolean).join(' ') || undefined;
 	}
 
 	const bounds = rotatedSize(state as EditState);
@@ -79,7 +83,7 @@ export function imageTransform(
 		`translate(${centerX} ${centerY}) scale(${scale}) ` +
 		`translate(${-centerX} ${-centerY})`;
 
-	return quarter ? `${straighten} ${quarter}` : straighten;
+	return [mirror, straighten, quarter].filter(Boolean).join(' ');
 }
 
 /**

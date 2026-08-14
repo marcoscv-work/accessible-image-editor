@@ -14,6 +14,7 @@ The editor is **parametric and declarative**:
 - The preview is **SVG in the DOM**, not canvas: the raster image is an `<image>` element, color adjustments and the 20 filter presets are declarative SVG filter primitives (`feComponentTransfer`, `feColorMatrix`) described as data in one recipe table, and every annotation is a real, focusable, labelled DOM node.
 - The export serializes **the same SVG** at full resolution and rasterizes it offscreen; a canvas exists only as the final encoder, invisible to the user and absent from the accessibility tree. Preview and export share the same components (`FilterDefs`, `rotationTransform`, `OverlayShape`), so what you see is what you save by construction.
 - Focus on the stage (crop area, handles, annotations) is a **Clay-style double ring** (white inner + accent outer) drawn as real SVG geometry, because browsers do not reliably paint CSS outlines on SVG children.
+- **Flipping** mirrors the whole composition horizontally, and it carries the crop and every annotation with it: a redaction that stayed put while the photograph mirrored underneath would uncover exactly what it was hiding. It is one entry in the history, and flipping twice returns to the original.
 - **Straightening** is a free angle in degrees on top of the quarter turns: the image is scaled by exactly the factor needed to keep covering the frame, so no empty corners appear and the crop and annotation coordinate space is untouched.
 - While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop zooms and scrolls until that region fills the view (a view operation, so it never enters the edit history), and hides itself once the view already frames the crop.
 - **Redactions** pixelate an area for real: tiny downsampled copies of the image (four block sizes, small by default) are prepared once at load time and revealed through a clip, scaled back up with nearest-neighbor, and passed through the same color pipeline as the image so the mosaic matches what is on screen. They behave exactly like a rectangle otherwise, and the mosaic stays locked to the photo even when the block is rotated.
@@ -47,7 +48,7 @@ complete editor.
 | --- | --- | --- |
 | `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
 | `annotate` | hides the panel and the layers list | `tools`: text, rectangle, redaction, stickers · `stickers`: any of the 10 shapes |
-| `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn button · `straighten`: the angle slider |
+| `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn and flip buttons · `straighten`: the angle slider |
 | `filters` | hides the gallery | `presets`: any of the 19 looks |
 
 Lists are always applied in the component's canonical order, and unknown

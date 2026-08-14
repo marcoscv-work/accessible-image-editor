@@ -151,6 +151,13 @@ export interface EditState {
 	angle: number;
 	crop: CropRect;
 	filter: FilterPreset;
+
+	/**
+	 * Mirrors the composition horizontally. Applied last, so it mirrors
+	 * whatever the quarter turns and the straighten angle produced, which
+	 * is what flipping a photograph is expected to do.
+	 */
+	flipHorizontal: boolean;
 	overlays: Overlay[];
 	ratio: RatioPreset;
 	rotation: Rotation;

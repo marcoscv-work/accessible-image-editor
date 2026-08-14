@@ -684,3 +684,33 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 			return null;
 	}
 }
+
+/**
+ * The same overlay, mirrored horizontally inside a frame of `boundsWidth`.
+ * A flip has to carry the annotations with it: a redaction that stayed put
+ * while the photograph mirrored underneath would uncover exactly what it
+ * was hiding.
+ */
+export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
+	const rotation = overlay.rotation ? -overlay.rotation : overlay.rotation;
+
+	if (overlay.kind === 'sticker') {
+		return {...overlay, rotation, x: boundsWidth - overlay.x};
+	}
+
+	if (overlay.kind === 'text') {
+		const width = textWidth(
+			overlay.text,
+			overlay.fontFamily,
+			overlay.fontSize
+		);
+
+		return {...overlay, rotation, x: boundsWidth - overlay.x - width};
+	}
+
+	return {
+		...overlay,
+		rotation,
+		x: boundsWidth - overlay.x - overlay.width,
+	};
+}

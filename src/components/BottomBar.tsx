@@ -96,17 +96,59 @@ export function BottomBar({
 				)}
 
 				{showRotate && (
-					<ClayButtonWithIcon
-						aria-label={t('rotate-90')}
-						className="editor-bar-button"
-						displayType="unstyled"
-						onClick={() => {
-							dispatch({type: 'rotate-90'});
-							onAnnounce(t('rotated-90'));
-						}}
-						symbol="rotate"
-						title={t('rotate-90')}
-					/>
+					<>
+						<ClayButtonWithIcon
+							aria-label={t('rotate-90')}
+							className="editor-bar-button"
+							displayType="unstyled"
+							onClick={() => {
+								dispatch({type: 'rotate-90'});
+								onAnnounce(t('rotated-90'));
+							}}
+							symbol="rotate"
+							title={t('rotate-90')}
+						/>
+
+						{/*
+						  * Clay has no flip glyph, so the icon is drawn here:
+						  * two shapes facing each other across the axis they
+						  * mirror about.
+						  */}
+						<ClayButton
+							aria-label={t('flip-horizontal')}
+							className="btn-monospaced editor-bar-button"
+							displayType="unstyled"
+							onClick={() => {
+								dispatch({type: 'flip-horizontal'});
+								onAnnounce(t('flipped-horizontal'));
+							}}
+							title={t('flip-horizontal')}
+						>
+							<svg
+								aria-hidden="true"
+								focusable="false"
+								height="16"
+								viewBox="0 0 16 16"
+								width="16"
+							>
+								<path
+									d="M7.25 1.5h1.5v13h-1.5z"
+									fill="currentColor"
+									opacity="0.55"
+								/>
+								<path
+									d="M5.75 3.75v8.5H2.4a.4.4 0 0 1-.32-.64l3.35-8.1a.2.2 0 0 1 .32.24Z"
+									fill="currentColor"
+								/>
+								<path
+									d="M10.25 3.75v8.5h3.35a.4.4 0 0 0 .32-.64l-3.35-8.1a.2.2 0 0 0-.32.24Z"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.3"
+								/>
+							</svg>
+						</ClayButton>
+					</>
 				)}
 
 				<ClayButtonWithIcon

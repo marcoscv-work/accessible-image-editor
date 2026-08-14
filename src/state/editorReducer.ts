@@ -4,6 +4,7 @@
  */
 
 import {t} from '../i18n';
+import {mirrorOverlay} from '../imaging/overlayShapes';
 import {
 	Adjustments,
 	CropRect,
@@ -34,6 +35,7 @@ export type EditorAction =
 	| {angle: number; transient?: boolean; type: 'set-angle'}
 	| {crop: CropRect; transient?: boolean; type: 'set-crop'}
 	| {filter: FilterPreset; type: 'set-filter'}
+	| {type: 'flip-horizontal'}
 	| {ratio: RatioPreset; type: 'set-ratio'}
 	| {type: 'rotate-90'}
 	| {
@@ -53,6 +55,7 @@ export function initialEditState(
 		angle: 0,
 		crop: {height: sourceHeight, width: sourceWidth, x: 0, y: 0},
 		filter: 'none',
+		flipHorizontal: false,
 		overlays: [],
 		ratio: 'original',
 		rotation: 0,
@@ -242,6 +245,30 @@ export function editorReducer(
 				history,
 				{...present, crop, ratio: action.ratio},
 				t('label-ratio')
+			);
+		}
+
+		case 'flip-horizontal': {
+			// The crop and the annotations mirror with the picture, so a
+			// frame keeps its subject and a redaction keeps covering what
+			// it was covering.
+
+			const bounds = rotatedSize(present);
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					crop: {
+						...present.crop,
+						x: bounds.width - present.crop.x - present.crop.width,
+					},
+					flipHorizontal: !present.flipHorizontal,
+					overlays: present.overlays.map((overlay) =>
+						mirrorOverlay(overlay, bounds.width)
+					),
+				},
+				t('label-flip')
 			);
 		}
 
