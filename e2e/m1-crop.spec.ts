@@ -54,8 +54,10 @@ test('keyboard-only crop journey', async ({page}) => {
 
 	await expectNoAxeViolations(page);
 
-	// Open the sample image from the keyboard.
+	// Open the sample image from the keyboard. The demonstration page opens
+	// with a colour scheme switch, so the sample button is the second stop.
 
+	await page.keyboard.press('Tab');
 	await page.keyboard.press('Tab');
 
 	const sampleButton = page.getByRole('button', {name: 'Edit sample image'});
@@ -199,6 +201,10 @@ test('recenter fills the view with the crop', async ({page}) => {
 test('escape cancels the editor and restores focus', async ({page}) => {
 	await page.goto('/');
 
+	// The demonstration page opens with a colour scheme switch, so the
+	// sample button is not the first stop: tab to it by name.
+
+	await page.keyboard.press('Tab');
 	await page.keyboard.press('Tab');
 	await page.keyboard.press('Enter');
 

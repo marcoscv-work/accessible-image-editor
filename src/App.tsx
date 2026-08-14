@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import ClayButton from '@clayui/button';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import spritemap from '@clayui/css/lib/images/icons/icons.svg';
 import ClayIcon, {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
@@ -16,6 +16,41 @@ import {watchOrphanTooltips} from './components/tooltips';
 import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
 import {LoadedImage, loadImage} from './imaging/loadImage';
+
+/**
+ * The colour scheme switch, and the only place the demonstration differs
+ * from what the portal will do: DXP sets `data-color-scheme` on the
+ * document from the theme, so the editor never has to know about it. Here
+ * the page sets it itself so dark mode can be previewed.
+ */
+function ThemeToggle() {
+	// Optional call because jsdom has no matchMedia, and the demo renders
+	// there too.
+
+	const [scheme, setScheme] = useState<'dark' | 'light'>(() =>
+		window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
+			? 'dark'
+			: 'light'
+	);
+
+	useEffect(() => {
+		document.documentElement.dataset.colorScheme = scheme;
+	}, [scheme]);
+
+	const dark = scheme === 'dark';
+
+	return (
+		<ClayButtonWithIcon
+			aria-label={dark ? t('use-light-theme') : t('use-dark-theme')}
+			className="demo-theme-toggle"
+			displayType="secondary"
+			onClick={() => setScheme(dark ? 'light' : 'dark')}
+			size="sm"
+			symbol={dark ? 'sun' : 'moon'}
+			title={dark ? t('use-light-theme') : t('use-dark-theme')}
+		/>
+	);
+}
 
 export default function App() {
 	const [image, setImage] = useState<LoadedImage | null>(null);
@@ -93,9 +128,13 @@ export default function App() {
 				>
 					<div className="landing-shell">
 						<div className="landing-intro">
-							<p className="landing-eyebrow">
-								{t('landing-tagline')}
-							</p>
+							<div className="landing-top">
+								<p className="landing-eyebrow">
+									{t('landing-tagline')}
+								</p>
+
+								<ThemeToggle />
+							</div>
 
 							<h1>{t('app-title')}</h1>
 

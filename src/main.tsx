@@ -4,6 +4,9 @@
  */
 
 import '@clayui/css/lib/css/atlas.css';
+
+import './demo-theme.css';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 

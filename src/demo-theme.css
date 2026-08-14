@@ -1,0 +1,172 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+/*
+ * Dark scheme for the demonstration only, and imported by the demo entry
+ * point rather than by the editor.
+ *
+ * Portal compiles Clay's own dark token maps, so in DXP the scheme comes
+ * from the theme and nothing here is needed. The published @clayui/css
+ * package ships only the light build, so previewing dark in this standalone
+ * page means restating the surfaces by hand. Treat this file as a preview
+ * harness: it is not part of the component and must never be.
+ */
+
+[data-color-scheme='dark'] {
+	--demo-accent: #4b9bff;
+	--demo-border: #3b3b49;
+	--demo-surface: #1c1c24;
+	--demo-surface-raised: #24242f;
+	--demo-text: #f1f2f5;
+	--demo-text-muted: #a7a9bc;
+}
+
+/* The page itself */
+
+[data-color-scheme='dark'] body,
+[data-color-scheme='dark'] .landing {
+	background: var(--demo-surface);
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .landing h1,
+[data-color-scheme='dark'] .landing-dropzone-title {
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .landing-lead,
+[data-color-scheme='dark'] .landing-dropzone,
+[data-color-scheme='dark'] .landing-dropzone-hint {
+	color: var(--demo-text-muted);
+}
+
+[data-color-scheme='dark'] .landing-dropzone {
+	background: rgba(255, 255, 255, 0.03);
+	border-color: var(--demo-border);
+}
+
+/*
+ * The light hover paints the zone white, which on a dark page reads as a
+ * blank sheet with unreadable text.
+ */
+
+[data-color-scheme='dark'] .landing-dropzone:hover {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: var(--demo-accent);
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .landing-dropzone:hover .landing-dropzone-title {
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .landing-dropzone-icon {
+	background: rgba(75, 155, 255, 0.18);
+	color: var(--demo-accent);
+}
+
+[data-color-scheme='dark'] .landing.is-dropping {
+	background-color: #1f2532;
+}
+
+[data-color-scheme='dark'] .landing.is-dropping .landing-dropzone {
+	background: rgba(75, 155, 255, 0.12);
+	border-color: var(--demo-accent);
+}
+
+[data-color-scheme='dark'] .landing-preview,
+[data-color-scheme='dark'] .landing-eyebrow {
+	border-color: var(--demo-border);
+}
+
+/* The dialog chrome */
+
+[data-color-scheme='dark'] .modal-content,
+[data-color-scheme='dark'] .editor-sidebar {
+	background: var(--demo-surface);
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .modal-header,
+[data-color-scheme='dark'] .modal-footer,
+[data-color-scheme='dark'] .editor-sidebar,
+[data-color-scheme='dark'] .editor-panel + .editor-panel,
+[data-color-scheme='dark'] .editor-panel .panel-header {
+	border-color: var(--demo-border);
+}
+
+[data-color-scheme='dark'] .modal-title,
+[data-color-scheme='dark'] .editor-panel-title,
+[data-color-scheme='dark'] .editor-zoom-level,
+[data-color-scheme='dark'] .editor-layer-name,
+[data-color-scheme='dark'] label,
+[data-color-scheme='dark'] .modal-header .close {
+	color: var(--demo-text);
+}
+
+/* Controls */
+
+[data-color-scheme='dark'] .form-control,
+[data-color-scheme='dark'] .input-group-text,
+[data-color-scheme='dark'] select.form-control {
+	background: var(--demo-surface-raised);
+	border-color: var(--demo-border);
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .btn-secondary {
+	background: transparent;
+	border-color: var(--demo-border);
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .btn-unstyled {
+	color: var(--demo-text);
+}
+
+[data-color-scheme='dark'] .clay-range-track {
+	background: var(--demo-border);
+}
+
+/* Filter cards, layers, redaction levels */
+
+[data-color-scheme='dark'] .editor-filter-card {
+	border-color: var(--demo-border);
+}
+
+[data-color-scheme='dark'] .editor-filter-name {
+	color: var(--demo-text-muted);
+}
+
+[data-color-scheme='dark'] .editor-filter-input:checked + .editor-filter-label
+	.editor-filter-name {
+	color: var(--demo-accent);
+}
+
+[data-color-scheme='dark'] .editor-layer-list,
+[data-color-scheme='dark'] .editor-layer-row + .editor-layer-row {
+	border-color: var(--demo-border);
+}
+
+[data-color-scheme='dark'] .editor-layer-row:hover {
+	background: var(--demo-surface-raised);
+}
+
+/* The switch and the row that holds it, both demo chrome */
+
+.landing-top {
+	align-items: center;
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 0.75rem;
+}
+
+.landing-top .landing-eyebrow {
+	margin-bottom: 0;
+}
+
+.demo-theme-toggle {
+	margin-left: auto;
+}

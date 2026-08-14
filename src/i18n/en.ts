@@ -179,6 +179,8 @@ export default {
 	'text-content': 'Text',
 	undo: 'Undo',
 	'undo-done': 'Undo: {0}',
+	'use-dark-theme': 'Switch to the dark theme',
+	'use-light-theme': 'Switch to the light theme',
 	width: 'Width',
 	workspace: 'Image workspace',
 	'workspace-description':

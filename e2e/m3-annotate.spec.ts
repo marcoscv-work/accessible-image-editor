@@ -38,6 +38,10 @@ async function tabUntil(page: Page, target: string): Promise<void> {
 test('keyboard-only annotation journey', async ({page}) => {
 	await page.goto('/');
 
+	// The demonstration page opens with a colour scheme switch, so the
+	// sample button is not the first stop: tab to it by name.
+
+	await page.keyboard.press('Tab');
 	await page.keyboard.press('Tab');
 	await page.keyboard.press('Enter');
 

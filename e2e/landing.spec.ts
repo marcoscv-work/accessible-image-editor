@@ -84,8 +84,10 @@ test('the landing screen is clean at 320 pixels', async ({page}) => {
 
 	expect(results.violations).toEqual([]);
 
-	// The zone is an affordance, not a second tab stop for the same action:
-	// the button above is the route that never needs a drag.
+	// The zone is an affordance, not another tab stop for the same action:
+	// the button above is the route that never needs a drag. Three stops in
+	// total, because the demonstration page also carries a colour scheme
+	// switch of its own.
 
 	const stops = await page.evaluate(
 		() =>
@@ -94,5 +96,5 @@ test('the landing screen is clean at 320 pixels', async ({page}) => {
 			).length
 	);
 
-	expect(stops).toBe(2);
+	expect(stops).toBe(3);
 });
