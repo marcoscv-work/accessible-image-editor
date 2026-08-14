@@ -5,6 +5,7 @@
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {ClaySelectWithOption} from '@clayui/form';
+import ClayModal from '@clayui/modal';
 
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
@@ -62,9 +63,18 @@ export function BottomBar({
 	showRotate,
 	zoom,
 }: Props) {
+	/*
+	 * A standard modal footer rather than a bar of our own: Lexicon gives it
+	 * the light surface, the top border and the trailing alignment of the
+	 * last group, which means the colour scheme of the theme inverts it
+	 * along with the rest of the dialog instead of leaving a dark strip.
+	 */
+
 	return (
-		<div className="editor-bottom-bar">
-			<div className="editor-bar-group">
+		<ClayModal.Footer
+			className="editor-bottom-bar"
+			first={
+				<div className="editor-bar-group">
 				{ratios.length > 0 && (
 					<>
 						<label
@@ -179,11 +189,30 @@ export function BottomBar({
 					symbol="question-circle"
 					title={t('keyboard-shortcuts')}
 				/>
-			</div>
+				</div>
+			}
+			last={
+				<div className="editor-bar-group">
+					<ClayButton
+						displayType="secondary"
+						onClick={onCancel}
+					>
+						{t('cancel')}
+					</ClayButton>
 
-			<div className="editor-bar-group">
-				<ClayButtonWithIcon
-					aria-label={t('zoom-out')}
+					<ClayButton
+						disabled={saving}
+						displayType="primary"
+						onClick={onSave}
+					>
+						{t('save')}
+					</ClayButton>
+				</div>
+			}
+			middle={
+				<div className="editor-bar-group">
+					<ClayButtonWithIcon
+						aria-label={t('zoom-out')}
 					className="editor-bar-button"
 					displayType="unstyled"
 					onClick={() => onZoom(-1)}
@@ -209,28 +238,11 @@ export function BottomBar({
 					className="editor-bar-button"
 					displayType="unstyled"
 					onClick={onZoomFit}
-					symbol="autosize"
-					title={t('zoom-fit')}
-				/>
-			</div>
-
-			<div className="editor-bar-group">
-				<ClayButton
-					className="editor-cancel-button mr-3"
-					displayType="unstyled"
-					onClick={onCancel}
-				>
-					{t('cancel')}
-				</ClayButton>
-
-				<ClayButton
-					disabled={saving}
-					displayType="primary"
-					onClick={onSave}
-				>
-					{t('save')}
-				</ClayButton>
-			</div>
-		</div>
+						symbol="autosize"
+						title={t('zoom-fit')}
+					/>
+				</div>
+			}
+		/>
 	);
 }

@@ -590,17 +590,56 @@
 	color: #0b5fff;
 }
 
-/* Bottom bar */
+/* Action bar: a standard modal footer, so the theme owns its colours */
 
 .editor-bottom-bar {
+	column-gap: 1rem;
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
+}
+
+/*
+ * Lexicon's middle slot grows to fill the free space but keeps its content
+ * at the start, which left the zoom controls hanging next to the ratio
+ * group. On one line the footer becomes a three-column grid so the middle
+ * group sits at the true centre of the bar whatever the width of the two
+ * sides; narrower than that, Lexicon's wrapping takes over again.
+ */
+
+.editor-bottom-bar .modal-item {
 	align-items: center;
-	background: var(--editor-bar-bg);
-	color: #fff;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1.5rem;
-	justify-content: space-between;
-	padding: 0.5rem 1rem;
+	flex-direction: row;
+	justify-content: center;
+}
+
+/*
+ * Wide enough for the three groups in one line, the footer becomes a
+ * three-column grid so the zoom controls sit at the true centre of the bar.
+ * The side columns may not shrink below their content, or an even split
+ * would fold the leading group into two lines: with room to spare both
+ * sides get the same width and the centre is exact, and when it runs out
+ * the centre drifts a little instead of anything wrapping.
+ */
+
+@media (min-width: 60rem) {
+	.editor-bottom-bar {
+		display: grid;
+		grid-template-columns:
+			minmax(max-content, 1fr) auto
+			minmax(max-content, 1fr);
+	}
+
+	.editor-bottom-bar .modal-item-first {
+		justify-self: start;
+	}
+
+	.editor-bottom-bar .modal-item {
+		justify-self: center;
+	}
+
+	.editor-bottom-bar .modal-item-last {
+		justify-self: end;
+	}
 }
 
 /*
@@ -617,24 +656,14 @@
 }
 
 .editor-ratio-label {
-	color: #fff;
 	margin-bottom: 0;
 }
 
 .editor-ratio-select {
-	background: transparent;
-	border-color: #7d8093;
-	color: #fff;
 	width: auto;
 }
 
-.editor-ratio-select option {
-	color: #272833;
-}
-
-.editor-bar-button,
-.editor-cancel-button {
-	color: #fff;
+.editor-bar-button {
 	min-height: 24px;
 	min-width: 24px;
 }
@@ -651,12 +680,6 @@
 .editor-zoom-level {
 	min-width: 3.5rem;
 	text-align: center;
-}
-
-.editor-bottom-bar .btn:focus-visible,
-.editor-ratio-select:focus-visible {
-	outline: 2px solid #fff;
-	outline-offset: 2px;
 }
 
 /* Overlays */
@@ -973,18 +996,13 @@
 	}
 
 	/*
-	 * The action bar wraps on a narrow screen, so the groups are laid out
-	 * explicitly: the actions keep the trailing edge, which is where the
-	 * primary button is expected to be.
+	 * Wrapped, the modal footer's trailing group has to stay on the trailing
+	 * edge: Lexicon's auto margin stops applying once it is on its own line.
 	 */
 
-	.editor-bottom-bar {
-		justify-content: flex-start;
-	}
-
-	.editor-bar-group:last-child {
-		flex: 1;
+	.editor-bottom-bar .modal-item-last {
 		justify-content: flex-end;
+		margin-left: auto;
 	}
 }
 
