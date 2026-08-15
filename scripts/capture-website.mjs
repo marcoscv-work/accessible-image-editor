@@ -393,9 +393,14 @@ for (const scheme of ['light', 'dark']) {
 	await page.getByRole('button', {exact: true, name: 'Add circle'}).click();
 	await page.waitForTimeout(400);
 
+	// Over the sky: on the carved stone neither the dot nor the outline
+	// reads, and the picture has to be legible before it can make a point.
+
 	for (const [id, value] of [
 		['#layer-prop-width', '12'],
 		['#layer-prop-height', '12'],
+		['#layer-prop-x', '1200'],
+		['#layer-prop-y', '430'],
 	]) {
 		const field = page.locator(id);
 
@@ -407,9 +412,14 @@ for (const scheme of ['light', 'dark']) {
 	await page.evaluate(() => {
 		const style = document.createElement('style');
 
+		// Two-tone, like the editor's own focus rings: a white halo under a
+		// blue dash survives whatever the photograph is doing underneath.
+
 		style.textContent =
-			'.overlay-hit { stroke: #0b5fff; stroke-dasharray: 4 3; ' +
-			'stroke-width: 1.5px; vector-effect: non-scaling-stroke; }';
+			'.overlay-hit { filter: drop-shadow(0 0 1px #fff) ' +
+			'drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #fff); ' +
+			'stroke: #0b5fff; stroke-dasharray: 5 3; stroke-width: 2px; ' +
+			'vector-effect: non-scaling-stroke; }';
 
 		document.head.append(style);
 	});
@@ -421,7 +431,7 @@ for (const scheme of ['light', 'dark']) {
 	await page.waitForTimeout(300);
 
 	const shot = async (name) => {
-		const box = await region(page, '.editor-workspace .overlay-hit', 110);
+		const box = await region(page, '.editor-workspace .overlay-hit', 80);
 
 		await page.mouse.move(0, 0);
 		await page.waitForTimeout(200);
@@ -436,6 +446,16 @@ for (const scheme of ['light', 'dark']) {
 	};
 
 	await shot('target-fit.jpg');
+
+	// Zooming from the keyboard anchors on the pointer, so parking it over
+	// the annotation is what keeps the annotation on screen.
+
+	const anchor = await region(page, '.editor-workspace .overlay-hit', 0);
+
+	await page.mouse.move(
+		anchor.x + anchor.width / 2,
+		anchor.y + anchor.height / 2
+	);
 
 	for (let step = 0; step < 3; step++) {
 		await page.keyboard.press('+');
