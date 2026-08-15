@@ -27,12 +27,15 @@
 					Accessible Image Editor
 				</a>
 
+				<!--
+					Five links, not seven: light and dark and small screens are
+					chapters of what the other sections already promise, and a
+					header crushed against its own call to action helps nobody.
+				-->
 				<nav class="site-nav" aria-label="Sections">
 					<a href="#architecture">Architecture</a>
 					<a href="#features">Features</a>
-					<a href="#theme">Light and dark</a>
 					<a href="#accessibility">Accessibility</a>
-					<a href="#small-screens">Small screens</a>
 					<a href="#configure">Configure</a>
 					<a href="#integrate">Integrate</a>
 				</nav>
@@ -554,27 +557,17 @@
 							<div class="shot-frame">
 								<img
 									class="window"
-									src="screenshots/frames.png"
+									src="screenshots/frame-panel.png"
 									width="560"
-									height="788"
+									height="1050"
 									style="max-width: min(100%, 280px)"
-									alt="The Frame panel: frame cards in two columns, each a thumbnail of the photograph with that frame drawn on it, named None, Mat, Bevel, Line, Double line and Dashed."
-								/>
-							</div>
-
-							<div class="shot-frame">
-								<img
-									class="window"
-									src="screenshots/frame-options.png"
-									width="560"
-									height="382"
-									style="max-width: min(100%, 280px)"
-									alt="The frame options below the gallery: a frame colour input, a frame size slider reading 4 percent, and a frame offset slider reading 0 percent."
+									alt="The Frame panel: cards for None, Mat, Bevel and Line, with Mat selected and carrying a ring, a bold label and a check badge; below them a frame colour input, a checkbox reading Draw the frame over the annotations, and sliders for frame size at 4 percent and frame offset at 0 percent."
 								/>
 							</div>
 							<figcaption>
-								The options appear once a frame is chosen, and none is a
-								frame with a thin white border.
+								The gallery is trimmed to four frames here, through the
+								same configuration prop a host would use, so the whole
+								panel fits one picture.
 							</figcaption>
 						</figure>
 					</div>

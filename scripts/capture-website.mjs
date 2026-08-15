@@ -32,13 +32,13 @@ const browser = await chromium.launch();
  * Opens the editor on the sample image and waits for the modal to settle:
  * a screenshot taken mid-fade catches half-animated colours.
  */
-async function openEditor({height = 900, width = 1280} = {}) {
+async function openEditor({height = 900, query = '', width = 1280} = {}) {
 	const page = await browser.newPage({
 		deviceScaleFactor: 2,
 		viewport: {height, width},
 	});
 
-	await page.goto(URL);
+	await page.goto(`${URL}${query}`);
 	await page.getByRole('button', {name: 'Edit sample image'}).click();
 	await page.locator('.modal').waitFor();
 	await page.waitForTimeout(1400);
@@ -226,19 +226,19 @@ async function collapse(page, ...titles) {
 	await page.close();
 }
 
-// 4b. The frame gallery and a framed picture. The cards draw through the
-// same component as the stage, so this is a picture of the real thing.
+// 4b. The whole frame panel in one picture, gallery and options together,
+// and a framed photograph. The gallery is trimmed through the editor's own
+// configuration so the panel fits a single shot.
 
 {
-	const page = await openEditor();
+	const page = await openEditor({
+		query: '?frames=none,mat,bevel,line',
+	});
 
 	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
 
-	await page.locator('#frame-polaroid').check({force: true});
+	await page.locator('#frame-mat').check({force: true});
 	await page.waitForTimeout(500);
-
-	// Checking a card scrolls it into view, so put the panel title back at
-	// the top of the sidebar before measuring anything.
 
 	await page.evaluate(() => {
 		const sidebar = document.querySelector('.editor-sidebar');
@@ -252,66 +252,26 @@ async function collapse(page, ...titles) {
 
 	await page.waitForTimeout(400);
 
-	// Cut under a row of labels rather than through a row of cards.
-
-	const gallery = await page.evaluate(() => {
-		const sidebar = document.querySelector('.editor-sidebar');
-		const title = document.getElementById('frame-panel-title');
-		const cards = document.querySelectorAll('.editor-frame-option');
-
-		const top = title.getBoundingClientRect().top - 12;
-
-		return {
-			height: cards[5].getBoundingClientRect().bottom + 12 - top,
-			width: sidebar.getBoundingClientRect().width,
-			x: sidebar.getBoundingClientRect().x,
-			y: top,
-		};
+	await shot(page, 'frame-panel.png', {
+		clip: await panelRegion(page, '.editor-panel:has(#frame-panel-title)'),
 	});
 
-	await shot(page, 'frames.png', {clip: gallery});
+	await page.close();
+}
+
+// 4b2. A framed photograph on the stage, with the whole set available.
+
+{
+	const page = await openEditor();
+
+	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
+
+	await page.locator('#frame-polaroid').check({force: true});
+	await page.waitForTimeout(500);
 
 	await shot(page, 'stage-framed.jpg', {
 		clip: await region(page, '.editor-workspace'),
 	});
-
-	// The options underneath: the frame is a choice plus a colour and two
-	// measurements, and those are what make it yours.
-
-	await page.evaluate(() => {
-		const sidebar = document.querySelector('.editor-sidebar');
-
-		sidebar.scrollTop = sidebar.scrollHeight;
-	});
-
-	await page.waitForTimeout(400);
-
-	const options = await page.evaluate(() => {
-		const sidebar = document.querySelector('.editor-sidebar');
-		const first = document.querySelector('label[for="frame-color"]');
-		const last = document.querySelector('#frame-offset');
-
-		const cards = document.querySelectorAll('.editor-frame-option');
-
-		// Below the last row of labels, so no cut text rides along.
-
-		const top = Math.max(
-			cards[cards.length - 1].getBoundingClientRect().bottom + 10,
-			first.getBoundingClientRect().top - 20
-		);
-
-		return {
-			height: Math.min(
-				last.getBoundingClientRect().bottom + 24 - top,
-				sidebar.getBoundingClientRect().bottom - top
-			),
-			width: sidebar.getBoundingClientRect().width,
-			x: sidebar.getBoundingClientRect().x,
-			y: top,
-		};
-	});
-
-	await shot(page, 'frame-options.png', {clip: options});
 
 	await page.close();
 }

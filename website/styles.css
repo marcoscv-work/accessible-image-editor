@@ -240,9 +240,9 @@ kbd {
 }
 
 /*
- * The section links are a convenience, and five of them do not fit a phone
- * header. They go away rather than pushing the page sideways: the document
- * still reads top to bottom, and the footer repeats the important links.
+ * The section links are a convenience, and they do not fit a phone header.
+ * They go away rather than pushing the page sideways: the document still
+ * reads top to bottom, and the footer repeats the important links.
  */
 
 @media (max-width: 60rem) {
