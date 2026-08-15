@@ -11,6 +11,8 @@ import {
 	StickerOverlay,
 } from '../state/types';
 
+export const DEFAULT_BORDER_COLOR = '#272833';
+
 export function starPath(cx: number, cy: number, size: number): string {
 	const outer = size / 2;
 	const inner = outer * 0.4;
@@ -452,6 +454,22 @@ export function textWidth(
  * keyboard/pointer hit target, and the rotation pivot. Text width is
  * measured, not estimated.
  */
+/**
+ * The outline colour, or nothing at all when no border was asked for. A
+ * width without a colour still draws, in the default border colour, so the
+ * two fields do not have to be filled in a particular order.
+ */
+function borderStroke(overlay: {
+	borderColor?: string;
+	borderWidth?: number;
+}): string | undefined {
+	if (!overlay.borderWidth) {
+		return undefined;
+	}
+
+	return overlay.borderColor ?? DEFAULT_BORDER_COLOR;
+}
+
 export function overlayBounds(overlay: Overlay): {
 	height: number;
 	width: number;
@@ -657,6 +675,8 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 					fill={overlay.color}
 					rx={overlay.width / 2}
 					ry={overlay.height / 2}
+					stroke={borderStroke(overlay)}
+					strokeWidth={overlay.borderWidth || undefined}
 				/>
 			);
 
@@ -665,6 +685,8 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 				<rect
 					fill={overlay.color}
 					height={overlay.height}
+					stroke={borderStroke(overlay)}
+					strokeWidth={overlay.borderWidth || undefined}
 					width={overlay.width}
 					x={overlay.x}
 					y={overlay.y}
@@ -727,5 +749,29 @@ export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
 		...overlay,
 		rotation,
 		x: boundsWidth - overlay.x - overlay.width,
+	};
+}
+
+/**
+ * The box a pointer or a keyboard has to be able to hit, which is the
+ * annotation's own box grown to `minimum` on each axis when the annotation
+ * is smaller than that. A 6 pixel dot is a legitimate annotation; a 6 pixel
+ * target is not (WCAG 2.2, 2.5.8), and the target is the only thing that
+ * grows: what is painted stays the size it was asked for.
+ */
+export function overlayHitBox(
+	overlay: Overlay,
+	minimum: number
+): {height: number; width: number; x: number; y: number} {
+	const box = overlayBounds(overlay);
+
+	const width = Math.max(box.width, minimum);
+	const height = Math.max(box.height, minimum);
+
+	return {
+		height,
+		width,
+		x: box.x - (width - box.width) / 2,
+		y: box.y - (height - box.height) / 2,
 	};
 }

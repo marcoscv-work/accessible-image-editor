@@ -8,11 +8,16 @@ import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
-import {overlayLabel} from '../imaging/overlayShapes';
+import {
+	DEFAULT_BORDER_COLOR,
+	overlayLabel,
+} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {
+	CircleOverlay,
 	Overlay,
 	RedactOverlay,
+	ShapeOverlay,
 	isBoxOverlay,
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
@@ -148,6 +153,7 @@ interface LayerPropertiesProps {
 function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) {
 	const label = overlayLabel(overlay);
 
+	const borderGesture = useRef(false);
 	const colorGesture = useRef(false);
 
 	const commitPatch = (patch: Partial<Overlay>) => {
@@ -341,9 +347,67 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 						/>
 					</>
 				)}
+
+				{hasBorder(overlay) && (
+					<>
+						<NumberField
+							id="layer-prop-border-width"
+							label={t('border-width')}
+							min={0}
+							onCommit={(borderWidth) =>
+								commitPatch({borderWidth})
+							}
+							value={overlay.borderWidth ?? 0}
+						/>
+
+						<ClayForm.Group small>
+							<label htmlFor="layer-prop-border-color">
+								{t('border-color')}
+							</label>
+
+							<input
+								className="editor-color-input form-control form-control-sm"
+								id="layer-prop-border-color"
+								onBlur={() => {
+									if (borderGesture.current) {
+										borderGesture.current = false;
+
+										commitPatch({
+											borderColor:
+												overlay.borderColor ??
+												DEFAULT_BORDER_COLOR,
+										});
+									}
+								}}
+								onChange={(event) => {
+									borderGesture.current = true;
+
+									dispatch({
+										id: overlay.id,
+										patch: {borderColor: event.target.value},
+										transient: true,
+										type: 'update-overlay',
+									});
+								}}
+								type="color"
+								value={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
+							/>
+						</ClayForm.Group>
+					</>
+				)}
 			</div>
 		</div>
 	);
+}
+
+/**
+ * Which overlays can carry an outline: the drawn shapes. A redaction is a
+ * mosaic and a sticker brings its own artwork.
+ */
+function hasBorder(
+	overlay: Overlay
+): overlay is CircleOverlay | ShapeOverlay {
+	return overlay.kind === 'circle' || overlay.kind === 'shape';
 }
 
 interface Props {

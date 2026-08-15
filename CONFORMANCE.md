@@ -40,7 +40,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 2.5.3 Label in Name | A | Pass | Visible text is contained in accessible names. |
 | 2.5.4 Motion Actuation | A | N/A | No motion input. |
 | 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value. |
-| 2.5.8 Target Size (Minimum) | AA | Pass | No target is under 24 by 24 CSS pixels. The crop handles are exactly 24 by 24 with a painted dot smaller than the hit area, the compact sliders keep a 24 pixel band under a 14 pixel dot, and the filter radios are visually hidden so their target is the whole card. Measured across every button, input and stage handle. |
+| 2.5.8 Target Size (Minimum) | AA | Pass | No target is under 24 by 24 CSS pixels, including an annotation the author has made smaller than that: the painted shape shrinks, its hit area does not, and the minimum is applied in screen space so it survives zooming. The crop handles are exactly 24 by 24 with a painted dot smaller than the hit area, the compact sliders keep a 24 pixel band under a 14 pixel dot, and the filter radios are visually hidden so their target is the whole card. Measured across every button, input and stage handle. |
 | 3.1.1 Language of Page | A | Pass | `<html lang="en">`. |
 | 3.1.2 Language of Parts | AA | N/A | Single language. |
 | 3.2.1 On Focus | A | Pass | Focus never triggers context changes. |

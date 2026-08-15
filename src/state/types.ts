@@ -65,6 +65,13 @@ export interface TextOverlay {
 }
 
 export interface CircleOverlay {
+
+	/**
+	 * Optional outline. No border is drawn unless a width is set, which is
+	 * what keeps a new shape flat by default.
+	 */
+	borderColor?: string;
+	borderWidth?: number;
 	color: string;
 	height: number;
 	id: string;
@@ -77,6 +84,13 @@ export interface CircleOverlay {
 }
 
 export interface ShapeOverlay {
+
+	/**
+	 * Optional outline. No border is drawn unless a width is set, which is
+	 * what keeps a new shape flat by default.
+	 */
+	borderColor?: string;
+	borderWidth?: number;
 	color: string;
 	height: number;
 	id: string;

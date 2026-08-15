@@ -9,6 +9,7 @@ import {t} from '../i18n';
 import {
 	OverlayShape,
 	overlayBounds,
+	overlayHitBox,
 	overlayLabel,
 	overlayTransform,
 	textWidth,
@@ -96,6 +97,13 @@ function editorBackground(color: string): string {
 
 	return 'rgba(255, 255, 255, 0.92)';
 }
+
+/**
+ * The smallest target the editor will offer, in screen pixels (WCAG 2.2,
+ * 2.5.8). Divided by the zoom wherever it is used, since the stage is
+ * drawn in image units.
+ */
+const MINIMUM_TARGET = 24;
 
 const STRETCH_EDGES = [
 	{cursor: 'ns-resize', name: 'n', x: 0.5, y: 0},
@@ -613,6 +621,11 @@ export function OverlaysEditable({
 			{overlays.map((overlay) => {
 				const bounds = overlayBounds(overlay);
 
+				// 24 screen pixels, expressed in stage units so the target
+				// keeps its size at any zoom.
+
+				const hit = overlayHitBox(overlay, MINIMUM_TARGET / zoom);
+
 				return (
 					<g
 						key={overlay.id}
@@ -647,7 +660,7 @@ export function OverlaysEditable({
 							className="overlay-hit"
 							data-overlay-id={overlay.id}
 							fill="transparent"
-							height={bounds.height}
+							height={hit.height}
 							onBlur={() => setFocus(null)}
 							onDoubleClick={
 								overlay.kind === 'text'
@@ -677,9 +690,9 @@ export function OverlaysEditable({
 							onPointerUp={handlePointerUp}
 							role="button"
 							tabIndex={0}
-							width={bounds.width}
-							x={bounds.x}
-							y={bounds.y}
+							width={hit.width}
+							x={hit.x}
+							y={hit.y}
 						/>
 
 						{editing?.id === overlay.id &&

@@ -265,7 +265,7 @@
 								</li>
 								<li>
 									Rectangles and circles, freely resizable in any
-									direction
+									direction, with an optional border
 								</li>
 								<li>
 									Redactions that pixelate for real, in four block sizes
@@ -698,8 +698,9 @@
 							<p>
 								No target is under 24 by 24 pixels, the size WCAG 2.2 asks
 								for. Controls keep a 24 pixel interactive band even where
-								the painted dot is smaller, so a dense panel never costs
-								pointer accuracy.
+								the painted dot is smaller, and an annotation dragged down
+								to a few pixels keeps a full-size target too, measured in
+								screen space so it holds at any zoom.
 							</p>
 						</article>
 

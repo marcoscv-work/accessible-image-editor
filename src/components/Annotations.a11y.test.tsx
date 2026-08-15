@@ -597,6 +597,69 @@ describe('Annotations, filters, and layers', () => {
 		);
 	});
 
+	it('keeps a 24 pixel target on an annotation smaller than that', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		for (const [label, value] of [
+			['Width', '8'],
+			['Height', '8'],
+		]) {
+			const field = screen.getByLabelText(label);
+
+			fireEvent.change(field, {target: {value}});
+			fireEvent.keyDown(field, {key: 'Enter'});
+		}
+
+		const shape = container.querySelector('rect[fill="#0b5fff"]');
+		const hit = container.querySelector('.overlay-hit');
+
+		// What is painted shrinks to what was asked for; what can be hit
+		// does not go below the minimum (WCAG 2.2, 2.5.8). The harness
+		// renders at 50%, so those 24 screen pixels are 48 image units:
+		// the target is a screen measurement, not an image one.
+
+		expect(shape).toHaveAttribute('width', '8');
+		expect(hit).toHaveAttribute('width', '48');
+		expect(hit).toHaveAttribute('height', '48');
+
+		// And it stays centred on the annotation.
+
+		expect(Number(hit!.getAttribute('x'))).toBe(
+			Number(shape!.getAttribute('x')) - 20
+		);
+	});
+
+	it('draws no border until one is asked for', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		const shape = () => container.querySelector('rect[fill="#0b5fff"]');
+
+		expect(shape()).not.toHaveAttribute('stroke');
+
+		const width = screen.getByLabelText('Border width');
+
+		fireEvent.change(width, {target: {value: '4'}});
+		fireEvent.keyDown(width, {key: 'Enter'});
+
+		expect(shape()).toHaveAttribute('stroke-width', '4');
+		expect(shape()).toHaveAttribute('stroke');
+
+		// Back to zero and the outline goes away again.
+
+		fireEvent.change(screen.getByLabelText('Border width'), {
+			target: {value: '0'},
+		});
+		fireEvent.keyDown(screen.getByLabelText('Border width'), {
+			key: 'Enter',
+		});
+
+		expect(shape()).not.toHaveAttribute('stroke');
+	});
+
 	it('centers a new annotation on the crop, not on the image', () => {
 		const {container} = render(<CroppedHarness />);
 
