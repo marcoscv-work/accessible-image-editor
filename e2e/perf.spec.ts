@@ -20,6 +20,8 @@ const DIRNAME = path.dirname(fileURLToPath(import.meta.url));
 
 const PERF_ASSET = path.join(DIRNAME, 'assets/perf-20mp.jpg');
 
+const BADGE_ASSET = path.join(DIRNAME, 'assets/badge.png');
+
 test.beforeAll(() => {
 	if (!existsSync(PERF_ASSET)) {
 		execFileSync('node', [
@@ -92,11 +94,80 @@ test('20MP image: load, slider, and crop interactions stay responsive', async ({
 		await page.keyboard.press('ArrowLeft');
 	});
 
+	// A frame is drawn from the crop on every render, so its slider is
+	// the same kind of interaction as the tone sliders.
+
+	// Through the label, the way a person picks it: the radio itself is
+	// visually hidden, and the card is the target.
+
+	await page.getByText('Mat', {exact: true}).click();
+
+	await page.locator('#frame-size').focus();
+
+	const frameMillis = await measureInteraction(page, async () => {
+		await page.keyboard.press('ArrowRight');
+	});
+
 	// eslint-disable-next-line no-console
 	console.log(
-		`PERF 20MP: load+open=${loadMillis}ms slider-step=${sliderMillis}ms crop-nudge=${cropMillis}ms`
+		`PERF 20MP: load+open=${loadMillis}ms slider-step=${sliderMillis}ms ` +
+			`crop-nudge=${cropMillis}ms frame-step=${frameMillis}ms`
 	);
 
 	expect(sliderMillis).toBeLessThan(100);
 	expect(cropMillis).toBeLessThan(100);
+	expect(frameMillis).toBeLessThan(100);
+});
+
+/**
+ * Export is the one operation that touches the original file: the whole
+ * scene is serialized, rasterized at full resolution and encoded. It runs
+ * once, on a click, so the budget is a second-scale ceiling rather than
+ * an interaction one; the point of measuring is to notice the day it
+ * doubles.
+ */
+
+test('20MP image: exporting a full scene stays within seconds', async ({
+	page,
+}) => {
+	await page.goto('/');
+
+	await page.locator('input[type="file"]').setInputFiles(PERF_ASSET);
+
+	await expect(page.getByRole('dialog')).toBeVisible();
+	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
+
+	// A scene with everything that costs something at export time: a
+	// colour pipeline, a pixelated redaction, a picture of the user's own
+	// and a frame.
+
+	await page.getByText('Vintage', {exact: true}).click();
+
+	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
+
+	await page.getByRole('button', {exact: true, name: 'Add image'}).click();
+
+	await page
+		.getByRole('dialog')
+		.locator('input[type=file]')
+		.setInputFiles(BADGE_ASSET);
+
+	await page.getByText('Print', {exact: true}).click();
+
+	await expect(page.locator('.editor-stage .editor-frame')).toBeVisible();
+
+	const downloadPromise = page.waitForEvent('download');
+
+	const exportStart = Date.now();
+
+	await page.getByRole('button', {exact: true, name: 'Save'}).click();
+
+	await downloadPromise;
+
+	const exportMillis = Date.now() - exportStart;
+
+	// eslint-disable-next-line no-console
+	console.log(`PERF 20MP: export=${exportMillis}ms`);
+
+	expect(exportMillis).toBeLessThan(10_000);
 });

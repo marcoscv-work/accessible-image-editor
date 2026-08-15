@@ -14,11 +14,13 @@ The decisive move is not avoiding `<canvas>`; it is making **every operation par
 
 | Metric | Result | Budget |
 | --- | --- | --- |
-| Open editor (decode + downscale + modal) | 587–927ms | informative |
+| Open editor (decode + downscale + modal) | 554–1071ms | informative |
 | Adjustment slider step (render + paint) | 23–32ms | < 100ms |
-| Crop handle nudge (render + paint) | 23–27ms | < 100ms |
+| Crop handle nudge (render + paint) | 21–32ms | < 100ms |
+| Frame size step (render + paint) | 26ms | < 100ms |
+| Export a full scene at 20MP | 737–746ms | < 10s |
 
-The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original file touched only at export) is what makes this flat: interaction cost is independent of source resolution. Numbers come from `e2e/perf.spec.ts` and are asserted, not just observed. Not yet measured: full-resolution 20MP export encode time, and low-end hardware.
+The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original file touched only at export) is what makes this flat: interaction cost is independent of source resolution. The export figure is the whole thing at full resolution, with a colour pipeline, a pixelated redaction, an imported picture and a frame in the scene: serializing the SVG, rasterizing it and encoding the JPEG. Numbers come from `e2e/perf.spec.ts` and are asserted, not just observed. Not yet measured: low-end hardware, and a scene with dozens of annotations.
 
 ## What was easy (architecture dividends)
 
