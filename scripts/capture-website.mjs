@@ -383,6 +383,71 @@ for (const scheme of ['light', 'dark']) {
 	await page.close();
 }
 
+// 6c. A deliberately tiny annotation at two zoom levels, with its target
+// outlined for the picture: the target is transparent in the product, and
+// the point of the shot is that it does not change size on screen.
+
+{
+	const page = await openEditor({height: 700, width: 900});
+
+	await page.getByRole('button', {exact: true, name: 'Add circle'}).click();
+	await page.waitForTimeout(400);
+
+	for (const [id, value] of [
+		['#layer-prop-width', '12'],
+		['#layer-prop-height', '12'],
+	]) {
+		const field = page.locator(id);
+
+		await field.fill(value);
+		await field.press('Enter');
+		await page.waitForTimeout(200);
+	}
+
+	await page.evaluate(() => {
+		const style = document.createElement('style');
+
+		style.textContent =
+			'.overlay-hit { stroke: #0b5fff; stroke-dasharray: 4 3; ' +
+			'stroke-width: 1.5px; vector-effect: non-scaling-stroke; }';
+
+		document.head.append(style);
+	});
+
+	// Deselected, so the resize handles do not cover the very thing the
+	// picture is about.
+
+	await page.locator('.editor-workspace').click({position: {x: 8, y: 8}});
+	await page.waitForTimeout(300);
+
+	const shot = async (name) => {
+		const box = await region(page, '.editor-workspace .overlay-hit', 110);
+
+		await page.mouse.move(0, 0);
+		await page.waitForTimeout(200);
+		await page.screenshot({
+			clip: box,
+			path: path.join(SHOTS, name),
+			quality: 88,
+			type: 'jpeg',
+		});
+
+		console.log('captured', name);
+	};
+
+	await shot('target-fit.jpg');
+
+	for (let step = 0; step < 3; step++) {
+		await page.keyboard.press('+');
+		await page.waitForTimeout(200);
+	}
+
+	await page.waitForTimeout(400);
+	await shot('target-zoomed.jpg');
+
+	await page.close();
+}
+
 // 7. The keyboard shortcuts dialog.
 
 {

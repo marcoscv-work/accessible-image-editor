@@ -751,6 +751,53 @@
 						</div>
 					</div>
 
+					<div class="showcase" style="margin-top: 3.5rem">
+						<div class="showcase-text">
+							<h3>A six pixel dot, a full size target</h3>
+							<p>
+								An annotation can legitimately be tiny: a dot marking a
+								detail, a thin line over a diagram. What is painted should
+								be exactly the size that was asked for, but what can be
+								hit should never fall below 24 by 24 pixels.
+							</p>
+							<p>
+								The subtle part is where that minimum is measured. The
+								stage is drawn in image units and scaled by the zoom, so a
+								fixed 24 there would be 13 pixels on screen at 54% and 36
+								at 150%: compliant only some of the time. The minimum is
+								applied in screen space and divided by the zoom, which is
+								why the target below is the same size in both pictures
+								while the photograph is not.
+							</p>
+						</div>
+
+						<div class="phone-row">
+							<figure class="figure reveal">
+								<img
+									class="window"
+									src="screenshots/target-fit.jpg"
+									width="490"
+									height="490"
+									style="max-width: min(100%, 245px)"
+									alt="A tiny blue dot on the photograph, surrounded by a dashed square marking the area that can be clicked."
+								/>
+								<figcaption>Fit to the window</figcaption>
+							</figure>
+
+							<figure class="figure reveal">
+								<img
+									class="window"
+									src="screenshots/target-zoomed.jpg"
+									width="490"
+									height="490"
+									style="max-width: min(100%, 245px)"
+									alt="The same dot after zooming in: the photograph and the dot are larger, and the dashed square is exactly the same size."
+								/>
+								<figcaption>Zoomed to 150%</figcaption>
+							</figure>
+						</div>
+					</div>
+
 					<div class="table-wrap reveal" style="margin-top: 3.5rem">
 						<table>
 							<caption>
