@@ -190,9 +190,9 @@
 						</p>
 					</div>
 
-					<div class="grid">
+					<div class="grid grid-nine">
 						<article class="card reveal">
-							<span class="card-count">Crop, rotation and frames</span>
+							<span class="card-count">Crop and rotation</span>
 							<h3>Framing</h3>
 							<ul>
 								<li>Free crop with eight handles, movable as a whole</li>
@@ -211,18 +211,6 @@
 									Zoom and fit, anchored to the pointer;
 									<kbd>Shift</kbd> keeps proportions and
 									<kbd>Alt</kbd> resizes from the centre
-								</li>
-								<li>
-									Nine frames, one at a time: mat, bevel, line, double
-									line, dashed, ticks, corners, inset and print
-								</li>
-								<li>
-									Frame colour, weight and offset as percentages,
-									redrawn from the crop every time it changes
-								</li>
-								<li>
-									The frame drawn over the annotations or under them,
-									whichever the picture needs
 								</li>
 							</ul>
 						</article>
@@ -271,6 +259,33 @@
 						</article>
 
 						<article class="card reveal">
+							<span class="card-count">9 frames</span>
+							<h3>An edge that fits</h3>
+							<ul>
+								<li>
+									Mat, bevel, line, double line, dashed, ticks, corners,
+									inset and print
+								</li>
+								<li>
+									Any colour, with a weight and an offset given as
+									percentages of the picture
+								</li>
+								<li>
+									Redrawn from the crop every time it changes, so it is
+									never stranded on the old edges
+								</li>
+								<li>
+									Over the annotations or under them, whichever the
+									picture needs
+								</li>
+								<li>
+									One at a time, as a radio group, with the same ring,
+									bold label and check badge
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
 							<span class="card-count">Annotations</span>
 							<h3>Marking things up</h3>
 							<ul>
@@ -285,14 +300,37 @@
 								<li>
 									Redactions that pixelate for real, in four block sizes
 								</li>
-								<li>Ten stickers, each recoloured from its own palette</li>
-								<li>
-									A picture of your own: pick a PNG and it becomes one
-									more layer, named, movable and resizable like the rest
-								</li>
 								<li>
 									Inserted at the centre of the current crop, and clipped
 									by it
+								</li>
+								<li>
+									Nothing painted below 24 by 24 loses its target: the
+									area that can be hit is measured on screen
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">Stickers and pictures</span>
+							<h3>Bringing things in</h3>
+							<ul>
+								<li>Ten stickers, each recoloured from its own palette</li>
+								<li>
+									A picture of your own: pick a PNG and it becomes one
+									more layer
+								</li>
+								<li>
+									Named after the file, with a description you can edit,
+									because that is what is read out
+								</li>
+								<li>
+									Moved, resized, reordered and undone like every other
+									annotation
+								</li>
+								<li>
+									Composited into the export at full resolution, not
+									pasted on afterwards
 								</li>
 							</ul>
 						</article>
@@ -313,14 +351,37 @@
 						</article>
 
 						<article class="card reveal">
-							<span class="card-count">History and output</span>
-							<h3>Undo and export</h3>
+							<span class="card-count">History</span>
+							<h3>Every change, by name</h3>
 							<ul>
 								<li>Labelled undo and redo of every change</li>
 								<li>One drag is one history step, not forty</li>
 								<li>
+									A control returned to the value it already had is not a
+									step at all
+								</li>
+								<li>
+									What was undone is announced, so the result is not
+									something to go and look for
+								</li>
+								<li>
+									<kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Z</kbd>, and
+									<kbd>Shift</kbd> to redo
+								</li>
+							</ul>
+						</article>
+
+						<article class="card reveal">
+							<span class="card-count">Output</span>
+							<h3>Saving and leaving</h3>
+							<ul>
+								<li>
 									Export keeps PNG for PNG input, and encodes everything
 									else as JPEG
+								</li>
+								<li>
+									The exported file is the preview, rendered again at full
+									resolution
 								</li>
 								<li>
 									Editing runs on a downscaled preview, so a 20 megapixel
@@ -329,6 +390,10 @@
 								<li>
 									Cancel leaves the file untouched: until it is saved, the
 									edit exists only as data
+								</li>
+								<li>
+									The host receives a <code>Blob</code> and decides what
+									happens next
 								</li>
 							</ul>
 						</article>

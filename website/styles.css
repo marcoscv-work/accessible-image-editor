@@ -439,6 +439,20 @@ kbd {
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
 }
 
+/*
+ * Nine cards fall into three neat rows wherever there is room for three
+ * columns. Between 620 and 920 pixels there is room for two, and nine is
+ * an odd number: the last card would sit alone with a gap beside it. It
+ * spans the row instead, which reads as a decision rather than a
+ * leftover.
+ */
+
+@media (min-width: 38.75rem) and (max-width: 57.4375rem) {
+	.grid-nine > :last-child {
+		grid-column: 1 / -1;
+	}
+}
+
 .card {
 	background: var(--white);
 	border: 1px solid var(--gray-300);
