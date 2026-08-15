@@ -766,8 +766,10 @@
 								fixed 24 there would be 13 pixels on screen at 54% and 36
 								at 150%: compliant only some of the time. The minimum is
 								applied in screen space and divided by the zoom, which is
-								why the target below is the same size in both pictures
-								while the photograph is not.
+								why the dashed target is the same size in both pictures
+								while the photograph is not. Both are shown at actual
+								size, so that square is the 24 pixels the criterion asks
+								for.
 							</p>
 						</div>
 
@@ -781,7 +783,10 @@
 									style="max-width: min(100%, 245px)"
 									alt="A tiny blue dot on the photograph, surrounded by a dashed square marking the area that can be clicked."
 								/>
-								<figcaption>Fit to the window</figcaption>
+								<figcaption>
+									Fit to the window. The target is outlined for the
+									picture; in the editor it is invisible.
+								</figcaption>
 							</figure>
 
 							<figure class="figure reveal">
@@ -793,7 +798,10 @@
 									style="max-width: min(100%, 245px)"
 									alt="The same dot after zooming in: the photograph and the dot are larger, and the dashed square is exactly the same size."
 								/>
-								<figcaption>Zoomed to 150%</figcaption>
+								<figcaption>
+									Zoomed to 150%. The dot grew with the photograph, the
+									target did not.
+								</figcaption>
 							</figure>
 						</div>
 					</div>
