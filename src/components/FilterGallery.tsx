@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {memo} from 'react';
+
 import {t} from '../i18n';
 import {FilterDefs} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
@@ -28,7 +30,7 @@ interface Props {
  * each option carries a live thumbnail rendered through the exact same
  * filter pipeline the preview and the export use.
  */
-export function FilterGallery({
+function FilterGalleryCards({
 	dispatch,
 	filter,
 	image,
@@ -120,3 +122,11 @@ export function FilterGallery({
 		</EditorSection>
 	);
 }
+
+/*
+ * The cards are the most expensive thing in the sidebar, and none of them
+ * change while a crop or an annotation is being dragged: memoized, they
+ * are drawn once per actual change instead of once per pointer move.
+ */
+
+export const FilterGallery = memo(FilterGalleryCards);
