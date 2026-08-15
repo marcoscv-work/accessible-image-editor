@@ -7,6 +7,7 @@ import ClayModal, {useModal} from '@clayui/modal';
 import React, {
 	useCallback,
 	useEffect,
+	useMemo,
 	useReducer,
 	useRef,
 	useState,
@@ -30,6 +31,7 @@ import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
 import {FilterGallery} from './FilterGallery';
+import {FramePanel} from './FramePanel';
 import {LayersPanel} from './LayersPanel';
 import {ShortcutsDialog} from './ShortcutsDialog';
 import {Workspace} from './Workspace';
@@ -93,7 +95,10 @@ interface Props {
 }
 
 export default function EditorModal({config, image, onClose}: Props) {
-	const enabled = resolveConfig(config);
+	// Stable across renders, so the galleries below can skip re-rendering
+	// their cards while a crop is being dragged.
+
+	const enabled = useMemo(() => resolveConfig(config), [config]);
 
 	const announce = useAnnouncer();
 
@@ -552,6 +557,16 @@ export default function EditorModal({config, image, onClose}: Props) {
 									image={image}
 									onAnnounce={announce}
 									presets={enabled.filters}
+								/>
+							)}
+
+							{enabled.frames.length > 0 && (
+								<FramePanel
+									dispatch={dispatch}
+									frame={state.frame}
+									image={image}
+									onAnnounce={announce}
+									presets={enabled.frames}
 								/>
 							)}
 

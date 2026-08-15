@@ -42,6 +42,39 @@ export type FilterPreset =
 	| 'vivid'
 	| 'warm';
 
+export type FrameKind =
+	| 'bevel'
+	| 'corners'
+	| 'dashed'
+	| 'double'
+	| 'inset'
+	| 'line'
+	| 'mat'
+	| 'none'
+	| 'polaroid'
+	| 'ticks';
+
+/**
+ * The frame is a property of the picture, not an annotation: one at a
+ * time, like a filter, and stored as intent rather than geometry so it
+ * refits itself to whatever the crop becomes.
+ */
+export interface Frame {
+	color: string;
+	kind: FrameKind;
+
+	/**
+	 * Distance from the edge of the crop, as a percentage of its shorter
+	 * side.
+	 */
+	offset: number;
+
+	/**
+	 * Weight of the frame, as a percentage of the crop's shorter side.
+	 */
+	size: number;
+}
+
 export type RatioPreset =
 	| '1:1'
 	| '16:9'
@@ -217,6 +250,13 @@ export interface EditState {
 	 * is what flipping a photograph is expected to do.
 	 */
 	flipHorizontal: boolean;
+
+	/**
+	 * Drawn from the crop rectangle every time, so a later crop reframes
+	 * it instead of leaving it stranded where the old edges were.
+	 */
+	frame: Frame;
+
 	overlays: Overlay[];
 	ratio: RatioPreset;
 	rotation: Rotation;
@@ -254,6 +294,13 @@ export const DEFAULT_ADJUSTMENTS: Adjustments = {
 	highlights: 0,
 	saturation: 0,
 	shadows: 0,
+};
+
+export const DEFAULT_FRAME: Frame = {
+	color: '#ffffff',
+	kind: 'none',
+	offset: 0,
+	size: 4,
 };
 
 export const MIN_CROP_SIZE = 16;

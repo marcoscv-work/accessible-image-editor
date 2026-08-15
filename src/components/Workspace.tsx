@@ -7,6 +7,7 @@ import React from 'react';
 
 import {t} from '../i18n';
 import {FilterDefs, isIdentityFilter} from '../imaging/FilterDefs';
+import {FrameShape} from '../imaging/frameShapes';
 import {imageTransform} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
@@ -186,6 +187,13 @@ export function Workspace({
 						selectedId={selectedOverlayId}
 						zoom={zoom}
 					/>
+
+					{/*
+					  * Above the annotations, because the frame is the edge
+					  * of the finished picture, and below the marquee, which
+					  * is chrome rather than picture.
+					  */}
+					<FrameShape crop={crop} frame={state.frame} />
 				</CropMarquee>
 			</svg>
 		</div>

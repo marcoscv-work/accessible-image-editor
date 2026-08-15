@@ -717,30 +717,34 @@
 }
 
 /*
- * Filters: a two-column card grid. The radio input stays in the DOM and
+ * Filters and frames: a two-column card grid. The radio input stays in the DOM and
  * in the tab order (screen-reader visible, visually hidden), so the cards
  * keep the radio-group semantics; selection is conveyed by a ring and a
  * check badge, never by colour alone.
  */
 
-.editor-filter-grid {
+.editor-filter-grid,
+.editor-frame-grid {
 	display: grid;
 	gap: 0.75rem;
 	grid-template-columns: 1fr 1fr;
 }
 
-.editor-filter-option {
+.editor-filter-option,
+.editor-frame-option {
 	padding: 0;
 }
 
-.editor-filter-label {
+.editor-filter-label,
+.editor-frame-label {
 	cursor: pointer;
 	display: block;
 	margin: 0;
 	text-align: center;
 }
 
-.editor-filter-card {
+.editor-filter-card,
+.editor-frame-card {
 	border: 2px solid var(--editor-border);
 	border-radius: 4px;
 	display: block;
@@ -748,13 +752,15 @@
 	position: relative;
 }
 
-.editor-filter-thumb {
+.editor-filter-thumb,
+.editor-frame-thumb {
 	display: block;
 	height: auto;
 	width: 100%;
 }
 
-.editor-filter-name {
+.editor-filter-name,
+.editor-frame-name {
 	display: block;
 	font-size: 0.75rem;
 	margin-top: 0.25rem;
@@ -763,18 +769,21 @@
 	white-space: nowrap;
 }
 
-.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card {
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card,
+.editor-frame-input:checked ~ .editor-frame-label .editor-frame-card {
 	border-color: var(--primary, #0b5fff);
 }
 
-.editor-filter-input:checked ~ .editor-filter-label .editor-filter-name {
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-name,
+.editor-frame-input:checked ~ .editor-frame-label .editor-frame-name {
 	color: var(--primary, #0b5fff);
 	font-weight: 600;
 }
 
 /* A check badge, so the selected card does not rely on colour alone. */
 
-.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card::after {
+.editor-filter-input:checked ~ .editor-filter-label .editor-filter-card::after,
+.editor-frame-input:checked ~ .editor-frame-label .editor-frame-card::after {
 	background: var(--primary, #0b5fff);
 	border-radius: 50%;
 	color: #fff;
@@ -789,7 +798,8 @@
 	width: 1rem;
 }
 
-.editor-filter-input:focus-visible ~ .editor-filter-label .editor-filter-card {
+.editor-filter-input:focus-visible ~ .editor-filter-label .editor-filter-card,
+.editor-frame-input:focus-visible ~ .editor-frame-label .editor-frame-card {
 	outline: 2px solid var(--primary, #0b5fff);
 	outline-offset: 2px;
 }
@@ -1002,7 +1012,8 @@
 		scroll-snap-align: start;
 	}
 
-	.editor-filter-option {
+	.editor-filter-option,
+	.editor-frame-option {
 		flex: 0 0 6rem;
 	}
 

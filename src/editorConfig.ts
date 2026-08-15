@@ -4,10 +4,12 @@
  */
 
 import {FILTER_PRESETS} from './imaging/FilterDefs';
+import {FRAME_KINDS} from './imaging/frameShapes';
 import {STICKER_KINDS} from './imaging/overlayShapes';
 import {
 	Adjustments,
 	FilterPreset,
+	FrameKind,
 	RatioPreset,
 	StickerKind,
 } from './state/types';
@@ -73,6 +75,8 @@ export interface EditorConfig {
 		  };
 
 	filters?: false | {presets?: FilterPreset[]};
+
+	frames?: false | {presets?: FrameKind[]};
 }
 
 /**
@@ -90,6 +94,7 @@ export interface ResolvedEditorConfig {
 		straighten: boolean;
 	};
 	filters: FilterPreset[];
+	frames: FrameKind[];
 }
 
 /**
@@ -135,6 +140,10 @@ export function resolveConfig(config: EditorConfig = {}): ResolvedEditorConfig {
 			config.filters === false
 				? []
 				: pick(FILTER_PRESETS, config.filters?.presets),
+		frames:
+			config.frames === false
+				? []
+				: pick(FRAME_KINDS, config.frames?.presets),
 	};
 }
 
@@ -173,6 +182,14 @@ export function configFromSearch(search: string): EditorConfig {
 	if (filters) {
 		config.filters = filters.length
 			? {presets: filters as FilterPreset[]}
+			: false;
+	}
+
+	const frames = list(params.get('frames'));
+
+	if (frames) {
+		config.frames = frames.length
+			? {presets: frames as FrameKind[]}
 			: false;
 	}
 

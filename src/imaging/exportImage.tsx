@@ -7,6 +7,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 
 import {EditState} from '../state/types';
 import {FilterDefs, isIdentityFilter} from './FilterDefs';
+import {FrameShape} from './frameShapes';
 import {imageTransform} from './geometry';
 import {LoadedImage} from './loadImage';
 import {OverlayShape, overlayTransform} from './overlayShapes';
@@ -97,6 +98,8 @@ export async function exportEditedImage(
 					/>
 				</g>
 			))}
+
+			<FrameShape crop={crop} frame={state.frame} />
 		</svg>
 	);
 

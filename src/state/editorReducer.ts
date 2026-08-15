@@ -9,9 +9,11 @@ import {
 	Adjustments,
 	CropRect,
 	DEFAULT_ADJUSTMENTS,
+	DEFAULT_FRAME,
 	EditState,
 	EditorHistory,
 	FilterPreset,
+	Frame,
 	MIN_CROP_SIZE,
 	Overlay,
 	RATIO_VALUES,
@@ -35,6 +37,7 @@ export type EditorAction =
 	| {angle: number; transient?: boolean; type: 'set-angle'}
 	| {crop: CropRect; transient?: boolean; type: 'set-crop'}
 	| {filter: FilterPreset; type: 'set-filter'}
+	| {frame: Partial<Frame>; transient?: boolean; type: 'set-frame'}
 	| {type: 'flip-horizontal'}
 	| {ratio: RatioPreset; type: 'set-ratio'}
 	| {type: 'rotate-90'}
@@ -56,6 +59,7 @@ export function initialEditState(
 		crop: {height: sourceHeight, width: sourceWidth, x: 0, y: 0},
 		filter: 'none',
 		flipHorizontal: false,
+		frame: {...DEFAULT_FRAME},
 		overlays: [],
 		ratio: 'original',
 		rotation: 0,
@@ -325,6 +329,31 @@ export function editorReducer(
 				history,
 				{...present, adjustments: {...DEFAULT_ADJUSTMENTS}},
 				t('label-adjustments')
+			);
+		}
+
+		case 'set-frame': {
+			const frame = {...present.frame, ...action.frame};
+
+			// A slider dragged back to where it started, or a card clicked
+			// twice, is not an edit worth an undo entry.
+
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				frame.color === present.frame.color &&
+				frame.kind === present.frame.kind &&
+				frame.offset === present.frame.offset &&
+				frame.size === present.frame.size
+			) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{...present, frame},
+				t('label-frame'),
+				action.transient
 			);
 		}
 
