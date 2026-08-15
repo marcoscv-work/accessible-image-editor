@@ -460,6 +460,7 @@ export function overlayBounds(overlay: Overlay): {
 } {
 	switch (overlay.kind) {
 		case 'redact':
+		case 'circle':
 		case 'shape':
 			return {
 				height: overlay.height,
@@ -520,6 +521,9 @@ export function overlayLabel(overlay: Overlay): string {
 	switch (overlay.kind) {
 		case 'redact':
 			return t('overlay-redact-label');
+
+		case 'circle':
+			return t('overlay-circle-label');
 
 		case 'shape':
 			return t('overlay-shape-label');
@@ -644,6 +648,17 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 	switch (overlay.kind) {
 		case 'redact':
 			return <RedactBlock overlay={overlay} source={redactSource} />;
+
+		case 'circle':
+			return (
+				<ellipse
+					cx={overlay.x + overlay.width / 2}
+					cy={overlay.y + overlay.height / 2}
+					fill={overlay.color}
+					rx={overlay.width / 2}
+					ry={overlay.height / 2}
+				/>
+			);
 
 		case 'shape':
 			return (

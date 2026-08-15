@@ -47,7 +47,7 @@ complete editor.
 | Key | `false` | Object |
 | --- | --- | --- |
 | `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
-| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, redaction, stickers · `stickers`: any of the 10 shapes |
+| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, circle, redaction, stickers · `stickers`: any of the 10 shapes |
 | `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn and flip buttons · `straighten`: the angle slider |
 | `filters` | hides the gallery | `presets`: any of the 19 looks |
 

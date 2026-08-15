@@ -227,7 +227,7 @@ export function BottomBar({
 				/>
 
 				<span className="editor-zoom-level">
-					{Math.round(zoom * 100)}%
+					{t('zoom-percent', Math.round(zoom * 100))}
 				</span>
 
 				<ClayButtonWithIcon

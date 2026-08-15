@@ -265,7 +265,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					max={100}
 					min={0}
 					onCommit={(opacity) => commitPatch({opacity})}
-					suffix="%"
+					suffix={t('unit-percent')}
 					value={overlay.opacity ?? 100}
 				/>
 
@@ -275,7 +275,7 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 					max={360}
 					min={-360}
 					onCommit={(rotation) => commitPatch({rotation})}
-					suffix="°"
+					suffix={t('unit-degrees')}
 					value={overlay.rotation ?? 0}
 				/>
 

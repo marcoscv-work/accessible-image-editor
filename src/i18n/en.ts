@@ -9,6 +9,7 @@
  */
 export default {
 	add: 'Add',
+	'add-circle': 'Add circle',
 	'add-rectangle': 'Add rectangle',
 	'add-redaction': 'Add redaction',
 	'add-sticker-arrow': 'Add arrow sticker',
@@ -25,6 +26,7 @@ export default {
 	'adjustment-set': '{0} set to {1}',
 	adjustments: 'Adjustments',
 	'adjustments-reset': 'All adjustments reset',
+	'angle-degrees': '{0}°',
 	'angle-set': 'Straighten set to {0} degrees',
 	annotate: 'Annotate',
 	'annotation-added': '{0} added to the center of the crop area',
@@ -124,6 +126,7 @@ export default {
 	opacity: 'Opacity',
 	'open-an-image': 'Open an image from your device',
 	'open-sample-image': 'Edit sample image',
+	'overlay-circle-label': 'Circle',
 	'overlay-instructions':
 		'Use the arrow keys to move by 1 pixel, hold Shift for 10 pixels. Press Enter to edit the properties, Delete to remove.',
 	'overlay-redact-label': 'Redacted area',
@@ -179,6 +182,8 @@ export default {
 	'text-content': 'Text',
 	undo: 'Undo',
 	'undo-done': 'Undo: {0}',
+	'unit-degrees': '°',
+	'unit-percent': '%',
 	'use-dark-theme': 'Switch to the dark theme',
 	'use-light-theme': 'Switch to the light theme',
 	width: 'Width',
@@ -191,4 +196,5 @@ export default {
 	'zoom-in': 'Zoom in',
 	'zoom-level': 'Zoom {0}%',
 	'zoom-out': 'Zoom out',
+	'zoom-percent': '{0}%',
 } as Record<string, string>;

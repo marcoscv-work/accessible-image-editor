@@ -473,11 +473,12 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
-		// Add text, Add rectangle, Add redaction, then the stickers.
+		// Add text, Add rectangle, Add circle, Add redaction, then the
+		// stickers.
 
 		fireEvent.keyDown(addText, {key: 'ArrowRight'});
 
-		for (let step = 0; step < 2; step++) {
+		for (let step = 0; step < 3; step++) {
 			fireEvent.keyDown(document.activeElement as Element, {
 				key: 'ArrowRight',
 			});
@@ -566,6 +567,34 @@ describe('Annotations, filters, and layers', () => {
 		expect(container.querySelectorAll('.object-handle')).toHaveLength(9);
 
 		expect(await axe(container)).toHaveNoViolations();
+	});
+
+	it('adds a circle that behaves like the rectangle', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add circle'}));
+
+		expect(container.querySelector('ellipse')).toBeInTheDocument();
+
+		// It is a box like any other: the numeric properties drive it, and
+		// the ellipse fills that box.
+
+		const width = screen.getByLabelText('Width');
+
+		fireEvent.change(width, {target: {value: '400'}});
+		fireEvent.keyDown(width, {key: 'Enter'});
+
+		expect(container.querySelector('ellipse')).toHaveAttribute(
+			'rx',
+			'200'
+		);
+
+		// Named once on the stage and once in the layers list, like every
+		// other annotation.
+
+		expect(screen.getAllByRole('button', {name: 'Circle'})).toHaveLength(
+			2
+		);
 	});
 
 	it('centers a new annotation on the crop, not on the image', () => {

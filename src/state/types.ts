@@ -64,6 +64,18 @@ export interface TextOverlay {
 	y: number;
 }
 
+export interface CircleOverlay {
+	color: string;
+	height: number;
+	id: string;
+	kind: 'circle';
+	opacity?: number;
+	rotation?: number;
+	width: number;
+	x: number;
+	y: number;
+}
+
 export interface ShapeOverlay {
 	color: string;
 	height: number;
@@ -120,6 +132,7 @@ export interface RedactOverlay {
 
 export type Overlay =
 	| RedactOverlay
+	| CircleOverlay
 	| ShapeOverlay
 	| StickerOverlay
 	| TextOverlay;
@@ -130,8 +143,12 @@ export type Overlay =
  */
 export function isBoxOverlay(
 	overlay: Overlay
-): overlay is RedactOverlay | ShapeOverlay {
-	return overlay.kind === 'redact' || overlay.kind === 'shape';
+): overlay is CircleOverlay | RedactOverlay | ShapeOverlay {
+	return (
+		overlay.kind === 'circle' ||
+		overlay.kind === 'redact' ||
+		overlay.kind === 'shape'
+	);
 }
 
 /**

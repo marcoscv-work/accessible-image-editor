@@ -190,7 +190,7 @@ export function CropPanel({
 						<label htmlFor="crop-angle">{t('straighten')}</label>
 
 					<span aria-hidden="true" className="editor-slider-value">
-						{angle}&deg;
+						{t('angle-degrees', angle)}
 					</span>
 
 					{angle !== 0 && (

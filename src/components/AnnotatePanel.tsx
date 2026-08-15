@@ -353,6 +353,29 @@ export function AnnotatePanel({
 		focusOverlay(id);
 	};
 
+	const addCircle = () => {
+		const id = nextId('circle');
+
+		const size = Math.round(Math.min(area.width, area.height) * 0.2);
+
+		dispatch({
+			overlay: {
+				color: '#0b5fff',
+				height: size,
+				id,
+				kind: 'circle',
+				width: size,
+				x: Math.round(centerX - size / 2),
+				y: Math.round(centerY - size / 2),
+			},
+			type: 'add-overlay',
+		});
+
+		onAnnounce(t('annotation-added', t('overlay-circle-label')));
+
+		focusOverlay(id);
+	};
+
 	const addRedaction = () => {
 		const id = nextId('redact');
 
@@ -423,6 +446,17 @@ export function AnnotatePanel({
 						size="sm"
 					>
 						{t('add-rectangle')}
+					</ClayButton>
+				)}
+
+				{tools.includes('circle') && (
+					<ClayButton
+						{...rovingProps(toolIndex('circle'))}
+						displayType="secondary"
+						onClick={addCircle}
+						size="sm"
+					>
+						{t('add-circle')}
 					</ClayButton>
 				)}
 

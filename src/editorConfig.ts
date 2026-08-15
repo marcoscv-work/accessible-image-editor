@@ -14,7 +14,12 @@ import {
 
 export type AdjustmentKey = keyof Adjustments;
 
-export type AnnotateTool = 'rectangle' | 'redaction' | 'stickers' | 'text';
+export type AnnotateTool =
+	| 'circle'
+	| 'rectangle'
+	| 'redaction'
+	| 'stickers'
+	| 'text';
 
 export const ADJUSTMENT_KEYS: AdjustmentKey[] = [
 	'brightness',
@@ -27,6 +32,7 @@ export const ADJUSTMENT_KEYS: AdjustmentKey[] = [
 export const ANNOTATE_TOOLS: AnnotateTool[] = [
 	'text',
 	'rectangle',
+	'circle',
 	'redaction',
 	'stickers',
 ];
