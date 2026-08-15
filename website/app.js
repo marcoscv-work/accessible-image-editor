@@ -216,14 +216,9 @@
 
 	var SCHEME_KEY = 'accessible-image-editor-color-scheme';
 
-	var SUN =
-		'M8 1a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 1Zm0 10.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0-1.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 12Zm7-4a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 15 8ZM3.25 8.75a.75.75 0 0 1 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5Zm9.65-5.65a.75.75 0 0 1 0 1.06l-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0ZM5.22 10.78a.75.75 0 0 1 0 1.06L4.16 12.9a.75.75 0 0 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0Zm7.68 2.12a.75.75 0 0 1-1.06 0l-1.06-1.06a.75.75 0 1 1 1.06-1.06l1.06 1.06a.75.75 0 0 1 0 1.06ZM4.16 3.1a.75.75 0 0 1 1.06 1.06L4.16 5.22A.75.75 0 0 1 3.1 4.16L4.16 3.1Z';
-
-	var MOON =
-		'M6.2 2.1a.75.75 0 0 1 .1.83 4.9 4.9 0 0 0 6.77 6.77.75.75 0 0 1 1 1A6.4 6.4 0 1 1 5.37 1.1a.75.75 0 0 1 .83.1Z';
-
 	var toggle = document.getElementById('theme-toggle');
-	var icon = document.getElementById('theme-toggle-icon');
+	var sun = document.getElementById('theme-icon-sun');
+	var moon = document.getElementById('theme-icon-moon');
 
 	function readScheme() {
 		try {
@@ -236,6 +231,15 @@
 		}
 	}
 
+	function show(icon, visible) {
+		if (visible) {
+			icon.removeAttribute('hidden');
+		}
+		else {
+			icon.setAttribute('hidden', '');
+		}
+	}
+
 	function paint(scheme) {
 		var dark = scheme === 'dark';
 
@@ -245,6 +249,9 @@
 			return;
 		}
 
+		// The icon is the destination, not the current state: the sun
+		// takes you back to light, the same way the editor's switch reads.
+
 		var label = dark
 			? 'Switch to the light colour scheme'
 			: 'Switch to the dark colour scheme';
@@ -252,7 +259,12 @@
 		toggle.setAttribute('aria-label', label);
 		toggle.setAttribute('title', label);
 
-		icon.setAttribute('d', dark ? MOON : SUN);
+		// `hidden` is an HTMLElement property: assigning it on an SVG
+		// element sets a JavaScript field and nothing else, so the
+		// attribute has to be written by hand.
+
+		show(sun, dark);
+		show(moon, !dark);
 	}
 
 	paint(readScheme());
