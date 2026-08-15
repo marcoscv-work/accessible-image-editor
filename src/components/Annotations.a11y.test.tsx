@@ -473,12 +473,12 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
-		// Add text, Add rectangle, Add circle, Add redaction, then the
-		// stickers.
+		// Add text, Add rectangle, Add circle, Add redaction, Add image,
+		// then the stickers.
 
 		fireEvent.keyDown(addText, {key: 'ArrowRight'});
 
-		for (let step = 0; step < 3; step++) {
+		for (let step = 0; step < 4; step++) {
 			fireEvent.keyDown(document.activeElement as Element, {
 				key: 'ArrowRight',
 			});

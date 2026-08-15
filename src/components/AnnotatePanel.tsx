@@ -10,6 +10,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {AnnotateTool} from '../editorConfig';
 import {t} from '../i18n';
+import {loadOverlayImage} from '../imaging/loadImage';
 import {
 	STICKER_DEFAULT_COLORS,
 	StickerArt,
@@ -246,6 +247,8 @@ export function AnnotatePanel({
 
 	const panelRef = useRef<HTMLDivElement>(null);
 
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
 	// The roving order follows what is actually rendered, so a reduced
 	// tool set still behaves as one tab stop with contiguous arrows.
 
@@ -401,6 +404,50 @@ export function AnnotatePanel({
 		focusOverlay(id);
 	};
 
+	const addImage = async (file: File) => {
+		let picture;
+
+		try {
+			picture = await loadOverlayImage(file);
+		}
+		catch {
+			onAnnounce(t('image-annotation-failed'));
+
+			return;
+		}
+
+		const id = nextId('image');
+
+		// A third of the crop, in the picture's own proportions and never
+		// taller than the crop: a phone screenshot dropped on a landscape
+		// photograph should land as an annotation, not as a curtain.
+
+		const width = Math.min(
+			Math.round(area.width / 3),
+			Math.round(((area.height / 3) * picture.width) / picture.height)
+		);
+
+		const height = Math.round((width * picture.height) / picture.width);
+
+		dispatch({
+			overlay: {
+				description: file.name.replace(/\.[^.]+$/, ''),
+				height,
+				id,
+				kind: 'image',
+				src: picture.src,
+				width,
+				x: Math.round(centerX - width / 2),
+				y: Math.round(centerY - height / 2),
+			},
+			type: 'add-overlay',
+		});
+
+		onAnnounce(t('annotation-added', t('overlay-image-label')));
+
+		focusOverlay(id);
+	};
+
 	const addSticker = (sticker: StickerKind) => {
 		const id = nextId('sticker');
 
@@ -469,6 +516,43 @@ export function AnnotatePanel({
 					>
 						{t('add-redaction')}
 					</ClayButton>
+				)}
+
+				{tools.includes('image') && (
+					<>
+						<ClayButton
+							{...rovingProps(toolIndex('image'))}
+							displayType="secondary"
+							onClick={() => fileInputRef.current?.click()}
+							size="sm"
+						>
+							{t('add-image')}
+						</ClayButton>
+
+						{/*
+						  * Hidden rather than visually hidden: the button is
+						  * the control, and a reachable input next to it
+						  * would be the same action announced twice.
+						  */}
+						<input
+							accept="image/png,image/jpeg,image/webp,image/gif"
+							hidden
+							onChange={(event) => {
+								const file = event.target.files?.[0];
+
+								// Cleared before the await, so picking the
+								// same file again still fires a change.
+
+								event.target.value = '';
+
+								if (file) {
+									addImage(file);
+								}
+							}}
+							ref={fileInputRef}
+							type="file"
+						/>
+					</>
 				)}
 			</div>
 

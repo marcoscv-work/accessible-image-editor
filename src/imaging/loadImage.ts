@@ -77,6 +77,44 @@ function downsampleToDataURL(
 }
 
 /**
+ * Longest side of a picture brought in as an annotation. Big enough to
+ * stay crisp when it is exported into a large frame, small enough that
+ * the data URL it becomes does not dominate the edit state.
+ */
+export const OVERLAY_IMAGE_MAX_SIZE = 1600;
+
+/**
+ * Reads a picture the user picked for an image annotation. PNG out, so
+ * transparency survives, and a data URL rather than an object URL because
+ * the export SVG cannot fetch `blob:`.
+ */
+export async function loadOverlayImage(
+	blob: Blob
+): Promise<{height: number; src: string; width: number}> {
+	const bitmap = await createImageBitmap(blob);
+
+	const longestSide = Math.max(bitmap.width, bitmap.height);
+
+	const scale = Math.min(1, OVERLAY_IMAGE_MAX_SIZE / longestSide);
+
+	const src = downsampleToDataURL(
+		bitmap,
+		Math.round(longestSide * scale),
+		'image/png'
+	);
+
+	const {height, width} = bitmap;
+
+	bitmap.close();
+
+	if (!src) {
+		throw new Error('Could not read the picture');
+	}
+
+	return {height, src, width};
+}
+
+/**
  * Decodes an image and prepares a downscaled preview. The offscreen canvas
  * here is a decoder/scaler only: it is never attached to the DOM and plays
  * no part in the interactive UI.

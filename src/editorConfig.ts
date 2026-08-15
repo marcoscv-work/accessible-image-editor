@@ -16,6 +16,7 @@ export type AdjustmentKey = keyof Adjustments;
 
 export type AnnotateTool =
 	| 'circle'
+	| 'image'
 	| 'rectangle'
 	| 'redaction'
 	| 'stickers'
@@ -34,6 +35,7 @@ export const ANNOTATE_TOOLS: AnnotateTool[] = [
 	'rectangle',
 	'circle',
 	'redaction',
+	'image',
 	'stickers',
 ];
 

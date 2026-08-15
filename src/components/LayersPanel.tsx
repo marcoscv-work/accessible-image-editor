@@ -15,6 +15,7 @@ import {
 import {EditorAction} from '../state/editorReducer';
 import {
 	CircleOverlay,
+	ImageOverlay,
 	Overlay,
 	RedactOverlay,
 	ShapeOverlay,
@@ -186,8 +187,21 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 				/>
 			)}
 
+			{/*
+			  * A picture carries no words of its own, so the only thing
+			  * naming it for a screen reader is this field.
+			  */}
+			{overlay.kind === 'image' && (
+				<TextField
+					id="layer-prop-description"
+					label={t('image-description')}
+					onCommit={(description) => commitPatch({description})}
+					value={overlay.description}
+				/>
+			)}
+
 			<div className="editor-panel-grid">
-				{overlay.kind === 'redact' ? (
+				{overlay.kind === 'redact' && (
 					<ClayForm.Group small>
 						<label htmlFor="layer-prop-level">
 							{t('redact-level')}
@@ -217,7 +231,9 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 							value={overlay.level}
 						/>
 					</ClayForm.Group>
-				) : (
+				)}
+
+				{hasColor(overlay) && (
 					<ClayForm.Group small>
 						<label htmlFor="layer-prop-color">
 							{t('text-color')}
@@ -404,6 +420,16 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
  * Which overlays can carry an outline: the drawn shapes. A redaction is a
  * mosaic and a sticker brings its own artwork.
  */
+/**
+ * Everything but a redaction and a picture, which take their pixels from
+ * elsewhere and have no fill of their own.
+ */
+function hasColor(
+	overlay: Overlay
+): overlay is Exclude<Overlay, ImageOverlay | RedactOverlay> {
+	return overlay.kind !== 'image' && overlay.kind !== 'redact';
+}
+
 function hasBorder(
 	overlay: Overlay
 ): overlay is CircleOverlay | ShapeOverlay {

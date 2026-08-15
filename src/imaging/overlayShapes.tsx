@@ -479,6 +479,7 @@ export function overlayBounds(overlay: Overlay): {
 	switch (overlay.kind) {
 		case 'redact':
 		case 'circle':
+		case 'image':
 		case 'shape':
 			return {
 				height: overlay.height,
@@ -545,6 +546,9 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'shape':
 			return t('overlay-shape-label');
+
+		case 'image':
+			return overlay.description;
 
 		case 'sticker':
 			return t(`sticker-${overlay.sticker}`);
@@ -677,6 +681,22 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 					ry={overlay.height / 2}
 					stroke={borderStroke(overlay)}
 					strokeWidth={overlay.borderWidth || undefined}
+				/>
+			);
+
+		case 'image':
+			return (
+				<image
+					height={overlay.height}
+					href={overlay.src}
+
+					// The box is the geometry the user resized, so the
+					// picture fills it rather than letterboxing inside it.
+
+					preserveAspectRatio="none"
+					width={overlay.width}
+					x={overlay.x}
+					y={overlay.y}
 				/>
 			);
 

@@ -10,6 +10,7 @@
 export default {
 	add: 'Add',
 	'add-circle': 'Add circle',
+	'add-image': 'Add image',
 	'add-rectangle': 'Add rectangle',
 	'add-redaction': 'Add redaction',
 	'add-sticker-arrow': 'Add arrow sticker',
@@ -99,6 +100,8 @@ export default {
 	'font-size': 'Font size',
 	height: 'Height',
 	highlights: 'Highlights',
+	'image-annotation-failed': 'That file could not be read as an image',
+	'image-description': 'Image description',
 	'image-saved': 'Image saved as {0}',
 	'keyboard-shortcuts': 'Keyboard shortcuts',
 	'label-adjustments': 'adjustment change',
@@ -129,6 +132,7 @@ export default {
 	'open-an-image': 'Open an image from your device',
 	'open-sample-image': 'Edit sample image',
 	'overlay-circle-label': 'Circle',
+	'overlay-image-label': 'Image',
 	'overlay-instructions':
 		'Use the arrow keys to move by 1 pixel, hold Shift for 10 pixels. Press Enter to edit the properties, Delete to remove.',
 	'overlay-redact-label': 'Redacted area',

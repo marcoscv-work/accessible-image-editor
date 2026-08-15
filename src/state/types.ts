@@ -126,6 +126,32 @@ export interface StickerOverlay {
 	y: number;
 }
 
+/**
+ * A picture the user brings in: a logo, a signature, a badge. The bitmap
+ * travels in the state as a data URL rather than an object URL, because
+ * the export rasterizes its SVG through an `img`, which runs in secure
+ * static mode and cannot load `blob:` subresources.
+ */
+export interface ImageOverlay {
+
+	/**
+	 * What the picture shows. Seeded from the file name and editable,
+	 * because a file called `logo-v3-final.png` names a file, not a
+	 * picture, and this is the annotation's accessible name.
+	 */
+	description: string;
+
+	height: number;
+	id: string;
+	kind: 'image';
+	opacity?: number;
+	rotation?: number;
+	src: string;
+	width: number;
+	x: number;
+	y: number;
+}
+
 export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
 
 /**
@@ -147,6 +173,7 @@ export interface RedactOverlay {
 export type Overlay =
 	| RedactOverlay
 	| CircleOverlay
+	| ImageOverlay
 	| ShapeOverlay
 	| StickerOverlay
 	| TextOverlay;
@@ -157,9 +184,10 @@ export type Overlay =
  */
 export function isBoxOverlay(
 	overlay: Overlay
-): overlay is CircleOverlay | RedactOverlay | ShapeOverlay {
+): overlay is CircleOverlay | ImageOverlay | RedactOverlay | ShapeOverlay {
 	return (
 		overlay.kind === 'circle' ||
+		overlay.kind === 'image' ||
 		overlay.kind === 'redact' ||
 		overlay.kind === 'shape'
 	);
