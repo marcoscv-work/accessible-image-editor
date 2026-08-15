@@ -42,6 +42,22 @@ function ThemeToggle() {
 		window.localStorage?.setItem(SCHEME_KEY, scheme);
 	}, [scheme]);
 
+	// The website carries the same switch and writes the same key on the
+	// same origin, so a choice made over there is already the choice this
+	// page opens with; this keeps two open tabs together as well.
+
+	useEffect(() => {
+		const follow = (event: StorageEvent) => {
+			if (event.key === SCHEME_KEY) {
+				setScheme(event.newValue === 'dark' ? 'dark' : 'light');
+			}
+		};
+
+		window.addEventListener('storage', follow);
+
+		return () => window.removeEventListener('storage', follow);
+	}, []);
+
 	const dark = scheme === 'dark';
 
 	return (
