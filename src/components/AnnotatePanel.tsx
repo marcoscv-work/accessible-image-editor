@@ -39,9 +39,43 @@ function focusOverlay(id: string, delay = 0): void {
 				`[data-overlay-id="${id}"]`
 			);
 
-			(node as unknown as HTMLElement | null)?.focus?.();
+			if (!node) {
+				return;
+			}
+
+			// Focus on its own asks the browser to reveal the element, and
+			// the browser reveals it by scrolling every ancestor that can
+			// scroll, the dialog included: on a slow first paint, before
+			// the stage has been fitted, that walks the whole editor off
+			// the screen. Take the scrolling into our own hands and move
+			// only the workspace.
+
+			(node as unknown as HTMLElement).focus?.({preventScroll: true});
+
+			revealInWorkspace(node);
 		});
 	}, delay);
+}
+
+/**
+ * Scrolls the workspace, and nothing else, until the annotation is inside
+ * it.
+ */
+function revealInWorkspace(node: SVGElement): void {
+	const workspace = node.closest<HTMLElement>('.editor-workspace');
+
+	if (!workspace) {
+		return;
+	}
+
+	const area = workspace.getBoundingClientRect();
+	const box = node.getBoundingClientRect();
+
+	const overflow = (start: number, end: number, low: number, high: number) =>
+		start < low ? start - low : end > high ? end - high : 0;
+
+	workspace.scrollLeft += overflow(box.left, box.right, area.left, area.right);
+	workspace.scrollTop += overflow(box.top, box.bottom, area.top, area.bottom);
 }
 
 interface TextDialogProps {

@@ -52,11 +52,12 @@ test('keyboard-only annotation journey', async ({page}) => {
 	// Add a star sticker from the panel.
 
 	// The arrows walk the annotate group as one sequence: enter at Add text
-	// and step past the shape tools to the first sticker.
+	// and step past the shape, redaction and picture tools to the first
+	// sticker.
 
 	await tabUntil(page, 'Add text');
 
-	for (let step = 0; step < 4; step++) {
+	for (let step = 0; step < 5; step++) {
 		await page.keyboard.press('ArrowRight');
 	}
 
@@ -83,7 +84,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await tabUntil(page, 'Add star sticker');
 
-	for (let step = 0; step < 4; step++) {
+	for (let step = 0; step < 5; step++) {
 		await page.keyboard.press('ArrowLeft');
 	}
 

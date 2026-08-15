@@ -34,23 +34,36 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	const hit = page
 		.locator('.editor-workspace')
 		.getByRole('button', {exact: true, name: 'Rectangle'});
+
+	// hover() waits for the element to hold still before pointing at it:
+	// the stage is fitted asynchronously, and a coordinate measured while
+	// the layout is still moving points at where things used to be.
+
+	await hit.hover();
+
 	const box = (await hit.boundingBox())!;
 
 	const startX = box.x + box.width / 2;
 	const startY = box.y + box.height / 2;
 
-	await page.mouse.move(startX, startY);
 	await page.mouse.down();
 	await page.mouse.move(startX + 60, startY + 40, {steps: 5});
 	await page.mouse.up();
 
 	await expect(status).toContainText('Rectangle moved to');
 
-	// Dragging outside the rectangle still moves the crop area.
+	// Dragging outside the rectangle still moves the crop area. Start from
+	// the crop mover as it is now: the rectangle has just moved, so a point
+	// derived from where it used to be is a point about the past.
 
-	await page.mouse.move(box.x - 60, box.y - 60);
+	const crop = page.locator('.crop-move');
+
+	await crop.hover({position: {x: 30, y: 30}});
+
+	const mover = (await crop.boundingBox())!;
+
 	await page.mouse.down();
-	await page.mouse.move(box.x - 90, box.y - 80, {steps: 3});
+	await page.mouse.move(mover.x + 60, mover.y + 50, {steps: 3});
 	await page.mouse.up();
 
 	await expect(status).toContainText('Crop set to');
