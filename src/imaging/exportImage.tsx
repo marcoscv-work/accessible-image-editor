@@ -79,6 +79,10 @@ export async function exportEditedImage(
 				/>
 			</g>
 
+			{!state.frame.overAnnotations && (
+				<FrameShape crop={crop} frame={state.frame} />
+			)}
+
 			{state.overlays.map((overlay) => (
 				<g key={overlay.id} transform={overlayTransform(overlay)}>
 					<OverlayShape
@@ -99,7 +103,9 @@ export async function exportEditedImage(
 				</g>
 			))}
 
-			<FrameShape crop={crop} frame={state.frame} />
+			{state.frame.overAnnotations && (
+				<FrameShape crop={crop} frame={state.frame} />
+			)}
 		</svg>
 	);
 

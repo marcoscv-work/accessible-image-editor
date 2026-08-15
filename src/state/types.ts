@@ -70,6 +70,13 @@ export interface Frame {
 	offset: number;
 
 	/**
+	 * Whether the frame is drawn over the annotations or under them. A mat
+	 * covering the caption someone wrote along the bottom edge is a real
+	 * outcome, and which one is wanted is not ours to decide.
+	 */
+	overAnnotations: boolean;
+
+	/**
 	 * Weight of the frame, as a percentage of the crop's shorter side.
 	 */
 	size: number;
@@ -300,6 +307,7 @@ export const DEFAULT_FRAME: Frame = {
 	color: '#ffffff',
 	kind: 'none',
 	offset: 0,
+	overAnnotations: true,
 	size: 4,
 };
 

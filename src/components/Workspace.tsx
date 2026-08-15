@@ -167,6 +167,15 @@ export function Workspace({
 					showRecenter={showRecenter}
 					zoom={zoom}
 				>
+					{/*
+					  * Under the annotations when asked: a mat that covers
+					  * the caption written along the bottom edge is a real
+					  * outcome, and which one is wanted is the user's call.
+					  */}
+					{!state.frame.overAnnotations && (
+						<FrameShape crop={crop} frame={state.frame} />
+					)}
+
 					<OverlaysEditable
 						dispatch={dispatch}
 						onAnnounce={onAnnounce}
@@ -189,11 +198,12 @@ export function Workspace({
 					/>
 
 					{/*
-					  * Above the annotations, because the frame is the edge
-					  * of the finished picture, and below the marquee, which
-					  * is chrome rather than picture.
+					  * Above the marquee is never right: the marquee is
+					  * chrome, the frame is picture.
 					  */}
-					<FrameShape crop={crop} frame={state.frame} />
+					{state.frame.overAnnotations && (
+						<FrameShape crop={crop} frame={state.frame} />
+					)}
 				</CropMarquee>
 			</svg>
 		</div>

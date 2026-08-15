@@ -9,7 +9,13 @@ import {describe, expect, it} from 'vitest';
 import {CropRect, Frame} from '../state/types';
 import {FrameShape} from './frameShapes';
 
-const FRAME: Frame = {color: '#ffffff', kind: 'mat', offset: 0, size: 4};
+const FRAME: Frame = {
+	color: '#ffffff',
+	kind: 'mat',
+	offset: 0,
+	overAnnotations: true,
+	size: 4,
+};
 
 const FULL: CropRect = {height: 1000, width: 2000, x: 0, y: 0};
 

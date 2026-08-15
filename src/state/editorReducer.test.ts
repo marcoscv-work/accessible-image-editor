@@ -385,6 +385,7 @@ describe('set-frame', () => {
 			color: '#ffffff',
 			kind: 'mat',
 			offset: 0,
+			overAnnotations: true,
 			size: 10,
 		});
 	});
@@ -423,6 +424,24 @@ describe('set-frame', () => {
 
 		expect(undone.present.frame.size).toBe(4);
 		expect(undone.present.frame.kind).toBe('mat');
+	});
+
+	it('moves under the annotations when asked', () => {
+		let state = editorReducer(history(), {
+			frame: {kind: 'mat'},
+			type: 'set-frame',
+		});
+
+		state = editorReducer(state, {
+			frame: {overAnnotations: false},
+			type: 'set-frame',
+		});
+
+		expect(state.present.frame.overAnnotations).toBe(false);
+
+		// Still the same frame, only on the other side of the annotations.
+
+		expect(state.present.frame.kind).toBe('mat');
 	});
 
 	it('survives a crop, because it is intent rather than geometry', () => {

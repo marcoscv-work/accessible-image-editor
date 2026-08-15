@@ -20,6 +20,8 @@ The editor is **parametric and declarative**:
 - **Redactions** pixelate an area for real: tiny downsampled copies of the image (four block sizes, small by default) are prepared once at load time and revealed through a clip, scaled back up with nearest-neighbor, and passed through the same color pipeline as the image so the mosaic matches what is on screen. They behave exactly like a rectangle otherwise, and the mosaic stays locked to the photo even when the block is rotated.
 - **Small annotations keep a full-size target**: whatever an annotation is painted at, the area that can be clicked or reached never falls below 24 by 24 screen pixels, measured in screen space so it holds at any zoom.
 - **Rectangles and circles take an optional border**, off until a width is set, with its own colour.
+- **A picture of your own becomes an annotation**: pick a PNG and it lands as one more layer, named after the file, moved and resized by the same handles and fields, and composited into the export. It travels in the edit state as a data URL rather than an object URL, because the export rasterizes its SVG through an `img`, which cannot load `blob:` subresources. Its description is editable, since a file name names a file, not a picture.
+- **Frames are intent, not geometry**: a kind, a colour, a weight and an offset, the last two as percentages of the crop's shorter side. Nothing is stored in image coordinates, so the next crop reframes the picture instead of stranding a border where the old edges were, and the same numbers hold on a 72-pixel card, on the stage at any zoom, and in a full-resolution export. A checkbox decides whether the frame is drawn over the annotations or under them.
 - Selected annotations expose **on-stage resize and rotate handles** (proportional by default, Shift for free rectangle resize or 15-degree rotation snaps). They are a pointer-only affordance: the layer properties panel is the accessible, keyboard-first equivalent for the same operations.
 - The **filter gallery** is a two-column card grid whose radios are visually hidden but still real radios, so it keeps the group semantics and arrow-key behaviour; selection is shown with a ring, a bold label and a check badge, never by colour alone. Cards paint from a tiny bitmap prepared at load time, so adding presets costs nothing at render time.
 - Once the sidebar stacks under the workspace, the tracks that would otherwise wrap (the filter cards, the sticker picker) become **one swipeable row with snap points and paging arrows**. The arrows are a pointer affordance only, hidden from assistive technology and out of the tab order, because each track is already a keyboard-navigable group and focusing a child scrolls it into view.
@@ -49,9 +51,10 @@ complete editor.
 | Key | `false` | Object |
 | --- | --- | --- |
 | `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
-| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, circle, redaction, stickers · `stickers`: any of the 10 shapes |
+| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, circle, redaction, image, stickers · `stickers`: any of the 10 shapes |
 | `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn and flip buttons · `straighten`: the angle slider |
 | `filters` | hides the gallery | `presets`: any of the 19 looks |
+| `frames` | hides the frame gallery | `presets`: any of the 9 frames, plus none |
 
 Lists are always applied in the component's canonical order, and unknown
 names are ignored, so a caller cannot reshuffle or break the UI.

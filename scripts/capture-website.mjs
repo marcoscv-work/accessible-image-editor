@@ -226,6 +226,175 @@ async function collapse(page, ...titles) {
 	await page.close();
 }
 
+// 4b. The frame gallery and a framed picture. The cards draw through the
+// same component as the stage, so this is a picture of the real thing.
+
+{
+	const page = await openEditor();
+
+	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
+
+	await page.locator('#frame-polaroid').check({force: true});
+	await page.waitForTimeout(500);
+
+	// Checking a card scrolls it into view, so put the panel title back at
+	// the top of the sidebar before measuring anything.
+
+	await page.evaluate(() => {
+		const sidebar = document.querySelector('.editor-sidebar');
+		const title = document.getElementById('frame-panel-title');
+
+		sidebar.scrollTop +=
+			title.getBoundingClientRect().top -
+			sidebar.getBoundingClientRect().top -
+			12;
+	});
+
+	await page.waitForTimeout(400);
+
+	// Cut under a row of labels rather than through a row of cards.
+
+	const gallery = await page.evaluate(() => {
+		const sidebar = document.querySelector('.editor-sidebar');
+		const title = document.getElementById('frame-panel-title');
+		const cards = document.querySelectorAll('.editor-frame-option');
+
+		const top = title.getBoundingClientRect().top - 12;
+
+		return {
+			height: cards[5].getBoundingClientRect().bottom + 12 - top,
+			width: sidebar.getBoundingClientRect().width,
+			x: sidebar.getBoundingClientRect().x,
+			y: top,
+		};
+	});
+
+	await shot(page, 'frames.png', {clip: gallery});
+
+	await shot(page, 'stage-framed.jpg', {
+		clip: await region(page, '.editor-workspace'),
+	});
+
+	// The options underneath: the frame is a choice plus a colour and two
+	// measurements, and those are what make it yours.
+
+	await page.evaluate(() => {
+		const sidebar = document.querySelector('.editor-sidebar');
+
+		sidebar.scrollTop = sidebar.scrollHeight;
+	});
+
+	await page.waitForTimeout(400);
+
+	const options = await page.evaluate(() => {
+		const sidebar = document.querySelector('.editor-sidebar');
+		const first = document.querySelector('label[for="frame-color"]');
+		const last = document.querySelector('#frame-offset');
+
+		const cards = document.querySelectorAll('.editor-frame-option');
+
+		// Below the last row of labels, so no cut text rides along.
+
+		const top = Math.max(
+			cards[cards.length - 1].getBoundingClientRect().bottom + 10,
+			first.getBoundingClientRect().top - 20
+		);
+
+		return {
+			height: Math.min(
+				last.getBoundingClientRect().bottom + 24 - top,
+				sidebar.getBoundingClientRect().bottom - top
+			),
+			width: sidebar.getBoundingClientRect().width,
+			x: sidebar.getBoundingClientRect().x,
+			y: top,
+		};
+	});
+
+	await shot(page, 'frame-options.png', {clip: options});
+
+	await page.close();
+}
+
+// 4c. The same caption with the frame over it and under it: the choice
+// the user gets to make.
+
+{
+	const page = await openEditor();
+
+	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
+
+	await page.locator('#frame-mat').check({force: true});
+	await page.waitForTimeout(300);
+
+	const size = page.locator('#frame-size');
+
+	await size.focus();
+
+	for (let step = 0; step < 6; step++) {
+		await page.keyboard.press('ArrowRight');
+	}
+
+	await page.waitForTimeout(300);
+
+	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
+	await page.waitForTimeout(400);
+	await page.locator('#text-content').fill('Liferay 2026');
+	await page.getByRole('button', {exact: true, name: 'Add'}).click();
+	await page.waitForTimeout(500);
+
+	// Dark ink, or a white caption on a white mat is a picture of
+	// nothing.
+
+	await page.evaluate(() => {
+		const input = document.getElementById('layer-prop-color');
+
+		const setter = Object.getOwnPropertyDescriptor(
+			window.HTMLInputElement.prototype,
+			'value'
+		).set;
+
+		setter.call(input, '#272833');
+
+		input.dispatchEvent(new Event('input', {bubbles: true}));
+		input.blur();
+	});
+
+	await page.waitForTimeout(400);
+
+	// Down onto the frame's bottom band, where the two orders differ.
+
+	for (const [id, value] of [
+		['#layer-prop-y', '1070'],
+		['#layer-prop-x', '260'],
+	]) {
+		const field = page.locator(id);
+
+		await field.fill(value);
+		await field.press('Enter');
+		await page.waitForTimeout(150);
+	}
+
+	// Deselected, so the handles do not explain the picture away.
+
+	await page.locator('.editor-workspace').click({position: {x: 8, y: 8}});
+	await page.waitForTimeout(300);
+
+	const stage = await region(page, '.editor-workspace');
+
+	await shot(page, 'frame-over.jpg', {clip: stage});
+
+	await page
+		.getByRole('checkbox', {name: 'Draw the frame over the annotations'})
+		.uncheck();
+
+	await page.waitForTimeout(400);
+
+	await shot(page, 'frame-under.jpg', {clip: stage});
+
+	await page.close();
+}
+
 /**
  * Everything is inserted at the centre of the current crop, so each new
  * annotation is dragged aside to compose a readable example.
@@ -324,6 +493,53 @@ async function dragLast(page, dx, dy) {
 	await revealPanel(page, '.editor-panel:has(#layers-panel-title)');
 
 	await shot(page, 'layers.png', {
+		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
+	});
+
+	await page.close();
+}
+
+// 5b. A picture of the user's own, brought in as an annotation: on the
+// stage as a watermark, and in the layers as a named, described layer.
+
+{
+	const page = await openEditor();
+
+	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters', 'Frame');
+
+	await page.getByRole('button', {exact: true, name: 'Add image'}).click();
+
+	await page
+		.locator('.modal-content input[type=file]')
+		.setInputFiles(path.join(ROOT, 'scripts', 'assets', 'watermark.png'));
+
+	await page.waitForTimeout(700);
+
+	// Composed into the sky, at a watermark's size.
+
+	for (const [id, value] of [
+		['#layer-prop-width', '150'],
+		['#layer-prop-height', '150'],
+		['#layer-prop-x', '1230'],
+		['#layer-prop-y', '170'],
+		['#layer-prop-opacity', '80'],
+	]) {
+		const field = page.locator(id);
+
+		await field.fill(value);
+		await field.press('Enter');
+		await page.waitForTimeout(150);
+	}
+
+	await page.waitForTimeout(300);
+
+	await shot(page, 'picture.jpg', {
+		clip: await region(page, '.editor-workspace'),
+	});
+
+	await revealPanel(page, '.editor-panel:has(#layers-panel-title)');
+
+	await shot(page, 'picture-layer.png', {
 		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
 	});
 

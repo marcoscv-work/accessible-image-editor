@@ -116,6 +116,40 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	expect(reframed.y).toBeCloseTo(324, 1);
 	expect(reframed.width).toBeCloseTo(552, 1);
 
+	// The frame sits over the annotations by default, and under them when
+	// the choice is unticked: a mat should not have to hide a caption.
+
+	await page.getByRole('button', {exact: true, name: 'Add rectangle'}).click();
+
+	const order = () =>
+		page.evaluate(() => {
+			const frame = document.querySelector('.editor-stage .editor-frame');
+			const overlay = document.querySelector(
+				'.editor-stage .overlay-hit'
+			);
+
+			if (!frame || !overlay) {
+				return 'missing';
+			}
+
+			return frame.compareDocumentPosition(overlay) &
+				Node.DOCUMENT_POSITION_PRECEDING
+				? 'frame over'
+				: 'frame under';
+		});
+
+	expect(await order()).toBe('frame over');
+
+	await page
+		.getByRole('checkbox', {name: 'Draw the frame over the annotations'})
+		.uncheck();
+
+	await expect(page.getByRole('status')).toContainText(
+		'drawn under the annotations'
+	);
+
+	expect(await order()).toBe('frame under');
+
 	const results = await new AxeBuilder({page})
 		.include('.modal-content')
 		.analyze();
@@ -126,7 +160,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	await page.getByRole('button', {name: 'Undo'}).click();
 
-	await expect(page.getByRole('status')).toContainText('Undo: crop change');
+	await expect(page.getByRole('status')).toContainText('Undo: frame change');
 
 	const downloadPromise = page.waitForEvent('download');
 

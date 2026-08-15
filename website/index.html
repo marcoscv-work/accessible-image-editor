@@ -189,7 +189,7 @@
 
 					<div class="grid">
 						<article class="card reveal">
-							<span class="card-count">Crop and rotation</span>
+							<span class="card-count">Crop, rotation and frames</span>
 							<h3>Framing</h3>
 							<ul>
 								<li>Free crop with eight handles, movable as a whole</li>
@@ -208,6 +208,18 @@
 									Zoom and fit, anchored to the pointer;
 									<kbd>Shift</kbd> keeps proportions and
 									<kbd>Alt</kbd> resizes from the centre
+								</li>
+								<li>
+									Nine frames, one at a time: mat, bevel, line, double
+									line, dashed, ticks, corners, inset and print
+								</li>
+								<li>
+									Frame colour, weight and offset as percentages,
+									redrawn from the crop every time it changes
+								</li>
+								<li>
+									The frame drawn over the annotations or under them,
+									whichever the picture needs
 								</li>
 							</ul>
 						</article>
@@ -271,6 +283,10 @@
 									Redactions that pixelate for real, in four block sizes
 								</li>
 								<li>Ten stickers, each recoloured from its own palette</li>
+								<li>
+									A picture of your own: pick a PNG and it becomes one
+									more layer, named, movable and resizable like the rest
+								</li>
 								<li>
 									Inserted at the centre of the current crop, and clipped
 									by it
@@ -489,6 +505,129 @@
 
 					<div class="showcase">
 						<div class="showcase-text">
+							<h3>A frame that survives the next crop</h3>
+							<p>
+								A frame is stored as intent, not as geometry: a kind, a
+								colour, and two measurements taken as a percentage of the
+								crop's shorter side. Nothing about it is expressed in image
+								coordinates, so recropping does not strand a border where
+								the old edges used to be. It is simply drawn again, from
+								the rectangle that exists now.
+							</p>
+							<ul class="tick-list">
+								<li>Nine frames, one at a time, like a filter</li>
+								<li>Colour, weight and offset, each a real form control</li>
+								<li>
+									The same measurements on a thumbnail, on the stage at
+									any zoom, and in a full resolution export
+								</li>
+							</ul>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/stage-framed.jpg"
+								width="1816"
+								height="1374"
+								style="max-width: min(100%, 908px)"
+								alt="The stage with a print frame around the photograph: a white border, deeper along the bottom edge, sitting inside the crop area."
+							/>
+							<figcaption>
+								The print frame, drawn from the crop rectangle rather than
+								baked into the picture.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase showcase-reverse">
+						<div class="showcase-text">
+							<h3>Choose one, then make it yours</h3>
+							<p>
+								The gallery is the filter gallery's twin, and for the same
+								reason: a frame is a look, and a look should be seen before
+								it is chosen. Underneath it, a colour input and two sliders
+								turn a preset into a decision, and every change is one
+								labelled step in the history.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<div class="shot-frame">
+								<img
+									class="window"
+									src="screenshots/frames.png"
+									width="560"
+									height="788"
+									style="max-width: min(100%, 280px)"
+									alt="The Frame panel: frame cards in two columns, each a thumbnail of the photograph with that frame drawn on it, named None, Mat, Bevel, Line, Double line and Dashed."
+								/>
+							</div>
+
+							<div class="shot-frame">
+								<img
+									class="window"
+									src="screenshots/frame-options.png"
+									width="560"
+									height="382"
+									style="max-width: min(100%, 280px)"
+									alt="The frame options below the gallery: a frame colour input, a frame size slider reading 4 percent, and a frame offset slider reading 0 percent."
+								/>
+							</div>
+							<figcaption>
+								The options appear once a frame is chosen, and none is a
+								frame with a thin white border.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div
+						class="showcase-text reveal"
+						style="
+							margin: clamp(3rem, 7vw, 5rem) auto 2rem;
+							max-width: 46rem;
+						"
+					>
+						<h3>Over the annotations, or under them</h3>
+						<p>
+							A mat that swallows the caption written along the bottom edge
+							is a real outcome, and so is a caption printed on the mat like
+							a title under a photograph. Which one is wanted is not the
+							editor's call, so it is a checkbox rather than an opinion, and
+							the export follows it exactly.
+						</p>
+					</div>
+
+					<div class="showcase" style="margin-top: 0">
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/frame-over.jpg"
+								width="1816"
+								height="1374"
+								style="max-width: min(100%, 908px)"
+								alt="A mat frame around the photograph with a caption reading Liferay 2026 along the bottom: the frame is drawn over it, so the caption is cut off where the mat begins."
+							/>
+							<figcaption>
+								Frame over the annotations, the default.
+							</figcaption>
+						</figure>
+
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/frame-under.jpg"
+								width="1816"
+								height="1374"
+								style="max-width: min(100%, 908px)"
+								alt="The same picture with the frame drawn underneath: the caption sits whole on the white mat, like a title printed under a photograph."
+							/>
+							<figcaption>
+								Frame under them, and the caption is a title.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
 							<h3>Annotations that are really there</h3>
 							<p>
 								A sticker is not a brush stroke burned into pixels. It is a
@@ -497,7 +636,10 @@
 								rotated by typing a number, and undone by name.
 							</p>
 							<ul class="tick-list">
-								<li>Text, rectangles, redactions and stickers</li>
+								<li>
+									Text, rectangles, circles, redactions, stickers, and a
+									picture of your own
+								</li>
 								<li>Handles for the pointer, a panel for the keyboard</li>
 								<li>
 									Redactions pixelate through the same colour pipeline as
@@ -517,6 +659,59 @@
 							<figcaption>
 								Four annotations on one stage, each a node of its own.
 							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase showcase-reverse">
+						<div class="showcase-text">
+							<h3>A picture of your own, as one more layer</h3>
+							<p>
+								Pick a PNG and it becomes an annotation like any other:
+								named after the file, moved and resized from the same
+								handles and the same numeric fields, ordered in the same
+								list, and composited into the export. Its description is
+								editable, because a file called
+								<code>logo-v3-final.png</code> names a file, not a picture,
+								and that description is what a screen reader reads out.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/picture.jpg"
+								width="1816"
+								height="1374"
+								style="max-width: min(100%, 908px)"
+								alt="The photograph with a white circular watermark placed in the sky at the top right, selected and showing its resize handles."
+							/>
+							<figcaption>
+								A watermark brought in from a file, selected on the stage.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>Named, not just placed</h3>
+							<p>
+								The layer takes the file's name, and the properties below
+								turn that into a description worth hearing. Everything else
+								is the machinery the other annotations already use:
+								position, opacity, rotation, width and height, all numeric,
+								all undoable.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<div class="shot-frame">
+								<img
+									class="window"
+									src="screenshots/picture-layer.png"
+									width="560"
+									height="874"
+									style="max-width: min(100%, 280px)"
+									alt="The Layers panel with a layer called watermark selected, showing an Image description field reading watermark, and numeric fields for position, opacity, rotation, width and height."
+								/>
+							</div>
 						</figure>
 					</div>
 

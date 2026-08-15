@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import ClayForm from '@clayui/form';
+import ClayForm, {ClayCheckbox} from '@clayui/form';
 import ClaySlider from '@clayui/slider';
 import {memo, useRef} from 'react';
 
@@ -158,6 +158,35 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 							}}
 							type="color"
 							value={frame.color}
+						/>
+					</ClayForm.Group>
+
+					{/*
+					  * A mat that hides the caption someone wrote along the
+					  * bottom edge is a real outcome, and which side of the
+					  * annotations the frame belongs on is theirs to say.
+					  */}
+					<ClayForm.Group small>
+						<ClayCheckbox
+							checked={frame.overAnnotations}
+							id="frame-over-annotations"
+							label={t('frame-over-annotations')}
+							onChange={() => {
+								const overAnnotations = !frame.overAnnotations;
+
+								dispatch({
+									frame: {overAnnotations},
+									type: 'set-frame',
+								});
+
+								onAnnounce(
+									t(
+										overAnnotations
+											? 'frame-over-annotations-set'
+											: 'frame-under-annotations-set'
+									)
+								);
+							}}
 						/>
 					</ClayForm.Group>
 
