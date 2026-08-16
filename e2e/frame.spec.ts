@@ -42,7 +42,18 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	const mat = page.locator('#frame-mat');
 
-	await mat.check({force: true});
+	// Through the card, the way a person picks it: the radio is visually
+	// hidden, so clicking the input itself is a race with the layout.
+
+	const pick = (name: string) =>
+		page
+			.locator('.editor-panel:has(#frame-panel-title) .editor-preset-label')
+			.filter({hasText: new RegExp(`^${name}$`)})
+			.click();
+
+	await pick('Mat');
+
+	await expect(mat).toBeChecked();
 
 	await expect(page.getByRole('status')).toContainText('Frame set to Mat');
 
@@ -73,7 +84,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	await expect(page.locator('#frame-bevel')).toBeChecked();
 	await expect(mat).not.toBeChecked();
 
-	await mat.check({force: true});
+	await pick('Mat');
 
 	// The size is a percentage of the crop, so the same frame is the same
 	// frame at any size of picture.
