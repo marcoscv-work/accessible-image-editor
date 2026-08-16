@@ -118,3 +118,23 @@ export function anchoredScroll({
 		top: offset + point.y * next - anchor.y,
 	};
 }
+
+/**
+ * The step an arrow key asks for, as a unit vector, or nothing when the
+ * key was not an arrow. Shared by everything on the stage that moves with
+ * the keyboard: the crop, its handles and every annotation.
+ */
+export function arrowDelta(key: string): [number, number] | null {
+	switch (key) {
+		case 'ArrowDown':
+			return [0, 1];
+		case 'ArrowLeft':
+			return [-1, 0];
+		case 'ArrowRight':
+			return [1, 0];
+		case 'ArrowUp':
+			return [0, -1];
+		default:
+			return null;
+	}
+}

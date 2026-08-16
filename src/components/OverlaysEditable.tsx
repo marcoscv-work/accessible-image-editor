@@ -6,6 +6,7 @@
 import React, {useRef, useState} from 'react';
 
 import {t} from '../i18n';
+import {arrowDelta} from '../imaging/geometry';
 import {
 	OverlayShape,
 	overlayBounds,
@@ -19,21 +20,6 @@ import {Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 
 import type {RedactSource} from '../imaging/overlayShapes';
-
-function arrowDelta(key: string): [number, number] | null {
-	switch (key) {
-		case 'ArrowDown':
-			return [0, 1];
-		case 'ArrowLeft':
-			return [-1, 0];
-		case 'ArrowRight':
-			return [1, 0];
-		case 'ArrowUp':
-			return [0, -1];
-		default:
-			return null;
-	}
-}
 
 /**
  * Rotates a client-space delta into the overlay's local axes, for the

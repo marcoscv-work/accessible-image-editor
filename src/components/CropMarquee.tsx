@@ -7,6 +7,7 @@ import {ClayIconSpriteContext} from '@clayui/icon';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
+import {arrowDelta} from '../imaging/geometry';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
@@ -87,21 +88,6 @@ function adjustCrop(
 	}
 
 	return {height, width, x, y};
-}
-
-function arrowDelta(key: string): [number, number] | null {
-	switch (key) {
-		case 'ArrowDown':
-			return [0, 1];
-		case 'ArrowLeft':
-			return [-1, 0];
-		case 'ArrowRight':
-			return [1, 0];
-		case 'ArrowUp':
-			return [0, -1];
-		default:
-			return null;
-	}
 }
 
 /**
