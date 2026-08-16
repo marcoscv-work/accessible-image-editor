@@ -4,9 +4,7 @@
  */
 
 import ClayButton from '@clayui/button';
-import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
-import ClayModal, {useModal} from '@clayui/modal';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {AnnotateTool} from '../editorConfig';
 import {t} from '../i18n';
@@ -17,14 +15,11 @@ import {
 	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {CropRect, StickerKind, TextOverlay} from '../state/types';
-import {FONT_FAMILIES} from '../textFonts';
+import {nextId} from '../state/ids';
+import {CropRect, StickerKind} from '../state/types';
 import {Carousel} from './Carousel';
 import {EditorSection} from './EditorSection';
-
-function nextId(kind: string): string {
-	return `${kind}-${crypto.randomUUID().slice(0, 8)}`;
-}
+import {TextDialog} from './TextDialog';
 
 /**
  * Move focus to the freshly inserted overlay on the stage, so the user
@@ -76,164 +71,6 @@ function revealInWorkspace(node: SVGElement): void {
 
 	workspace.scrollLeft += overflow(box.left, box.right, area.left, area.right);
 	workspace.scrollTop += overflow(box.top, box.bottom, area.top, area.bottom);
-}
-
-interface TextDialogProps {
-	onAdd: (overlay: Omit<TextOverlay, 'x' | 'y'>) => void;
-	onOpenChange: (open: boolean) => void;
-	open: boolean;
-}
-
-function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
-	const {observer} = useModal({onClose: () => onOpenChange(false)});
-
-	const [text, setText] = useState('');
-	const [fontFamily, setFontFamily] = useState('sans-serif');
-	const [fontSize, setFontSize] = useState('64');
-	const [color, setColor] = useState('#ffffff');
-
-	const inputRef = useRef<HTMLInputElement>(null);
-
-	// Clay focuses the modal container after its opening transition, which
-	// defeats a plain autoFocus; move focus to the first field once Clay
-	// is done.
-
-	useEffect(() => {
-		if (!open) {
-			return;
-		}
-
-		const id = window.setTimeout(() => {
-			const active = document.activeElement;
-
-			if (
-				!active ||
-				active === document.body ||
-				active.classList.contains('modal-content')
-			) {
-				inputRef.current?.focus();
-			}
-		}, 350);
-
-		return () => window.clearTimeout(id);
-	}, [open]);
-
-	if (!open) {
-		return null;
-	}
-
-	const submit = (event: React.FormEvent) => {
-		event.preventDefault();
-
-		if (!text.trim()) {
-			return;
-		}
-
-		onAdd({
-			color,
-			fontFamily,
-			fontSize: Math.max(Number.parseInt(fontSize, 10) || 64, 8),
-			id: nextId('text'),
-			kind: 'text',
-			text: text.trim(),
-		});
-
-		onOpenChange(false);
-	};
-
-	return (
-		<ClayModal observer={observer} size="sm">
-			<div
-				onKeyDown={(event: React.KeyboardEvent) =>
-					event.stopPropagation()
-				}
-			>
-				<ClayModal.Header closeButtonAriaLabel={t('close')} withTitle>
-					{t('add-text')}
-				</ClayModal.Header>
-
-				<ClayModal.Body>
-					<form onSubmit={submit}>
-						<ClayForm.Group>
-							<label htmlFor="text-content">
-								{t('text-content')}
-							</label>
-
-							<ClayInput
-								id="text-content"
-								onChange={(event) =>
-									setText(event.target.value)
-								}
-								ref={inputRef}
-								type="text"
-								value={text}
-							/>
-						</ClayForm.Group>
-
-						<ClayForm.Group>
-							<label htmlFor="text-font-family">
-								{t('font-family')}
-							</label>
-
-							<ClaySelectWithOption
-								id="text-font-family"
-								onChange={(event) =>
-									setFontFamily(event.target.value)
-								}
-								options={FONT_FAMILIES.map(
-									({labelKey, value}) => ({
-										label: t(labelKey),
-										value,
-									})
-								)}
-								value={fontFamily}
-							/>
-						</ClayForm.Group>
-
-						<ClayForm.Group>
-							<label htmlFor="text-font-size">
-								{t('font-size')}
-							</label>
-
-							<ClayInput
-								id="text-font-size"
-								min={8}
-								onChange={(event) =>
-									setFontSize(event.target.value)
-								}
-								type="number"
-								value={fontSize}
-							/>
-						</ClayForm.Group>
-
-						<ClayForm.Group>
-							<label htmlFor="text-color">
-								{t('text-color')}
-							</label>
-
-							<input
-								className="editor-color-input form-control"
-								id="text-color"
-								onChange={(event) =>
-									setColor(event.target.value)
-								}
-								type="color"
-								value={color}
-							/>
-						</ClayForm.Group>
-
-						<ClayButton
-							disabled={!text.trim()}
-							displayType="primary"
-							type="submit"
-						>
-							{t('add')}
-						</ClayButton>
-					</form>
-				</ClayModal.Body>
-			</div>
-		</ClayModal>
-	);
 }
 
 interface Props {
