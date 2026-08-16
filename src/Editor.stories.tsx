@@ -12,8 +12,14 @@ import {
 	RATIO_PRESETS,
 } from './editorConfig';
 import {FILTER_PRESETS} from './imaging/FilterDefs';
+import {FRAME_KINDS} from './imaging/frameShapes';
 import {STICKER_KINDS} from './imaging/overlayShapes';
-import {FilterPreset, RatioPreset, StickerKind} from './state/types';
+import {
+	FilterPreset,
+	FrameKind,
+	RatioPreset,
+	StickerKind,
+} from './state/types';
 
 import type {Meta, StoryObj} from '@storybook/react-vite';
 
@@ -26,6 +32,7 @@ interface StoryArgs {
 	annotate: AnnotateTool[];
 	crop: boolean;
 	filters: FilterPreset[];
+	frames: FrameKind[];
 	ratios: RatioPreset[];
 	rotate: boolean;
 	stickers: StickerKind[];
@@ -38,6 +45,7 @@ const meta: Meta<StoryArgs> = {
 		annotate: {control: 'check', options: ANNOTATE_TOOLS},
 		crop: {control: 'boolean'},
 		filters: {control: 'check', options: FILTER_PRESETS},
+		frames: {control: 'check', options: FRAME_KINDS},
 		ratios: {control: 'check', options: RATIO_PRESETS},
 		rotate: {control: 'boolean'},
 		stickers: {control: 'check', options: STICKER_KINDS},
@@ -48,6 +56,7 @@ const meta: Meta<StoryArgs> = {
 		annotate: ANNOTATE_TOOLS,
 		crop: true,
 		filters: FILTER_PRESETS,
+		frames: FRAME_KINDS,
 		ratios: RATIO_PRESETS,
 		rotate: true,
 		stickers: STICKER_KINDS,
@@ -58,6 +67,7 @@ const meta: Meta<StoryArgs> = {
 		annotate,
 		crop,
 		filters,
+		frames,
 		ratios,
 		rotate,
 		stickers,
@@ -69,6 +79,7 @@ const meta: Meta<StoryArgs> = {
 				annotate: annotate.length ? {stickers, tools: annotate} : false,
 				crop: crop ? {ratios, rotate, straighten} : false,
 				filters: filters.length ? {presets: filters} : false,
+				frames: frames.length ? {presets: frames} : false,
 			}}
 		/>
 	),
@@ -92,6 +103,7 @@ export const CropOnly: Story = {
 		adjustments: [],
 		annotate: [],
 		filters: [],
+		frames: [],
 	},
 };
 
@@ -103,6 +115,7 @@ export const StraightenAndRatios: Story = {
 		adjustments: [],
 		annotate: [],
 		filters: [],
+		frames: [],
 		ratios: ['original', '1:1', '16:9'],
 		rotate: false,
 	},
@@ -116,6 +129,7 @@ export const ColourOnly: Story = {
 		annotate: [],
 		crop: false,
 		filters: ['none', 'grayscale', 'sepia', 'vintage', 'vivid'],
+		frames: [],
 	},
 };
 
@@ -128,6 +142,7 @@ export const RedactionOnly: Story = {
 		annotate: ['redaction'],
 		crop: false,
 		filters: [],
+		frames: [],
 	},
 };
 
@@ -140,6 +155,7 @@ export const AnnotateWithFewStickers: Story = {
 		annotate: ['text', 'stickers'],
 		crop: false,
 		filters: [],
+		frames: [],
 		stickers: ['star', 'heart', 'check'],
 	},
 };
@@ -153,5 +169,65 @@ export const BrightnessAndContrast: Story = {
 		annotate: [],
 		crop: false,
 		filters: [],
+		frames: [],
+	},
+};
+
+/**
+ * Framing on its own: pick a frame, set its colour and its two
+ * measurements, and nothing else is on the way.
+ */
+export const FramesOnly: Story = {
+	args: {
+		adjustments: [],
+		annotate: [],
+		crop: false,
+		filters: [],
+	},
+};
+
+/**
+ * A print-style set: the frames a photograph is usually given, with the
+ * crop that decides what they sit around.
+ */
+export const PrintFrames: Story = {
+	args: {
+		adjustments: [],
+		annotate: [],
+		filters: [],
+		frames: ['none', 'mat', 'bevel', 'polaroid'],
+		ratios: ['original', '1:1', '4:3', '3:4'],
+		straighten: false,
+	},
+};
+
+/**
+ * Watermarking: bring in a logo, place it, and save. One tool, and the
+ * layer panel that comes with it.
+ */
+export const WatermarkOnly: Story = {
+	args: {
+		adjustments: [],
+		annotate: ['image'],
+		crop: false,
+		filters: [],
+		frames: [],
+	},
+};
+
+/**
+ * A post composer: square and vertical crops, a short list of looks, a
+ * frame, and the annotations people actually use on a social image.
+ */
+export const SocialPost: Story = {
+	args: {
+		adjustments: ['brightness', 'contrast'],
+		annotate: ['text', 'image', 'stickers'],
+		filters: ['none', 'vintage', 'vivid', 'noir'],
+		frames: ['none', 'mat', 'polaroid'],
+		ratios: ['1:1', '4:3', '9:16'],
+		rotate: false,
+		stickers: ['star', 'heart', 'laugh', 'love'],
+		straighten: false,
 	},
 };

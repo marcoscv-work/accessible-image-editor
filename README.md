@@ -79,8 +79,11 @@ npm run storybook
 
 Published alongside the app at
 [`/storybook/`](https://marcoscv-work.github.io/accessible-image-editor/storybook/),
-with stories for the complete editor, a crop-only picker, a colour-grading
-panel, a redaction-only workflow and a reduced annotation kit.
+with eleven stories: the complete editor, a crop-only picker, straighten
+with fixed ratios, a colour-grading panel, brightness and contrast alone,
+a redaction-only workflow, a reduced annotation kit, the frame group on
+its own, a print-frame set, a watermark-only kit and a social post
+composer.
 
 ## Run
 
