@@ -4,7 +4,7 @@
  */
 
 import {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
+import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
@@ -23,122 +23,7 @@ import {
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
 import {EditorSection} from './EditorSection';
-
-interface FieldProps {
-	id: string;
-	label: string;
-}
-
-function NumberField({
-	id,
-	label,
-	max,
-	min = 1,
-	onCommit,
-	suffix,
-	value,
-}: FieldProps & {
-	max?: number;
-	min?: number;
-	onCommit: (value: number) => void;
-	suffix?: string;
-	value: number;
-}) {
-	const [draft, setDraft] = useState(String(value));
-
-	useEffect(() => setDraft(String(value)), [value]);
-
-	const commit = () => {
-		const parsed = Number.parseInt(draft, 10);
-
-		if (Number.isNaN(parsed)) {
-			setDraft(String(value));
-
-			return;
-		}
-
-		onCommit(Math.min(Math.max(parsed, min), max ?? Infinity));
-	};
-
-	const input = (
-		<ClayInput
-			id={id}
-			max={max}
-			min={min}
-			onBlur={commit}
-			onChange={(event) => setDraft(event.target.value)}
-			onKeyDown={(event: React.KeyboardEvent) => {
-				if (event.key === 'Enter') {
-					event.preventDefault();
-					commit();
-				}
-			}}
-			sizing="sm"
-			type="number"
-			value={draft}
-		/>
-	);
-
-	return (
-		<ClayForm.Group small>
-			<label htmlFor={id}>{label}</label>
-
-			{suffix ? (
-				<ClayInput.Group small>
-					<ClayInput.GroupItem prepend>{input}</ClayInput.GroupItem>
-
-					<ClayInput.GroupItem append shrink>
-						<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
-					</ClayInput.GroupItem>
-				</ClayInput.Group>
-			) : (
-				input
-			)}
-		</ClayForm.Group>
-	);
-}
-
-function TextField({
-	id,
-	label,
-	onCommit,
-	value,
-}: FieldProps & {onCommit: (value: string) => void; value: string}) {
-	const [draft, setDraft] = useState(value);
-
-	useEffect(() => setDraft(value), [value]);
-
-	const commit = () => {
-		if (!draft.trim()) {
-			setDraft(value);
-
-			return;
-		}
-
-		onCommit(draft.trim());
-	};
-
-	return (
-		<ClayForm.Group small>
-			<label htmlFor={id}>{label}</label>
-
-			<ClayInput
-				id={id}
-				onBlur={commit}
-				onChange={(event) => setDraft(event.target.value)}
-				onKeyDown={(event: React.KeyboardEvent) => {
-					if (event.key === 'Enter') {
-						event.preventDefault();
-						commit();
-					}
-				}}
-				sizing="sm"
-				type="text"
-				value={draft}
-			/>
-		</ClayForm.Group>
-	);
-}
+import {ColorField, NumberField, TextField} from './fields';
 
 interface LayerPropertiesProps {
 	dispatch: (action: EditorAction) => void;
@@ -153,9 +38,6 @@ interface LayerPropertiesProps {
  */
 function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) {
 	const label = overlayLabel(overlay);
-
-	const borderGesture = useRef(false);
-	const colorGesture = useRef(false);
 
 	const commitPatch = (patch: Partial<Overlay>) => {
 		dispatch({id: overlay.id, patch, type: 'update-overlay'});
@@ -234,35 +116,20 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 				)}
 
 				{hasColor(overlay) && (
-					<ClayForm.Group small>
-						<label htmlFor="layer-prop-color">
-							{t('text-color')}
-						</label>
-
-						<input
-							className="editor-color-input form-control form-control-sm"
-							id="layer-prop-color"
-							onBlur={() => {
-								if (colorGesture.current) {
-									colorGesture.current = false;
-
-									commitPatch({color: overlay.color});
-								}
-							}}
-							onChange={(event) => {
-								colorGesture.current = true;
-
-								dispatch({
-									id: overlay.id,
-									patch: {color: event.target.value},
-									transient: true,
-									type: 'update-overlay',
-								});
-							}}
-							type="color"
-							value={overlay.color}
-						/>
-					</ClayForm.Group>
+					<ColorField
+						id="layer-prop-color"
+						label={t('text-color')}
+						onCommit={(color) => commitPatch({color})}
+						onPreview={(color) =>
+							dispatch({
+								id: overlay.id,
+								patch: {color},
+								transient: true,
+								type: 'update-overlay',
+							})
+						}
+						value={overlay.color}
+					/>
 				)}
 
 				<NumberField
@@ -376,39 +243,22 @@ function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) 
 							value={overlay.borderWidth ?? 0}
 						/>
 
-						<ClayForm.Group small>
-							<label htmlFor="layer-prop-border-color">
-								{t('border-color')}
-							</label>
-
-							<input
-								className="editor-color-input form-control form-control-sm"
-								id="layer-prop-border-color"
-								onBlur={() => {
-									if (borderGesture.current) {
-										borderGesture.current = false;
-
-										commitPatch({
-											borderColor:
-												overlay.borderColor ??
-												DEFAULT_BORDER_COLOR,
-										});
-									}
-								}}
-								onChange={(event) => {
-									borderGesture.current = true;
-
-									dispatch({
-										id: overlay.id,
-										patch: {borderColor: event.target.value},
-										transient: true,
-										type: 'update-overlay',
-									});
-								}}
-								type="color"
-								value={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
-							/>
-						</ClayForm.Group>
+						<ColorField
+							id="layer-prop-border-color"
+							label={t('border-color')}
+							onCommit={(borderColor) =>
+								commitPatch({borderColor})
+							}
+							onPreview={(borderColor) =>
+								dispatch({
+									id: overlay.id,
+									patch: {borderColor},
+									transient: true,
+									type: 'update-overlay',
+								})
+							}
+							value={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
+						/>
 					</>
 				)}
 			</div>

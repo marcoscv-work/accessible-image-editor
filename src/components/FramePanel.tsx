@@ -4,8 +4,7 @@
  */
 
 import ClayForm, {ClayCheckbox} from '@clayui/form';
-import ClaySlider from '@clayui/slider';
-import {memo, useRef} from 'react';
+import {memo} from 'react';
 
 import {t} from '../i18n';
 import {FrameShape} from '../imaging/frameShapes';
@@ -14,6 +13,7 @@ import {EditorAction} from '../state/editorReducer';
 import {Frame, FrameKind} from '../state/types';
 import {Carousel} from './Carousel';
 import {EditorSection} from './EditorSection';
+import {ColorField, CommitSlider} from './fields';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -42,21 +42,6 @@ const SLIDERS: {key: 'offset' | 'size'; labelKey: string; max: number}[] = [
  * where the old edges used to be.
  */
 function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
-	const colorGesture = useRef(false);
-	const sliderGesture = useRef<'offset' | 'size' | null>(null);
-
-	const commitSlider = (key: 'offset' | 'size', label: string) => {
-		if (sliderGesture.current !== key) {
-			return;
-		}
-
-		sliderGesture.current = null;
-
-		dispatch({frame: {[key]: frame[key]}, type: 'set-frame'});
-
-		onAnnounce(t('frame-value-set', label, frame[key]));
-	};
-
 	return (
 		<EditorSection title={t('frame')} titleId="frame-panel-title">
 			<fieldset>
@@ -129,37 +114,23 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 			  */}
 			{frame.kind !== 'none' && (
 				<>
-					<ClayForm.Group small>
-						<label htmlFor="frame-color">{t('frame-color')}</label>
+					<ColorField
+						id="frame-color"
+						label={t('frame-color')}
+						onCommit={(color) => {
+							dispatch({frame: {color}, type: 'set-frame'});
 
-						<input
-							className="editor-color-input form-control form-control-sm"
-							id="frame-color"
-							onBlur={() => {
-								if (colorGesture.current) {
-									colorGesture.current = false;
-
-									dispatch({
-										frame: {color: frame.color},
-										type: 'set-frame',
-									});
-
-									onAnnounce(t('frame-color-set'));
-								}
-							}}
-							onChange={(event) => {
-								colorGesture.current = true;
-
-								dispatch({
-									frame: {color: event.target.value},
-									transient: true,
-									type: 'set-frame',
-								});
-							}}
-							type="color"
-							value={frame.color}
-						/>
-					</ClayForm.Group>
+							onAnnounce(t('frame-color-set'));
+						}}
+						onPreview={(color) =>
+							dispatch({
+								frame: {color},
+								transient: true,
+								type: 'set-frame',
+							})
+						}
+						value={frame.color}
+					/>
 
 					{/*
 					  * A mat that hides the caption someone wrote along the
@@ -192,43 +163,35 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 
 					{SLIDERS.map(({key, labelKey, max}) => {
 						const label = t(labelKey);
-						const value = frame[key];
 
 						return (
-							<ClayForm.Group key={key} small>
-								<div className="editor-slider-row">
-									<label htmlFor={`frame-${key}`}>
-										{label}
-									</label>
+							<CommitSlider
+								id={`frame-${key}`}
+								key={key}
+								label={label}
+								max={max}
+								min={0}
+								onCommit={(value) => {
+									dispatch({
+										frame: {[key]: value},
+										type: 'set-frame',
+									});
 
-									<span
-										aria-hidden="true"
-										className="editor-slider-value"
-									>
-										{t('frame-percent', value)}
-									</span>
-								</div>
-
-								<ClaySlider
-									id={`frame-${key}`}
-									max={max}
-									min={0}
-									onBlur={() => commitSlider(key, label)}
-									onChange={(next: number) => {
-										sliderGesture.current = key;
-
-										dispatch({
-											frame: {[key]: next},
-											transient: true,
-											type: 'set-frame',
-										});
-									}}
-									onKeyUp={() => commitSlider(key, label)}
-									onPointerUp={() => commitSlider(key, label)}
-									showTooltip={false}
-									value={value}
-								/>
-							</ClayForm.Group>
+									onAnnounce(
+										t('frame-value-set', label, value)
+									);
+								}}
+								onPreview={(value) =>
+									dispatch({
+										frame: {[key]: value},
+										transient: true,
+										type: 'set-frame',
+									})
+								}
+								shiftStep={5}
+								value={frame[key]}
+								valueLabel={t('frame-percent', frame[key])}
+							/>
 						);
 					})}
 				</>

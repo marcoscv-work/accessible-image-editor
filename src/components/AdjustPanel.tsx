@@ -4,15 +4,13 @@
  */
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm from '@clayui/form';
-import ClaySlider from '@clayui/slider';
-import React, {useRef} from 'react';
 
 import {AdjustmentKey} from '../editorConfig';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
 import {EditorSection} from './EditorSection';
+import {CommitSlider} from './fields';
 
 const SLIDERS: Array<{key: keyof Adjustments; labelKey: string}> = [
 	{key: 'brightness', labelKey: 'brightness'},
@@ -46,20 +44,6 @@ export function AdjustPanel({
 }: Props) {
 	const shown = SLIDERS.filter(({key}) => sliders.includes(key));
 
-	const activeGesture = useRef<keyof Adjustments | null>(null);
-
-	const commit = (key: keyof Adjustments, label: string) => {
-		if (activeGesture.current !== key) {
-			return;
-		}
-
-		activeGesture.current = null;
-
-		dispatch({key, type: 'set-adjustment', value: adjustments[key]});
-
-		onAnnounce(t('adjustment-set', label, adjustments[key]));
-	};
-
 	const hasAdjustments = shown.some(({key}) => adjustments[key] !== 0);
 
 	return (
@@ -69,94 +53,44 @@ export function AdjustPanel({
 				const value = adjustments[key];
 
 				return (
-					<ClayForm.Group key={key} small>
-						<div className="editor-slider-row">
-							<label htmlFor={`adjust-${key}`}>{label}</label>
+					<CommitSlider
+						id={`adjust-${key}`}
+						key={key}
+						label={label}
+						max={100}
+						min={-100}
+						onCommit={(next) => {
+							dispatch({key, type: 'set-adjustment', value: next});
 
-							<span
-								aria-hidden="true"
-								className="editor-slider-value"
-							>
-								{value}
-							</span>
-
-							<ClayButtonWithIcon
-								aria-label={t('reset-adjustment', label)}
-								borderless
-								className="editor-slider-reset"
-								disabled={value === 0}
+							onAnnounce(t('adjustment-set', label, next));
+						}}
+						onPreview={(next) =>
+							dispatch({
+								key,
+								transient: true,
+								type: 'set-adjustment',
+								value: next,
+							})
+						}
+						shiftStep={10}
+						value={value}
+						valueLabel={String(value)}
+					>
+						<ClayButtonWithIcon
+							aria-label={t('reset-adjustment', label)}
+							borderless
+							className="editor-slider-reset"
+							disabled={value === 0}
 							displayType="secondary"
-								onClick={() => {
-									dispatch({
-										key,
-										type: 'set-adjustment',
-										value: 0,
-									});
-									onAnnounce(t('adjustment-set', label, 0));
-								}}
-								size="xs"
-								symbol="restore"
-								title={t('reset-adjustment', label)}
-							/>
-						</div>
-
-						<ClaySlider
-							id={`adjust-${key}`}
-							max={100}
-							min={-100}
-							onBlur={() => commit(key, label)}
-							onChange={(next: number) => {
-								activeGesture.current = key;
-
-								dispatch({
-									key,
-									transient: true,
-									type: 'set-adjustment',
-									value: next,
-								});
+							onClick={() => {
+								dispatch({key, type: 'set-adjustment', value: 0});
+								onAnnounce(t('adjustment-set', label, 0));
 							}}
-							onKeyDown={(event: React.KeyboardEvent) => {
-
-								// Native ranges step by 1; Shift+arrows
-								// steps by 10.
-
-								if (!event.shiftKey) {
-									return;
-								}
-
-								const delta =
-									event.key === 'ArrowRight' ||
-									event.key === 'ArrowUp'
-										? 10
-										: event.key === 'ArrowLeft' ||
-											  event.key === 'ArrowDown'
-											? -10
-											: 0;
-
-								if (!delta) {
-									return;
-								}
-
-								event.preventDefault();
-
-								activeGesture.current = key;
-
-								dispatch({
-									key,
-									transient: true,
-									type: 'set-adjustment',
-									value: Math.max(
-										-100,
-										Math.min(100, value + delta)
-									),
-								});
-							}}
-							onKeyUp={() => commit(key, label)}
-							onPointerUp={() => commit(key, label)}
-							showTooltip={false}
-							value={value}
+							size="xs"
+							symbol="restore"
+							title={t('reset-adjustment', label)}
 						/>
-					</ClayForm.Group>
+					</CommitSlider>
 				);
 			})}
 
