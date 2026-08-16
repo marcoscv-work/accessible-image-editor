@@ -20,7 +20,34 @@ The decisive move is not avoiding `<canvas>`; it is making **every operation par
 | Frame size step (render + paint) | 26ms | < 100ms |
 | Export a full scene at 20MP | 737–746ms | < 10s |
 
+A 100MP source (11500x8695, an 8.4MB JPEG) was measured the same way: opening takes 1161ms, a slider step still takes 31ms, and exporting the whole scene at full resolution takes 3763ms. The interaction figure is the one that matters, and it does not move: five times the pixels, the same 30ms.
+
 The downscaled-preview strategy (max 2048px bitmap in the SVG stage, original file touched only at export) is what makes this flat: interaction cost is independent of source resolution. The export figure is the whole thing at full resolution, with a colour pipeline, a pixelated redaction, an imported picture and a frame in the scene: serializing the SVG, rasterizing it and encoding the JPEG. Numbers come from `e2e/perf.spec.ts` and are asserted, not just observed. Not yet measured: low-end hardware, and a scene with dozens of annotations.
+
+## Very large images
+
+Everything that scales with source resolution belongs to the platform rather than to this design. Decoding a 100MP JPEG costs 671ms and materializes roughly 400MB of RGBA; rasterizing and encoding the export costs about as much again. Any editor in any technology pays those two bills, because they are `createImageBitmap` and `toBlob`.
+
+What the architecture buys is that the bills are paid twice, at the start and at the end, and never in between: editing runs on a bitmap capped at 2048px, so the stage, the filters and every annotation behave identically whether the original is 2MP or 100MP. That is the property worth having, and the measurements above are it.
+
+In practice the host decides how large a source ever gets. Liferay caps upload size, and the editor is handed a file that has already been through that gate, so the interesting range is comfortably inside what a browser handles well. The notes below are therefore opportunities rather than obstacles, kept here so nobody has to rediscover them:
+
+- The export currently inlines the original as a base64 data URL and rasterizes it through the scene SVG. Drawing the decoded bitmap straight into the export canvas, and rasterizing only the annotation layer, would remove an 11MB string and one full copy of the image from the peak.
+- Canvas area limits are far stricter on iOS than on the desktop, so a configurable ceiling on export dimensions (with an honest message when it applies) is the difference between a large export and a blank one.
+- Decoding and encoding in a worker with `OffscreenCanvas` would cost the same milliseconds while leaving the main thread free, and would keep the large bitmap in a heap that is released deterministically.
+- The redaction and thumbnail copies are drawn from the full-resolution bitmap; deriving them from the preview bitmap gives the same result from a texture two orders of magnitude smaller.
+- Asking the browser for a pre-scaled decode (`createImageBitmap(blob, {resizeWidth})`) sounds like the obvious win and is not: measured at 100MP it is no faster than a full decode, because Chromium decodes and then resizes. Written down so the experiment is not repeated.
+- The most interesting route is the one the parametric design opens by itself: the edit is serializable JSON, so a host can let the browser edit a rendition and apply the same state to the original on the server. Then the browser never decodes the large image at all. Liferay already produces those renditions.
+
+## Canvas would not have been faster
+
+The project's constraint was accessibility, and the honest question afterwards is whether it cost performance. Measured, it did not.
+
+The costs that dominate at any size are decode, encode and memory, and they are identical in both models: a canvas editor calls the same platform APIs on the same file. Interaction latency is flat in both, because a canvas editor also works on a downscaled proxy rather than on the full bitmap. The SVG filter chain runs on the same accelerated path the browser uses for CSS filters, so the colour pipeline is not the slow half either.
+
+Canvas wins in three places, all of them outside this editor by design: freehand painting and per-pixel manipulation, scenes with thousands of objects (every annotation here is a DOM node, which is cheap at ten and expensive at five thousand), and effects beyond the SVG filter primitives, where a shader is the right tool. Freehand is exactly what the discovery found inaccessible in any technology, so its absence is a decision rather than a limitation.
+
+There is one place where the canvas model has a genuine edge today, and it is ours to close: it exports by drawing directly, while this editor serializes the scene to SVG and rasterizes it back. That round trip is the base64 cost described above, and the offscreen canvas that would remove it is already in the pipeline, acting as the encoder.
 
 ## What was easy (architecture dividends)
 
