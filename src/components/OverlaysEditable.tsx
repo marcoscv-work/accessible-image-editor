@@ -18,6 +18,7 @@ import {
 import {EditorAction} from '../state/editorReducer';
 import {Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
+import {OverlayTextEditor} from './OverlayTextEditor';
 
 import type {RedactSource} from '../imaging/overlayShapes';
 
@@ -64,25 +65,6 @@ function toStageDelta(
 	return [dx * cos - dy * sin, dx * sin + dy * cos];
 }
 
-/**
- * Background for the inline text editor, picked against the text color's
- * luminance so the value stays readable whatever color the user chose.
- */
-function editorBackground(color: string): string {
-	const value = color.replace('#', '');
-
-	if (value.length === 6) {
-		const [r, g, b] = [0, 2, 4].map((index) =>
-			Number.parseInt(value.slice(index, index + 2), 16)
-		);
-
-		if ((0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55) {
-			return 'rgba(20, 21, 31, 0.92)';
-		}
-	}
-
-	return 'rgba(255, 255, 255, 0.92)';
-}
 
 /**
  * The smallest target the editor will offer, in screen pixels (WCAG 2.2,
@@ -683,53 +665,16 @@ export function OverlaysEditable({
 
 						{editing?.id === overlay.id &&
 							overlay.kind === 'text' && (
-								<foreignObject
-									height={overlay.fontSize * 1.5}
-									width={
-										textWidth(
-											editing.draft || ' ',
-											overlay.fontFamily,
-											overlay.fontSize
-										) +
-										overlay.fontSize * 1.2
+								<OverlayTextEditor
+									bounds={bounds}
+									draft={editing.draft}
+									onCancel={() => setEditing(null)}
+									onChange={(draft) =>
+										setEditing({draft, id: overlay.id})
 									}
-									x={bounds.x - overlay.fontSize * 0.25}
-									y={bounds.y - overlay.fontSize * 0.15}
-								>
-									<input
-										aria-label={t('text-content')}
-										autoFocus
-										className="overlay-text-editor"
-										onBlur={commitTextEdit}
-										onChange={(event) =>
-											setEditing({
-												draft: event.target.value,
-												id: overlay.id,
-											})
-										}
-										onKeyDown={(event) => {
-											event.stopPropagation();
-
-											if (event.key === 'Enter') {
-												commitTextEdit();
-											}
-											else if (
-												event.key === 'Escape'
-											) {
-												setEditing(null);
-											}
-										}}
-										style={{
-											background: editorBackground(
-												overlay.color
-											),
-											color: overlay.color,
-											fontFamily: overlay.fontFamily,
-											fontSize: overlay.fontSize,
-										}}
-										value={editing.draft}
-									/>
-								</foreignObject>
+									onCommit={commitTextEdit}
+									overlay={overlay}
+								/>
 							)}
 
 						{editing?.id !== overlay.id &&
