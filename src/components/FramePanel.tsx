@@ -11,8 +11,8 @@ import {FrameShape} from '../imaging/frameShapes';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {Frame, FrameKind} from '../state/types';
-import {Carousel} from './Carousel';
 import {EditorSection} from './EditorSection';
+import {PresetGallery} from './PresetGallery';
 import {ColorField, CommitSlider} from './fields';
 
 interface Props {
@@ -44,69 +44,36 @@ const SLIDERS: {key: 'offset' | 'size'; labelKey: string; max: number}[] = [
 function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 	return (
 		<EditorSection title={t('frame')} titleId="frame-panel-title">
-			<fieldset>
-				<legend className="sr-only">{t('frame')}</legend>
+			<PresetGallery
+				idPrefix="frame"
+				items={presets}
+				label={(kind) => t(`frame-${kind}`)}
+				legend={t('frame')}
+				onSelect={(kind) => {
+					dispatch({frame: {kind}, type: 'set-frame'});
 
-				<Carousel className="editor-frame-grid" itemCount={presets.length}>
-					{presets.map((kind) => {
-						const label = t(`frame-${kind}`);
+					onAnnounce(t('frame-set', t(`frame-${kind}`)));
+				}}
+				preview={(kind) => (
+					<svg
+						aria-hidden="true"
+						className="editor-preset-thumb"
+						height={CARD.height}
+						viewBox={`0 0 ${CARD.width} ${CARD.height}`}
+						width={CARD.width}
+					>
+						<image
+							height={CARD.height}
+							href={image.thumbUrl}
+							preserveAspectRatio="xMidYMid slice"
+							width={CARD.width}
+						/>
 
-						return (
-							<div
-								className="custom-control custom-radio editor-frame-option"
-								key={kind}
-							>
-								<input
-									checked={frame.kind === kind}
-									className="editor-frame-input sr-only"
-									id={`frame-${kind}`}
-									name="frame-preset"
-									onChange={() => {
-										dispatch({
-											frame: {kind},
-											type: 'set-frame',
-										});
-										onAnnounce(t('frame-set', label));
-									}}
-									type="radio"
-									value={kind}
-								/>
-
-								<label
-									className="editor-frame-label"
-									htmlFor={`frame-${kind}`}
-								>
-									<span className="editor-frame-card">
-										<svg
-											aria-hidden="true"
-											className="editor-frame-thumb"
-											height={CARD.height}
-											viewBox={`0 0 ${CARD.width} ${CARD.height}`}
-											width={CARD.width}
-										>
-											<image
-												height={CARD.height}
-												href={image.thumbUrl}
-												preserveAspectRatio="xMidYMid slice"
-												width={CARD.width}
-											/>
-
-											<FrameShape
-												crop={CARD}
-												frame={{...frame, kind}}
-											/>
-										</svg>
-									</span>
-
-									<span className="editor-frame-name">
-										{label}
-									</span>
-								</label>
-							</div>
-						);
-					})}
-				</Carousel>
-			</fieldset>
+						<FrameShape crop={CARD} frame={{...frame, kind}} />
+					</svg>
+				)}
+				selected={frame.kind}
+			/>
 
 			{/*
 			  * The options only exist once there is something to configure,

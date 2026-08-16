@@ -243,7 +243,7 @@ describe('Annotations, filters, and layers', () => {
 		// full preview bitmap.
 
 		const thumbs = [
-			...container.querySelectorAll('.editor-filter-thumb image'),
+			...container.querySelectorAll('.editor-preset-thumb image'),
 		];
 
 		expect(thumbs).toHaveLength(20);

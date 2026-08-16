@@ -66,10 +66,15 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 		await page.getByRole('button', {exact: true, name}).click();
 	}
 
-	const carousel = page.locator('.editor-carousel:has(.editor-filter-grid)');
+	// Filters and frames share the gallery markup now, so say which one:
+	// this test is about the filter cards.
+
+	const carousel = page.locator(
+		'.editor-panel:has(#filters-panel-title) .editor-carousel'
+	);
 
 	await expectSwipeableRow(
-		carousel.locator('.editor-filter-grid'),
+		carousel.locator('.editor-preset-grid'),
 		carousel.locator('.editor-carousel-arrow')
 	);
 
