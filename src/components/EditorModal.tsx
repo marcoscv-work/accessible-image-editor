@@ -25,14 +25,9 @@ import {
 	undoLabel,
 } from '../state/editorReducer';
 import {CropRect, rotatedSize} from '../state/types';
-import {AdjustPanel} from './AdjustPanel';
-import {AnnotatePanel} from './AnnotatePanel';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
-import {CropPanel} from './CropPanel';
-import {FilterGallery} from './FilterGallery';
-import {FramePanel} from './FramePanel';
-import {LayersPanel} from './LayersPanel';
+import {EditorSidebar} from './EditorSidebar';
 import {ShortcutsDialog} from './ShortcutsDialog';
 import {Workspace} from './Workspace';
 
@@ -526,70 +521,16 @@ export default function EditorModal({config, image, onClose}: Props) {
 							zoom={zoom}
 						/>
 
-						<aside
-							aria-label={t('edit-controls')}
-							className="editor-sidebar"
-							ref={sidebarRef}
-						>
-							{enabled.crop.enabled && (
-								<CropPanel
-									angle={state.angle}
-									crop={state.crop}
-									dispatch={dispatch}
-									onAnnounce={announce}
-									showStraighten={enabled.crop.straighten}
-								/>
-							)}
-
-							{enabled.adjustments.length > 0 && (
-								<AdjustPanel
-									adjustments={state.adjustments}
-									dispatch={dispatch}
-									onAnnounce={announce}
-									sliders={enabled.adjustments}
-								/>
-							)}
-
-							{enabled.filters.length > 0 && (
-								<FilterGallery
-									dispatch={dispatch}
-									filter={state.filter}
-									image={image}
-									onAnnounce={announce}
-									presets={enabled.filters}
-								/>
-							)}
-
-							{enabled.frames.length > 0 && (
-								<FramePanel
-									dispatch={dispatch}
-									frame={state.frame}
-									image={image}
-									onAnnounce={announce}
-									presets={enabled.frames}
-								/>
-							)}
-
-							{enabled.annotate.tools.length > 0 && (
-								<>
-									<AnnotatePanel
-										area={state.crop}
-										dispatch={dispatch}
-										onAnnounce={announce}
-										stickers={enabled.annotate.stickers}
-										tools={enabled.annotate.tools}
-									/>
-
-									<LayersPanel
-										dispatch={dispatch}
-										onAnnounce={announce}
-										onSelect={setSelectedOverlayId}
-										overlays={state.overlays}
-										selectedId={selectedOverlayId}
-									/>
-								</>
-							)}
-						</aside>
+						<EditorSidebar
+							dispatch={dispatch}
+							enabled={enabled}
+							image={image}
+							onAnnounce={announce}
+							onSelectOverlay={setSelectedOverlayId}
+							selectedOverlayId={selectedOverlayId}
+							sidebarRef={sidebarRef}
+							state={state}
+						/>
 					</div>
 
 					<BottomBar
