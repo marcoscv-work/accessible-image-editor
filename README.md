@@ -131,12 +131,17 @@ The same map is available in the UI through the "Keyboard shortcuts" button.
 
 ```
 src/
-  state/        EditState + pure reducer with labelled undo/redo history
-  imaging/      loadImage (decode + downscale), FilterDefs (color pipeline),
-                geometry (rotation), overlayShapes, exportImage (SVG → encoder)
-  components/   EditorModal (Clay full-screen modal shell), Workspace (SVG stage),
-                CropMarquee, CropPanel, AdjustPanel, FilterGallery,
-                AnnotatePanel, LayersPanel, BottomBar, Announcer (live region)
+  state/        EditState + pure reducer with labelled undo/redo history, ids
+  imaging/      loadImage (decode + downscale), FilterDefs (colour pipeline),
+                geometry (rotation, arrow steps), overlayShapes, stickerArt,
+                frameShapes, exportImage (SVG → encoder)
+  components/   EditorModal (Clay full-screen modal shell), EditorSidebar,
+                Workspace (SVG stage), CropMarquee, OverlaysEditable,
+                OverlayTextEditor, CropPanel, AdjustPanel, FramePanel,
+                FilterGallery and PresetGallery (the shared card group),
+                AnnotatePanel, TextDialog, LayersPanel, LayerProperties,
+                fields (the shared labelled inputs and sliders), BottomBar,
+                Carousel, Announcer (live region)
   i18n/         t() + English dictionary (Language.properties-shaped keys)
 e2e/            Keyboard-only Playwright journeys, axe scans, 20MP perf budget
 ```
