@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClaySelectWithOption} from '@clayui/form';
+import {useState} from 'react';
 
 import {t} from '../i18n';
 import {DEFAULT_BORDER_COLOR, overlayLabel} from '../imaging/overlayShapes';
@@ -33,10 +35,45 @@ interface LayerPropertiesProps {
 export function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) {
 	const label = overlayLabel(overlay);
 
+	/*
+	 * A picture has proportions of its own, and stretching it is rarely
+	 * what was meant, so it arrives with them locked. A rectangle, a
+	 * circle and a redaction are shapes rather than pictures, so they
+	 * arrive free, with the same padlock available.
+	 */
+
+	const [proportional, setProportional] = useState(overlay.kind === 'image');
+
 	const commitPatch = (patch: Partial<Overlay>) => {
 		dispatch({id: overlay.id, patch, type: 'update-overlay'});
 
 		onAnnounce(t('layer-updated', label));
+	};
+
+	/**
+	 * With the padlock on, the side that was not typed follows, so nobody
+	 * has to work out what the other number should be. The ratio comes
+	 * from the box as it stands, which is what the picture arrived with.
+	 */
+	const commitSize = (side: 'height' | 'width', value: number) => {
+		if (!proportional || !isBoxOverlay(overlay)) {
+			commitPatch({[side]: value});
+
+			return;
+		}
+
+		const ratio = overlay.width / overlay.height;
+
+		const other = Math.max(
+			Math.round(side === 'width' ? value / ratio : value * ratio),
+			1
+		);
+
+		commitPatch(
+			side === 'width'
+				? {height: other, width: value}
+				: {height: value, width: other}
+		);
 	};
 
 	return (
@@ -208,21 +245,45 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 				)}
 
 				{isBoxOverlay(overlay) && (
-					<>
+					<div className="editor-crop-size-row editor-layer-size-row">
 						<NumberField
 							id="layer-prop-width"
 							label={t('width')}
-							onCommit={(width) => commitPatch({width})}
+							onCommit={(width) => commitSize('width', width)}
 							value={overlay.width}
+						/>
+
+						<ClayButtonWithIcon
+							aria-label={t('aspect-lock')}
+							aria-pressed={proportional}
+							borderless
+							className="editor-aspect-lock"
+							displayType="secondary"
+							onClick={() => {
+								setProportional((locked) => {
+									onAnnounce(
+										t(
+											locked
+												? 'aspect-ratio-unlocked'
+												: 'aspect-ratio-locked'
+										)
+									);
+
+									return !locked;
+								});
+							}}
+							size="xs"
+							symbol={proportional ? 'lock' : 'unlock'}
+							title={t('aspect-lock')}
 						/>
 
 						<NumberField
 							id="layer-prop-height"
 							label={t('height')}
-							onCommit={(height) => commitPatch({height})}
+							onCommit={(height) => commitSize('height', height)}
 							value={overlay.height}
 						/>
-					</>
+					</div>
 				)}
 
 				{hasBorder(overlay) && (

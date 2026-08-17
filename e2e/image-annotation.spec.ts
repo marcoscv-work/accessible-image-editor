@@ -74,11 +74,41 @@ test('brings a picture in as an annotation', async ({page}) => {
 	await expect(overlay).toHaveAttribute('aria-label', 'Liferay badge');
 
 	// One more box: the width and height fields drive it like any other.
+	// A picture arrives with its proportions locked, so the side that was
+	// not typed follows instead of leaving the reader to do the division.
+
+	const padlock = page.locator(
+		'.editor-layer-size-row .editor-aspect-lock'
+	);
+
+	await expect(padlock).toHaveAttribute('aria-pressed', 'true');
 
 	await page.locator('#layer-prop-width').fill('300');
 	await page.locator('#layer-prop-width').press('Enter');
 
 	await expect(picture).toHaveAttribute('width', '300');
+	await expect(picture).toHaveAttribute('height', '150');
+
+	// Typing a height works the same way round.
+
+	await page.locator('#layer-prop-height').fill('100');
+	await page.locator('#layer-prop-height').press('Enter');
+
+	await expect(picture).toHaveAttribute('width', '200');
+
+	// Unlocked, the two sides are independent again.
+
+	await padlock.click();
+
+	await expect(page.getByRole('status')).toContainText(
+		'Aspect ratio unlocked'
+	);
+
+	await page.locator('#layer-prop-width').fill('320');
+	await page.locator('#layer-prop-width').press('Enter');
+
+	await expect(picture).toHaveAttribute('width', '320');
+	await expect(picture).toHaveAttribute('height', '100');
 
 	const results = await new AxeBuilder({page})
 		.include('.modal-content')

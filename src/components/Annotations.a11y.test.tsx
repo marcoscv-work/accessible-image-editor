@@ -355,6 +355,43 @@ describe('Annotations, filters, and layers', () => {
 		expect(await axe(container)).toHaveNoViolations();
 	});
 
+	it('leaves a shape free to stretch, and locks on request', () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+
+		const padlock = screen.getByRole('button', {
+			name: 'Lock aspect ratio',
+		});
+
+		// A rectangle is a shape rather than a picture, so it arrives free.
+
+		expect(padlock).toHaveAttribute('aria-pressed', 'false');
+
+		const width = screen.getByLabelText('Width') as HTMLInputElement;
+		const height = screen.getByLabelText('Height') as HTMLInputElement;
+
+		const stretched = Number(height.value);
+
+		fireEvent.change(width, {target: {value: '200'}});
+		fireEvent.keyDown(width, {key: 'Enter'});
+
+		expect(Number(height.value)).toBe(stretched);
+
+		// Locked, the side that was not typed follows.
+
+		fireEvent.click(padlock);
+
+		expect(padlock).toHaveAttribute('aria-pressed', 'true');
+
+		const ratio = 200 / stretched;
+
+		fireEvent.change(width, {target: {value: '100'}});
+		fireEvent.keyDown(width, {key: 'Enter'});
+
+		expect(Number(height.value)).toBe(Math.round(100 / ratio));
+	});
+
 	it('syncs selection between the stage and the layers panel', () => {
 		const {container} = render(<AnnotationHarness />);
 
