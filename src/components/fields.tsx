@@ -24,28 +24,17 @@ interface FieldProps {
  * what was typed is not a number.
  */
 export function NumberField({
-	className,
 	id,
 	label,
 	max,
 	min = 1,
 	onCommit,
-	prepend,
 	suffix,
 	value,
 }: FieldProps & {
-	className?: string;
 	max?: number;
 	min?: number;
 	onCommit: (value: number) => void;
-
-	/**
-	 * A control to sit in front of the number, inside the same input
-	 * group. The padlock of a width and height pair goes here, so the
-	 * field keeps the width of its column.
-	 */
-	prepend?: React.ReactNode;
-
 	suffix?: string;
 	value: number;
 }) {
@@ -85,29 +74,16 @@ export function NumberField({
 	);
 
 	return (
-		<ClayForm.Group className={className} small>
+		<ClayForm.Group small>
 			<label htmlFor={id}>{label}</label>
 
-			{prepend || suffix ? (
+			{suffix ? (
 				<ClayInput.Group small>
-					{prepend ? (
-						<ClayInput.GroupItem prepend shrink>
-							{prepend}
-						</ClayInput.GroupItem>
-					) : null}
+					<ClayInput.GroupItem prepend>{input}</ClayInput.GroupItem>
 
-					<ClayInput.GroupItem
-						append={!suffix}
-						prepend={!!suffix}
-					>
-						{input}
+					<ClayInput.GroupItem append shrink>
+						<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
 					</ClayInput.GroupItem>
-
-					{suffix ? (
-						<ClayInput.GroupItem append shrink>
-							<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
-						</ClayInput.GroupItem>
-					) : null}
 				</ClayInput.Group>
 			) : (
 				input

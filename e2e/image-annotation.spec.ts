@@ -78,7 +78,7 @@ test('brings a picture in as an annotation', async ({page}) => {
 	// not typed follows instead of leaving the reader to do the division.
 
 	const padlock = page.locator(
-		'.editor-layer-properties .editor-aspect-lock'
+		'.editor-layer-size-row .editor-aspect-lock'
 	);
 
 	await expect(padlock).toHaveAttribute('aria-pressed', 'true');
