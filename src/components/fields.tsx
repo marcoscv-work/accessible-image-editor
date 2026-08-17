@@ -331,13 +331,14 @@ export function BorderField({
 		<ClayForm.Group small>
 
 			{/*
-			  * Not a `label`: it names the pair, and a label can only point
-			  * at one control. The group carries it, and each input says
-			  * what it is for a screen reader.
+			  * A real label, pointing at the first of the two controls, so
+			  * it needs no styling of its own and clicking it lands on the
+			  * number. The group is named by it as well, which is what
+			  * makes the pair announce as "Border, group".
 			  */}
-			<span className="editor-field-label" id={`${id}-label`}>
+			<label htmlFor={id} id={`${id}-label`}>
 				{label}
-			</span>
+			</label>
 
 			<div aria-labelledby={`${id}-label`} role="group">
 				<ClayInput.Group small>

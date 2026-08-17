@@ -815,26 +815,6 @@
 	gap: 0.5rem;
 }
 
-/*
- * The label of a control group, matching Clay's own labels inside a small
- * form group. A group cannot use a `label`, since one label points at one
- * control, so this names it and the group carries the association.
- */
-
-.editor-field-label {
-
-	/*
-	 * Inherited rather than named: a group label has to read on whatever
-	 * surface the theme paints, and the panel already knows its colour.
-	 */
-
-	color: inherit;
-
-	display: block;
-	font-size: 0.75rem;
-	font-weight: 600;
-	margin-bottom: 0.125rem;
-}
 
 .editor-color-input {
 	height: 1.9375rem;

@@ -117,7 +117,7 @@ test('brings a picture in as an annotation', async ({page}) => {
 		.locator('.editor-layer-properties .editor-panel-grid')
 		.evaluate((grid) =>
 			[...grid.children].flatMap((cell) =>
-				[...cell.querySelectorAll('label, .editor-field-label')].map(
+				[...cell.querySelectorAll('label')].map(
 					(label) => label.textContent?.trim()
 				)
 			)
