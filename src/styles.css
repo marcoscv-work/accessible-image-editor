@@ -607,15 +607,16 @@
 	flex: 1;
 }
 
-/* The same row inside the two-column properties grid, spanning it. */
-
-.editor-layer-size-row {
-	grid-column: 1 / -1;
-}
-
 .editor-aspect-lock {
 	align-self: flex-end;
 	margin-bottom: 0.625rem;
+}
+
+/* Inside an input group the padlock is a group item, already aligned. */
+
+.input-group .editor-aspect-lock {
+	align-self: auto;
+	margin-bottom: 0;
 }
 
 .editor-aspect-lock[aria-pressed='true'] {
@@ -815,7 +816,14 @@
  */
 
 .editor-field-label {
-	color: var(--cadmin-gray-900, var(--gray-900, #272833));
+
+	/*
+	 * Inherited rather than named: a group label has to read on whatever
+	 * surface the theme paints, and the panel already knows its colour.
+	 */
+
+	color: inherit;
+
 	display: block;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -835,7 +843,6 @@
 
 .editor-border-color {
 	min-width: 2.5rem;
-	padding: 0.125rem;
 	width: 2.5rem;
 }
 

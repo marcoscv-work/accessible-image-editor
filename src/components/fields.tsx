@@ -24,17 +24,28 @@ interface FieldProps {
  * what was typed is not a number.
  */
 export function NumberField({
+	className,
 	id,
 	label,
 	max,
 	min = 1,
 	onCommit,
+	prepend,
 	suffix,
 	value,
 }: FieldProps & {
+	className?: string;
 	max?: number;
 	min?: number;
 	onCommit: (value: number) => void;
+
+	/**
+	 * A control to sit in front of the number, inside the same input
+	 * group. The padlock of a width and height pair goes here, so the
+	 * field keeps the width of its column.
+	 */
+	prepend?: React.ReactNode;
+
 	suffix?: string;
 	value: number;
 }) {
@@ -74,16 +85,29 @@ export function NumberField({
 	);
 
 	return (
-		<ClayForm.Group small>
+		<ClayForm.Group className={className} small>
 			<label htmlFor={id}>{label}</label>
 
-			{suffix ? (
+			{prepend || suffix ? (
 				<ClayInput.Group small>
-					<ClayInput.GroupItem prepend>{input}</ClayInput.GroupItem>
+					{prepend ? (
+						<ClayInput.GroupItem prepend shrink>
+							{prepend}
+						</ClayInput.GroupItem>
+					) : null}
 
-					<ClayInput.GroupItem append shrink>
-						<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
+					<ClayInput.GroupItem
+						append={!suffix}
+						prepend={!!suffix}
+					>
+						{input}
 					</ClayInput.GroupItem>
+
+					{suffix ? (
+						<ClayInput.GroupItem append shrink>
+							<ClayInput.GroupText>{suffix}</ClayInput.GroupText>
+						</ClayInput.GroupItem>
+					) : null}
 				</ClayInput.Group>
 			) : (
 				input
@@ -363,7 +387,7 @@ export function BorderField({
 					<ClayInput.GroupItem append shrink>
 						<input
 							aria-label={colorLabel}
-							className="editor-border-color editor-color-input form-control form-control-sm"
+							className="editor-border-color editor-color-input form-control form-control-sm p-0"
 							id={`${id}-color`}
 							onBlur={() => {
 								if (dragging.current) {

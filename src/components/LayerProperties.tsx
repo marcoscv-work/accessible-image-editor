@@ -247,7 +247,7 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 				)}
 
 				{isBoxOverlay(overlay) && (
-					<div className="editor-crop-size-row editor-layer-size-row">
+					<>
 						<NumberField
 							id="layer-prop-width"
 							label={t('width')}
@@ -255,37 +255,42 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 							value={overlay.width}
 						/>
 
-						<ClayButtonWithIcon
-							aria-label={t('aspect-lock')}
-							aria-pressed={proportional}
-							borderless
-							className="editor-aspect-lock"
-							displayType="secondary"
-							onClick={() => {
-								setProportional((locked) => {
-									onAnnounce(
-										t(
-											locked
-												? 'aspect-ratio-unlocked'
-												: 'aspect-ratio-locked'
-										)
-									);
-
-									return !locked;
-								});
-							}}
-							size="xs"
-							symbol={proportional ? 'lock' : 'unlock'}
-							title={t('aspect-lock')}
-						/>
-
+						{/*
+						  * The padlock rides inside the height field rather
+						  * than between the two, so both keep the width of
+						  * their column and every row of the grid lines up.
+						  */}
 						<NumberField
 							id="layer-prop-height"
 							label={t('height')}
 							onCommit={(height) => commitSize('height', height)}
+							prepend={
+								<ClayButtonWithIcon
+									aria-label={t('aspect-lock')}
+									aria-pressed={proportional}
+									className="editor-aspect-lock"
+									displayType="secondary"
+									onClick={() => {
+										setProportional((locked) => {
+											onAnnounce(
+												t(
+													locked
+														? 'aspect-ratio-unlocked'
+														: 'aspect-ratio-locked'
+												)
+											);
+
+											return !locked;
+										});
+									}}
+									size="sm"
+									symbol={proportional ? 'lock' : 'unlock'}
+									title={t('aspect-lock')}
+								/>
+							}
 							value={overlay.height}
 						/>
-					</div>
+					</>
 				)}
 
 				<NumberField
