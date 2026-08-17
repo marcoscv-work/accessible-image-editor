@@ -110,6 +110,28 @@ test('brings a picture in as an annotation', async ({page}) => {
 	await expect(picture).toHaveAttribute('width', '320');
 	await expect(picture).toHaveAttribute('height', '100');
 
+	// Rotation follows the size pair, and the border is one control with
+	// two halves, so every row of the properties grid is filled.
+
+	const order = await page
+		.locator('.editor-layer-properties .editor-panel-grid')
+		.evaluate((grid) =>
+			[...grid.children].flatMap((cell) =>
+				[...cell.querySelectorAll('label, .editor-field-label')].map(
+					(label) => label.textContent?.trim()
+				)
+			)
+		);
+
+	expect(order).toEqual([
+		'X position',
+		'Y position',
+		'Width',
+		'Height',
+		'Rotation',
+		'Opacity',
+	]);
+
 	const results = await new AxeBuilder({page})
 		.include('.modal-content')
 		.analyze();

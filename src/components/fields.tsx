@@ -283,3 +283,106 @@ export function CommitSlider({
 		</ClayForm.Group>
 	);
 }
+
+/**
+ * A width and a colour as one control, because a border is one decision
+ * with two halves: how thick, and what colour. They sit in a single Clay
+ * input group so the pair occupies one cell of the properties grid rather
+ * than a row of its own, and each half keeps its own accessible name.
+ */
+export function BorderField({
+	colorLabel,
+	colorValue,
+	id,
+	label,
+	onColorCommit,
+	onColorPreview,
+	onWidthCommit,
+	widthLabel,
+	widthValue,
+}: FieldProps & {
+	colorLabel: string;
+	colorValue: string;
+	onColorCommit: (value: string) => void;
+	onColorPreview: (value: string) => void;
+	onWidthCommit: (value: number) => void;
+	widthLabel: string;
+	widthValue: number;
+}) {
+	const [draft, setDraft] = useState(String(widthValue));
+
+	const dragging = useRef(false);
+
+	useEffect(() => setDraft(String(widthValue)), [widthValue]);
+
+	const commit = () => {
+		const parsed = Number.parseInt(draft, 10);
+
+		if (Number.isNaN(parsed)) {
+			setDraft(String(widthValue));
+
+			return;
+		}
+
+		onWidthCommit(Math.max(parsed, 0));
+	};
+
+	return (
+		<ClayForm.Group small>
+
+			{/*
+			  * Not a `label`: it names the pair, and a label can only point
+			  * at one control. The group carries it, and each input says
+			  * what it is for a screen reader.
+			  */}
+			<span className="editor-field-label" id={`${id}-label`}>
+				{label}
+			</span>
+
+			<div aria-labelledby={`${id}-label`} role="group">
+				<ClayInput.Group small>
+					<ClayInput.GroupItem prepend>
+						<ClayInput
+							aria-label={widthLabel}
+							id={id}
+							min={0}
+							onBlur={commit}
+							onChange={(event) => setDraft(event.target.value)}
+							onKeyDown={(event: React.KeyboardEvent) => {
+								if (event.key === 'Enter') {
+									event.preventDefault();
+									commit();
+								}
+							}}
+							sizing="sm"
+							type="number"
+							value={draft}
+						/>
+					</ClayInput.GroupItem>
+
+					<ClayInput.GroupItem append shrink>
+						<input
+							aria-label={colorLabel}
+							className="editor-border-color editor-color-input form-control form-control-sm"
+							id={`${id}-color`}
+							onBlur={() => {
+								if (dragging.current) {
+									dragging.current = false;
+
+									onColorCommit(colorValue);
+								}
+							}}
+							onChange={(event) => {
+								dragging.current = true;
+
+								onColorPreview(event.target.value);
+							}}
+							type="color"
+							value={colorValue}
+						/>
+					</ClayInput.GroupItem>
+				</ClayInput.Group>
+			</div>
+		</ClayForm.Group>
+	);
+}

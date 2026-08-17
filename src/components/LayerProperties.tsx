@@ -19,7 +19,7 @@ import {
 	isBoxOverlay,
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
-import {ColorField, NumberField, TextField} from './fields';
+import {BorderField, ColorField, NumberField, TextField} from './fields';
 
 interface LayerPropertiesProps {
 	dispatch: (action: EditorAction) => void;
@@ -75,6 +75,20 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 				: {height: value, width: other}
 		);
 	};
+
+	const pairedWithColor = hasColor(overlay) || overlay.kind === 'redact';
+
+	const opacityField = (
+		<NumberField
+			id="layer-prop-opacity"
+			label={t('opacity')}
+			max={100}
+			min={0}
+			onCommit={(opacity) => commitPatch({opacity})}
+			suffix={t('unit-percent')}
+			value={overlay.opacity ?? 100}
+		/>
+	);
 
 	return (
 		<div
@@ -179,25 +193,13 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 					value={Math.round(overlay.y)}
 				/>
 
-				<NumberField
-					id="layer-prop-opacity"
-					label={t('opacity')}
-					max={100}
-					min={0}
-					onCommit={(opacity) => commitPatch({opacity})}
-					suffix={t('unit-percent')}
-					value={overlay.opacity ?? 100}
-				/>
-
-				<NumberField
-					id="layer-prop-rotation"
-					label={t('rotation-degrees')}
-					max={360}
-					min={-360}
-					onCommit={(rotation) => commitPatch({rotation})}
-					suffix={t('unit-degrees')}
-					value={overlay.rotation ?? 0}
-				/>
+				{/*
+				  * Opacity pairs with whatever cell is beside it. When the
+				  * annotation has a colour or a redaction level, that is the
+				  * one; otherwise it waits and pairs with the rotation
+				  * below, so no row of the grid is left half empty.
+				  */}
+				{pairedWithColor && opacityField}
 
 				{overlay.kind === 'sticker' && (
 					<NumberField
@@ -286,35 +288,41 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 					</div>
 				)}
 
-				{hasBorder(overlay) && (
-					<>
-						<NumberField
-							id="layer-prop-border-width"
-							label={t('border-width')}
-							min={0}
-							onCommit={(borderWidth) =>
-								commitPatch({borderWidth})
-							}
-							value={overlay.borderWidth ?? 0}
-						/>
+				<NumberField
+					id="layer-prop-rotation"
+					label={t('rotation-degrees')}
+					max={360}
+					min={-360}
+					onCommit={(rotation) => commitPatch({rotation})}
+					suffix={t('unit-degrees')}
+					value={overlay.rotation ?? 0}
+				/>
 
-						<ColorField
-							id="layer-prop-border-color"
-							label={t('border-color')}
-							onCommit={(borderColor) =>
-								commitPatch({borderColor})
-							}
-							onPreview={(borderColor) =>
-								dispatch({
-									id: overlay.id,
-									patch: {borderColor},
-									transient: true,
-									type: 'update-overlay',
-								})
-							}
-							value={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
-						/>
-					</>
+				{!pairedWithColor && opacityField}
+
+				{hasBorder(overlay) && (
+					<BorderField
+						colorLabel={t('border-color')}
+						colorValue={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
+						id="layer-prop-border-width"
+						label={t('border')}
+						onColorCommit={(borderColor) =>
+							commitPatch({borderColor})
+						}
+						onColorPreview={(borderColor) =>
+							dispatch({
+								id: overlay.id,
+								patch: {borderColor},
+								transient: true,
+								type: 'update-overlay',
+							})
+						}
+						onWidthCommit={(borderWidth) =>
+							commitPatch({borderWidth})
+						}
+						widthLabel={t('border-width')}
+						widthValue={overlay.borderWidth ?? 0}
+					/>
 				)}
 			</div>
 		</div>

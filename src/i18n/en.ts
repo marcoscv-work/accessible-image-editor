@@ -40,6 +40,7 @@ export default {
 	'aspect-lock': 'Lock aspect ratio',
 	'aspect-ratio-locked': 'Aspect ratio locked',
 	'aspect-ratio-unlocked': 'Aspect ratio unlocked',
+	border: 'Border',
 	'border-color': 'Border color',
 	'border-width': 'Border width',
 	brightness: 'Brightness',

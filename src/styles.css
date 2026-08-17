@@ -808,10 +808,35 @@
 	gap: 0.5rem;
 }
 
+/*
+ * The label of a control group, matching Clay's own labels inside a small
+ * form group. A group cannot use a `label`, since one label points at one
+ * control, so this names it and the group carries the association.
+ */
+
+.editor-field-label {
+	color: var(--cadmin-gray-900, var(--gray-900, #272833));
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-bottom: 0.125rem;
+}
+
 .editor-color-input {
 	height: 1.9375rem;
 	padding: 0.125rem 0.25rem;
 	width: 100%;
+}
+
+/*
+ * The colour half of the border group is a swatch rather than a field, so
+ * it takes only the width it needs and lets the number have the rest.
+ */
+
+.editor-border-color {
+	min-width: 2.5rem;
+	padding: 0.125rem;
+	width: 2.5rem;
 }
 
 /* Layers */
