@@ -15,6 +15,8 @@ const SHORTCUTS: Array<{descriptionKey: string; keys: string}> = [
 	{descriptionKey: 'shortcut-alt-drag', keys: 'Alt + drag'},
 	{descriptionKey: 'shortcut-zoom', keys: '+ / -'},
 	{descriptionKey: 'shortcut-zoom-fit', keys: '0'},
+	{descriptionKey: 'shortcut-zoom-actual', keys: '1'},
+	{descriptionKey: 'shortcut-center-crop', keys: '2'},
 	{descriptionKey: 'shortcut-undo', keys: 'Ctrl/Cmd + Z'},
 	{descriptionKey: 'shortcut-redo', keys: 'Ctrl/Cmd + Shift + Z'},
 	{descriptionKey: 'shortcut-escape', keys: 'Esc'},
@@ -34,7 +36,21 @@ export function ShortcutsDialog({onOpenChange, open}: Props) {
 
 	return (
 		<ClayModal observer={observer}>
-			<div onKeyDown={(event: React.KeyboardEvent) => event.stopPropagation()}>
+			{/*
+			  * The wrapper keeps the editor's shortcuts, undo above all,
+			  * from reaching the editor behind this dialog. React's
+			  * stopPropagation also stops the native event, so Escape is
+			  * let through on purpose: Clay's own modal hook closes
+			  * whichever dialog is on top of its stack, which is this one,
+			  * and leaves the editor alone.
+			  */}
+			<div
+				onKeyDown={(event: React.KeyboardEvent) => {
+					if (event.key !== 'Escape') {
+						event.stopPropagation();
+					}
+				}}
+			>
 				<ClayModal.Header
 					closeButtonAriaLabel={t('close')}
 					withTitle

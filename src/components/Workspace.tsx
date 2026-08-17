@@ -25,6 +25,7 @@ interface Props {
 	onWorkspacePointerMove?: (event: React.PointerEvent) => void;
 	onWorkspaceScroll: () => void;
 	onZoom: (direction: -1 | 1) => void;
+	onZoomActual: () => void;
 	onZoomFit: () => void;
 	selectedOverlayId: string | null;
 	showCrop: boolean;
@@ -49,6 +50,7 @@ export function Workspace({
 	onWorkspacePointerMove,
 	onWorkspaceScroll,
 	onZoom,
+	onZoomActual,
 	onZoomFit,
 	selectedOverlayId,
 	showCrop,
@@ -72,6 +74,18 @@ export function Workspace({
 		else if (event.key === '0') {
 			event.preventDefault();
 			onZoomFit();
+		}
+
+		// The numbers read as the view menu of any editor: fit, actual
+		// size, and then the region being worked on.
+
+		else if (event.key === '1') {
+			event.preventDefault();
+			onZoomActual();
+		}
+		else if (event.key === '2') {
+			event.preventDefault();
+			onCenterCrop();
 		}
 	};
 

@@ -184,6 +184,7 @@ export default {
 	shadows: 'Shadows',
 	'shortcut-alt-drag': 'Resize the crop from its center while dragging',
 	'shortcut-arrows': 'Move or adjust the focused control by 1',
+	'shortcut-center-crop': 'Fit the crop area to the window',
 	'shortcut-escape': 'Close the editor or the open dialog',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move or adjust the focused control by 10',
@@ -192,6 +193,7 @@ export default {
 	'shortcut-undo': 'Undo the last change',
 	'shortcut-zoom':
 		'Zoom in and out while the workspace has focus, towards the pointer when it is over the image and towards the center of the view otherwise',
+	'shortcut-zoom-actual': 'Zoom to actual size',
 	'shortcut-zoom-fit':
 		'Fit the image to the window while the workspace has focus',
 	size: 'Size',

@@ -399,11 +399,6 @@
 	pointer-events: none;
 }
 
-.crop-recenter-focused .crop-recenter-disc {
-	stroke: var(--editor-accent);
-	stroke-width: 3px;
-}
-
 .crop-handle-visual {
 	fill: #fff;
 	stroke: var(--editor-accent);

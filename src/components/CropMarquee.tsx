@@ -524,6 +524,26 @@ export function CropMarquee({
 						x={crop.x + crop.width / 2 - 9 / zoom}
 						y={crop.y + crop.height / 2 - 9 / zoom}
 					/>
+
+					{/*
+					  * The same ring as every other control on the stage.
+					  * A CSS stroke here would be measured in image units
+					  * and thin out with the zoom: at 55% the old 3px ring
+					  * drew at 1.65px, which is what made a focused
+					  * control look unfocused.
+					  */}
+					{recenterFocused && (
+						<FocusRing
+							bounds={{
+								height: 32 / zoom,
+								width: 32 / zoom,
+								x: crop.x + crop.width / 2 - 16 / zoom,
+								y: crop.y + crop.height / 2 - 16 / zoom,
+							}}
+							shape="circle"
+							zoom={zoom}
+						/>
+					)}
 					</g>
 				)}
 

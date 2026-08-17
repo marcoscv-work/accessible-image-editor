@@ -54,6 +54,7 @@ function EditorHarness() {
 				onZoom={(direction) =>
 					setZoom((current) => current + direction * 0.25)
 				}
+				onZoomActual={() => {}}
 				onZoomFit={() => {}}
 				selectedOverlayId={null}
 				showCrop

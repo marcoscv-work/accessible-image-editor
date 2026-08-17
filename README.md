@@ -17,7 +17,7 @@ The editor is **parametric and declarative**:
 - Focus on the stage (crop area, handles, annotations) is a **Clay-style double ring** (white inner + accent outer) drawn as real SVG geometry, because browsers do not reliably paint CSS outlines on SVG children.
 - **Flipping** mirrors the whole composition horizontally, and it carries the crop and every annotation with it: a redaction that stayed put while the photograph mirrored underneath would uncover exactly what it was hiding. It is one entry in the history, and flipping twice returns to the original.
 - **Straightening** is a free angle in degrees on top of the quarter turns: the image is scaled by exactly the factor needed to keep covering the frame, so no empty corners appear and the crop and annotation coordinate space is untouched.
-- While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop zooms and scrolls until that region fills the view (a view operation, so it never enters the edit history), and hides itself once the view already frames the crop.
+- While a crop gesture runs, a **thirds grid** appears as a composition aid; a **recenter control** in the middle of the crop zooms and scrolls until that region fills the view (a view operation, so it never enters the edit history), and hides itself once the view already frames the crop. It answers to `2`, next to `0` for fitting the whole image and `1` for actual size, and when it takes focus it wears the same ring as every other control on the stage.
 - **Redactions** pixelate an area for real: tiny downsampled copies of the image (four block sizes, small by default) are prepared once at load time and revealed through a clip, scaled back up with nearest-neighbor, and passed through the same color pipeline as the image so the mosaic matches what is on screen. They behave exactly like a rectangle otherwise, and the mosaic stays locked to the photo even when the block is rotated.
 - **Small annotations keep a full-size target**: whatever an annotation is painted at, the area that can be clicked or reached never falls below 24 by 24 screen pixels, measured in screen space so it holds at any zoom.
 - **Rectangles and circles take an optional border**, off until a width is set, with its own colour.
@@ -122,6 +122,8 @@ The Playwright journeys are **keyboard-only by design**: no mouse events are syn
 | `Shift + Arrow keys` on a slider | Step adjustments and the straighten angle by 10 |
 | `Enter` | Commit a numeric field; on a focused annotation, jump to its property editor; on a layer row, jump to that element on the image |
 | `0` | Fit the image to the window while the workspace has focus |
+| `1` | Zoom to actual size, 100%, while the workspace has focus |
+| `2` | Fit the crop area to the window, the recenter control's shortcut |
 | `Shift + drag` | Keep the proportions while resizing the crop or a box annotation (free by default) |
 | `Alt + drag` | Resize the crop from its center |
 | `Esc` | Close the editor or the open dialog |

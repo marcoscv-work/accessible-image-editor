@@ -309,6 +309,18 @@ export default function EditorModal({config, image, onClose}: Props) {
 		announce(t('zoom-level', Math.round(next * 100)));
 	};
 
+	/**
+	 * Actual size, the way every editor spells it: 100%, no fitting.
+	 */
+	const zoomToActual = () => {
+		autoFitRef.current = false;
+
+		setCropFramed(false);
+		setZoom(1);
+
+		announce(t('zoom-level', 100));
+	};
+
 	const zoomToFit = () => {
 		autoFitRef.current = true;
 
@@ -512,6 +524,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 								}
 							}}
 							onZoom={zoomBy}
+							onZoomActual={zoomToActual}
 							onZoomFit={zoomToFit}
 							selectedOverlayId={selectedOverlayId}
 							showCrop={enabled.crop.enabled}

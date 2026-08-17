@@ -52,6 +52,7 @@ function AnnotationHarness() {
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
+				onZoomActual={() => {}}
 				onZoomFit={() => {}}
 				selectedOverlayId={selectedId}
 				showCrop
@@ -115,6 +116,7 @@ function TextStageHarness() {
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
+				onZoomActual={() => {}}
 				onZoomFit={() => {}}
 				selectedOverlayId={selectedId}
 				showCrop
@@ -157,6 +159,7 @@ function CroppedHarness() {
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
+				onZoomActual={() => {}}
 				onZoomFit={() => {}}
 				selectedOverlayId={selectedId}
 				showCrop
