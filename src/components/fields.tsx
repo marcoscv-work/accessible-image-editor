@@ -364,7 +364,7 @@ export function BorderField({
 					<ClayInput.GroupItem append shrink>
 						<input
 							aria-label={colorLabel}
-							className="editor-border-color editor-color-input form-control form-control-sm p-0"
+							className="editor-color-input form-control form-control-sm"
 							id={`${id}-color`}
 							onBlur={() => {
 								if (dragging.current) {

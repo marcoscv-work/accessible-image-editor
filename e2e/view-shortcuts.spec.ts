@@ -75,6 +75,47 @@ test('0 fits, 1 goes to actual size, 2 frames the crop', async ({page}) => {
 	await expect(status).toContainText('Undo: crop change');
 });
 
+test('framing the crop lands on the same view from any zoom', async ({
+	page,
+}) => {
+	await openEditor(page);
+
+	for (const [field, value] of [
+		['width', '500'],
+		['height', '400'],
+		['x', '600'],
+		['y', '500'],
+	]) {
+		await page.locator(`#crop-${field}`).fill(value);
+		await page.locator(`#crop-${field}`).press('Enter');
+	}
+
+	await page.locator('.editor-workspace').focus();
+
+	// Coming from the fitted view.
+
+	await page.keyboard.press('0');
+	await page.keyboard.press('2');
+
+	const fromFit = await zoomPercent(page);
+
+	// And coming from actual size. The workspace scrolls on both axes at
+	// all times so that its viewport does not change size as a result of
+	// the zoom being measured for, which is what used to make these two
+	// disagree and needed a second press to settle.
+
+	await page.keyboard.press('1');
+	await page.keyboard.press('2');
+
+	expect(await zoomPercent(page)).toBe(fromFit);
+
+	// Pressing it again changes nothing, because the first press was right.
+
+	await page.keyboard.press('2');
+
+	expect(await zoomPercent(page)).toBe(fromFit);
+});
+
 test('the shortcuts dialog closes with Escape', async ({page}) => {
 	await openEditor(page);
 

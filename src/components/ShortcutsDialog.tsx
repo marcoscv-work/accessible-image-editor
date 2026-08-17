@@ -59,7 +59,7 @@ export function ShortcutsDialog({onOpenChange, open}: Props) {
 				</ClayModal.Header>
 
 				<ClayModal.Body>
-					<dl className="editor-shortcut-list">
+					<dl className="editor-shortcut-list small">
 						{SHORTCUTS.map(({descriptionKey, keys}) => (
 							<React.Fragment key={descriptionKey}>
 								<dt>

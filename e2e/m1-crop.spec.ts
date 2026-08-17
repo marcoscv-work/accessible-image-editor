@@ -179,10 +179,21 @@ test('recenter fills the view with the crop', async ({page}) => {
 
 	const framing = await page.evaluate(() => {
 		const workspace = document.querySelector('.editor-workspace')!;
-		const view = workspace.getBoundingClientRect();
+		const box = workspace.getBoundingClientRect();
 		const crop = document
 			.querySelector('.crop-border')!
 			.getBoundingClientRect();
+
+		// Against what can be seen, which is the client area: the
+		// workspace scrolls on both axes at all times, so its box also
+		// covers the scrollbar gutters.
+
+		const view = {
+			height: workspace.clientHeight,
+			width: workspace.clientWidth,
+			x: box.x,
+			y: box.y,
+		};
 
 		return {
 			dx: Math.abs(crop.x + crop.width / 2 - view.x - view.width / 2),

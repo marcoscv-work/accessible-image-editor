@@ -56,6 +56,12 @@ function fitZoom(
 	height: number,
 	max = 1
 ): number {
+	/*
+	 * The workspace scrolls on both axes at all times (see the
+	 * stylesheet), so this measurement is the same before and after the
+	 * zoom it is being taken for.
+	 */
+
 	const availableWidth = workspace
 		? workspace.clientWidth - STAGE_PADDING
 		: Math.max(window.innerWidth - 360, 240);

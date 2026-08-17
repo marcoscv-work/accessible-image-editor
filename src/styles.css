@@ -318,7 +318,18 @@
 	background: var(--editor-workspace-bg);
 	display: flex;
 	flex: 1;
-	overflow: auto;
+	/*
+	 * `scroll` rather than `auto`, on both axes: the viewport then never
+	 * changes size, and fitting the crop lands on the same zoom whether it
+	 * is asked for from a zoomed in view or a zoomed out one. With `auto`
+	 * the scrollbars appear as a result of the very zoom being measured
+	 * for, so the measurement is of a viewport that no longer exists. The
+	 * gutter is reserved too, for the browsers that draw a track only
+	 * while scrolling.
+	 */
+
+	overflow: scroll;
+	scrollbar-gutter: stable;
 }
 
 .editor-workspace:focus-visible {
@@ -811,19 +822,22 @@
 }
 
 
-.editor-color-input {
-	height: 1.9375rem;
-	padding: 0.125rem 0.25rem;
-	width: 100%;
-}
-
 /*
- * The colour half of the border group is a swatch rather than a field, so
- * it takes only the width it needs and lets the number have the rest.
+ * A colour control is a swatch, not a field: it takes the width it needs
+ * and leaves the rest of the cell alone. `p-0` in the markup lets the
+ * colour fill it rather than sit inside a frame of padding.
  */
 
-.editor-border-color {
+/*
+ * Qualified enough to outrank `.form-group-sm .form-control`, which is
+ * where Clay's padding comes from: the swatch shows the colour rather
+ * than a frame around it.
+ */
+
+input.editor-color-input.form-control {
+	height: 1.9375rem;
 	min-width: 2.5rem;
+	padding: 0;
 	width: 2.5rem;
 }
 
