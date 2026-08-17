@@ -116,6 +116,24 @@ test('framing the crop lands on the same view from any zoom', async ({
 	expect(await zoomPercent(page)).toBe(fromFit);
 });
 
+test('the add text dialog closes with Escape too', async ({page}) => {
+	await openEditor(page);
+
+	const trigger = page.getByRole('button', {exact: true, name: 'Add text'});
+
+	await trigger.click();
+
+	await expect(page.locator('.modal').last()).toHaveCSS('opacity', '1');
+
+	// Its keyDown shield lets this one key through for the same reason the
+	// shortcuts dialog does.
+
+	await page.keyboard.press('Escape');
+
+	await expect(page.getByRole('dialog')).toHaveCount(1);
+	await expect(trigger).toBeFocused();
+});
+
 test('the shortcuts dialog closes with Escape', async ({page}) => {
 	await openEditor(page);
 

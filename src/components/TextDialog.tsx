@@ -78,10 +78,19 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 
 	return (
 		<ClayModal observer={observer} size="sm">
+			{/*
+			  * The shield keeps the editor's own shortcuts, undo above
+			  * all, from reaching it while this dialog is up. Escape is
+			  * let through on purpose: Clay's modal hook closes whichever
+			  * dialog is on top of its stack, and a synthetic
+			  * stopPropagation would stop the native event it listens for.
+			  */}
 			<div
-				onKeyDown={(event: React.KeyboardEvent) =>
-					event.stopPropagation()
-				}
+				onKeyDown={(event: React.KeyboardEvent) => {
+					if (event.key !== 'Escape') {
+						event.stopPropagation();
+					}
+				}}
 			>
 				<ClayModal.Header closeButtonAriaLabel={t('close')} withTitle>
 					{t('add-text')}
@@ -125,36 +134,43 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 							/>
 						</ClayForm.Group>
 
+						{/*
+						  * Size and colour on one line: a colour swatch on
+						  * a line of its own leaves the dialog looking
+						  * unfinished, and the two belong to the same
+						  * decision about how the text will look.
+						  */}
 						<ClayForm.Group>
 							<label htmlFor="text-font-size">
 								{t('font-size')}
 							</label>
 
-							<ClayInput
-								id="text-font-size"
-								min={8}
-								onChange={(event) =>
-									setFontSize(event.target.value)
-								}
-								type="number"
-								value={fontSize}
-							/>
-						</ClayForm.Group>
+							<ClayInput.Group>
+								<ClayInput.GroupItem prepend>
+									<ClayInput
+										id="text-font-size"
+										min={8}
+										onChange={(event) =>
+											setFontSize(event.target.value)
+										}
+										type="number"
+										value={fontSize}
+									/>
+								</ClayInput.GroupItem>
 
-						<ClayForm.Group>
-							<label htmlFor="text-color">
-								{t('text-color')}
-							</label>
-
-							<input
-								className="editor-color-input form-control"
-								id="text-color"
-								onChange={(event) =>
-									setColor(event.target.value)
-								}
-								type="color"
-								value={color}
-							/>
+								<ClayInput.GroupItem append shrink>
+									<input
+										aria-label={t('text-color')}
+										className="editor-color-input form-control"
+										id="text-color"
+										onChange={(event) =>
+											setColor(event.target.value)
+										}
+										type="color"
+										value={color}
+									/>
+								</ClayInput.GroupItem>
+							</ClayInput.Group>
 						</ClayForm.Group>
 
 						<ClayButton

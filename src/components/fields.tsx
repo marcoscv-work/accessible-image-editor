@@ -145,12 +145,22 @@ export function TextField({
  * blur as a single history entry.
  */
 export function ColorField({
+	fill,
 	id,
 	label,
 	onCommit,
 	onPreview,
 	value,
 }: FieldProps & {
+
+	/**
+	 * Whether the swatch takes the width it is given. In a two-column
+	 * grid a control that fills its column reads as part of the grid; on
+	 * a panel that runs the whole width, the same swatch looks like a
+	 * mistake.
+	 */
+	fill?: boolean;
+
 	onCommit: (value: string) => void;
 	onPreview: (value: string) => void;
 	value: string;
@@ -166,7 +176,9 @@ export function ColorField({
 			<label htmlFor={id}>{label}</label>
 
 			<input
-				className="editor-color-input form-control form-control-sm"
+				className={`editor-color-input form-control form-control-sm${
+					fill ? ' editor-color-fill' : ''
+				}`}
 				id={id}
 				onBlur={() => {
 					if (dragging.current) {

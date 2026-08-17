@@ -162,6 +162,7 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 
 				{hasColor(overlay) && (
 					<ColorField
+						fill
 						id="layer-prop-color"
 						label={t('text-color')}
 						onCommit={(color) => commitPatch({color})}

@@ -835,10 +835,28 @@
  */
 
 input.editor-color-input.form-control {
-	height: 1.9375rem;
 	min-width: 2.5rem;
 	padding: 0;
 	width: 2.5rem;
+}
+
+/*
+ * The height belongs to the size of control it sits with: the panels use
+ * the small variant, the add-text dialog the regular one, and a swatch
+ * that keeps one fixed height overflows the other.
+ */
+
+input.editor-color-input.form-control-sm {
+	height: 1.9375rem;
+}
+
+.input-group input.editor-color-input.form-control {
+	align-self: stretch;
+	height: auto;
+}
+
+input.editor-color-input.editor-color-fill.form-control {
+	width: 100%;
 }
 
 /* Layers */
