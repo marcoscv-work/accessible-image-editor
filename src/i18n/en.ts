@@ -9,6 +9,7 @@
  */
 export default {
 	add: 'Add',
+	'add-emoji': 'Add emoji',
 	'add-image': 'Add image',
 	'add-redaction': 'Add redaction',
 	'add-shape': 'Add shape',
@@ -65,6 +66,10 @@ export default {
 	'edit-controls': 'Edit controls',
 	'editing-image': 'Editing Image',
 	'editor-loaded': 'Image editor opened. Image is {0} by {1} pixels.',
+	'emoji-common': 'Common emoji. Search to reach all {0}.',
+	'emoji-count': '{0} emoji',
+	'emoji-none': 'Nothing matches “{0}”',
+	'emoji-search': 'Search emoji',
 	'filter-bleach': 'Bleach',
 	'filter-cool': 'Cool',
 	'filter-crossprocess': 'Cross process',

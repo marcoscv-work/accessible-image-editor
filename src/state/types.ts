@@ -243,6 +243,40 @@ export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
  * a blur redistributes it, and a blur can be attacked by deconvolution
  * where a coarse mosaic cannot. Pixelation is the default for that reason.
  */
+/**
+ * A standard emoji, placed as the character itself. There is no artwork to
+ * bundle and no colour to set: the platform's emoji font draws it, which is
+ * also why the same edit exported on another operating system will not look
+ * identical. What travels in the state is one character and its Unicode
+ * name, and the name is what the layers list and a screen reader read out.
+ */
+export interface EmojiOverlay {
+	character: string;
+	id: string;
+	kind: 'emoji';
+
+	/**
+	 * Unicode's own name, which is the annotation's accessible name.
+	 */
+	name: string;
+
+	opacity?: number;
+	rotation?: number;
+
+	/**
+	 * Drawn as a font size, and the same on both axes, so an emoji scales
+	 * from a corner like a sticker rather than stretching like a box.
+	 */
+	size: number;
+
+	/**
+	 * The centre, as with a sticker.
+	 */
+	x: number;
+
+	y: number;
+}
+
 export type RedactStyle = 'blur' | 'pixel';
 
 /**
@@ -278,6 +312,7 @@ export interface RedactOverlay {
 
 export type Overlay =
 	| ArrowOverlay
+	| EmojiOverlay
 	| RedactOverlay
 	| CircleOverlay
 	| ImageOverlay

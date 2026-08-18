@@ -554,7 +554,7 @@ export function OverlaysEditable({
 			0.05
 		);
 
-		if (overlay.kind === 'sticker') {
+		if (overlay.kind === 'emoji' || overlay.kind === 'sticker') {
 			dispatch({
 				id: gesture.id,
 				patch: {size: Math.max(Math.round(overlay.size * scale), 8)},

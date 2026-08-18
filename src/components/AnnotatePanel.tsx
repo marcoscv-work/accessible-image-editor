@@ -5,7 +5,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
-import React, {useRef, useState} from 'react';
+import React, {Suspense, lazy, useRef, useState} from 'react';
 
 import {
 	AnnotateTool,
@@ -26,6 +26,15 @@ import {CropRect, Overlay, StickerKind} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
+
+/**
+ * Loaded when the button is pressed, not when the editor is: the picker
+ * carries the whole Unicode inventory (~1,900 names), and nobody should
+ * parse it for an edit that never opens it.
+ */
+const EmojiPicker = lazy(() =>
+	import('./EmojiPicker').then((module) => ({default: module.EmojiPicker}))
+);
 
 /**
  * Move focus to the freshly inserted overlay on the stage, so the user
@@ -186,6 +195,8 @@ export function AnnotatePanel({
 
 	const [stickerMenuOpen, setStickerMenuOpen] = useState(false);
 
+	const [emojiMenuOpen, setEmojiMenuOpen] = useState(false);
+
 	/**
 	 * Roving tabindex (APG): the whole Annotate panel is one tab stop;
 	 * the left and right arrows move between the buttons, and Tab
@@ -211,6 +222,7 @@ export function AnnotatePanel({
 		...(tools.includes('redaction') ? ['redaction'] : []),
 		...(tools.includes('image') ? ['image'] : []),
 		...(hasStickers ? ['stickers'] : []),
+		...(tools.includes('emoji') ? ['emoji'] : []),
 	];
 
 	const indexOf = (control: string) => controls.indexOf(control);
@@ -435,6 +447,20 @@ export function AnnotatePanel({
 		);
 	};
 
+	const addEmoji = (character: string, name: string) =>
+		add(
+			{
+				character,
+				id: nextId('emoji'),
+				kind: 'emoji',
+				name,
+				size: Math.round(Math.min(area.width, area.height) * 0.2),
+				x: centerX,
+				y: centerY,
+			},
+			name
+		);
+
 	const addSticker = (sticker: StickerKind) =>
 		add(
 			{
@@ -581,6 +607,42 @@ export function AnnotatePanel({
 							}}
 						/>
 					</ClayDropDown>
+				)}
+				{tools.includes('emoji') && (
+					<ClayDropDown
+					active={emojiMenuOpen}
+					menuElementAttrs={{
+						className: 'editor-emoji-popover editor-menu-popover',
+					}}
+					onActiveChange={setEmojiMenuOpen}
+					trigger={
+						<ClayButton
+							{...rovingProps(indexOf('emoji'))}
+							data-menu-trigger
+							displayType="secondary"
+							size="sm"
+						>
+							{t('add-emoji')}
+						</ClayButton>
+					}
+				>
+					<Suspense
+						fallback={
+							<div
+								aria-hidden="true"
+								className="editor-emoji-picker"
+							/>
+						}
+					>
+						<EmojiPicker
+							onChoose={(entry) => {
+								setEmojiMenuOpen(false);
+
+								addEmoji(entry.c, entry.n);
+							}}
+						/>
+					</Suspense>
+				</ClayDropDown>
 				)}
 			</div>
 

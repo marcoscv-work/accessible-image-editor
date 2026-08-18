@@ -4,7 +4,12 @@
  */
 
 import {t} from '../i18n';
-import {ArrowOverlay, Overlay, RedactLevel, StickerOverlay} from '../state/types';
+import {
+	ArrowOverlay,
+	Overlay,
+	RedactLevel,
+	StickerOverlay,
+} from '../state/types';
 import {REDACT_SIZES} from './loadImage';
 import {StickerArt} from './stickerArt';
 
@@ -107,6 +112,7 @@ export function overlayBounds(overlay: Overlay): {
 				y: overlay.y,
 			};
 
+		case 'emoji':
 		case 'sticker':
 			return {
 				height: overlay.size,
@@ -179,6 +185,9 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'image':
 			return overlay.description;
+
+		case 'emoji':
+			return overlay.name;
 
 		case 'sticker':
 			return t(`sticker-${overlay.sticker}`);
@@ -497,6 +506,23 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 				/>
 			);
 
+		case 'emoji':
+			return (
+				<text
+					fontSize={overlay.size}
+
+					// Centred horizontally by the anchor and vertically by
+					// the offset, rather than by `dominant-baseline`, which
+					// the export's rasteriser does not resolve reliably.
+
+					textAnchor="middle"
+					x={overlay.x}
+					y={overlay.y + overlay.size * 0.35}
+				>
+					{overlay.character}
+				</text>
+			);
+
 		case 'sticker':
 			return (
 				<StickerArt
@@ -548,7 +574,7 @@ export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
 
 	const rotation = overlay.rotation ? -overlay.rotation : overlay.rotation;
 
-	if (overlay.kind === 'sticker') {
+	if (overlay.kind === 'emoji' || overlay.kind === 'sticker') {
 		return {...overlay, rotation, x: boundsWidth - overlay.x};
 	}
 

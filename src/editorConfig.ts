@@ -19,6 +19,7 @@ export type AdjustmentKey = keyof Adjustments;
 export type AnnotateTool =
 	| 'arrow'
 	| 'circle'
+	| 'emoji'
 	| 'image'
 	| 'rectangle'
 	| 'redaction'
@@ -61,6 +62,7 @@ export const ANNOTATE_TOOLS: AnnotateTool[] = [
 	'redaction',
 	'image',
 	'stickers',
+	'emoji',
 ];
 
 export const RATIO_PRESETS: RatioPreset[] = [

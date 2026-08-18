@@ -303,6 +303,61 @@ describe('Annotations, filters, and layers', () => {
 		).toHaveLength(1);
 	});
 
+	it('adds an emoji as a layer of its own, sized but never coloured', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add emoji'}));
+
+		// Found rather than got: the picker is a lazy chunk, loaded the
+		// first time the button is pressed.
+
+		fireEvent.click(
+			within(await screen.findByRole('grid', {name: 'Add emoji'})).getByRole(
+				'button',
+				{name: 'star'}
+			)
+		);
+
+		// Its own kind: named by Unicode, drawn as the character.
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		expect(hit).toHaveAttribute('aria-label', 'star');
+
+		// The row shows the glyph itself in front of the name.
+
+		expect(
+			container.querySelector('.editor-layer-glyph')?.textContent
+		).toBe('⭐');
+
+		// Size yes; colour and font are the platform's business.
+
+		expect(screen.getByLabelText('Size')).toBeInTheDocument();
+		expect(screen.queryByLabelText('Color')).not.toBeInTheDocument();
+		expect(
+			screen.queryByLabelText('Font family')
+		).not.toBeInTheDocument();
+	});
+
+	it('finds an emoji whatever the capitalisation of its name', async () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Add emoji'}));
+
+		// Unicode writes "flag: Spain"; the search must not care.
+
+		fireEvent.change(await screen.findByLabelText('Search emoji'), {
+			target: {value: 'spain'},
+		});
+
+		expect(
+			within(screen.getByRole('grid', {name: 'Add emoji'})).getByRole(
+				'button',
+				{name: 'flag: Spain'}
+			)
+		).toBeInTheDocument();
+	});
+
 	it('adds a sticker as a focusable, keyboard-movable SVG node', () => {
 		const {container} = render(<AnnotationHarness />);
 

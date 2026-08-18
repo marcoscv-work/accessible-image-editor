@@ -997,25 +997,49 @@ input.editor-color-input.editor-color-fill.form-control {
  * usual minimum, which exists for rows of text.
  */
 
-.editor-menu-popover {
+/*
+ * Clay pins a dropdown to `min-width: 240px; max-width: 240px` with
+ * `overflow: auto`, which is right for a column of text and wrong for a
+ * grid: a row wider than 240 was overflowing sideways and the last cell of
+ * every row sat under the scrollbar. Both classes are needed to win, since
+ * Clay's stylesheet is loaded after this one, and the narrow-screen rule it
+ * carries (230px under 768) has to lose too.
+ *
+ * The grid inside decides both dimensions, and the grid is also what
+ * scrolls when there is too much of it. The popover must not scroll as
+ * well: two nested scrollers on the same content is what produced the
+ * sideways scrollbar in the first place.
+ */
 
-	/*
-	 * The grid decides the width, and height is left to grow until it
-	 * would not fit, at which point the popover scrolls natively. No
-	 * carousel, no paging: a picker of many things is a list you scroll,
-	 * and the cells inside are focusable, so the scroll container is
-	 * reachable by keyboard without a stop of its own.
-	 */
-
-	max-height: min(50vh, 22rem);
+.dropdown-menu.editor-menu-popover {
+	max-width: none;
 	min-width: 0;
-	overflow-y: auto;
+	overflow: visible;
 	padding: 0.25rem;
 	width: auto;
 }
 
 .editor-menu-grid [role='row'] {
 	display: flex;
+}
+
+/*
+ * Fixed tracks rather than flex, so the row is exactly as wide as its
+ * cells and the popover can take its width from that: a row that can
+ * stretch is a row whose last cell ends up under the scrollbar.
+ */
+
+/*
+ * Eight fixed tracks and an explicit width, so a row holding three cells
+ * is exactly as wide as one holding eight. Without the width the picker's
+ * `max-content` shrank on a narrow result set, which moved the popover
+ * sideways for the same reason a changing height moved it vertically.
+ */
+
+.editor-emoji-row {
+	display: grid;
+	grid-template-columns: repeat(8, 2.25rem);
+	width: 18rem;
 }
 
 /*
@@ -1063,6 +1087,190 @@ input.editor-color-input.editor-color-fill.form-control {
 .editor-menu-preview {
 	flex: 0 0 auto;
 	pointer-events: none;
+}
+
+/* The emoji picker: a search field over a grid that scrolls on its own. */
+
+/*
+ * The scroll area reaches the popover's edge, so the popover holds no
+ * padding of its own and the parts inside pad themselves. That is what
+ * puts the scrollbar against the right edge instead of leaving it floating
+ * in a margin.
+ */
+
+.dropdown-menu.editor-emoji-popover {
+	padding: 0;
+}
+
+.editor-emoji-picker {
+
+	/*
+	 * As wide as eight cells, the scrollbar beside them and the inset on
+	 * the left, measured rather than guessed at.
+	 */
+
+	width: max-content;
+}
+
+/*
+ * The search field and its count keep the inset the grid gives up, and
+ * enough of it on every side for the field's focus ring.
+ */
+
+.editor-emoji-header {
+	padding: 0.75rem 0.75rem 0;
+}
+
+/*
+ * As wide as a row, so the box the popover is aligned against is the same
+ * whether the search matched everything or nothing: with no rows at all,
+ * the grid's `max-content` would otherwise fall back to its minimum and
+ * take the scrollbar's gutter out of the content, ending up fifteen
+ * pixels narrower and moving the popover sideways.
+ */
+
+.editor-emoji-empty {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.8125rem;
+	padding: 1rem 0.25rem;
+	width: 18rem;
+}
+
+.editor-emoji-count {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.75rem;
+	padding: 0 0.125rem 0.5rem;
+}
+
+.editor-layer-glyph {
+	margin-right: 0.375rem;
+}
+
+.editor-emoji-header .form-control {
+	margin-bottom: 0.5rem;
+}
+
+.editor-emoji-grid {
+
+	/*
+	 * The grid scrolls rather than the popover, so the search field stays
+	 * put while the list moves under it. Its rows are skipped by the
+	 * browser until they are near the viewport, which is what keeps a long
+	 * list cheap without hand-written virtualisation.
+	 *
+	 * The gutter is reserved at all times: without it the row width
+	 * changes the moment the list grows past one screenful, and the cells
+	 * shift under the pointer.
+	 */
+
+	/*
+	 * Fixed rather than maximum, on purpose. The popover is aligned by
+	 * Clay against the viewport, so every time the list of matches changed
+	 * height the whole popover was re-aligned and jumped, sometimes
+	 * flipping from below the button to above it, while someone was still
+	 * typing. A picker whose box never changes cannot be re-aligned, so
+	 * the area stays where it was opened and only the cells inside it
+	 * change. The empty space under a short result list is the price, and
+	 * it is the cheaper of the two.
+	 */
+
+	/*
+	 * The width is what the rows need and the scrollbar is added beside
+	 * it, which is the only arrangement where eight columns are eight
+	 * columns. Fixing the width instead made the specified value the
+	 * border box, and the reserved gutter came out of the content: the
+	 * eight columns were 288 pixels inside 273, so the last one sat
+	 * underneath the scrollbar.
+	 *
+	 * The minimum is for the search that matches nothing: with no rows at
+	 * all, `max-content` would let the popover collapse to the width of
+	 * its search field.
+	 */
+
+	box-sizing: content-box;
+	height: 15rem;
+
+	/*
+	 * Flush to the popover's right edge, inset on the left to line up with
+	 * the search field above it.
+	 */
+
+	margin-bottom: 0.75rem;
+	margin-left: 0.75rem;
+
+	min-width: 18rem;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	/*
+	 * The scroll container clips whatever leaves it, so the rows at its
+	 * edges need room for their focus rings inside it. On the sides this
+	 * also keeps the last column clear of the scrollbar.
+	 */
+
+	padding: 0.25rem;
+
+	scrollbar-gutter: stable;
+	width: max-content;
+}
+
+/*
+ * No `content-visibility: auto` here, tempting as it is. It brings paint
+ * containment with it, and paint containment clips whatever is drawn
+ * outside the element's box: the focus ring of a cell was being cut off
+ * along the top and bottom edges of its own row. The window of rendered
+ * cells is what keeps the list cheap, and it does not need help from a
+ * property that hides focus.
+ */
+
+.editor-emoji-row {
+	scroll-margin: 0.25rem 0;
+}
+
+.editor-emoji-picker .form-control {
+	width: 100%;
+}
+
+
+.editor-emoji-cell {
+
+	/*
+	 * The character is the artwork, so it is sized like type rather than
+	 * like an icon, and the cell is left a little larger than the shape
+	 * cells to hold it comfortably.
+	 */
+
+	font-size: 1.35rem;
+	height: 2.25rem;
+	line-height: 1;
+	width: 2.25rem;
+}
+
+/*
+ * Narrow screens keep the eight columns and shrink the cells instead, so
+ * the picker fits a 320 pixel viewport without the arrow keys having to
+ * mean something different at different widths.
+ */
+
+@media (max-width: 767px) {
+	.editor-emoji-empty {
+		width: 16rem;
+	}
+
+	.editor-emoji-grid {
+		min-width: 16rem;
+	}
+
+	.editor-emoji-row {
+		grid-template-columns: repeat(8, 2rem);
+		width: 16rem;
+	}
+
+	.editor-emoji-cell {
+		font-size: 1.15rem;
+		height: 2rem;
+		width: 2rem;
+	}
 }
 
 /* Shortcuts dialog */

@@ -12,6 +12,7 @@ import {EditorAction} from '../state/editorReducer';
 import {
 	ArrowOverlay,
 	CircleOverlay,
+	EmojiOverlay,
 	ImageOverlay,
 	Overlay,
 	RedactOverlay,
@@ -308,7 +309,7 @@ export function LayerProperties({
 					/>
 				)}
 
-				{overlay.kind === 'sticker' && (
+				{(overlay.kind === 'emoji' || overlay.kind === 'sticker') && (
 					<NumberField
 						id="layer-prop-size"
 						label={t('size')}
@@ -441,13 +442,17 @@ export function LayerProperties({
  * mosaic and a sticker brings its own artwork.
  */
 /**
- * Everything but a redaction and a picture, which take their pixels from
- * elsewhere and have no fill of their own.
+ * Everything but a redaction, a picture and an emoji, which take their
+ * pixels from elsewhere and have no fill of their own.
  */
 function hasColor(
 	overlay: Overlay
-): overlay is Exclude<Overlay, ImageOverlay | RedactOverlay> {
-	return overlay.kind !== 'image' && overlay.kind !== 'redact';
+): overlay is Exclude<Overlay, EmojiOverlay | ImageOverlay | RedactOverlay> {
+	return (
+		overlay.kind !== 'emoji' &&
+		overlay.kind !== 'image' &&
+		overlay.kind !== 'redact'
+	);
 }
 
 function hasBorder(
