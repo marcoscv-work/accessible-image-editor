@@ -86,6 +86,22 @@ async function focusedRegion(page, padding = 0) {
  * vertically, then clamped to the sidebar: panels can be taller than it, and
  * their box then runs under the action bar and past the bottom of the modal.
  */
+/**
+ * The smallest box holding all of the given ones. A menu is portaled out
+ * of its panel, so a shot of the panel alone would cut it in half.
+ */
+function union(...boxes) {
+	const left = Math.min(...boxes.map((box) => box.x));
+	const top = Math.min(...boxes.map((box) => box.y));
+
+	return {
+		height: Math.max(...boxes.map((box) => box.y + box.height)) - top,
+		width: Math.max(...boxes.map((box) => box.x + box.width)) - left,
+		x: left,
+		y: top,
+	};
+}
+
 async function panelRegion(page, selector, padding = 16) {
 	const panel = await region(page, selector);
 	const sidebar = await region(page, '.editor-sidebar');
@@ -359,6 +375,18 @@ async function collapse(page, ...titles) {
  * Everything is inserted at the centre of the current crop, so each new
  * annotation is dragged aside to compose a readable example.
  */
+async function addShape(page, shape) {
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page.getByRole('menuitem', {name: shape}).click();
+	await page.waitForTimeout(300);
+}
+
+async function addSticker(page, sticker) {
+	await page.getByRole('button', {exact: true, name: 'Add sticker'}).click();
+	await page.getByRole('menuitem', {name: sticker}).click();
+	await page.waitForTimeout(300);
+}
+
 async function dragLast(page, dx, dy) {
 	const overlay = page.locator('.editor-workspace .overlay-hit').last();
 	const box = await overlay.boundingBox();
@@ -379,13 +407,15 @@ async function dragLast(page, dx, dy) {
 {
 	const page = await openEditor();
 
-	await page.getByRole('button', {exact: true, name: 'Add rectangle'}).click();
-	await page.waitForTimeout(300);
+	await addShape(page, 'Rectangle');
 	await dragLast(page, -240, -170);
 
 	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
 	await page.waitForTimeout(300);
 	await dragLast(page, 150, 120);
+
+	await addShape(page, 'Arrow');
+	await dragLast(page, -60, 120);
 
 	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
 	await page.waitForTimeout(600);
@@ -395,10 +425,7 @@ async function dragLast(page, dx, dy) {
 	await page.waitForTimeout(400);
 	await dragLast(page, -170, 190);
 
-	await page
-		.getByRole('button', {exact: true, name: 'Add star sticker'})
-		.click();
-	await page.waitForTimeout(300);
+	await addSticker(page, 'Star sticker');
 	await dragLast(page, 250, -190);
 
 	await shot(page, 'annotate.jpg', {
@@ -566,8 +593,8 @@ for (const scheme of ['light', 'dark']) {
 {
 	const page = await openEditor({height: 700, width: 900});
 
-	await page.getByRole('button', {exact: true, name: 'Add circle'}).click();
-	await page.waitForTimeout(400);
+	await addShape(page, 'Circle');
+	await page.waitForTimeout(100);
 
 	// Over the sky: on the carved stone neither the dot nor the outline
 	// reads, and the picture has to be legible before it can make a point.
@@ -692,14 +719,23 @@ for (const scheme of ['light', 'dark']) {
 		clip: await panelRegion(page, '.editor-panel:has(#filters-panel-title)'),
 	});
 
-	await collapse(page, 'Filters');
+	// The frames come between the filters and the annotations, and a menu
+	// opening over somebody else's carousel says nothing about either.
+
+	await collapse(page, 'Filters', 'Frame');
 
 	await revealPanel(page, '.editor-panel:has(#annotate-panel-title)');
 
-	await shot(page, 'mobile-stickers.png', {
-		clip: await panelRegion(
-			page,
-			'.editor-panel:has(#annotate-panel-title)'
+	await page.getByRole('button', {exact: true, name: 'Add sticker'}).click();
+	await page.waitForTimeout(400);
+
+	await shot(page, 'mobile-annotate.png', {
+		clip: union(
+			await panelRegion(
+				page,
+				'.editor-panel:has(#annotate-panel-title)'
+			),
+			await region(page, '.dropdown-menu.show')
 		),
 	});
 

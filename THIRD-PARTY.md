@@ -7,10 +7,10 @@ The editor is original code, written for Liferay. Every file under `src/` carrie
 | Package | License |
 | --- | --- |
 | `react`, `react-dom` 18 | MIT |
-| `@clayui/button`, `form`, `icon`, `modal`, `panel`, `slider` 3 | BSD-3-Clause |
+| `@clayui/button`, `drop-down`, `form`, `icon`, `modal`, `panel`, `slider`, `tabs`, `tooltip` 3 | BSD-3-Clause |
 | `@clayui/css` 3 | MIT |
 
-Those eight are the only dependencies we chose. The twenty transitive packages in the tree (`classnames`, `aria-hidden`, `dom-align`, `react-transition-group` and the like) arrive with Clay, which is Liferay's own, and all are MIT or BSD.
+Those are the only dependencies we chose. The twenty transitive packages in the tree (`classnames`, `aria-hidden`, `dom-align`, `react-transition-group` and the like) arrive with Clay, which is Liferay's own, and all are MIT or BSD.
 
 The component embeds no assets and makes no external calls: no URLs, no `fetch`, no dynamic imports, no CDN. The image arrives as a `File` or `Blob`, and the host supplies the Clay icon sprite through `ClayIconSpriteContext`, as DXP already does.
 

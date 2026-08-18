@@ -990,11 +990,16 @@ input.editor-color-input.editor-color-fill.form-control {
 
 /* Sticker picker */
 
-.editor-sticker-picker {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-top: 0.75rem;
+/*
+ * The miniature in front of a menu entry's name. It takes the entry's own
+ * colour, so a shape drawn in `currentColor` stays legible when the entry
+ * is highlighted.
+ */
+
+.editor-menu-preview {
+	flex: 0 0 auto;
+	margin-right: 0.5rem;
+	vertical-align: text-bottom;
 }
 
 /* Shortcuts dialog */
@@ -1064,10 +1069,6 @@ input.editor-color-input.editor-color-fill.form-control {
 
 	.editor-preset-option {
 		flex: 0 0 6rem;
-	}
-
-	.editor-sticker-picker .btn {
-		flex: 0 0 auto;
 	}
 
 	/*

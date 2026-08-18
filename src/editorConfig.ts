@@ -17,12 +17,32 @@ import {
 export type AdjustmentKey = keyof Adjustments;
 
 export type AnnotateTool =
+	| 'arrow'
 	| 'circle'
 	| 'image'
 	| 'rectangle'
 	| 'redaction'
+	| 'square'
 	| 'stickers'
 	| 'text';
+
+/**
+ * The tools that live behind the shape menu, in the order the menu shows
+ * them. A host that narrows the tool list narrows the menu with it, and
+ * naming none of them removes the menu altogether.
+ */
+export const SHAPE_TOOLS = [
+	'rectangle',
+	'square',
+	'circle',
+	'arrow',
+] as const satisfies readonly AnnotateTool[];
+
+export type ShapeTool = (typeof SHAPE_TOOLS)[number];
+
+export function isShapeTool(tool: AnnotateTool): tool is ShapeTool {
+	return (SHAPE_TOOLS as readonly AnnotateTool[]).includes(tool);
+}
 
 export const ADJUSTMENT_KEYS: AdjustmentKey[] = [
 	'brightness',
@@ -35,7 +55,9 @@ export const ADJUSTMENT_KEYS: AdjustmentKey[] = [
 export const ANNOTATE_TOOLS: AnnotateTool[] = [
 	'text',
 	'rectangle',
+	'square',
 	'circle',
+	'arrow',
 	'redaction',
 	'image',
 	'stickers',

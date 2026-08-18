@@ -4,7 +4,7 @@
  */
 
 import {t} from '../i18n';
-import {Overlay, RedactLevel, StickerOverlay} from '../state/types';
+import {ArrowOverlay, Overlay, RedactLevel, StickerOverlay} from '../state/types';
 import {StickerArt} from './stickerArt';
 
 export {
@@ -80,6 +80,21 @@ export function overlayBounds(overlay: Overlay): {
 	y: number;
 } {
 	switch (overlay.kind) {
+		case 'arrow': {
+
+			// The box around both ends, grown by the stroke so a focus
+			// ring does not cut through a thick arrow's edge.
+
+			const pad = overlay.thickness / 2;
+
+			return {
+				height: Math.abs(overlay.dy) + overlay.thickness,
+				width: Math.abs(overlay.dx) + overlay.thickness,
+				x: overlay.x + Math.min(overlay.dx, 0) - pad,
+				y: overlay.y + Math.min(overlay.dy, 0) - pad,
+			};
+		}
+
 		case 'redact':
 		case 'circle':
 		case 'image':
@@ -127,8 +142,16 @@ export function overlayCenter(overlay: Overlay): {x: number; y: number} {
  * stage to the whole interactive group and by the export renderer to the
  * static shape, so both stay identical.
  */
+export function overlayRotation(overlay: Overlay): number {
+
+	// An arrow has none to speak of: where it points is already said by
+	// its two ends, so the field is not on the type at all.
+
+	return overlay.kind === 'arrow' ? 0 : (overlay.rotation ?? 0);
+}
+
 export function overlayTransform(overlay: Overlay): string | undefined {
-	const rotation = overlay.rotation ?? 0;
+	const rotation = overlayRotation(overlay);
 
 	if (!rotation) {
 		return undefined;
@@ -141,6 +164,9 @@ export function overlayTransform(overlay: Overlay): string | undefined {
 
 export function overlayLabel(overlay: Overlay): string {
 	switch (overlay.kind) {
+		case 'arrow':
+			return t('overlay-arrow-label');
+
 		case 'redact':
 			return t('overlay-redact-label');
 
@@ -202,6 +228,106 @@ export function OverlayShape({
 	const node = renderOverlayNode(overlay, redactSource);
 
 	return opacity < 1 ? <g opacity={opacity}>{node}</g> : node;
+}
+
+/**
+ * Where the parts of an arrow sit, in image units. The head is sized from
+ * the stroke so the two stay in proportion at any thickness, and the
+ * shaft of a filled arrow stops short of the tip: a line running all the
+ * way through a solid head pokes out of it whenever the head is drawn
+ * with a stroke of its own.
+ */
+export function arrowGeometry(overlay: ArrowOverlay) {
+	const length = Math.hypot(overlay.dx, overlay.dy);
+
+	const tipX = overlay.x + overlay.dx;
+	const tipY = overlay.y + overlay.dy;
+
+	// A head no longer than a third of the arrow, so a short arrow stays
+	// an arrow rather than becoming a triangle on a stub.
+
+	const headLength = Math.min(overlay.thickness * 3.2, length / 3 || 0);
+	const headWidth = headLength * 0.8;
+
+	if (!length) {
+		return {
+			barbs: '',
+			headLength,
+			headPoints: '',
+			shaftX: tipX,
+			shaftY: tipY,
+			tipX,
+			tipY,
+		};
+	}
+
+	// Unit vector along the arrow, and the perpendicular that gives the
+	// head its width.
+
+	const ux = overlay.dx / length;
+	const uy = overlay.dy / length;
+
+	const baseX = tipX - ux * headLength;
+	const baseY = tipY - uy * headLength;
+
+	const spreadX = (-uy * headWidth) / 2;
+	const spreadY = (ux * headWidth) / 2;
+
+	return {
+		barbs: [
+			`M${baseX + spreadX} ${baseY + spreadY}`,
+			`L${tipX} ${tipY}`,
+			`L${baseX - spreadX} ${baseY - spreadY}`,
+		].join(' '),
+		headLength,
+		headPoints: [
+			`${tipX},${tipY}`,
+			`${baseX + spreadX},${baseY + spreadY}`,
+			`${baseX - spreadX},${baseY - spreadY}`,
+		].join(' '),
+		shaftX: baseX,
+		shaftY: baseY,
+		tipX,
+		tipY,
+	};
+}
+
+/**
+ * The two head styles. Filled is a solid triangle, open is the same two
+ * barbs left as strokes, and both take the arrow's colour and weight.
+ */
+function ArrowLine({overlay}: {overlay: ArrowOverlay}) {
+	const {barbs, headPoints, shaftX, shaftY, tipX, tipY} =
+		arrowGeometry(overlay);
+
+	const filled = overlay.head === 'filled';
+
+	return (
+		<>
+			<line
+				stroke={overlay.color}
+				strokeLinecap="round"
+				strokeWidth={overlay.thickness}
+				x1={overlay.x}
+				x2={filled ? shaftX : tipX}
+				y1={overlay.y}
+				y2={filled ? shaftY : tipY}
+			/>
+
+			{filled ? (
+				<polygon fill={overlay.color} points={headPoints} />
+			) : (
+				<path
+					d={barbs}
+					fill="none"
+					stroke={overlay.color}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={overlay.thickness}
+				/>
+			)}
+		</>
+	);
 }
 
 /**
@@ -271,6 +397,9 @@ function RedactBlock({
 
 function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 	switch (overlay.kind) {
+		case 'arrow':
+			return <ArrowLine overlay={overlay} />;
+
 		case 'redact':
 			return <RedactBlock overlay={overlay} source={redactSource} />;
 
@@ -352,6 +481,19 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
  * was hiding.
  */
 export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
+	if (overlay.kind === 'arrow') {
+
+		// Both ends mirror, which for a tail plus a vector means the tail
+		// reflects and the vector flips: an arrow pointing at a face keeps
+		// pointing at it once the photograph turns around.
+
+		return {
+			...overlay,
+			dx: -overlay.dx,
+			x: boundsWidth - overlay.x,
+		};
+	}
+
 	const rotation = overlay.rotation ? -overlay.rotation : overlay.rotation;
 
 	if (overlay.kind === 'sticker') {

@@ -8,8 +8,8 @@ import {Locator, Page, expect, test} from '@playwright/test';
 
 /**
  * In the stacked layout the sidebar sits under the workspace, and the
- * tracks that would otherwise wrap (the filter cards, the sticker picker)
- * become one swipeable row with paging arrows.
+ * tracks that would otherwise wrap (the filter cards, the frames) become
+ * one swipeable row with paging arrows.
  */
 
 test.use({viewport: {height: 820, width: 400}});
@@ -90,46 +90,52 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 	expect(results.violations).toEqual([]);
 });
 
-test('the sticker picker becomes a carousel when stacked', async ({page}) => {
+test('the sticker menu opens and stays usable when stacked', async ({page}) => {
 	await openEditor(page);
 
 	for (const name of ['Crop and rotation', 'Adjustments', 'Filters']) {
 		await page.getByRole('button', {exact: true, name}).click();
 	}
 
-	const carousel = page.locator(
-		'.editor-carousel:has(.editor-sticker-picker)'
-	);
+	// Ten stickers used to wrap onto three rows here, which is what the
+	// swipeable track was for. Behind a menu they cost one button, and the
+	// menu is free to be as tall as it needs to be.
 
-	await expectSwipeableRow(
-		carousel.locator('.editor-sticker-picker'),
-		carousel.locator('.editor-carousel-arrow')
-	);
+	const trigger = page.getByRole('button', {exact: true, name: 'Add sticker'});
 
-	// Scanned before anything is focused: Clay renders its tooltips into a
-	// body-level div that no landmark contains, so a showing tooltip trips
-	// axe's region rule on its own.
+	await trigger.click();
 
-	const results = await new AxeBuilder({page}).analyze();
+	const menu = page.getByRole('menu');
+
+	await expect(menu).toBeVisible();
+
+	// The whole list is reachable inside the viewport rather than running
+	// off the bottom of it.
+
+	const menuBox = (await menu.boundingBox())!;
+	const viewport = page.viewportSize()!;
+
+	expect(menuBox.width).toBeLessThanOrEqual(viewport.width);
+
+	// Scanned with the menu open: this is the state the user is in. The
+	// region rule is set aside, because Clay portals the menu to a
+	// body-level div that no landmark contains, exactly as it does with
+	// tooltips.
+
+	const results = await new AxeBuilder({page})
+		.disableRules(['region'])
+		.analyze();
 
 	expect(results.violations).toEqual([]);
 
-	// The picker holds a tab stop of its own, so Tab reaches the track even
-	// while the roving index sits on a tool.
+	await page.getByRole('menuitem', {name: 'Star sticker'}).click();
 
-	const stickers = carousel.locator('.editor-sticker-picker .btn');
-	const first = stickers.first();
+	// On the stage, since the name also belongs to the menu entry and to
+	// the layer row it just gained.
 
-	await expect(first).toHaveAttribute('tabindex', '0');
-
-	// The arrows still walk the whole annotate group, tools and stickers
-	// alike, even though the stickers now sit inside the track.
-
-	await first.focus();
-	await page.keyboard.press('ArrowRight');
-
-	await expect(stickers.nth(1)).toBeFocused();
-	await expect(first).toHaveAttribute('tabindex', '-1');
+	await expect(
+		page.locator('.editor-stage [aria-label="Star sticker"]')
+	).toHaveCount(1);
 });
 
 test('reflows at 320 pixels, the 400% zoom equivalent', async ({page}) => {

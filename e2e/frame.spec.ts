@@ -130,7 +130,10 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	// The frame sits over the annotations by default, and under them when
 	// the choice is unticked: a mat should not have to hide a caption.
 
-	await page.getByRole('button', {exact: true, name: 'Add rectangle'}).click();
+	await page
+		.getByRole('button', {exact: true, name: 'Add shape'})
+		.click();
+	await page.getByRole('menuitem', {name: 'Rectangle'}).click();
 
 	const order = () =>
 		page.evaluate(() => {

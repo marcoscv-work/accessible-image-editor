@@ -51,15 +51,19 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// Add a star sticker from the panel.
 
-	// The arrows walk the annotate group as one sequence: enter at Add text
-	// and step past the shape, redaction and picture tools to the first
-	// sticker.
+	// The arrows walk the annotate group as one sequence: enter at Add
+	// text and step past the shape, redaction and picture tools to the
+	// sticker menu, which the down arrow opens.
 
 	await tabUntil(page, 'Add text');
 
-	for (let step = 0; step < 5; step++) {
+	for (let step = 0; step < 4; step++) {
 		await page.keyboard.press('ArrowRight');
 	}
+
+	await page.keyboard.press('ArrowDown');
+
+	await expect(page.getByRole('menuitem').first()).toBeFocused();
 
 	await page.keyboard.press('Enter');
 
@@ -79,12 +83,12 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	// Add a text overlay through the dialog.
 
-	// Tab re-enters the panel at the last used control (the star), and
-	// the arrows walk back to Add text.
+	// Tab re-enters the panel at the last used control (the sticker
+	// menu), and the arrows walk back to Add text.
 
-	await tabUntil(page, 'Add star sticker');
+	await tabUntil(page, 'Add sticker');
 
-	for (let step = 0; step < 5; step++) {
+	for (let step = 0; step < 4; step++) {
 		await page.keyboard.press('ArrowLeft');
 	}
 

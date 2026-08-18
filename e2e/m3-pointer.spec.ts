@@ -18,7 +18,8 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.getByRole('button', {name: 'Edit sample image'}).click();
 	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
 
-	await page.getByRole('button', {name: 'Add rectangle'}).click();
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page.getByRole('menuitem', {name: 'Rectangle'}).click();
 
 	const status = page.getByRole('status');
 

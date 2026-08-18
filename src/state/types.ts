@@ -192,6 +192,47 @@ export interface ImageOverlay {
 	y: number;
 }
 
+export type ArrowHead = 'filled' | 'open';
+
+/**
+ * A line with a head on one end. Unlike every other annotation this one
+ * is not a box: it is a point and a vector, which is what lets both ends
+ * be placed independently and lets the thing point anywhere rather than
+ * in one of four directions.
+ *
+ * The tip is stored as a delta rather than as a second absolute point so
+ * that moving the annotation stays a change of `x` and `y`, exactly as it
+ * is for every other kind. Everything that moves, duplicates or mirrors
+ * an overlay therefore carries the arrow without knowing what an arrow is.
+ */
+export interface ArrowOverlay {
+	color: string;
+
+	/**
+	 * Horizontal distance from the tail to the tip. Negative points left.
+	 */
+	dx: number;
+
+	/**
+	 * Vertical distance from the tail to the tip. Negative points up.
+	 */
+	dy: number;
+
+	head: ArrowHead;
+	id: string;
+	kind: 'arrow';
+	opacity?: number;
+
+	/**
+	 * Stroke weight, which also scales the head: an arrow whose head did
+	 * not grow with its shaft stops reading as an arrow.
+	 */
+	thickness: number;
+
+	x: number;
+	y: number;
+}
+
 export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
 
 /**
@@ -211,6 +252,7 @@ export interface RedactOverlay {
 }
 
 export type Overlay =
+	| ArrowOverlay
 	| RedactOverlay
 	| CircleOverlay
 	| ImageOverlay

@@ -39,7 +39,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 2.5.2 Pointer Cancellation | A | Pass | Gestures commit on pointer-up; pointer-down only captures. |
 | 2.5.3 Label in Name | A | Pass | Visible text is contained in accessible names. |
 | 2.5.4 Motion Actuation | A | N/A | No motion input. |
-| 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value. |
+| 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height, and an arrow has fields for the tip as well, so both of its ends are placeable without a drag; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value. |
 | 2.5.8 Target Size (Minimum) | AA | Pass | No target is under 24 by 24 CSS pixels, including an annotation the author has made smaller than that: the painted shape shrinks, its hit area does not, and the minimum is applied in screen space so it survives zooming. The crop handles are exactly 24 by 24 with a painted dot smaller than the hit area, the compact sliders keep a 24 pixel band under a 14 pixel dot, and the filter radios are visually hidden so their target is the whole card. Measured across every button, input and stage handle. |
 | 3.1.1 Language of Page | A | Pass | `<html lang="en">`. |
 | 3.1.2 Language of Parts | AA | N/A | Single language. |
@@ -54,7 +54,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 3.3.7 Redundant Entry | A | N/A | Nothing is entered twice: there is no multi-step process, and every value stays in the edit state for as long as the editor is open. |
 | 3.3.8 Accessible Authentication (Minimum) | AA | N/A | No authentication. |
 | 4.1.1 Parsing | — | Removed | Obsolete in WCAG 2.2. The markup is React-generated and axe reports no parsing or ARIA violations, which is why it stayed green while the criterion existed. |
-| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs); axe-clean, and confirmed by ear in the screen reader passes. |
+| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs, and Clay's own menu buttons for the shapes and the stickers); axe-clean, and confirmed by ear in the screen reader passes. |
 | 4.1.3 Status Messages | AA | Pass | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e and heard in the screen reader passes. |
 
 ## Known refinements

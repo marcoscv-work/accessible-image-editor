@@ -22,12 +22,14 @@ The editor is **parametric and declarative**:
 - **A proportion lock reaches the stage**, for the crop and for every box annotation alike: with it on, only the four corners are offered and no side handles, because stretching one axis is exactly what the lock forbids, and a corner drag keeps the ratio without asking for Shift. A picture arrives locked, a shape arrives free, and choosing another layer starts again from that.
 - **A crop field never shows a value that was refused**: a crop as wide as the image cannot also start at x 200, and the field says so at once rather than keeping the number until some later edit appears to reset it.
 - **Small annotations keep a full-size target**: whatever an annotation is painted at, the area that can be clicked or reached never falls below 24 by 24 screen pixels, measured in screen space so it holds at any zoom.
-- **Rectangles and circles take an optional border**, off until a width is set, with its own colour.
+- **The drawn shapes live behind one menu**: rectangle, square, circle and arrow, so the panel keeps five buttons however many shapes are added later. The menu narrows with the tool list, so a host that offers two shapes gets a menu of two. The ten stickers sit behind a menu of their own for the same reason.
+- **Rectangles, squares and circles take an optional border**, off until a width is set, with its own colour.
+- **An arrow is the one annotation that is not a box.** It is a tail and a vector, so both ends are placed independently, by dragging either endpoint or by typing where the tip goes; it has no rotation, because two ends already say where it points. The head is solid or open, and the weight drives the shaft and the head together so a heavy arrow still reads as an arrow. Holding the tip as a vector rather than as a second point is what lets every existing operation, moving it, duplicating it, mirroring it with the photograph, carry the arrow without knowing what an arrow is.
 - **A picture of your own becomes an annotation**: pick a PNG and it lands as one more layer, named after the file, moved and resized by the same handles and fields, and composited into the export. Its proportions arrive locked, with a padlock beside the width and height that any box annotation can use, because keeping a picture in proportion should not require doing the division yourself, and the same padlock governs what the pointer can do to it. It travels in the edit state as a data URL rather than an object URL, because the export rasterizes its SVG through an `img`, which cannot load `blob:` subresources. Its description is editable, since a file name names a file, not a picture.
 - **Frames are intent, not geometry**: a kind, a colour, a weight and an offset, the last two as percentages of the crop's shorter side. Nothing is stored in image coordinates, so the next crop reframes the picture instead of stranding a border where the old edges were, and the same numbers hold on a 72-pixel card, on the stage at any zoom, and in a full-resolution export. A checkbox decides whether the frame is drawn over the annotations or under them.
 - Selected annotations expose **on-stage resize and rotate handles** (proportional by default, Shift for free rectangle resize or 15-degree rotation snaps). They are a pointer-only affordance: the layer properties panel is the accessible, keyboard-first equivalent for the same operations.
 - The **filter gallery** is a two-column card grid whose radios are visually hidden but still real radios, so it keeps the group semantics and arrow-key behaviour; selection is shown with a ring, a bold label and a check badge, never by colour alone. Cards paint from a tiny bitmap prepared at load time, so adding presets costs nothing at render time.
-- Once the sidebar stacks under the workspace, the tracks that would otherwise wrap (the filter cards, the sticker picker) become **one swipeable row with snap points and paging arrows**. The arrows are a pointer affordance only, hidden from assistive technology and out of the tab order, because each track is already a keyboard-navigable group and focusing a child scrolls it into view.
+- Once the sidebar stacks under the workspace, the tracks that would otherwise wrap (the filter cards, the frames) become **one swipeable row with snap points and paging arrows**. The arrows are a pointer affordance only, hidden from assistive technology and out of the tab order, because each track is already a keyboard-navigable group and focusing a child scrolls it into view.
 - Sidebar sections are **collapsible Clay panels**, and each one can be switched off through the `sections` prop: the header is a real button with `aria-expanded`/`aria-controls`, and collapsed content leaves the tab order.
 - The preview operates on a **downscaled bitmap** (max 2048px on the longest side); the original file is only read again at export time. This is what keeps large images responsive: a slider step measures 31ms with a 100MP source, the same as with a small one, because interaction cost is independent of source resolution. What does scale with the source is decoding it once at the start and encoding it once at the end, which every editor pays in every technology, and which the host bounds anyway by capping upload size. [FINDINGS.md](FINDINGS.md) records the numbers, the opportunities left on the table, and why a canvas-based editor would not have been faster here.
 
@@ -54,7 +56,7 @@ complete editor.
 | Key | `false` | Object |
 | --- | --- | --- |
 | `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
-| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, circle, redaction, image, stickers · `stickers`: any of the 10 shapes |
+| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, square, circle, arrow, redaction, image, stickers · `stickers`: any of the 10 shapes |
 | `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn and flip buttons · `straighten`: the angle slider |
 | `filters` | hides the gallery | `presets`: any of the 19 looks |
 | `frames` | hides the frame gallery | `presets`: any of the 9 frames, plus none |
@@ -157,7 +159,7 @@ The bundled sample image (`src/assets/sample.jpg`) is an [Unsplash](https://unsp
 
 ## Out of scope
 
-- **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, and stickers.
+- **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, arrows, and stickers.
 - Background removal.
 - EXIF orientation/metadata preservation and color management (ICC).
 - HEIC input.

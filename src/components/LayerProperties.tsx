@@ -10,6 +10,7 @@ import {t} from '../i18n';
 import {DEFAULT_BORDER_COLOR, overlayLabel} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {
+	ArrowOverlay,
 	CircleOverlay,
 	ImageOverlay,
 	Overlay,
@@ -205,6 +206,73 @@ export function LayerProperties({
 				  */}
 				{pairedWithColor && opacityField}
 
+				{overlay.kind === 'arrow' && (
+					<ClayForm.Group small>
+						<label htmlFor="layer-prop-head">
+							{t('arrow-head')}
+						</label>
+
+						<ClaySelectWithOption
+							id="layer-prop-head"
+							onChange={(event) =>
+								commitPatch({
+									head: event.target
+										.value as ArrowOverlay['head'],
+								})
+							}
+							options={[
+								{
+									label: t('arrow-head-filled'),
+									value: 'filled',
+								},
+								{label: t('arrow-head-open'), value: 'open'},
+							]}
+							sizing="sm"
+							value={overlay.head}
+						/>
+					</ClayForm.Group>
+				)}
+
+				{/*
+				  * The tip, as a place rather than as a vector. Someone
+				  * pointing an arrow thinks about where it lands, not about
+				  * how far it travelled, and this is also the pointer-free
+				  * way to aim it (WCAG 2.2, 2.5.7).
+				  */}
+				{overlay.kind === 'arrow' && (
+					<NumberField
+						id="layer-prop-tip-x"
+						label={t('tip-x-position')}
+						min={-Infinity}
+						onCommit={(tipX) =>
+							commitPatch({dx: Math.round(tipX - overlay.x)})
+						}
+						value={Math.round(overlay.x + overlay.dx)}
+					/>
+				)}
+
+				{overlay.kind === 'arrow' && (
+					<NumberField
+						id="layer-prop-tip-y"
+						label={t('tip-y-position')}
+						min={-Infinity}
+						onCommit={(tipY) =>
+							commitPatch({dy: Math.round(tipY - overlay.y)})
+						}
+						value={Math.round(overlay.y + overlay.dy)}
+					/>
+				)}
+
+				{overlay.kind === 'arrow' && (
+					<NumberField
+						id="layer-prop-thickness"
+						label={t('thickness')}
+						min={1}
+						onCommit={(thickness) => commitPatch({thickness})}
+						value={overlay.thickness}
+					/>
+				)}
+
 				{overlay.kind === 'sticker' && (
 					<NumberField
 						id="layer-prop-size"
@@ -290,15 +358,17 @@ export function LayerProperties({
 					</div>
 				)}
 
-				<NumberField
-					id="layer-prop-rotation"
-					label={t('rotation-degrees')}
-					max={360}
-					min={-360}
-					onCommit={(rotation) => commitPatch({rotation})}
-					suffix={t('unit-degrees')}
-					value={overlay.rotation ?? 0}
-				/>
+				{overlay.kind !== 'arrow' && (
+					<NumberField
+						id="layer-prop-rotation"
+						label={t('rotation-degrees')}
+						max={360}
+						min={-360}
+						onCommit={(rotation) => commitPatch({rotation})}
+						suffix={t('unit-degrees')}
+						value={overlay.rotation ?? 0}
+					/>
+				)}
 
 				{!pairedWithColor && opacityField}
 

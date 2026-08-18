@@ -12,11 +12,12 @@ import {
 	overlayBounds,
 	overlayHitBox,
 	overlayLabel,
+	overlayRotation,
 	overlayTransform,
 	textWidth,
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
-import {Overlay, isBoxOverlay} from '../state/types';
+import {ArrowOverlay, Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 import {OverlayTextEditor} from './OverlayTextEditor';
 
@@ -80,6 +81,12 @@ const STRETCH_EDGES = [
 	{cursor: 'ew-resize', name: 'w', x: 0, y: 0.5},
 ] as const;
 
+/**
+ * An arrow is placed by its two ends rather than by a box, so those are
+ * the handles it offers.
+ */
+const ARROW_ENDS = ['tail', 'tip'] as const;
+
 const RESIZE_CORNERS = [
 	{cursor: 'nwse-resize', name: 'nw', x: 0, y: 0},
 	{cursor: 'nesw-resize', name: 'ne', x: 1, y: 0},
@@ -91,8 +98,14 @@ interface ManipGesture {
 	centerX: number;
 	centerY: number;
 	edge?: 'e' | 'n' | 's' | 'w';
+
+	/**
+	 * Which end of an arrow is being dragged, for the endpoint gesture.
+	 */
+	end?: 'tail' | 'tip';
+
 	id: string;
-	kind: 'resize' | 'rotate';
+	kind: 'endpoint' | 'resize' | 'rotate';
 	overlay: Overlay;
 	startAngle: number;
 	startDistance: number;
@@ -187,12 +200,19 @@ export function OverlaysEditable({
 
 				onSelect(id);
 
+				// The properties panel is rendered by the parent in
+				// response to that selection, so the focus has to wait for
+				// the render rather than for the end of this turn: the
+				// panel is often already open, but it is not always.
+
 				window.setTimeout(() => {
-					document
-						.querySelector<HTMLElement>(
-							'.editor-layer-properties input, .editor-layer-properties select'
-						)
-						?.focus();
+					window.requestAnimationFrame(() => {
+						document
+							.querySelector<HTMLElement>(
+								'.editor-layer-properties input, .editor-layer-properties select'
+							)
+							?.focus();
+					});
 				}, 0);
 
 				return;
@@ -364,10 +384,11 @@ export function OverlaysEditable({
 	const startManipulation =
 		(
 			overlay: Overlay,
-			kind: 'resize' | 'rotate',
+			kind: 'endpoint' | 'resize' | 'rotate',
 			handleX: number,
 			handleY: number,
-			edge?: 'e' | 'n' | 's' | 'w'
+			edge?: 'e' | 'n' | 's' | 'w',
+			end?: 'tail' | 'tip'
 		) =>
 		(event: React.PointerEvent<SVGElement>) => {
 			event.stopPropagation();
@@ -385,6 +406,7 @@ export function OverlaysEditable({
 				centerX,
 				centerY,
 				edge,
+				end,
 				id: overlay.id,
 				kind,
 				overlay,
@@ -415,7 +437,7 @@ export function OverlaysEditable({
 		const [dx, dy] = toLocalDelta(
 			(event.clientX - gesture.startX) / zoom,
 			(event.clientY - gesture.startY) / zoom,
-			overlay.rotation ?? 0
+			overlayRotation(overlay)
 		);
 
 		const pointX =
@@ -429,7 +451,7 @@ export function OverlaysEditable({
 
 		if (gesture.kind === 'rotate') {
 			const degrees =
-				(overlay.rotation ?? 0) +
+				overlayRotation(overlay) +
 				((Math.atan2(pointY - centerY, pointX - centerX) -
 					gesture.startAngle) *
 					180) /
@@ -444,6 +466,35 @@ export function OverlaysEditable({
 			dispatch({
 				id: gesture.id,
 				patch: {rotation},
+				transient: true,
+				type: 'update-overlay',
+			});
+
+			return;
+		}
+
+		// An arrow is aimed by its ends: dragging one leaves the other
+		// where it is. Since the tip is held as a vector, moving the tail
+		// has to counter-adjust it, or the whole arrow would travel along
+		// with the hand instead of pivoting on its tip.
+
+		if (gesture.kind === 'endpoint' && overlay.kind === 'arrow') {
+			const patch =
+				gesture.end === 'tip'
+					? {
+							dx: Math.round(pointX - overlay.x),
+							dy: Math.round(pointY - overlay.y),
+						}
+					: {
+							dx: Math.round(overlay.x + overlay.dx - pointX),
+							dy: Math.round(overlay.y + overlay.dy - pointY),
+							x: Math.round(pointX),
+							y: Math.round(pointY),
+						};
+
+			dispatch({
+				id: gesture.id,
+				patch,
 				transient: true,
 				type: 'update-overlay',
 			});
@@ -578,11 +629,19 @@ export function OverlaysEditable({
 
 			dispatch({
 				id: gesture.id,
-				patch: {
-					rotation: overlay.rotation,
-					x: overlay.x,
-					y: overlay.y,
-				},
+				patch:
+					overlay.kind === 'arrow'
+						? {
+								dx: overlay.dx,
+								dy: overlay.dy,
+								x: overlay.x,
+								y: overlay.y,
+							}
+						: {
+								rotation: overlay.rotation,
+								x: overlay.x,
+								y: overlay.y,
+							},
 				type: 'update-overlay',
 			});
 
@@ -689,99 +748,134 @@ export function OverlaysEditable({
 							(selectedId === overlay.id ||
 								focus?.id === overlay.id) && (
 							<g aria-hidden="true" className="object-handles">
-								{RESIZE_CORNERS.map((corner) => {
-									const handleX =
-										bounds.x + corner.x * bounds.width;
-									const handleY =
-										bounds.y + corner.y * bounds.height;
-									const size = 10 / zoom;
+								{overlay.kind === 'arrow' ? (
+									ARROW_ENDS.map((end) => {
+										const arrow = overlay as ArrowOverlay;
 
-									return (
-										<rect
-											className="object-handle"
-											height={size}
-											key={corner.name}
-											onPointerDown={startManipulation(
-												overlay,
-												'resize',
-												handleX,
-												handleY
-											)}
-											onPointerMove={
-												handleManipulationMove
-											}
-											onPointerUp={handleManipulationUp}
-											strokeWidth={1.5 / zoom}
-											style={{cursor: corner.cursor}}
-											width={size}
-											x={handleX - size / 2}
-											y={handleY - size / 2}
-										/>
-									);
-								})}
-
-								{isBoxOverlay(overlay) &&
-									!proportional &&
-									STRETCH_EDGES.map((edge) => {
 										const handleX =
-											bounds.x +
-											edge.x * bounds.width;
+											arrow.x + (end === 'tip' ? arrow.dx : 0);
 										const handleY =
-											bounds.y +
-											edge.y * bounds.height;
-										const size = 10 / zoom;
+											arrow.y + (end === 'tip' ? arrow.dy : 0);
 
 										return (
-											<rect
+											<circle
 												className="object-handle"
-												height={size}
-												key={edge.name}
+												cx={handleX}
+												cy={handleY}
+												key={end}
 												onPointerDown={startManipulation(
 													overlay,
-													'resize',
+													'endpoint',
 													handleX,
 													handleY,
-													edge.name
+													undefined,
+													end
 												)}
-												onPointerMove={
-													handleManipulationMove
-												}
-												onPointerUp={
-													handleManipulationUp
-												}
+												onPointerMove={handleManipulationMove}
+												onPointerUp={handleManipulationUp}
+												r={6 / zoom}
 												strokeWidth={1.5 / zoom}
-												style={{cursor: edge.cursor}}
-												width={size}
-												x={handleX - size / 2}
-												y={handleY - size / 2}
+												style={{cursor: 'move'}}
 											/>
 										);
-									})}
+									})
+								) : (
+									<>
+										{RESIZE_CORNERS.map((corner) => {
+											const handleX =
+												bounds.x + corner.x * bounds.width;
+											const handleY =
+												bounds.y + corner.y * bounds.height;
+											const size = 10 / zoom;
 
-								<line
-									className="object-rotate-stick"
-									strokeWidth={1.5 / zoom}
-									x1={bounds.x + bounds.width / 2}
-									x2={bounds.x + bounds.width / 2}
-									y1={bounds.y}
-									y2={bounds.y - 24 / zoom}
-								/>
+											return (
+												<rect
+													className="object-handle"
+													height={size}
+													key={corner.name}
+													onPointerDown={startManipulation(
+														overlay,
+														'resize',
+														handleX,
+														handleY
+													)}
+													onPointerMove={
+														handleManipulationMove
+													}
+													onPointerUp={handleManipulationUp}
+													strokeWidth={1.5 / zoom}
+													style={{cursor: corner.cursor}}
+													width={size}
+													x={handleX - size / 2}
+													y={handleY - size / 2}
+												/>
+											);
+										})}
 
-								<circle
-									className="object-handle object-handle-rotate"
-									cx={bounds.x + bounds.width / 2}
-									cy={bounds.y - 24 / zoom}
-									onPointerDown={startManipulation(
-										overlay,
-										'rotate',
-										bounds.x + bounds.width / 2,
-										bounds.y - 24 / zoom
-									)}
-									onPointerMove={handleManipulationMove}
-									onPointerUp={handleManipulationUp}
-									r={6 / zoom}
-									strokeWidth={1.5 / zoom}
-								/>
+										{isBoxOverlay(overlay) &&
+											!proportional &&
+											STRETCH_EDGES.map((edge) => {
+												const handleX =
+													bounds.x +
+													edge.x * bounds.width;
+												const handleY =
+													bounds.y +
+													edge.y * bounds.height;
+												const size = 10 / zoom;
+
+												return (
+													<rect
+														className="object-handle"
+														height={size}
+														key={edge.name}
+														onPointerDown={startManipulation(
+															overlay,
+															'resize',
+															handleX,
+															handleY,
+															edge.name
+														)}
+														onPointerMove={
+															handleManipulationMove
+														}
+														onPointerUp={
+															handleManipulationUp
+														}
+														strokeWidth={1.5 / zoom}
+														style={{cursor: edge.cursor}}
+														width={size}
+														x={handleX - size / 2}
+														y={handleY - size / 2}
+													/>
+												);
+											})}
+
+										<line
+											className="object-rotate-stick"
+											strokeWidth={1.5 / zoom}
+											x1={bounds.x + bounds.width / 2}
+											x2={bounds.x + bounds.width / 2}
+											y1={bounds.y}
+											y2={bounds.y - 24 / zoom}
+										/>
+
+										<circle
+											className="object-handle object-handle-rotate"
+											cx={bounds.x + bounds.width / 2}
+											cy={bounds.y - 24 / zoom}
+											onPointerDown={startManipulation(
+												overlay,
+												'rotate',
+												bounds.x + bounds.width / 2,
+												bounds.y - 24 / zoom
+											)}
+											onPointerMove={handleManipulationMove}
+											onPointerUp={handleManipulationUp}
+											r={6 / zoom}
+											strokeWidth={1.5 / zoom}
+										/>
+									</>
+								)}
 							</g>
 						)}
 					</g>

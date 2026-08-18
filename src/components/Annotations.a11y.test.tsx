@@ -197,24 +197,112 @@ function CroppedHarness() {
 	);
 }
 
+/**
+ * Shapes and stickers live behind a menu now, so adding one is two steps:
+ * open the menu, then pick the entry. Clay keeps the entries mounted and
+ * hides the closed menu with CSS, which jsdom does not apply, so both
+ * steps are here for the behaviour rather than for the query to resolve.
+ */
+function addFromMenu(menu: string, item: string) {
+	fireEvent.click(screen.getByRole('button', {name: menu}));
+
+	fireEvent.click(screen.getByRole('menuitem', {name: item}));
+}
+
+const addShape = (shape: string) => addFromMenu('Add shape', shape);
+
+const addSticker = (sticker: string) => addFromMenu('Add sticker', sticker);
+
 describe('Annotations, filters, and layers', () => {
 	it('has no axe violations with annotations present', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addSticker('Star sticker');
+		addShape('Rectangle');
 
 		expect(await axe(container)).toHaveNoViolations();
+	});
+
+	it('adds an arrow, aimed by its ends rather than by a box', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Arrow');
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		expect(hit).toHaveAttribute('aria-label', 'Arrow');
+
+		// A shaft and a solid head, which is the default style.
+
+		expect(
+			container.querySelectorAll('.editor-workspace polygon')
+		).toHaveLength(1);
+
+		// Its two ends are the properties, and rotation is not one of
+		// them: where an arrow points is already said by its ends.
+
+		expect(screen.getByLabelText('Tip X position')).toBeInTheDocument();
+		expect(screen.getByLabelText('Tip Y position')).toBeInTheDocument();
+		expect(screen.queryByLabelText('Rotation')).not.toBeInTheDocument();
+
+		// Aiming it without a pointer: the tip moves, the tail stays.
+
+		const tipY = screen.getByLabelText('Tip Y position');
+		const tailY = Number(screen.getByLabelText('Y position').getAttribute('value'));
+
+		fireEvent.change(tipY, {target: {value: '120'}});
+		fireEvent.keyDown(tipY, {key: 'Enter'});
+
+		expect(screen.getByLabelText('Tip Y position')).toHaveValue(120);
+		expect(screen.getByLabelText('Y position')).toHaveValue(tailY);
+
+		// The open head is the same two barbs left as strokes, and its
+		// shaft runs the whole way: only a solid head needs the line to
+		// stop short of the point.
+
+		fireEvent.change(screen.getByLabelText('Arrow head'), {
+			target: {value: 'open'},
+		});
+
+		expect(
+			container.querySelectorAll('.editor-workspace polygon')
+		).toHaveLength(0);
+		expect(
+			container.querySelectorAll(
+				'.editor-workspace path[stroke-linejoin="round"]'
+			)
+		).toHaveLength(1);
+
+		const shaft = container.querySelector(
+			'.editor-workspace line[stroke-linecap="round"]'
+		) as SVGLineElement;
+
+		expect(Number(shaft.getAttribute('y2'))).toBe(120);
+		expect(Number(shaft.getAttribute('y1'))).toBe(tailY);
+	});
+
+	it('offers the square and the circle from the same menu', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Square');
+
+		const square = container.querySelector(
+			'.editor-workspace rect[fill]:not([class])'
+		) as SVGRectElement;
+
+		expect(square.getAttribute('width')).toBe(square.getAttribute('height'));
+
+		addShape('Circle');
+
+		expect(
+			container.querySelectorAll('.editor-workspace ellipse')
+		).toHaveLength(1);
 	});
 
 	it('adds a sticker as a focusable, keyboard-movable SVG node', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
+		addSticker('Star sticker');
 
 		const sticker = container.querySelector(
 			'.overlay-hit'
@@ -276,10 +364,8 @@ describe('Annotations, filters, and layers', () => {
 	it('lists layers topmost first and reorders them from the listbox', () => {
 		render(<AnnotationHarness />);
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addSticker('Star sticker');
+		addShape('Rectangle');
 
 		const layerNames = () =>
 			[...document.querySelectorAll('.editor-layer-name')].map(
@@ -300,7 +386,7 @@ describe('Annotations, filters, and layers', () => {
 	it('edits the selected layer properties from the layers panel', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		// The overlay's visual rect is the only filled rect without a
 		// class (crop chrome is classed, the clip rect has no fill).
@@ -371,7 +457,7 @@ describe('Annotations, filters, and layers', () => {
 	it('has no axe violations with the layer properties open', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		expect(await axe(container)).toHaveNoViolations();
 	});
@@ -379,7 +465,7 @@ describe('Annotations, filters, and layers', () => {
 	it('leaves a shape free to stretch, and locks on request', () => {
 		render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		const padlock = screen.getByRole('button', {
 			name: 'Lock aspect ratio',
@@ -416,10 +502,8 @@ describe('Annotations, filters, and layers', () => {
 	it('syncs selection between the stage and the layers panel', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addSticker('Star sticker');
+		addShape('Rectangle');
 
 		// Focusing the sticker on the stage selects its layer row.
 
@@ -453,7 +537,7 @@ describe('Annotations, filters, and layers', () => {
 	it('jumps from the stage node to its property editor on Enter', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
 
@@ -467,7 +551,7 @@ describe('Annotations, filters, and layers', () => {
 	it('duplicates a layer from its row and selects the copy', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		fireEvent.click(
 			screen.getByRole('button', {name: 'Duplicate Rectangle'})
@@ -531,10 +615,7 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
-		// Add text, Add rectangle, Add circle, Add redaction, Add image,
-		// then the stickers.
-
-		fireEvent.keyDown(addText, {key: 'ArrowRight'});
+		// Add text, Add shape, Add redaction, Add image, Add sticker.
 
 		for (let step = 0; step < 4; step++) {
 			fireEvent.keyDown(document.activeElement as Element, {
@@ -542,13 +623,10 @@ describe('Annotations, filters, and layers', () => {
 			});
 		}
 
-		expect(document.activeElement).toHaveAccessibleName(
-			'Add star sticker'
-		);
+		expect(document.activeElement).toHaveAccessibleName('Add sticker');
 
-		// One tab stop per container, so the sticker picker is reachable
-		// with Tab even while the roving index sits on a tool: in the
-		// stacked layout the picker is a horizontal scroll container.
+		// One tab stop for the whole panel, wherever the roving index
+		// happens to be sitting.
 
 		expect(
 			document.querySelectorAll(
@@ -556,21 +634,30 @@ describe('Annotations, filters, and layers', () => {
 			)
 		).toHaveLength(1);
 
-		expect(
-			document.querySelectorAll(
-				'.editor-sticker-picker [data-index][tabindex="0"]'
-			)
-		).toHaveLength(1);
-
 		fireEvent.keyDown(document.activeElement as Element, {key: 'Home'});
 
 		expect(document.activeElement).toHaveAccessibleName('Add text');
+
+		// On a menu button the vertical arrows belong to the menu, so
+		// they must not walk the panel.
+
+		fireEvent.keyDown(document.activeElement as Element, {
+			key: 'ArrowRight',
+		});
+
+		expect(document.activeElement).toHaveAccessibleName('Add shape');
+
+		fireEvent.keyDown(document.activeElement as Element, {
+			key: 'ArrowDown',
+		});
+
+		expect(document.activeElement).toHaveAccessibleName('Add shape');
 	});
 
 	it('jumps from a layer row to its element on the stage on Enter', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		const row = screen.getByRole('button', {
 			name: 'Rectangle',
@@ -630,7 +717,7 @@ describe('Annotations, filters, and layers', () => {
 	it('adds a circle that behaves like the rectangle', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add circle'}));
+		addShape('Circle');
 
 		expect(container.querySelector('ellipse')).toBeInTheDocument();
 
@@ -658,7 +745,7 @@ describe('Annotations, filters, and layers', () => {
 	it('keeps a 24 pixel target on an annotation smaller than that', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		for (const [label, value] of [
 			['Width', '8'],
@@ -692,7 +779,7 @@ describe('Annotations, filters, and layers', () => {
 	it('draws no border until one is asked for', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Add rectangle'}));
+		addShape('Rectangle');
 
 		const shape = () => container.querySelector('rect[fill="#0b5fff"]');
 
@@ -721,9 +808,7 @@ describe('Annotations, filters, and layers', () => {
 	it('centers a new annotation on the crop, not on the image', () => {
 		const {container} = render(<CroppedHarness />);
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
+		addSticker('Star sticker');
 
 		const sticker = container.querySelector(
 			'.overlay-hit'
@@ -747,9 +832,7 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 
-		fireEvent.click(
-			screen.getByRole('button', {name: 'Add star sticker'})
-		);
+		addSticker('Star sticker');
 
 		expect(screen.getByText('Layers')).toBeInTheDocument();
 

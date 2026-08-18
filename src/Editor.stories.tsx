@@ -147,6 +147,21 @@ export const RedactionOnly: Story = {
 };
 
 /**
+ * Review markup: the shapes people reach for when pointing at something
+ * in a screenshot, and nothing else. The menu narrows with the tool list,
+ * so naming two shapes offers two.
+ */
+export const ArrowsAndShapes: Story = {
+	args: {
+		adjustments: [],
+		annotate: ['arrow', 'rectangle'],
+		crop: false,
+		filters: [],
+		frames: [],
+	},
+};
+
+/**
  * Annotation kit with a reduced sticker set.
  */
 export const AnnotateWithFewStickers: Story = {
@@ -222,7 +237,7 @@ export const WatermarkOnly: Story = {
 export const SocialPost: Story = {
 	args: {
 		adjustments: ['brightness', 'contrast'],
-		annotate: ['text', 'image', 'stickers'],
+		annotate: ['text', 'arrow', 'image', 'stickers'],
 		filters: ['none', 'vintage', 'vivid', 'noir'],
 		frames: ['none', 'mat', 'polaroid'],
 		ratios: ['1:1', '4:3', '9:16'],

@@ -5,12 +5,14 @@
 
 import {describe, expect, it} from 'vitest';
 
-import {ImageOverlay, isBoxOverlay} from '../state/types';
+import {ArrowOverlay, ImageOverlay, isBoxOverlay} from '../state/types';
 import {
+	arrowGeometry,
 	mirrorOverlay,
 	overlayBounds,
 	overlayHitBox,
 	overlayLabel,
+	overlayRotation,
 } from './overlayShapes';
 
 const PICTURE: ImageOverlay = {
@@ -55,5 +57,94 @@ describe('an image annotation', () => {
 			x: 91,
 			y: 41,
 		});
+	});
+});
+
+const ARROW: ArrowOverlay = {
+	color: '#0b5fff',
+	dx: 200,
+	dy: -100,
+	head: 'filled',
+	id: 'arrow-1',
+	kind: 'arrow',
+	thickness: 6,
+	x: 300,
+	y: 400,
+};
+
+describe('an arrow', () => {
+	it('is not a box, so it is placed by its ends rather than stretched', () => {
+		expect(isBoxOverlay(ARROW)).toBe(false);
+
+		// The box around both ends, grown by the stroke: the tip is up and
+		// to the right of the tail, so the box starts at the tip's y.
+
+		expect(overlayBounds(ARROW)).toEqual({
+			height: 106,
+			width: 206,
+			x: 297,
+			y: 297,
+		});
+	});
+
+	it('has no rotation of its own, because its ends already aim it', () => {
+		expect(overlayRotation(ARROW)).toBe(0);
+	});
+
+	it('keeps pointing at what it pointed at when the photo mirrors', () => {
+		const mirrored = mirrorOverlay(ARROW, 1000) as ArrowOverlay;
+
+		// The tail reflects and the vector flips, so the tip lands where
+		// the tip's own reflection is: 1000 - 500.
+
+		expect(mirrored.x).toBe(700);
+		expect(mirrored.dx).toBe(-200);
+		expect(mirrored.x + mirrored.dx).toBe(500);
+
+		// Nothing happens vertically, which is what mirroring means.
+
+		expect(mirrored.dy).toBe(ARROW.dy);
+	});
+
+	it('sizes its head from the stroke, and its shaft stops at the head', () => {
+		const geometry = arrowGeometry(ARROW);
+
+		expect(geometry.tipX).toBe(500);
+		expect(geometry.tipY).toBe(300);
+
+		// 3.2 times the stroke, and short of the tip by exactly that.
+
+		expect(geometry.headLength).toBeCloseTo(19.2, 5);
+
+		expect(
+			Math.hypot(geometry.tipX - geometry.shaftX, geometry.tipY - geometry.shaftY)
+		).toBeCloseTo(geometry.headLength, 5);
+
+		// A thicker arrow grows its head with it.
+
+		expect(arrowGeometry({...ARROW, thickness: 12}).headLength).toBeCloseTo(
+			38.4,
+			5
+		);
+	});
+
+	it('will not let the head eat a short arrow', () => {
+		// A third of the length is the ceiling, so a stubby arrow is still
+		// a line with a head and not a bare triangle.
+
+		const stub = arrowGeometry({...ARROW, dx: 30, dy: 0});
+
+		expect(stub.headLength).toBeCloseTo(10, 5);
+	});
+
+	it('survives being given no length at all', () => {
+		const degenerate = arrowGeometry({...ARROW, dx: 0, dy: 0});
+
+		expect(degenerate.tipX).toBe(ARROW.x);
+		expect(degenerate.headPoints).toBe('');
+	});
+
+	it('is named as an arrow', () => {
+		expect(overlayLabel(ARROW)).toBe('Arrow');
 	});
 });

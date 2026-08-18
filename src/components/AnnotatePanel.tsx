@@ -4,9 +4,15 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayDropDown from '@clayui/drop-down';
 import React, {useRef, useState} from 'react';
 
-import {AnnotateTool} from '../editorConfig';
+import {
+	AnnotateTool,
+	SHAPE_TOOLS,
+	ShapeTool,
+	isShapeTool,
+} from '../editorConfig';
 import {t} from '../i18n';
 import {loadOverlayImage} from '../imaging/loadImage';
 import {
@@ -16,8 +22,7 @@ import {
 } from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {nextId} from '../state/ids';
-import {CropRect, StickerKind} from '../state/types';
-import {Carousel} from './Carousel';
+import {CropRect, Overlay, StickerKind} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {TextDialog} from './TextDialog';
 
@@ -73,6 +78,52 @@ function revealInWorkspace(node: SVGElement): void {
 	workspace.scrollTop += overflow(box.top, box.bottom, area.top, area.bottom);
 }
 
+/**
+ * The miniature drawn beside each entry of the shape menu. Decoration
+ * next to a name, so it is hidden from assistive technology: the name is
+ * what the entry is.
+ */
+function ShapePreview({shape}: {shape: ShapeTool}) {
+	return (
+		<svg
+			aria-hidden="true"
+			className="editor-menu-preview"
+			focusable="false"
+			height={16}
+			viewBox="0 0 16 16"
+			width={16}
+		>
+			{shape === 'rectangle' && (
+				<rect fill="currentColor" height={8} width={14} x={1} y={4} />
+			)}
+
+			{shape === 'square' && (
+				<rect fill="currentColor" height={12} width={12} x={2} y={2} />
+			)}
+
+			{shape === 'circle' && (
+				<circle cx={8} cy={8} fill="currentColor" r={6} />
+			)}
+
+			{shape === 'arrow' && (
+				<>
+					<line
+						stroke="currentColor"
+						strokeLinecap="round"
+						strokeWidth={2}
+						x1={2}
+						x2={10}
+						y1={8}
+						y2={8}
+					/>
+
+					<polygon fill="currentColor" points="15,8 9,11 9,5" />
+				</>
+			)}
+		</svg>
+	);
+}
+
 interface Props {
 
 	/**
@@ -109,10 +160,14 @@ export function AnnotatePanel({
 }: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
+	const [shapeMenuOpen, setShapeMenuOpen] = useState(false);
+
+	const [stickerMenuOpen, setStickerMenuOpen] = useState(false);
+
 	/**
 	 * Roving tabindex (APG): the whole Annotate panel is one tab stop;
-	 * arrows move between the add buttons and the sticker picker, and
-	 * Tab re-enters at the last used control.
+	 * the left and right arrows move between the buttons, and Tab
+	 * re-enters at the last used control.
 	 */
 	const [rovingIndex, setRovingIndex] = useState(0);
 
@@ -120,17 +175,23 @@ export function AnnotatePanel({
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// The roving order follows what is actually rendered, so a reduced
-	// tool set still behaves as one tab stop with contiguous arrows.
+	// The drawn shapes share one menu, so the panel's controls are not the
+	// tool list: they are the tools that are not shapes, plus the menu
+	// standing in for those that are.
 
-	const shownStickers = tools.includes('stickers') ? stickers : [];
+	const shapeTools = tools.filter(isShapeTool);
 
-	const shownTools = tools.filter((tool) => tool !== 'stickers');
+	const hasStickers = tools.includes('stickers') && stickers.length > 0;
 
-	const controlCount = shownTools.length + shownStickers.length;
+	const controls: string[] = [
+		...(tools.includes('text') ? ['text'] : []),
+		...(shapeTools.length ? ['shapes'] : []),
+		...(tools.includes('redaction') ? ['redaction'] : []),
+		...(tools.includes('image') ? ['image'] : []),
+		...(hasStickers ? ['stickers'] : []),
+	];
 
-	const toolIndex = (tool: AnnotateTool) =>
-		shownTools.indexOf(tool as (typeof shownTools)[number]);
+	const indexOf = (control: string) => controls.indexOf(control);
 
 	const handlePanelKeyDown = (event: React.KeyboardEvent) => {
 		const origin = (event.target as Element).closest('[data-index]');
@@ -139,21 +200,42 @@ export function AnnotatePanel({
 			return;
 		}
 
+		// On a menu button the vertical arrows belong to the menu, which
+		// opens on Down and moves through its own entries from there. The
+		// horizontal pair still walks the panel, which is the toolbar
+		// behaviour these buttons share with every other control here.
+
+		const isMenu = origin.hasAttribute('data-menu-trigger');
+
 		let index = Number(origin.getAttribute('data-index'));
 
 		switch (event.key) {
 			case 'ArrowDown':
+				if (isMenu) {
+					return;
+				}
+
+				index = Math.min(index + 1, controls.length - 1);
+				break;
+
 			case 'ArrowRight':
-				index = Math.min(index + 1, controlCount - 1);
+				index = Math.min(index + 1, controls.length - 1);
+				break;
+
+			case 'ArrowUp':
+				if (isMenu) {
+					return;
+				}
+
+				index = Math.max(index - 1, 0);
 				break;
 
 			case 'ArrowLeft':
-			case 'ArrowUp':
 				index = Math.max(index - 1, 0);
 				break;
 
 			case 'End':
-				index = controlCount - 1;
+				index = controls.length - 1;
 				break;
 
 			case 'Home':
@@ -177,86 +259,109 @@ export function AnnotatePanel({
 		}
 	};
 
-	/*
-	 * Roving tabindex over the whole panel: the arrows walk the tools and
-	 * the stickers as one sequence. Each of the two containers keeps a
-	 * tabbable item of its own, though, because in the stacked layout the
-	 * sticker picker is a horizontal scroll container, and a scrollable
-	 * region holding nothing tabbable cannot be reached at all by someone
-	 * arriving with Tab.
-	 */
-
-	const rovingProps = (index: number) => {
-		const inStickers = index >= shownTools.length;
-		const activeInStickers = rovingIndex >= shownTools.length;
-
-		const entryPoint = inStickers ? shownTools.length : 0;
-
-		return {
-			'data-index': index,
-			onFocus: () => setRovingIndex(index),
-			tabIndex:
-				rovingIndex === index ||
-				(inStickers !== activeInStickers && index === entryPoint)
-					? 0
-					: -1,
-		};
-	};
+	const rovingProps = (index: number) => ({
+		'data-index': index,
+		onFocus: () => setRovingIndex(index),
+		tabIndex: rovingIndex === index ? 0 : -1,
+	});
 
 	const centerX = Math.round(area.x + area.width / 2);
 	const centerY = Math.round(area.y + area.height / 2);
 
-	const addRectangle = () => {
-		const id = nextId('shape');
+	const add = (overlay: Overlay, label: string) => {
+		dispatch({overlay, type: 'add-overlay'});
 
-		dispatch({
-			overlay: {
+		onAnnounce(t('annotation-added', label));
+
+		focusOverlay(overlay.id);
+	};
+
+	const addRectangle = () =>
+		add(
+			{
 				color: '#0b5fff',
 				height: Math.round(area.height * 0.15),
-				id,
+				id: nextId('shape'),
 				kind: 'shape',
 				width: Math.round(area.width * 0.25),
 				x: Math.round(centerX - area.width * 0.125),
 				y: Math.round(centerY - area.height * 0.075),
 			},
-			type: 'add-overlay',
-		});
+			t('overlay-shape-label')
+		);
 
-		onAnnounce(t('annotation-added', t('overlay-shape-label')));
+	const addSquare = () => {
+		const size = Math.round(Math.min(area.width, area.height) * 0.2);
 
-		focusOverlay(id);
+		add(
+			{
+				color: '#0b5fff',
+				height: size,
+				id: nextId('shape'),
+				kind: 'shape',
+				width: size,
+				x: Math.round(centerX - size / 2),
+				y: Math.round(centerY - size / 2),
+			},
+			t('overlay-shape-label')
+		);
 	};
 
 	const addCircle = () => {
-		const id = nextId('circle');
-
 		const size = Math.round(Math.min(area.width, area.height) * 0.2);
 
-		dispatch({
-			overlay: {
+		add(
+			{
 				color: '#0b5fff',
 				height: size,
-				id,
+				id: nextId('circle'),
 				kind: 'circle',
 				width: size,
 				x: Math.round(centerX - size / 2),
 				y: Math.round(centerY - size / 2),
 			},
-			type: 'add-overlay',
-		});
-
-		onAnnounce(t('annotation-added', t('overlay-circle-label')));
-
-		focusOverlay(id);
+			t('overlay-circle-label')
+		);
 	};
 
-	const addRedaction = () => {
-		const id = nextId('redact');
+	const addArrow = () => {
+		const length = Math.round(Math.min(area.width, area.height) * 0.3);
 
-		dispatch({
-			overlay: {
+		add(
+			{
+				color: '#0b5fff',
+
+				// Horizontal and pointing right, which is the arrow nobody
+				// has to reinterpret. Both ends move afterwards.
+
+				dx: length,
+				dy: 0,
+				head: 'filled',
+				id: nextId('arrow'),
+				kind: 'arrow',
+				thickness: Math.max(
+					2,
+					Math.round(Math.min(area.width, area.height) * 0.012)
+				),
+				x: Math.round(centerX - length / 2),
+				y: centerY,
+			},
+			t('overlay-arrow-label')
+		);
+	};
+
+	const ADD_SHAPE: Record<ShapeTool, () => void> = {
+		arrow: addArrow,
+		circle: addCircle,
+		rectangle: addRectangle,
+		square: addSquare,
+	};
+
+	const addRedaction = () =>
+		add(
+			{
 				height: Math.round(area.height * 0.15),
-				id,
+				id: nextId('redact'),
 				kind: 'redact',
 
 				// Small blocks by default: coarse enough to hide, fine
@@ -267,13 +372,8 @@ export function AnnotatePanel({
 				x: Math.round(centerX - area.width * 0.125),
 				y: Math.round(centerY - area.height * 0.075),
 			},
-			type: 'add-overlay',
-		});
-
-		onAnnounce(t('annotation-added', t('overlay-redact-label')));
-
-		focusOverlay(id);
-	};
+			t('overlay-redact-label')
+		);
 
 	const addImage = async (file: File) => {
 		let picture;
@@ -287,8 +387,6 @@ export function AnnotatePanel({
 			return;
 		}
 
-		const id = nextId('image');
-
 		// A third of the crop, in the picture's own proportions and never
 		// taller than the crop: a phone screenshot dropped on a landscape
 		// photograph should land as an annotation, not as a curtain.
@@ -300,54 +398,45 @@ export function AnnotatePanel({
 
 		const height = Math.round((width * picture.height) / picture.width);
 
-		dispatch({
-			overlay: {
+		add(
+			{
 				description: file.name.replace(/\.[^.]+$/, ''),
 				height,
-				id,
+				id: nextId('image'),
 				kind: 'image',
 				src: picture.src,
 				width,
 				x: Math.round(centerX - width / 2),
 				y: Math.round(centerY - height / 2),
 			},
-			type: 'add-overlay',
-		});
-
-		onAnnounce(t('annotation-added', t('overlay-image-label')));
-
-		focusOverlay(id);
+			t('overlay-image-label')
+		);
 	};
 
-	const addSticker = (sticker: StickerKind) => {
-		const id = nextId('sticker');
-
-		dispatch({
-			overlay: {
+	const addSticker = (sticker: StickerKind) =>
+		add(
+			{
 				color: STICKER_DEFAULT_COLORS[sticker],
-				id,
+				id: nextId('sticker'),
 				kind: 'sticker',
 				size: Math.round(Math.min(area.width, area.height) * 0.2),
 				sticker,
 				x: centerX,
 				y: centerY,
 			},
-			type: 'add-overlay',
-		});
-
-		onAnnounce(t('annotation-added', t(`sticker-${sticker}`)));
-
-		focusOverlay(id);
-	};
+			t(`sticker-${sticker}`)
+		);
 
 	return (
 		<EditorSection title={t('annotate')} titleId="annotate-panel-title">
-			<div onKeyDown={handlePanelKeyDown} ref={panelRef}>
-
-			<div className="editor-annotate-actions">
+			<div
+				className="editor-annotate-actions"
+				onKeyDown={handlePanelKeyDown}
+				ref={panelRef}
+			>
 				{tools.includes('text') && (
 					<ClayButton
-						{...rovingProps(toolIndex('text'))}
+						{...rovingProps(indexOf('text'))}
 						displayType="secondary"
 						onClick={() => setTextDialogOpen(true)}
 						size="sm"
@@ -356,31 +445,47 @@ export function AnnotatePanel({
 					</ClayButton>
 				)}
 
-				{tools.includes('rectangle') && (
-					<ClayButton
-						{...rovingProps(toolIndex('rectangle'))}
-						displayType="secondary"
-						onClick={addRectangle}
-						size="sm"
+				{shapeTools.length > 0 && (
+					<ClayDropDown
+						active={shapeMenuOpen}
+						onActiveChange={setShapeMenuOpen}
+						role="menu"
+						trigger={
+							<ClayButton
+								{...rovingProps(indexOf('shapes'))}
+								data-menu-trigger
+								displayType="secondary"
+								size="sm"
+							>
+								{t('add-shape')}
+							</ClayButton>
+						}
 					>
-						{t('add-rectangle')}
-					</ClayButton>
-				)}
+						<ClayDropDown.ItemList aria-label={t('add-shape')}>
+							{SHAPE_TOOLS.filter((shape) =>
+								shapeTools.includes(shape)
+							).map((shape) => (
+								<ClayDropDown.Item
+									key={shape}
+									onClick={() => {
+										setShapeMenuOpen(false);
 
-				{tools.includes('circle') && (
-					<ClayButton
-						{...rovingProps(toolIndex('circle'))}
-						displayType="secondary"
-						onClick={addCircle}
-						size="sm"
-					>
-						{t('add-circle')}
-					</ClayButton>
+										ADD_SHAPE[shape]();
+									}}
+									roleItem="menuitem"
+								>
+									<ShapePreview shape={shape} />
+
+									{t(`shape-${shape}`)}
+								</ClayDropDown.Item>
+							))}
+						</ClayDropDown.ItemList>
+					</ClayDropDown>
 				)}
 
 				{tools.includes('redaction') && (
 					<ClayButton
-						{...rovingProps(toolIndex('redaction'))}
+						{...rovingProps(indexOf('redaction'))}
 						displayType="secondary"
 						onClick={addRedaction}
 						size="sm"
@@ -392,7 +497,7 @@ export function AnnotatePanel({
 				{tools.includes('image') && (
 					<>
 						<ClayButton
-							{...rovingProps(toolIndex('image'))}
+							{...rovingProps(indexOf('image'))}
 							displayType="secondary"
 							onClick={() => fileInputRef.current?.click()}
 							size="sm"
@@ -425,47 +530,60 @@ export function AnnotatePanel({
 						/>
 					</>
 				)}
-			</div>
 
-			{/*
-			  * Stacked layout: the stickers would wrap onto three rows, so
-			  * they run in one swipeable row instead.
-			  */}
-			<Carousel
-				aria-label={t('stickers')}
-				className="editor-sticker-picker"
-				itemCount={shownStickers.length}
-				role="group"
-			>
-				{shownStickers.map((sticker, stickerIndex) => (
-					<ClayButton
-						{...rovingProps(shownTools.length + stickerIndex)}
-						aria-label={t(`add-sticker-${sticker}`)}
-						className="btn-monospaced"
-						displayType="secondary"
-						key={sticker}
-						onClick={() => addSticker(sticker)}
-						size="sm"
-						title={t(`add-sticker-${sticker}`)}
+				{hasStickers && (
+					<ClayDropDown
+						active={stickerMenuOpen}
+						onActiveChange={setStickerMenuOpen}
+						role="menu"
+						trigger={
+							<ClayButton
+								{...rovingProps(indexOf('stickers'))}
+								data-menu-trigger
+								displayType="secondary"
+								size="sm"
+							>
+								{t('add-sticker')}
+							</ClayButton>
+						}
 					>
-						<svg
-							aria-hidden="true"
-							focusable="false"
-							height={20}
-							viewBox="0 0 24 24"
-							width={20}
-						>
-							<StickerArt
-								color={STICKER_DEFAULT_COLORS[sticker]}
-								size={22}
-								sticker={sticker}
-								x={12}
-								y={12}
-							/>
-						</svg>
-					</ClayButton>
-				))}
-			</Carousel>
+						<ClayDropDown.ItemList aria-label={t('add-sticker')}>
+							{stickers.map((sticker) => (
+								<ClayDropDown.Item
+									key={sticker}
+									onClick={() => {
+										setStickerMenuOpen(false);
+
+										addSticker(sticker);
+									}}
+									roleItem="menuitem"
+								>
+									<svg
+										aria-hidden="true"
+										className="editor-menu-preview"
+										focusable="false"
+										height={16}
+										viewBox="0 0 24 24"
+										width={16}
+									>
+										<StickerArt
+											color={
+												STICKER_DEFAULT_COLORS[sticker]
+											}
+											size={22}
+											sticker={sticker}
+											x={12}
+											y={12}
+										/>
+									</svg>
+
+									{t(`sticker-${sticker}`)}
+								</ClayDropDown.Item>
+							))}
+						</ClayDropDown.ItemList>
+					</ClayDropDown>
+				)}
+			</div>
 
 			<TextDialog
 				onAdd={(overlay) => {
@@ -486,15 +604,17 @@ export function AnnotatePanel({
 					});
 
 					onAnnounce(
-						t('annotation-added', t('overlay-text-label', overlay.text))
+						t(
+							'annotation-added',
+							t('overlay-text-label', overlay.text)
+						)
 					);
 
 					focusOverlay(overlay.id, 450);
 				}}
-					onOpenChange={setTextDialogOpen}
-					open={textDialogOpen}
-				/>
-			</div>
+				onOpenChange={setTextDialogOpen}
+				open={textDialogOpen}
+			/>
 		</EditorSection>
 	);
 }
