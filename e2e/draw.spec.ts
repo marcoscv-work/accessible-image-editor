@@ -56,7 +56,7 @@ test('a freehand drag becomes a stroke layer', async ({page}) => {
 
 	// One release, one layer, and the mode is over.
 
-	await expect(page.getByRole('status')).toContainText('Stroke added');
+	await expect(page.locator('.editor-announcer')).toContainText('Stroke added');
 	await expect(surface).toHaveCount(0);
 
 	const hit = page.locator('.editor-workspace .overlay-hit');
@@ -70,7 +70,7 @@ test('a freehand drag becomes a stroke layer', async ({page}) => {
 
 	await page.keyboard.press('Shift+ArrowRight');
 
-	await expect(page.getByRole('status')).toContainText('Stroke moved');
+	await expect(page.locator('.editor-announcer')).toContainText('Stroke moved');
 
 	expect(
 		(
@@ -104,13 +104,13 @@ test('the pen places points one click at a time, no dragging', async ({
 	await surface.click(at(0.45, 0.7));
 	await surface.click(at(0.7, 0.3));
 
-	await expect(page.getByRole('status')).toContainText('Point 3');
+	await expect(page.locator('.editor-announcer')).toContainText('Point 3');
 
 	// A second click on the last point finishes.
 
 	await surface.click(at(0.7, 0.3));
 
-	await expect(page.getByRole('status')).toContainText('Stroke added');
+	await expect(page.locator('.editor-announcer')).toContainText('Stroke added');
 
 	await expect(
 		page.locator('.editor-workspace .overlay-hit')
@@ -128,7 +128,7 @@ test('the keyboard runs the guided line, stage by announced stage', async ({
 	await page.getByRole('button', {exact: true, name: 'Draw'}).focus();
 	await page.keyboard.press('Enter');
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	await expect(status).toContainText('Move its end with the arrow keys');
 

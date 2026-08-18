@@ -40,7 +40,7 @@ test('flips the image horizontally, and back', async ({page}) => {
 	await page.getByRole('button', {name: 'Flip horizontally'}).click();
 	await page.waitForTimeout(400);
 
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'Image flipped horizontally'
 	);
 

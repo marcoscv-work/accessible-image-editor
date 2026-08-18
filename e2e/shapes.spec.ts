@@ -177,7 +177,7 @@ test('an arrow is aimed, styled and weighted without a pointer', async ({
 
 	await addShape(page, 'Arrow');
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	// Rotation is not offered, because two ends already say where an
 	// arrow points.
@@ -253,7 +253,7 @@ test('both menus open and commit from the keyboard alone', async ({page}) => {
 
 	await page.keyboard.press('Enter');
 
-	await expect(page.getByRole('status')).toContainText('Rectangle added');
+	await expect(page.locator('.editor-announcer')).toContainText('Rectangle added');
 
 	// The horizontal arrows still walk the panel itself.
 
@@ -340,7 +340,7 @@ test('copy and paste clone the focused annotation, cascading', async ({
 		.getByRole('button', {name: 'Rectangle'})
 		.click();
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 	const hits = page.locator('.editor-workspace .overlay-hit');
 
 	// Copy on the focused node, paste from the workspace.
@@ -419,8 +419,8 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 
 	await hits.first().click({modifiers: ['Shift'], position: {x: 12, y: 12}});
 
-	await expect(page.getByRole('status')).toContainText(
-		'2 annotations selected'
+	await expect(page.locator('.editor-group-note')).toContainText(
+		'2 annotations are grouped'
 	);
 
 	// While the group exists, no handles: it moves and does nothing else.
@@ -437,7 +437,7 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 	await page.mouse.move(box.x + 12 + 80, box.y + 12 + 40, {steps: 8});
 	await page.mouse.up();
 
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'2 annotations moved together'
 	);
 

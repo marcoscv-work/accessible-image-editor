@@ -84,7 +84,7 @@ test('an emoji lands as its own layer, sized but never coloured', async ({
 
 	await page.locator('.editor-emoji-cell').first().click();
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	await expect(status).toContainText('party popper added');
 
@@ -155,5 +155,5 @@ test('the picker works from the keyboard alone', async ({page}) => {
 	await page.keyboard.press('ArrowDown');
 	await page.keyboard.press('Enter');
 
-	await expect(page.getByRole('status')).toContainText('added');
+	await expect(page.locator('.editor-announcer')).toContainText('added');
 });

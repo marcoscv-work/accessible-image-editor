@@ -91,7 +91,7 @@ test('keyboard-only crop journey', async ({page}) => {
 
 	// The live region reports the crop geometry.
 
-	await expect(page.getByRole('status')).toContainText('width 1520');
+	await expect(page.locator('.editor-announcer')).toContainText('width 1520');
 
 	// Precise crop through the numeric panel.
 
@@ -134,7 +134,7 @@ test('keyboard-only crop journey', async ({page}) => {
 	await tabUntil(page, 'Image workspace');
 	await page.keyboard.press('+');
 
-	await expect(page.getByRole('status')).toContainText('Zoom');
+	await expect(page.locator('.editor-announcer')).toContainText('Zoom');
 
 	// Save downloads the export and closes the editor.
 
@@ -175,7 +175,7 @@ test('recenter fills the view with the crop', async ({page}) => {
 
 	await page.locator('.crop-recenter').click();
 
-	await expect(page.getByRole('status')).toContainText('Crop centered');
+	await expect(page.locator('.editor-announcer')).toContainText('Crop centered');
 
 	const framing = await page.evaluate(() => {
 		const workspace = document.querySelector('.editor-workspace')!;
@@ -248,7 +248,7 @@ test('a crop field never shows a value that was refused', async ({page}) => {
 	await width.click();
 
 	await expect(x).toHaveValue('0');
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'X position stays at 0'
 	);
 
@@ -288,7 +288,7 @@ test('the locked crop offers corners only, and they keep the ratio', async ({
 
 	await page.getByLabel('Lock aspect ratio').click();
 
-	await expect(page.getByRole('status')).toContainText('Aspect ratio locked');
+	await expect(page.locator('.editor-announcer')).toContainText('Aspect ratio locked');
 
 	// Stretching one axis is what the lock forbids, so the side handles
 	// are not offered at all.

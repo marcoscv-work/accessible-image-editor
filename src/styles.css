@@ -1247,7 +1247,19 @@ input.editor-color-input.editor-color-fill.form-control {
 }
 
 .editor-group-note {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.8125rem;
 	margin: 0.25rem 0 0;
+}
+
+/*
+ * Zero, not display none: hiding the region while it is empty would also
+ * hide it at the instant the message lands, and a hidden live region does
+ * not speak.
+ */
+
+.editor-group-note:empty {
+	margin: 0;
 }
 
 .editor-layer-glyph {

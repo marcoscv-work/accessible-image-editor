@@ -39,7 +39,7 @@ export function AnnouncerProvider({children}: {children: React.ReactNode}) {
 		<AnnouncerContext.Provider value={announce}>
 			{children}
 
-			<div aria-live="polite" className="sr-only" role="status">
+			<div aria-live="polite" className="editor-announcer sr-only" role="status">
 				{message}
 			</div>
 		</AnnouncerContext.Provider>

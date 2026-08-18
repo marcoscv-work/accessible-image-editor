@@ -383,21 +383,28 @@ export function LayersPanel({
 				})}
 			</ul>
 
-			{multiSelectedIds.length >= 2 ? (
-				<p className="editor-group-note editor-panel-subtitle">
-					{t('layers-group-note', multiSelectedIds.length)}
-				</p>
-			) : (
-				selected && (
-					<LayerProperties
-						dispatch={dispatch}
-						key={selected.id}
-						onAnnounce={onAnnounce}
-						onProportionalChange={onProportionalChange}
-						overlay={selected}
-						proportional={proportional}
-					/>
-				)
+			{/*
+			  * A status region, mounted at all times: a live region that
+			  * appears together with its message is not reliably spoken,
+			  * one that already exists and changes is. It carries the
+			  * group's count for everyone, which is also why the global
+			  * announcer stays quiet about it.
+			  */}
+			<p className="editor-group-note" role="status">
+				{multiSelectedIds.length >= 2
+					? t('layers-group-note', multiSelectedIds.length)
+					: ''}
+			</p>
+
+			{multiSelectedIds.length < 2 && selected && (
+				<LayerProperties
+					dispatch={dispatch}
+					key={selected.id}
+					onAnnounce={onAnnounce}
+					onProportionalChange={onProportionalChange}
+					overlay={selected}
+					proportional={proportional}
+				/>
 			)}
 		</EditorSection>
 	);

@@ -47,7 +47,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	// Add an emoji from the panel.
 

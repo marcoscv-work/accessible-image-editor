@@ -21,7 +21,7 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
 	await page.locator('.dropdown-menu.show').getByRole('button', {name: 'Rectangle'}).click();
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	await expect(status).toContainText('Rectangle added');
 

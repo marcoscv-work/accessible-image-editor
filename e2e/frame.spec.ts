@@ -55,7 +55,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	await expect(mat).toBeChecked();
 
-	await expect(page.getByRole('status')).toContainText('Frame set to Mat');
+	await expect(page.locator('.editor-announcer')).toContainText('Frame set to Mat');
 
 	// The measurements are percentages of the crop's shorter side, so the
 	// expectations are derived from the crop rather than hardcoded.
@@ -97,7 +97,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 		await page.keyboard.press('ArrowRight');
 	}
 
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'Frame size set to 8 percent'
 	);
 
@@ -158,7 +158,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 		.getByLabel('Placement', {exact: true})
 		.selectOption('under');
 
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'drawn under the annotations'
 	);
 
@@ -174,7 +174,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	await page.getByRole('button', {name: 'Undo'}).click();
 
-	await expect(page.getByRole('status')).toContainText('Undo: frame change');
+	await expect(page.locator('.editor-announcer')).toContainText('Undo: frame change');
 
 	const downloadPromise = page.waitForEvent('download');
 

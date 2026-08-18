@@ -62,7 +62,7 @@ test('keyboard-only adjustments journey', async ({page}) => {
 
 	await expect(page.locator('#adjust-brightness')).toHaveValue('5');
 	await expect(image).toHaveAttribute('filter', 'url(#preview-filter)');
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'Brightness set to 5'
 	);
 
@@ -89,7 +89,7 @@ test('keyboard-only adjustments journey', async ({page}) => {
 	await expect(page.locator('#adjust-brightness')).toHaveValue('0');
 	await expect(page.locator('#adjust-shadows')).toHaveValue('0');
 	await expect(image).not.toHaveAttribute('filter', /.+/);
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'All adjustments reset'
 	);
 

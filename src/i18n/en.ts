@@ -28,7 +28,6 @@ export default {
 	'annotation-pasted': '{0} pasted',
 	'annotation-removed': '{0} removed',
 	'annotations-moved': '{0} annotations moved together',
-	'annotations-selected': '{0} annotations selected to move together',
 	'annotations-ungrouped': 'Move-together group dissolved',
 	'app-description':
 		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',

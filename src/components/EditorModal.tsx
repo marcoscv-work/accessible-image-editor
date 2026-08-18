@@ -187,9 +187,12 @@ export default function EditorModal({config, image, onClose}: Props) {
 			: [...base, id];
 
 		if (next.length >= 2) {
-			setMultiSelectedIds(next);
 
-			announce(t('annotations-selected', next.length));
+			// The count is spoken by the layers panel's own status note,
+			// which changes in the same render: announcing it here too
+			// would say everything twice.
+
+			setMultiSelectedIds(next);
 		}
 		else {
 

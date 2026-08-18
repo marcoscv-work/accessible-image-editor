@@ -109,7 +109,7 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	await padlock.click();
 
-	await expect(page.getByRole('status')).toContainText(
+	await expect(page.locator('.editor-announcer')).toContainText(
 		'Aspect ratio unlocked'
 	);
 

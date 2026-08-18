@@ -46,7 +46,7 @@ test('0 fits, 1 goes to actual size, 2 frames the crop', async ({page}) => {
 		await page.locator(`#crop-${field}`).press('Enter');
 	}
 
-	const status = page.getByRole('status');
+	const status = page.locator('.editor-announcer');
 
 	await page.locator('.editor-workspace').focus();
 
