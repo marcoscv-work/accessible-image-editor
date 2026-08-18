@@ -328,3 +328,53 @@ test('arrow steps preview live and land as one undo entry', async ({
 
 	await expect(cropX).toHaveValue('10');
 });
+
+test('copy and paste clone the focused annotation, cascading', async ({
+	page,
+}) => {
+	await openEditor(page);
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Rectangle'})
+		.click();
+
+	const status = page.getByRole('status');
+	const hits = page.locator('.editor-workspace .overlay-hit');
+
+	// Copy on the focused node, paste from the workspace.
+
+	await hits.first().focus();
+	await page.keyboard.press('ControlOrMeta+c');
+
+	await expect(status).toContainText('Rectangle copied');
+
+	await page.keyboard.press('ControlOrMeta+v');
+
+	await expect(status).toContainText('Rectangle pasted');
+	await expect(hits).toHaveCount(2);
+
+	// Focus lands on the paste, and a second paste cascades further
+	// instead of stacking on the first.
+
+	await expect(hits.nth(1)).toBeFocused();
+
+	await page.keyboard.press('ControlOrMeta+v');
+
+	await expect(hits).toHaveCount(3);
+
+	const xs = await page
+		.locator('.editor-workspace rect[fill="#0b5fff"]')
+		.evaluateAll((nodes) =>
+			nodes.map((node) => Number(node.getAttribute('x')))
+		);
+
+	expect(new Set(xs).size).toBe(3);
+
+	// Each paste is one undo entry.
+
+	await page.getByRole('button', {exact: true, name: 'Undo'}).click();
+
+	await expect(hits).toHaveCount(2);
+});

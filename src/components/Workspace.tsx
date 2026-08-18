@@ -41,9 +41,17 @@ interface Props {
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
 
+	/**
+	 * The editor-internal clipboard: copy is offered on the focused
+	 * annotation, paste anywhere in the workspace.
+	 */
+	onCopyOverlay?: (id: string) => void;
+
 	onFinishDrawing?: (
 		result: {points: number[]; smooth: boolean} | null
 	) => void;
+
+	onPasteOverlay?: () => void;
 
 	onSelectOverlay: (id: string | null) => void;
 	onWorkspacePointerLeave?: () => void;
@@ -79,7 +87,9 @@ export function Workspace({
 	image,
 	onAnnounce,
 	onCenterCrop,
+	onCopyOverlay,
 	onFinishDrawing,
+	onPasteOverlay,
 	onSelectOverlay,
 	onWorkspacePointerLeave,
 	onWorkspacePointerMove,
@@ -122,6 +132,17 @@ export function Workspace({
 		else if (event.key === '2') {
 			event.preventDefault();
 			onCenterCrop();
+		}
+		else if (
+			(event.metaKey || event.ctrlKey) &&
+			event.key.toLowerCase() === 'v'
+		) {
+
+			// Paste works anywhere in the workspace: the thing pasted
+			// carries its own position, so no target is needed.
+
+			event.preventDefault();
+			onPasteOverlay?.();
 		}
 	};
 
@@ -230,6 +251,7 @@ export function Workspace({
 					<OverlaysEditable
 						dispatch={dispatch}
 						onAnnounce={onAnnounce}
+						onCopy={onCopyOverlay}
 						onSelect={onSelectOverlay}
 						overlays={state.overlays}
 						proportional={proportional}

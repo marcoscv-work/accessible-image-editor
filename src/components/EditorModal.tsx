@@ -18,6 +18,7 @@ import {t} from '../i18n';
 import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
 import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
+import {overlayLabel} from '../imaging/overlayShapes';
 import {
 	editorReducer,
 	initialHistory,
@@ -25,7 +26,7 @@ import {
 	undoLabel,
 } from '../state/editorReducer';
 import {nextId} from '../state/ids';
-import {CropRect, rotatedSize} from '../state/types';
+import {CropRect, Overlay, rotatedSize} from '../state/types';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {EditorSidebar} from './EditorSidebar';
@@ -129,6 +130,15 @@ export default function EditorModal({config, image, onClose}: Props) {
 	 */
 	const [drawing, setDrawing] = useState<null | {guided: boolean}>(null);
 
+	/**
+	 * The editor's own clipboard: one annotation, copied by value. Not
+	 * the system clipboard, deliberately, so copying here never asks for
+	 * a permission and never overwrites what the user carried in from
+	 * elsewhere. Each paste nudges the stored position, so repeated
+	 * pastes cascade instead of stacking invisibly.
+	 */
+	const clipboardRef = useRef<Overlay | null>(null);
+
 	/*
 	 * The selected annotation's padlock, here for the same reason: the
 	 * stage offers corners only while it is on. A picture arrives locked,
@@ -159,6 +169,60 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const autoFitRef = useRef(true);
 
 	const state = history.present;
+
+	const copyOverlay = (id: string) => {
+		const overlay = state.overlays.find(
+			(candidate) => candidate.id === id
+		);
+
+		if (!overlay) {
+			return;
+		}
+
+		clipboardRef.current = {...overlay};
+
+		announce(t('annotation-copied', overlayLabel(overlay)));
+	};
+
+	const pasteOverlay = () => {
+		const copied = clipboardRef.current;
+
+		if (!copied) {
+			return;
+		}
+
+		const offset = Math.round(
+			Math.max(
+				16,
+				Math.min(state.sourceWidth, state.sourceHeight) * 0.02
+			)
+		);
+
+		const overlay: Overlay = {
+			...copied,
+			id: nextId(copied.kind),
+			x: copied.x + offset,
+			y: copied.y + offset,
+		};
+
+		// The cascade: the next paste starts from this one.
+
+		clipboardRef.current = overlay;
+
+		dispatch({overlay, type: 'add-overlay'});
+
+		setSelectedOverlayId(overlay.id);
+
+		announce(t('annotation-pasted', overlayLabel(overlay)));
+
+		window.setTimeout(() => {
+			document
+				.querySelector<HTMLElement>(
+					`[data-overlay-id="${overlay.id}"]`
+				)
+				?.focus({preventScroll: true});
+		}, 0);
+	};
 
 	const finishDrawing = (result: {points: number[]; smooth: boolean} | null) => {
 		setDrawing(null);
@@ -609,7 +673,9 @@ export default function EditorModal({config, image, onClose}: Props) {
 							image={image}
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
+							onCopyOverlay={copyOverlay}
 							onFinishDrawing={finishDrawing}
+							onPasteOverlay={pasteOverlay}
 							onSelectOverlay={setSelectedOverlayId}
 							onWorkspacePointerLeave={handleWorkspacePointerLeave}
 							onWorkspacePointerMove={handleWorkspacePointerMove}

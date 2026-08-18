@@ -17,6 +17,8 @@ const SHORTCUTS: Array<{descriptionKey: string; keys: string}> = [
 	{descriptionKey: 'shortcut-zoom-fit', keys: '0'},
 	{descriptionKey: 'shortcut-zoom-actual', keys: '1'},
 	{descriptionKey: 'shortcut-center-crop', keys: '2'},
+	{descriptionKey: 'shortcut-copy', keys: 'Ctrl/Cmd + C'},
+	{descriptionKey: 'shortcut-paste', keys: 'Ctrl/Cmd + V'},
 	{descriptionKey: 'shortcut-undo', keys: 'Ctrl/Cmd + Z'},
 	{descriptionKey: 'shortcut-redo', keys: 'Ctrl/Cmd + Shift + Z'},
 	{descriptionKey: 'shortcut-escape', keys: 'Esc'},

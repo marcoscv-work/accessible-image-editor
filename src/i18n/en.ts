@@ -22,8 +22,10 @@ export default {
 	'angle-set': 'Straighten set to {0} degrees',
 	annotate: 'Annotate',
 	'annotation-added': '{0} added to the center of the crop area',
+	'annotation-copied': '{0} copied',
 	'annotation-duplicated': '{0} duplicated',
 	'annotation-moved': '{0} moved to x {1}, y {2}',
+	'annotation-pasted': '{0} pasted',
 	'annotation-removed': '{0} removed',
 	'app-description':
 		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',
@@ -208,7 +210,9 @@ export default {
 	'shortcut-alt-drag': 'Resize the crop from its center while dragging',
 	'shortcut-arrows': 'Move or adjust the focused control by 1',
 	'shortcut-center-crop': 'Fit the crop area to the window',
+	'shortcut-copy': 'Copy the focused annotation',
 	'shortcut-escape': 'Close the editor or the open dialog',
+	'shortcut-paste': 'Paste the copied annotation',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move or adjust the focused control by 10',
 	'shortcut-shift-drag':

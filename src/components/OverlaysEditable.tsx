@@ -123,6 +123,13 @@ interface Props {
 	proportional: boolean;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+
+	/**
+	 * Copies the annotation to the editor's clipboard (Ctrl/Cmd+C on the
+	 * focused node).
+	 */
+	onCopy?: (id: string) => void;
+
 	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
 	redactSource: RedactSource;
@@ -138,6 +145,7 @@ interface Props {
 export function OverlaysEditable({
 	dispatch,
 	onAnnounce,
+	onCopy,
 	onSelect,
 	overlays,
 	proportional,
@@ -229,6 +237,19 @@ export function OverlaysEditable({
 							?.focus();
 					});
 				}, 0);
+
+				return;
+			}
+
+			if (
+				(event.metaKey || event.ctrlKey) &&
+				event.key.toLowerCase() === 'c'
+			) {
+
+				// Copy, not cut: the original stays. Paste is handled by
+				// the workspace, which this event bubbles up to.
+
+				onCopy?.(id);
 
 				return;
 			}
