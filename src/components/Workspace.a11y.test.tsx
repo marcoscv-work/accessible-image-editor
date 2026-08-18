@@ -10,6 +10,7 @@ import {useReducer, useState} from 'react';
 import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../editorConfig';
 import {LoadedImage} from '../imaging/loadImage';
 import {editorReducer, initialHistory} from '../state/editorReducer';
+import {rotatedSize} from '../state/types';
 import {AdjustPanel} from './AdjustPanel';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
@@ -42,9 +43,15 @@ function EditorHarness() {
 	);
 	const [zoom, setZoom] = useState(0.5);
 
+	// Held here, as the editor holds it: the panel offers the lock and the
+	// marquee obeys it.
+
+	const [aspectLocked, setAspectLocked] = useState(false);
+
 	return (
 		<>
 			<Workspace
+				aspectLocked={aspectLocked}
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
@@ -65,9 +72,12 @@ function EditorHarness() {
 
 			<CropPanel
 				angle={history.present.angle}
+				aspectLocked={aspectLocked}
+				bounds={rotatedSize(history.present)}
 				crop={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onAspectLockedChange={setAspectLocked}
 				showStraighten
 			/>
 

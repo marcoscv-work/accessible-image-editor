@@ -79,9 +79,10 @@ export function initialHistory(
 	};
 }
 
-export function clampCrop(crop: CropRect, state: EditState): CropRect {
-	const bounds = rotatedSize(state);
-
+export function clampCrop(
+	crop: CropRect,
+	bounds: {height: number; width: number}
+): CropRect {
 	const width = Math.min(
 		Math.max(Math.round(crop.width), MIN_CROP_SIZE),
 		bounds.width
@@ -117,7 +118,7 @@ function centeredCrop(state: EditState, ratio: number): CropRect {
 			x: (bounds.width - width) / 2,
 			y: (bounds.height - height) / 2,
 		},
-		state
+		bounds
 	);
 }
 
@@ -200,7 +201,7 @@ export function editorReducer(
 		}
 
 		case 'set-crop': {
-			const crop = clampCrop(action.crop, present);
+			const crop = clampCrop(action.crop, rotatedSize(present));
 
 			// A non-transient set-crop outside a gesture that changes
 			// nothing (e.g. a field blur re-committing the same value)

@@ -45,6 +45,7 @@ function AnnotationHarness() {
 	return (
 		<>
 			<Workspace
+				aspectLocked={false}
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
@@ -109,6 +110,7 @@ function TextStageHarness() {
 	return (
 		<>
 			<Workspace
+				aspectLocked={false}
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}
@@ -152,6 +154,7 @@ function CroppedHarness() {
 	return (
 		<>
 			<Workspace
+				aspectLocked={false}
 				dispatch={dispatch}
 				image={IMAGE}
 				onAnnounce={() => {}}

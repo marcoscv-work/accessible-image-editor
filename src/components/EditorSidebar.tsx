@@ -9,7 +9,7 @@ import {ResolvedEditorConfig} from '../editorConfig';
 import {t} from '../i18n';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
-import {EditState} from '../state/types';
+import {EditState, rotatedSize} from '../state/types';
 import {AdjustPanel} from './AdjustPanel';
 import {AnnotatePanel} from './AnnotatePanel';
 import {CropPanel} from './CropPanel';
@@ -18,6 +18,13 @@ import {FramePanel} from './FramePanel';
 import {LayersPanel} from './LayersPanel';
 
 interface Props {
+
+	/**
+	 * Whether the crop keeps its proportions, which the panel offers and
+	 * the stage obeys.
+	 */
+	aspectLocked: boolean;
+
 	dispatch: (action: EditorAction) => void;
 
 	/**
@@ -28,6 +35,7 @@ interface Props {
 
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
+	onAspectLockedChange: (locked: boolean) => void;
 	onSelectOverlay: (id: string | null) => void;
 	selectedOverlayId: string | null;
 	sidebarRef: React.Ref<HTMLElement>;
@@ -42,10 +50,12 @@ interface Props {
  * decides which ones exist.
  */
 export function EditorSidebar({
+	aspectLocked,
 	dispatch,
 	enabled,
 	image,
 	onAnnounce,
+	onAspectLockedChange,
 	onSelectOverlay,
 	selectedOverlayId,
 	sidebarRef,
@@ -60,9 +70,12 @@ export function EditorSidebar({
 		{enabled.crop.enabled && (
 			<CropPanel
 				angle={state.angle}
+				aspectLocked={aspectLocked}
+				bounds={rotatedSize(state)}
 				crop={state.crop}
 				dispatch={dispatch}
 				onAnnounce={onAnnounce}
+				onAspectLockedChange={onAspectLockedChange}
 				showStraighten={enabled.crop.straighten}
 			/>
 		)}

@@ -16,6 +16,13 @@ import {CropMarquee} from './CropMarquee';
 import {OverlaysEditable} from './OverlaysEditable';
 
 interface Props {
+
+	/**
+	 * With the crop's proportions locked the marquee offers corners only,
+	 * and they keep the ratio.
+	 */
+	aspectLocked: boolean;
+
 	dispatch: (action: EditorAction) => void;
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
@@ -41,6 +48,7 @@ interface Props {
  * real DOM. The dim layer outside the crop is drawn with an even-odd path.
  */
 export function Workspace({
+	aspectLocked,
 	dispatch,
 	image,
 	onAnnounce,
@@ -172,6 +180,7 @@ export function Workspace({
 				</g>
 
 				<CropMarquee
+					aspectLocked={aspectLocked}
 					bounds={bounds}
 					crop={crop}
 					dispatch={dispatch}

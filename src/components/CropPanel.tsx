@@ -9,16 +9,30 @@ import ClaySlider from '@clayui/slider';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
-import {EditorAction} from '../state/editorReducer';
+import {EditorAction, clampCrop} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {EditorSection} from './EditorSection';
 
 interface Props {
 	angle: number;
+
+	/**
+	 * Whether width and height move together. The stage reads it as well,
+	 * which is why it does not live here.
+	 */
+	aspectLocked: boolean;
+
+	/**
+	 * The image's size in the current rotation, which is what the crop is
+	 * clamped against.
+	 */
+	bounds: {height: number; width: number};
+
 	crop: CropRect;
 	showStraighten: boolean;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onAspectLockedChange: (locked: boolean) => void;
 }
 
 type Field = 'height' | 'width' | 'x' | 'y';
@@ -38,9 +52,12 @@ const FIELD_LABELS: Record<Field, string> = {
  */
 export function CropPanel({
 	angle,
+	aspectLocked,
+	bounds,
 	crop,
 	dispatch,
 	onAnnounce,
+	onAspectLockedChange,
 	showStraighten,
 }: Props) {
 	const [drafts, setDrafts] = useState<Record<Field, string>>({
@@ -49,8 +66,6 @@ export function CropPanel({
 		x: String(crop.x),
 		y: String(crop.y),
 	});
-
-	const [aspectLocked, setAspectLocked] = useState(false);
 
 	const angleGesture = useRef(false);
 
@@ -87,18 +102,37 @@ export function CropPanel({
 			return;
 		}
 
-		const next: CropRect = {...crop, [field]: value};
+		const requested: CropRect = {...crop, [field]: value};
 
 		if (aspectLocked && crop.height > 0) {
 			const aspect = crop.width / crop.height;
 
 			if (field === 'width') {
-				next.height = Math.round(value / aspect);
+				requested.height = Math.round(value / aspect);
 			}
 			else if (field === 'height') {
-				next.width = Math.round(value * aspect);
+				requested.width = Math.round(value * aspect);
 			}
 		}
+
+		/*
+		 * Clamped here, the same way the reducer will clamp it, because a
+		 * value it refuses has to be seen to be refused: a crop as wide as
+		 * the image cannot also start at x 200. Without this the field
+		 * kept showing the number that never took effect, since a change
+		 * the reducer discards produces no re-render to correct it, and
+		 * the value only appeared to "reset" later, when some other field
+		 * finally did change the crop.
+		 */
+
+		const next = clampCrop(requested, bounds);
+
+		setDrafts({
+			height: String(next.height),
+			width: String(next.width),
+			x: String(next.x),
+			y: String(next.y),
+		});
 
 		if (
 			next.height === crop.height &&
@@ -106,6 +140,17 @@ export function CropPanel({
 			next.x === crop.x &&
 			next.y === crop.y
 		) {
+
+			// The field snapped back in front of a sighted reader; say so
+			// for everyone else, rather than leaving the typed value to
+			// vanish in silence.
+
+			if (next[field] !== value) {
+				onAnnounce(
+					t('crop-field-kept', t(FIELD_LABELS[field]), next[field])
+				);
+			}
+
 			return;
 		}
 
@@ -164,17 +209,15 @@ export function CropPanel({
 					className="editor-aspect-lock"
 							displayType="secondary"
 					onClick={() => {
-						setAspectLocked((locked) => {
-							onAnnounce(
-								t(
-									locked
-										? 'aspect-ratio-unlocked'
-										: 'aspect-ratio-locked'
-								)
-							);
+						onAnnounce(
+							t(
+								aspectLocked
+									? 'aspect-ratio-unlocked'
+									: 'aspect-ratio-locked'
+							)
+						);
 
-							return !locked;
-						});
+						onAspectLockedChange(!aspectLocked);
 					}}
 					size="xs"
 					symbol={aspectLocked ? 'lock' : 'unlock'}

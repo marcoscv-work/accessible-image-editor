@@ -230,3 +230,107 @@ test('escape cancels the editor and restores focus', async ({page}) => {
 		page.getByRole('button', {name: 'Edit sample image'})
 	).toBeFocused();
 });
+
+test('a crop field never shows a value that was refused', async ({page}) => {
+	await page.goto('/');
+
+	await page.getByRole('button', {name: 'Edit sample image'}).click();
+	await waitForModalSettled(page);
+
+	const x = page.locator('#crop-x');
+	const width = page.locator('#crop-width');
+
+	// The crop is as wide as the image, so it cannot also start at 200.
+	// It used to keep showing 200 until some other field changed the crop,
+	// which read as the value resetting itself later on.
+
+	await x.fill('200');
+	await width.click();
+
+	await expect(x).toHaveValue('0');
+	await expect(page.getByRole('status')).toContainText(
+		'X position stays at 0'
+	);
+
+	// With room for it, the same value is accepted and stays put.
+
+	await width.fill('1000');
+	await width.press('Enter');
+
+	await x.fill('200');
+	await x.press('Enter');
+
+	await expect(x).toHaveValue('200');
+
+	await page.locator('#crop-height').fill('600');
+	await page.locator('#crop-height').press('Enter');
+
+	await expect(x).toHaveValue('200');
+	await expect(width).toHaveValue('1000');
+});
+
+test('the locked crop offers corners only, and they keep the ratio', async ({
+	page,
+}) => {
+	await page.goto('/');
+
+	await page.getByRole('button', {name: 'Edit sample image'}).click();
+	await waitForModalSettled(page);
+
+	const handles = () =>
+		page
+			.locator('.crop-handle')
+			.evaluateAll((nodes) =>
+				nodes.map((node) => node.getAttribute('aria-label'))
+			);
+
+	expect(await handles()).toHaveLength(8);
+
+	await page.getByLabel('Lock aspect ratio').click();
+
+	await expect(page.getByRole('status')).toContainText('Aspect ratio locked');
+
+	// Stretching one axis is what the lock forbids, so the side handles
+	// are not offered at all.
+
+	const locked = await handles();
+
+	expect(locked).toHaveLength(4);
+	expect(locked.every((name) => name?.includes('corner'))).toBe(true);
+
+	const size = () =>
+		page.evaluate(() => ({
+			height: Number(
+				(document.getElementById('crop-height') as HTMLInputElement)
+					.value
+			),
+			width: Number(
+				(document.getElementById('crop-width') as HTMLInputElement)
+					.value
+			),
+		}));
+
+	const before = await size();
+
+	// And a corner drag keeps the proportions without asking for Shift.
+
+	const corner = page.getByRole('button', {
+		name: 'Crop handle: bottom right corner',
+	});
+
+	await corner.hover();
+
+	const box = (await corner.boundingBox())!;
+
+	await page.mouse.down();
+	await page.mouse.move(box.x - 180, box.y - 30, {steps: 8});
+	await page.mouse.up();
+
+	const after = await size();
+
+	expect(after.width).toBeLessThan(before.width);
+	expect(after.width / after.height).toBeCloseTo(
+		before.width / before.height,
+		2
+	);
+});

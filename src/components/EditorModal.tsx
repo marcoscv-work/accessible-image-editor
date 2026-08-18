@@ -113,6 +113,13 @@ export default function EditorModal({config, image, onClose}: Props) {
 		fitZoom(null, image.width, image.height)
 	);
 	const [saving, setSaving] = useState(false);
+
+	/*
+	 * Kept here rather than in the panel, because the marquee honours it
+	 * too: with the proportions locked the stage offers corners only.
+	 */
+
+	const [aspectLocked, setAspectLocked] = useState(false);
 	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
 		null
 	);
@@ -514,6 +521,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 				<div className="image-editor" onKeyDown={handleKeyDown}>
 					<div className="editor-main">
 						<Workspace
+							aspectLocked={aspectLocked}
 							dispatch={dispatch}
 							image={image}
 							onAnnounce={announce}
@@ -541,10 +549,12 @@ export default function EditorModal({config, image, onClose}: Props) {
 						/>
 
 						<EditorSidebar
+							aspectLocked={aspectLocked}
 							dispatch={dispatch}
 							enabled={enabled}
 							image={image}
 							onAnnounce={announce}
+							onAspectLockedChange={setAspectLocked}
 							onSelectOverlay={setSelectedOverlayId}
 							selectedOverlayId={selectedOverlayId}
 							sidebarRef={sidebarRef}

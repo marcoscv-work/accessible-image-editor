@@ -32,6 +32,10 @@ const HANDLES: Array<{direction: HandleDirection; edges: Edges}> = [
 	{direction: 'w', edges: {left: true}},
 ];
 
+const CORNER_HANDLES = HANDLES.filter(
+	({direction}) => direction.length === 2
+);
+
 const MOVE_EDGES: Edges = {};
 
 function handlePosition(
@@ -159,6 +163,13 @@ export function applyResizeModifiers(
 interface Props {
 
 	/**
+	 * With the proportions locked there are no side handles: stretching
+	 * one axis is exactly what the lock forbids, so the marquee offers
+	 * the corners, and they keep the ratio without asking for Shift.
+	 */
+	aspectLocked: boolean;
+
+	/**
 	 * Rendered between the crop-move surface and the handles: annotations
 	 * must sit above the whole-area move rect (or it swallows their
 	 * pointer events) but below the handles.
@@ -196,6 +207,7 @@ interface Props {
 }
 
 export function CropMarquee({
+	aspectLocked,
 	bounds,
 	children,
 	crop,
@@ -342,7 +354,7 @@ export function CropMarquee({
 			dispatch({
 				crop: applyResizeModifiers(base, gesture.crop, edges, {
 					center: event.altKey,
-					proportional: event.shiftKey,
+					proportional: event.shiftKey || aspectLocked,
 				}),
 				transient: true,
 				type: 'set-crop',
@@ -548,7 +560,8 @@ export function CropMarquee({
 				)}
 
 
-			{HANDLES.map(({direction, edges}) => {
+			{(aspectLocked ? CORNER_HANDLES : HANDLES).map(
+				({direction, edges}) => {
 				const position = handlePosition(crop, direction);
 
 				return (
