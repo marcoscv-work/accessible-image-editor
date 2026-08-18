@@ -2,6 +2,9 @@
 
 Status: **run against the main screen readers, with good results.** The editor was walked through with VoiceOver, NVDA and JAWS, and came out well: names, roles, values and the live region announcements all landed. No automated suite can certify this, which is why the pass is manual and why the script stays here.
 
+> The sticker referenced in step 11 was retired on 2026-08-18 in favour of
+> emoji annotations; the pass predates that change and has not been re-run.
+
 The boxes below are the checklist to re-run after any material change to the interface. Log anything that regresses inline, and mirror the conclusions into [FINDINGS.md](FINDINGS.md).
 
 Setup for the VoiceOver run: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), `npm run dev`. NVDA and JAWS follow the same steps on Windows.

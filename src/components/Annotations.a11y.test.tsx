@@ -577,7 +577,7 @@ describe('Annotations, filters, and layers', () => {
 		await addEmoji('star');
 		addShape('Rectangle');
 
-		// Focusing the sticker on the stage selects its layer row.
+		// Focusing the emoji on the stage selects its layer row.
 
 		const hits = container.querySelectorAll('.overlay-hit');
 
@@ -687,7 +687,7 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
-		// Add text, Add shape, Add redaction, Add image, Add sticker.
+		// Add text, Add shape, Add redaction, Add image, Add emoji.
 
 		for (let step = 0; step < 4; step++) {
 			fireEvent.keyDown(document.activeElement as Element, {
@@ -911,16 +911,16 @@ describe('Annotations, filters, and layers', () => {
 
 		await addEmoji('star');
 
-		const sticker = container.querySelector(
+		const target = container.querySelector(
 			'.overlay-hit'
 		) as SVGRectElement;
 
 		const centerX =
-			Number(sticker.getAttribute('x')) +
-			Number(sticker.getAttribute('width')) / 2;
+			Number(target.getAttribute('x')) +
+			Number(target.getAttribute('width')) / 2;
 		const centerY =
-			Number(sticker.getAttribute('y')) +
-			Number(sticker.getAttribute('height')) / 2;
+			Number(target.getAttribute('y')) +
+			Number(target.getAttribute('height')) / 2;
 
 		// Center of the crop (900, 600), not of the image (600, 400).
 

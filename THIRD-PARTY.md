@@ -29,10 +29,6 @@ The standalone shell that opens the editor for a demonstration (`App.tsx`, the s
 - **The filter colour matrices** are published constants; the sepia one is the canonical matrix browsers implement for `filter: sepia()`. Functional values, not authored expression.
 - **The keyboard patterns** follow the [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/), which is W3C documentation. The implementations are written against the pattern descriptions, not copied from its examples.
 
-## Artwork that did not originate here
-
-None, since the sticker set was retired. Four of its ten glyphs (the heart, arrow, bolt and check) had turned out to be Material Design icon paths, Apache-2.0 licensed, found by auditing the path data and confirmed byte for byte against `google/material-design-icons`. Rather than carry the attribution and the licence question for four trivial shapes, the stickers were removed altogether: emoji cover the expressive ground with no artwork to license, a picture of the user's own covers custom art, and the drawn shapes cover the geometry.
-
 ## The website, which is not the component
 
 The demonstration site under `website/` is scaffolding, but its provenance is worth the same treatment.
