@@ -179,6 +179,22 @@ export function LayersPanel({
 
 	const remove = (overlay: Overlay) => {
 
+		// The focused row (or its trash button) is about to unmount;
+		// without a handover, focus falls to the body and takes the undo
+		// shortcut with it. The next surviving row inherits it, and the
+		// workspace catches the last deletion.
+
+		window.setTimeout(() => {
+			const next =
+				listRef.current?.querySelector<HTMLElement>(
+					'.editor-layer-name'
+				) ??
+				document.querySelector<HTMLElement>('.editor-workspace');
+
+			next?.focus();
+		}, 0);
+
+
 		// Deleting a group member deletes the group, on the stage and
 		// here alike: half-deleting a selection would be the surprise.
 

@@ -278,6 +278,16 @@ export function OverlaysEditable({
 			if (event.key === 'Delete' || event.key === 'Backspace') {
 				event.preventDefault();
 
+				// The node under focus is about to unmount, and focus
+				// falling to the body would take the undo shortcut down
+				// with it: the workspace inherits it instead.
+
+				const workspace = (
+					event.currentTarget as SVGElement
+				).closest<HTMLElement>('.editor-workspace');
+
+				window.setTimeout(() => workspace?.focus(), 0);
+
 				// Delete on a group member takes the whole group: one
 				// entry, one undo, every ring accounted for.
 

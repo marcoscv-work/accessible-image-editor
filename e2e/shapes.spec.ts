@@ -511,3 +511,39 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 		)
 	).toBe(1);
 });
+
+test('undo works immediately after a deletion, no click needed', async ({
+	page,
+}) => {
+	await openEditor(page);
+
+	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
+
+	const hits = page.locator('.editor-workspace .overlay-hit');
+
+	await expect(hits).toHaveCount(1);
+
+	// Delete from the stage and undo at once: the focus handover to the
+	// workspace is what keeps the shortcut alive, since the focused node
+	// just unmounted.
+
+	await hits.first().focus();
+	await page.keyboard.press('Delete');
+
+	await expect(hits).toHaveCount(0);
+
+	await page.keyboard.press('ControlOrMeta+z');
+
+	await expect(hits).toHaveCount(1);
+
+	// The same round trip from a layer row's Delete key.
+
+	await page.locator('.editor-layer-name').first().focus();
+	await page.keyboard.press('Delete');
+
+	await expect(hits).toHaveCount(0);
+
+	await page.keyboard.press('ControlOrMeta+z');
+
+	await expect(hits).toHaveCount(1);
+});

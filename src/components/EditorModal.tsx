@@ -678,6 +678,44 @@ export default function EditorModal({config, image, onClose}: Props) {
 		}
 	};
 
+	const editorRef = useRef<HTMLDivElement | null>(null);
+
+	const undoRef = useRef({redo, undo});
+
+	undoRef.current = {redo, undo};
+
+	// The React handler above only hears keys pressed inside the editor.
+	// Focus can still escape it for a moment (a focused node that
+	// unmounts drops focus on the body), and the undo someone presses in
+	// that moment must not vanish: the document catches what the editor
+	// did not already see.
+
+	useEffect(() => {
+		const catchStray = (event: KeyboardEvent) => {
+			if (
+				!(event.metaKey || event.ctrlKey) ||
+				event.key.toLowerCase() !== 'z' ||
+				(event.target instanceof Node &&
+					editorRef.current?.contains(event.target))
+			) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (event.shiftKey) {
+				undoRef.current.redo();
+			}
+			else {
+				undoRef.current.undo();
+			}
+		};
+
+		document.addEventListener('keydown', catchStray);
+
+		return () => document.removeEventListener('keydown', catchStray);
+	}, []);
+
 	useEffect(() => {
 		const overlay = state.overlays.find(
 			(candidate) => candidate.id === selectedOverlayId
@@ -722,7 +760,11 @@ export default function EditorModal({config, image, onClose}: Props) {
 					{t('editing-image')}
 				</ClayModal.Header>
 
-				<div className="image-editor" onKeyDown={handleKeyDown}>
+				<div
+					className="image-editor"
+					onKeyDown={handleKeyDown}
+					ref={editorRef}
+				>
 					<div className="editor-main">
 						<Workspace
 							aspectLocked={aspectLocked}
