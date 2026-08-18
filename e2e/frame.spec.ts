@@ -155,8 +155,8 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	expect(await order()).toBe('frame over');
 
 	await page
-		.getByRole('checkbox', {name: 'Draw the frame over the annotations'})
-		.uncheck();
+		.getByLabel('Placement', {exact: true})
+		.selectOption('under');
 
 	await expect(page.getByRole('status')).toContainText(
 		'drawn under the annotations'

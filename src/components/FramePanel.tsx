@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import ClayForm, {ClayCheckbox} from '@clayui/form';
+import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 import {memo} from 'react';
 
 import {t} from '../i18n';
@@ -81,52 +81,74 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 			  */}
 			{frame.kind !== 'none' && (
 				<>
-					<ColorField
-						id="frame-color"
-						label={t('frame-color')}
-						onCommit={(color) => {
-							dispatch({frame: {color}, type: 'set-frame'});
-
-							onAnnounce(t('frame-color-set'));
-						}}
-						onPreview={(color) =>
-							dispatch({
-								frame: {color},
-								transient: true,
-								type: 'set-frame',
-							})
-						}
-						value={frame.color}
-					/>
-
 					{/*
-					  * A mat that hides the caption someone wrote along the
-					  * bottom edge is a real outcome, and which side of the
-					  * annotations the frame belongs on is theirs to say.
+					  * One row, two labelled controls: the colour beside
+					  * where the frame sits. A mat that hides the caption
+					  * someone wrote along the bottom edge is a real
+					  * outcome, and which side of the annotations the frame
+					  * belongs on is theirs to say.
 					  */}
-					<ClayForm.Group small>
-						<ClayCheckbox
-							checked={frame.overAnnotations}
-							id="frame-over-annotations"
-							label={t('frame-over-annotations')}
-							onChange={() => {
-								const overAnnotations = !frame.overAnnotations;
+					<div className="editor-panel-grid">
+						<ColorField
+							fill
+							id="frame-color"
+							label={t('frame-color')}
+							onCommit={(color) => {
+								dispatch({frame: {color}, type: 'set-frame'});
 
-								dispatch({
-									frame: {overAnnotations},
-									type: 'set-frame',
-								});
-
-								onAnnounce(
-									t(
-										overAnnotations
-											? 'frame-over-annotations-set'
-											: 'frame-under-annotations-set'
-									)
-								);
+								onAnnounce(t('frame-color-set'));
 							}}
+							onPreview={(color) =>
+								dispatch({
+									frame: {color},
+									transient: true,
+									type: 'set-frame',
+								})
+							}
+							value={frame.color}
 						/>
-					</ClayForm.Group>
+
+						<ClayForm.Group small>
+							<label htmlFor="frame-placement">
+								{t('frame-placement')}
+							</label>
+
+							<ClaySelectWithOption
+								id="frame-placement"
+								onChange={(event) => {
+									const overAnnotations =
+										event.target.value === 'over';
+
+									dispatch({
+										frame: {overAnnotations},
+										type: 'set-frame',
+									});
+
+									onAnnounce(
+										t(
+											overAnnotations
+												? 'frame-over-annotations-set'
+												: 'frame-under-annotations-set'
+										)
+									);
+								}}
+								options={[
+									{
+										label: t('frame-placement-over'),
+										value: 'over',
+									},
+									{
+										label: t('frame-placement-under'),
+										value: 'under',
+									},
+								]}
+								sizing="sm"
+								value={
+									frame.overAnnotations ? 'over' : 'under'
+								}
+							/>
+						</ClayForm.Group>
+					</div>
 
 					{SLIDERS.map(({key, labelKey, max}) => {
 						const label = t(labelKey);
