@@ -236,16 +236,41 @@ export interface ArrowOverlay {
 export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
 
 /**
- * A pixelated block: same geometry as a rectangle, but instead of a fill
- * it reveals a heavily downsampled copy of the image underneath.
+ * How the area is obscured. Both are destructive in the exported file,
+ * which is what matters: the detail is gone from the picture that leaves
+ * the editor rather than merely covered up in the view. They are not
+ * equally strong, though. A mosaic throws the detail away outright, while
+ * a blur redistributes it, and a blur can be attacked by deconvolution
+ * where a coarse mosaic cannot. Pixelation is the default for that reason.
+ */
+export type RedactStyle = 'blur' | 'pixel';
+
+/**
+ * An obscured block: same geometry as a rectangle, but instead of a fill
+ * it reveals a treated copy of the image underneath.
  */
 export interface RedactOverlay {
 	height: number;
 	id: string;
 	kind: 'redact';
+
+	/**
+	 * How much is hidden. Held as one of four steps rather than a radius,
+	 * because the mosaic sizes are prepared once when the image loads, and
+	 * the blur follows the same four steps so switching between the two
+	 * keeps the strength.
+	 */
 	level: RedactLevel;
+
 	opacity?: number;
 	rotation?: number;
+
+	/**
+	 * Absent means pixelated, which is what every redaction was before
+	 * there was a choice.
+	 */
+	style?: RedactStyle;
+
 	width: number;
 	x: number;
 	y: number;

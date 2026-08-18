@@ -219,6 +219,7 @@ export function Workspace({
 							)
 								? undefined
 								: 'url(#preview-filter)',
+							imageUrl: image.previewUrl,
 							pixelUrls: image.pixelUrls,
 							sourceHeight: state.sourceHeight,
 							sourceWidth: state.sourceWidth,

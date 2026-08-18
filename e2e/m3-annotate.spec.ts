@@ -63,7 +63,9 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await page.keyboard.press('ArrowDown');
 
-	await expect(page.getByRole('menuitem').first()).toBeFocused();
+	await expect(
+		page.locator('.dropdown-menu.show .editor-menu-cell').first()
+	).toBeFocused();
 
 	await page.keyboard.press('Enter');
 

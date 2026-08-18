@@ -5,6 +5,7 @@
 
 import {t} from '../i18n';
 import {ArrowOverlay, Overlay, RedactLevel, StickerOverlay} from '../state/types';
+import {REDACT_SIZES} from './loadImage';
 import {StickerArt} from './stickerArt';
 
 export {
@@ -205,6 +206,12 @@ export interface RedactSource {
 	 */
 	filter?: string;
 
+	/**
+	 * The picture itself, which the blur works from: a mosaic wants a
+	 * downsampled copy, a blur wants the real thing.
+	 */
+	imageUrl?: string;
+
 	pixelUrls: Record<RedactLevel, string>;
 	sourceHeight: number;
 	sourceWidth: number;
@@ -336,6 +343,16 @@ function ArrowLine({overlay}: {overlay: ArrowOverlay}) {
  * declarative. The inner counter-rotation keeps the mosaic locked to the
  * photo when the block itself is rotated.
  */
+/**
+ * The blur that matches a mosaic step. A mosaic of block size B destroys
+ * detail finer than B, and a Gaussian blur does something comparable at
+ * roughly half that as its deviation, so the four steps mean the same
+ * amount of hiding whichever style is chosen.
+ */
+function blurDeviation(level: RedactLevel, sourceLongestSide: number): number {
+	return Math.max(sourceLongestSide / REDACT_SIZES[level] / 2, 1);
+}
+
 function RedactBlock({
 	overlay,
 	source,
@@ -344,6 +361,7 @@ function RedactBlock({
 	source?: RedactSource;
 }) {
 	const clipId = `redact-clip-${overlay.id}`;
+	const blurId = `redact-blur-${overlay.id}`;
 
 	if (!source) {
 		return (
@@ -360,6 +378,17 @@ function RedactBlock({
 	const centerX = overlay.x + overlay.width / 2;
 	const centerY = overlay.y + overlay.height / 2;
 
+	const blurred = overlay.style === 'blur' && Boolean(source.imageUrl);
+
+	// The blur is applied to the whole picture and clipped afterwards, so
+	// no transparency is drawn in from outside the block: blurring a
+	// cut-out first would fade its own edges.
+
+	const deviation = blurDeviation(
+		overlay.level,
+		Math.max(source.sourceWidth, source.sourceHeight)
+	);
+
 	return (
 		<>
 			<defs>
@@ -371,6 +400,19 @@ function RedactBlock({
 						y={overlay.y}
 					/>
 				</clipPath>
+
+				{blurred && (
+					<filter
+						colorInterpolationFilters="sRGB"
+						height="130%"
+						id={blurId}
+						width="130%"
+						x="-15%"
+						y="-15%"
+					>
+						<feGaussianBlur stdDeviation={deviation} />
+					</filter>
+				)}
 			</defs>
 
 			<g clipPath={`url(#${clipId})`}>
@@ -379,15 +421,25 @@ function RedactBlock({
 						overlay.rotation ?? 0
 					)} ${centerX} ${centerY})`}
 				>
-					<g transform={source.transform}>
-						<image
-							filter={source.filter}
-							height={source.sourceHeight}
-							href={source.pixelUrls[overlay.level]}
-							preserveAspectRatio="none"
-							style={{imageRendering: 'pixelated'}}
-							width={source.sourceWidth}
-						/>
+					<g filter={blurred ? `url(#${blurId})` : undefined}>
+						<g transform={source.transform}>
+							<image
+								filter={source.filter}
+								height={source.sourceHeight}
+								href={
+									blurred
+										? source.imageUrl
+										: source.pixelUrls[overlay.level]
+								}
+								preserveAspectRatio="none"
+								style={
+									blurred
+										? undefined
+										: {imageRendering: 'pixelated'}
+								}
+								width={source.sourceWidth}
+							/>
+						</g>
 					</g>
 				</g>
 			</g>

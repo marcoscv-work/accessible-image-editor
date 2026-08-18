@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, within} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
@@ -198,15 +198,19 @@ function CroppedHarness() {
 }
 
 /**
- * Shapes and stickers live behind a menu now, so adding one is two steps:
- * open the menu, then pick the entry. Clay keeps the entries mounted and
- * hides the closed menu with CSS, which jsdom does not apply, so both
- * steps are here for the behaviour rather than for the query to resolve.
+ * Shapes and stickers live behind a menu of drawings, so adding one is two
+ * steps: open the menu, then pick the cell. The cells are named rather
+ * than labelled in text, and the query goes through the grid because the
+ * same name also belongs to the stage node and the layer row it creates.
  */
 function addFromMenu(menu: string, item: string) {
 	fireEvent.click(screen.getByRole('button', {name: menu}));
 
-	fireEvent.click(screen.getByRole('menuitem', {name: item}));
+	fireEvent.click(
+		within(screen.getByRole('grid', {name: menu})).getByRole('button', {
+			name: item,
+		})
+	);
 }
 
 const addShape = (shape: string) => addFromMenu('Add shape', shape);
@@ -691,14 +695,41 @@ describe('Annotations, filters, and layers', () => {
 			'[clip-path^="url(#redact-clip-"] image'
 		) as SVGImageElement;
 
-		// New redactions start at the small-block level.
+		// New redactions start pixelated, at the light level.
 
 		expect(pixels).toHaveAttribute('href', 'f.png');
 
-		// The level select swaps the downsampled source.
+		// The strength select swaps the downsampled source.
 
-		fireEvent.change(screen.getByLabelText('Pixel size'), {
+		fireEvent.change(screen.getByLabelText('Strength'), {
 			target: {value: 'tiny'},
+		});
+
+		expect(
+			container.querySelector('[clip-path^="url(#redact-clip-"] image')
+		).toHaveAttribute('href', 't.png');
+
+		// Blurring draws from the picture itself rather than from a
+		// downsampled copy, through a filter of its own.
+
+		fireEvent.change(screen.getByLabelText('Type'), {
+			target: {value: 'blur'},
+		});
+
+		const blurred = container.querySelector(
+			'[clip-path^="url(#redact-clip-"] image'
+		) as SVGImageElement;
+
+		expect(blurred).toHaveAttribute('href', 'test.jpg');
+
+		expect(
+			container.querySelector('filter[id^="redact-blur-"] feGaussianBlur')
+		).toBeInTheDocument();
+
+		// And back, without losing how much was being hidden.
+
+		fireEvent.change(screen.getByLabelText('Type'), {
+			target: {value: 'pixel'},
 		});
 
 		expect(
@@ -735,11 +766,13 @@ describe('Annotations, filters, and layers', () => {
 		);
 
 		// Named once on the stage and once in the layers list, like every
-		// other annotation.
+		// other annotation. Counted inside the editor, since the picker
+		// that made it is portaled out of it and has a cell of that name
+		// too.
 
-		expect(screen.getAllByRole('button', {name: 'Circle'})).toHaveLength(
-			2
-		);
+		expect(
+			within(container).getAllByRole('button', {name: 'Circle'})
+		).toHaveLength(2);
 	});
 
 	it('keeps a 24 pixel target on an annotation smaller than that', () => {

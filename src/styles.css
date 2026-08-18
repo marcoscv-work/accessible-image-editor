@@ -991,15 +991,56 @@ input.editor-color-input.editor-color-fill.form-control {
 /* Sticker picker */
 
 /*
- * The miniature in front of a menu entry's name. It takes the entry's own
- * colour, so a shape drawn in `currentColor` stays legible when the entry
- * is highlighted.
+ * A picker of drawings: shapes and stickers are recognised faster than
+ * they are read, so the cell is the drawing and the name is its label and
+ * its tooltip. The popover is sized by the grid rather than by the menu's
+ * usual minimum, which exists for rows of text.
  */
+
+.editor-menu-popover {
+
+	/*
+	 * The grid decides the width, and height is left to grow until it
+	 * would not fit, at which point the popover scrolls natively. No
+	 * carousel, no paging: a picker of many things is a list you scroll,
+	 * and the cells inside are focusable, so the scroll container is
+	 * reachable by keyboard without a stop of its own.
+	 */
+
+	max-height: min(50vh, 22rem);
+	min-width: 0;
+	overflow-y: auto;
+	padding: 0.25rem;
+	width: auto;
+}
+
+.editor-menu-grid [role='row'] {
+	display: flex;
+}
+
+/*
+ * 2rem, which is above the 24 pixel floor (WCAG 2.2, 2.5.8) with room for
+ * the ring, and tight enough that ten stickers stay one glance.
+ */
+
+.editor-menu-cell {
+	align-items: center;
+	border: 0;
+	display: flex;
+	height: 2rem;
+	justify-content: center;
+	padding: 0;
+	width: 2rem;
+}
+
+.editor-menu-cell:focus-visible,
+.editor-menu-cell:hover {
+	background-color: var(--editor-surface-subtle, #f1f2f5);
+}
 
 .editor-menu-preview {
 	flex: 0 0 auto;
-	margin-right: 0.5rem;
-	vertical-align: text-bottom;
+	pointer-events: none;
 }
 
 /* Shortcuts dialog */

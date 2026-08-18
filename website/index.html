@@ -358,15 +358,16 @@
 									editing in place on the stage
 								</li>
 								<li>
-									Rectangles, squares and circles from one menu, freely
-									resizable in any direction, with an optional border
+									Rectangles, squares and circles from one menu of
+									drawings, freely resizable, with an optional border
 								</li>
 								<li>
 									Arrows placed by their two ends, with a solid or an
 									open head, so they point at what they mean
 								</li>
 								<li>
-									Redactions that pixelate for real, in four block sizes
+									Redactions that pixelate or blur for real, in four
+									strengths, destructive in the exported file
 								</li>
 								<li>
 									Inserted at the centre of the current crop, and clipped
@@ -854,9 +855,18 @@
 							<p>
 								A redaction is a real mosaic, built from small copies of
 								the image prepared at load time and revealed through a
-								clip, in four block sizes. It runs through the same colour
-								pipeline as the photograph, so it does not sit on top of
-								the picture looking like a different image.
+								clip. It runs through the same colour pipeline as the
+								photograph, so it does not sit on top of the picture
+								looking like a different image.
+							</p>
+							<p>
+								It can blur instead, at the same four strengths, and the
+								blur is applied to the whole picture before the block is
+								cut out of it: blurring a cut-out first would fade its own
+								edges into the thing it is hiding. Either way what leaves
+								the editor is destroyed rather than covered, though a
+								mosaic throws detail away where a blur redistributes it,
+								which is why pixelation is the default.
 							</p>
 						</div>
 						<figure class="figure reveal">
@@ -1305,10 +1315,11 @@
 									width="800"
 									height="430"
 									style="max-width: min(100%, 400px)"
-								alt="The Annotate panel on a narrow screen: five buttons, with the Add sticker menu open and listing each sticker by name."
+								alt="The Annotate panel on a narrow screen: five buttons, with the Add sticker menu open below them showing the ten stickers as a grid of two rows of five drawings."
 							/>
 							<figcaption>
-								Ten stickers behind one button, rather than ten buttons
+								Ten stickers as a grid behind one button, rather than ten
+								buttons
 							</figcaption>
 						</figure>
 					</div>

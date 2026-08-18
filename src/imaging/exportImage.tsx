@@ -94,6 +94,12 @@ export async function exportEditedImage(
 							)
 								? undefined
 								: 'url(#export-filter)',
+
+							// The same data URL the picture itself uses:
+							// the rasteriser runs in secure static mode
+							// and cannot fetch a `blob:` subresource.
+
+							imageUrl: dataUrl,
 							pixelUrls: image.pixelUrls,
 							sourceHeight: state.sourceHeight,
 							sourceWidth: state.sourceWidth,

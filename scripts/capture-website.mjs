@@ -377,13 +377,13 @@ async function collapse(page, ...titles) {
  */
 async function addShape(page, shape) {
 	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
-	await page.getByRole('menuitem', {name: shape}).click();
+	await page.locator('.dropdown-menu.show').getByRole('button', {name: shape}).click();
 	await page.waitForTimeout(300);
 }
 
 async function addSticker(page, sticker) {
 	await page.getByRole('button', {exact: true, name: 'Add sticker'}).click();
-	await page.getByRole('menuitem', {name: sticker}).click();
+	await page.locator('.dropdown-menu.show').getByRole('button', {name: sticker}).click();
 	await page.waitForTimeout(300);
 }
 

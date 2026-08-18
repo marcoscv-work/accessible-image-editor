@@ -23,7 +23,7 @@ async function openEditor(page: Page) {
 async function addShape(page: Page, shape: string) {
 	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
 
-	await page.getByRole('menuitem', {name: shape}).click();
+	await page.locator('.dropdown-menu.show').getByRole('button', {name: shape}).click();
 }
 
 /**
@@ -51,12 +51,23 @@ test('the shape menu offers the four shapes and adds each one', async ({
 
 	await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
-	await expect(page.getByRole('menuitem')).toHaveText([
-		'Rectangle',
-		'Square',
-		'Circle',
-		'Arrow',
-	]);
+	// Drawings rather than words, so the names are on the cells: what the
+	// pointer gets as a tooltip is what the screen reader gets as a name.
+
+	const cells = page.locator('.dropdown-menu.show .editor-menu-cell');
+
+	expect(
+		await cells.evaluateAll((all) =>
+			all.map((cell) => cell.getAttribute('aria-label'))
+		)
+	).toEqual(['Rectangle', 'Square', 'Circle', 'Arrow']);
+
+	// Every cell clears the 24 pixel floor (WCAG 2.2, 2.5.8).
+
+	const box = (await cells.first().boundingBox())!;
+
+	expect(box.height).toBeGreaterThanOrEqual(24);
+	expect(box.width).toBeGreaterThanOrEqual(24);
 
 	// Scanned open, because that is a state the user sits in. The region
 	// rule is set aside for this one scan: Clay portals the menu to a
@@ -68,7 +79,7 @@ test('the shape menu offers the four shapes and adds each one', async ({
 			.violations
 	).toEqual([]);
 
-	await page.getByRole('menuitem', {name: 'Square'}).click();
+	await page.locator('.dropdown-menu.show').getByRole('button', {name: 'Square'}).click();
 
 	// A square arrives square. It is a rectangle underneath, which is what
 	// it becomes the moment someone stretches one side.
@@ -222,14 +233,24 @@ test('both menus open and commit from the keyboard alone', async ({page}) => {
 
 	await shapes.focus();
 
-	// Down opens the menu and lands on its first entry, rather than
-	// walking on to the next button in the panel.
+	// Down opens the menu and lands on its first cell, rather than walking
+	// on to the next button in the panel.
 
 	await page.keyboard.press('ArrowDown');
 
-	await expect(page.getByRole('menuitem').first()).toBeFocused();
+	const cells = page.locator('.dropdown-menu.show .editor-menu-cell');
 
-	await page.keyboard.press('ArrowDown');
+	await expect(cells.first()).toBeFocused();
+
+	// The grid moves in two dimensions: right along the row, and down by a
+	// whole row rather than by one cell.
+
+	await page.keyboard.press('ArrowRight');
+
+	await expect(cells.nth(1)).toBeFocused();
+
+	await page.keyboard.press('ArrowLeft');
+
 	await page.keyboard.press('Enter');
 
 	await expect(page.getByRole('status')).toContainText('Rectangle added');

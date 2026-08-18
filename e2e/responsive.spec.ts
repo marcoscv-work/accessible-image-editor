@@ -98,24 +98,30 @@ test('the sticker menu opens and stays usable when stacked', async ({page}) => {
 	}
 
 	// Ten stickers used to wrap onto three rows here, which is what the
-	// swipeable track was for. Behind a menu they cost one button, and the
-	// menu is free to be as tall as it needs to be.
+	// swipeable track was for. As a grid of drawings behind one button
+	// they cost a single control, and the grid fits a narrow screen.
 
 	const trigger = page.getByRole('button', {exact: true, name: 'Add sticker'});
 
 	await trigger.click();
 
-	const menu = page.getByRole('menu');
+	const grid = page.getByRole('grid', {name: 'Add sticker'});
 
-	await expect(menu).toBeVisible();
+	await expect(grid).toBeVisible();
 
-	// The whole list is reachable inside the viewport rather than running
-	// off the bottom of it.
-
-	const menuBox = (await menu.boundingBox())!;
+	const gridBox = (await grid.boundingBox())!;
 	const viewport = page.viewportSize()!;
 
-	expect(menuBox.width).toBeLessThanOrEqual(viewport.width);
+	expect(gridBox.width).toBeLessThanOrEqual(viewport.width);
+
+	// Two rows of five, and every cell above the 24 pixel floor even here.
+
+	const cell = (await page
+		.locator('.dropdown-menu.show .editor-menu-cell')
+		.first()
+		.boundingBox())!;
+
+	expect(cell.height).toBeGreaterThanOrEqual(24);
 
 	// Scanned with the menu open: this is the state the user is in. The
 	// region rule is set aside, because Clay portals the menu to a
@@ -128,9 +134,12 @@ test('the sticker menu opens and stays usable when stacked', async ({page}) => {
 
 	expect(results.violations).toEqual([]);
 
-	await page.getByRole('menuitem', {name: 'Star sticker'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Star sticker'})
+		.click();
 
-	// On the stage, since the name also belongs to the menu entry and to
+	// On the stage, since the name also belongs to the picker cell and to
 	// the layer row it just gained.
 
 	await expect(

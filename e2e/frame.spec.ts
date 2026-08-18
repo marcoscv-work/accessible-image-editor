@@ -133,7 +133,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	await page
 		.getByRole('button', {exact: true, name: 'Add shape'})
 		.click();
-	await page.getByRole('menuitem', {name: 'Rectangle'}).click();
+	await page.locator('.dropdown-menu.show').getByRole('button', {name: 'Rectangle'}).click();
 
 	const order = () =>
 		page.evaluate(() => {

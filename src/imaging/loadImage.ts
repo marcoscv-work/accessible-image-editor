@@ -12,7 +12,7 @@ export const PREVIEW_MAX_SIZE = 2048;
  * level. Scaling these back up with nearest-neighbor is what produces the
  * mosaic, so a smaller source means coarser blocks.
  */
-const REDACT_SIZES: Record<RedactLevel, number> = {
+export const REDACT_SIZES: Record<RedactLevel, number> = {
 	coarse: 24,
 	fine: 96,
 	medium: 48,

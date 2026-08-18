@@ -15,6 +15,7 @@ import {
 	ImageOverlay,
 	Overlay,
 	RedactOverlay,
+	RedactStyle,
 	ShapeOverlay,
 	isBoxOverlay,
 } from '../state/types';
@@ -132,6 +133,40 @@ export function LayerProperties({
 			)}
 
 			<div className="editor-panel-grid">
+				{overlay.kind === 'redact' && (
+					<ClayForm.Group small>
+						<label htmlFor="layer-prop-redact-style">
+							{t('redact-style')}
+						</label>
+
+						<ClaySelectWithOption
+							id="layer-prop-redact-style"
+							onChange={(event) =>
+								commitPatch({
+									style: event.target.value as RedactStyle,
+								})
+							}
+							options={[
+								{
+									label: t('redact-style-pixel'),
+									value: 'pixel',
+								},
+								{
+									label: t('redact-style-blur'),
+									value: 'blur',
+								},
+							]}
+							sizing="sm"
+							value={overlay.style ?? 'pixel'}
+						/>
+					</ClayForm.Group>
+				)}
+
+				{/*
+				  * One control for how much is hidden, whichever style is
+				  * chosen: the four steps mean the same amount of hiding,
+				  * so switching between them keeps the strength.
+				  */}
 				{overlay.kind === 'redact' && (
 					<ClayForm.Group small>
 						<label htmlFor="layer-prop-level">

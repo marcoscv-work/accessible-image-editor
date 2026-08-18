@@ -24,6 +24,7 @@ import {EditorAction} from '../state/editorReducer';
 import {nextId} from '../state/ids';
 import {CropRect, Overlay, StickerKind} from '../state/types';
 import {EditorSection} from './EditorSection';
+import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
 
 /**
@@ -79,9 +80,9 @@ function revealInWorkspace(node: SVGElement): void {
 }
 
 /**
- * The miniature drawn beside each entry of the shape menu. Decoration
- * next to a name, so it is hidden from assistive technology: the name is
- * what the entry is.
+ * The drawing a shape cell holds. It is the whole cell rather than a
+ * marker in front of a word, so it is hidden from assistive technology
+ * and the cell's own label is what names it.
  */
 function ShapePreview({shape}: {shape: ShapeTool}) {
 	return (
@@ -89,9 +90,9 @@ function ShapePreview({shape}: {shape: ShapeTool}) {
 			aria-hidden="true"
 			className="editor-menu-preview"
 			focusable="false"
-			height={16}
+			height={22}
 			viewBox="0 0 16 16"
-			width={16}
+			width={22}
 		>
 			{shape === 'rectangle' && (
 				<rect fill="currentColor" height={8} width={14} x={1} y={4} />
@@ -120,6 +121,27 @@ function ShapePreview({shape}: {shape: ShapeTool}) {
 					<polygon fill="currentColor" points="15,8 9,11 9,5" />
 				</>
 			)}
+		</svg>
+	);
+}
+
+function StickerPreview({sticker}: {sticker: StickerKind}) {
+	return (
+		<svg
+			aria-hidden="true"
+			className="editor-menu-preview"
+			focusable="false"
+			height={22}
+			viewBox="0 0 24 24"
+			width={22}
+		>
+			<StickerArt
+				color={STICKER_DEFAULT_COLORS[sticker]}
+				size={22}
+				sticker={sticker}
+				x={12}
+				y={12}
+			/>
 		</svg>
 	);
 }
@@ -448,8 +470,8 @@ export function AnnotatePanel({
 				{shapeTools.length > 0 && (
 					<ClayDropDown
 						active={shapeMenuOpen}
+						menuElementAttrs={{className: 'editor-menu-popover'}}
 						onActiveChange={setShapeMenuOpen}
-						role="menu"
 						trigger={
 							<ClayButton
 								{...rovingProps(indexOf('shapes'))}
@@ -461,25 +483,22 @@ export function AnnotatePanel({
 							</ClayButton>
 						}
 					>
-						<ClayDropDown.ItemList aria-label={t('add-shape')}>
-							{SHAPE_TOOLS.filter((shape) =>
+						<MenuGrid
+							choices={SHAPE_TOOLS.filter((shape) =>
 								shapeTools.includes(shape)
-							).map((shape) => (
-								<ClayDropDown.Item
-									key={shape}
-									onClick={() => {
-										setShapeMenuOpen(false);
+							).map((shape) => ({
+								art: <ShapePreview shape={shape} />,
+								id: shape,
+								label: t(`shape-${shape}`),
+							}))}
+							columns={4}
+							label={t('add-shape')}
+							onChoose={(shape) => {
+								setShapeMenuOpen(false);
 
-										ADD_SHAPE[shape]();
-									}}
-									roleItem="menuitem"
-								>
-									<ShapePreview shape={shape} />
-
-									{t(`shape-${shape}`)}
-								</ClayDropDown.Item>
-							))}
-						</ClayDropDown.ItemList>
+								ADD_SHAPE[shape as ShapeTool]();
+							}}
+						/>
 					</ClayDropDown>
 				)}
 
@@ -534,8 +553,8 @@ export function AnnotatePanel({
 				{hasStickers && (
 					<ClayDropDown
 						active={stickerMenuOpen}
+						menuElementAttrs={{className: 'editor-menu-popover'}}
 						onActiveChange={setStickerMenuOpen}
-						role="menu"
 						trigger={
 							<ClayButton
 								{...rovingProps(indexOf('stickers'))}
@@ -547,40 +566,20 @@ export function AnnotatePanel({
 							</ClayButton>
 						}
 					>
-						<ClayDropDown.ItemList aria-label={t('add-sticker')}>
-							{stickers.map((sticker) => (
-								<ClayDropDown.Item
-									key={sticker}
-									onClick={() => {
-										setStickerMenuOpen(false);
+						<MenuGrid
+							choices={stickers.map((sticker) => ({
+								art: <StickerPreview sticker={sticker} />,
+								id: sticker,
+								label: t(`sticker-${sticker}`),
+							}))}
+							columns={5}
+							label={t('add-sticker')}
+							onChoose={(sticker) => {
+								setStickerMenuOpen(false);
 
-										addSticker(sticker);
-									}}
-									roleItem="menuitem"
-								>
-									<svg
-										aria-hidden="true"
-										className="editor-menu-preview"
-										focusable="false"
-										height={16}
-										viewBox="0 0 24 24"
-										width={16}
-									>
-										<StickerArt
-											color={
-												STICKER_DEFAULT_COLORS[sticker]
-											}
-											size={22}
-											sticker={sticker}
-											x={12}
-											y={12}
-										/>
-									</svg>
-
-									{t(`sticker-${sticker}`)}
-								</ClayDropDown.Item>
-							))}
-						</ClayDropDown.ItemList>
+								addSticker(sticker as StickerKind);
+							}}
+						/>
 					</ClayDropDown>
 				)}
 			</div>
