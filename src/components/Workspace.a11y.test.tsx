@@ -51,11 +51,13 @@ function EditorHarness() {
 	return (
 		<>
 			<Workspace
-				aspectLocked={aspectLocked}
-				dispatch={dispatch}
+			aspectLocked={aspectLocked}
+			dispatch={dispatch}
 				image={IMAGE}
+				multiSelectedIds={[]}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
+				onMultiSelectToggle={() => {}}
 				onSelectOverlay={() => {}}
 				onWorkspaceScroll={() => {}}
 				onZoom={(direction) =>

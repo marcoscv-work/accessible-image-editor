@@ -125,10 +125,20 @@ interface Props {
 	onAnnounce: (message: string) => void;
 
 	/**
+	 * The move-together set. Shift+click builds it, and it grants exactly
+	 * one power: dragging or arrow-keying any member moves them all.
+	 * Nothing else applies to a group, which is why the manipulation
+	 * handles disappear while one exists.
+	 */
+	multiSelectedIds: string[];
+
+	/**
 	 * Copies the annotation to the editor's clipboard (Ctrl/Cmd+C on the
 	 * focused node).
 	 */
 	onCopy?: (id: string) => void;
+
+	onMultiSelectToggle: (id: string) => void;
 
 	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
@@ -144,8 +154,10 @@ interface Props {
  */
 export function OverlaysEditable({
 	dispatch,
+	multiSelectedIds,
 	onAnnounce,
 	onCopy,
+	onMultiSelectToggle,
 	onSelect,
 	overlays,
 	proportional,
@@ -181,6 +193,15 @@ export function OverlaysEditable({
 
 	const current = (id: string) =>
 		overlaysRef.current.find((overlay) => overlay.id === id);
+
+	const multiSet = new Set(multiSelectedIds);
+
+	/**
+	 * What a move gesture on this node carries: the whole set when the
+	 * node belongs to it, the node alone otherwise.
+	 */
+	const movingIds = (id: string) =>
+		multiSet.has(id) && multiSet.size > 1 ? [...multiSet] : [id];
 
 	const announceMoved = (id: string) => {
 		const overlay = current(id);
@@ -294,6 +315,20 @@ export function OverlaysEditable({
 
 			setFocus({id, modality: 'keyboard'});
 
+			// A member of the move-together set never travels alone.
+
+			if (multiSet.has(id) && multiSet.size > 1) {
+				dispatch({
+					dx: delta[0] * step,
+					dy: delta[1] * step,
+					ids: movingIds(id),
+					transient: true,
+					type: 'move-overlays',
+				});
+
+				return;
+			}
+
 			// The rotation pivot is the overlay's own center, so it travels
 			// with the element: a plain positional delta already moves the
 			// element exactly along the screen axes, rotated or not.
@@ -317,6 +352,19 @@ export function OverlaysEditable({
 
 			keyboardGesture.current = null;
 
+			if (multiSet.has(id) && multiSet.size > 1) {
+				dispatch({
+					dx: 0,
+					dy: 0,
+					ids: movingIds(id),
+					type: 'move-overlays',
+				});
+
+				onAnnounce(t('annotations-moved', multiSet.size));
+
+				return;
+			}
+
 			const overlay = current(id);
 
 			if (overlay) {
@@ -335,6 +383,15 @@ export function OverlaysEditable({
 			const overlay = current(id);
 
 			if (!overlay) {
+				return;
+			}
+
+			// Shift+click curates the move-together set instead of
+			// starting a drag: membership is a decision, not a gesture.
+
+			if (event.shiftKey) {
+				onMultiSelectToggle(id);
+
 				return;
 			}
 
@@ -358,6 +415,29 @@ export function OverlaysEditable({
 			return;
 		}
 
+		if (multiSet.has(gesture.id) && multiSet.size > 1) {
+
+			// The set moves by the pointer's delta since the last event:
+			// relative steps, so every member keeps its own place in the
+			// formation.
+
+			const dx = (event.clientX - gesture.startX) / zoom;
+			const dy = (event.clientY - gesture.startY) / zoom;
+
+			gesture.startX = event.clientX;
+			gesture.startY = event.clientY;
+
+			dispatch({
+				dx,
+				dy,
+				ids: movingIds(gesture.id),
+				transient: true,
+				type: 'move-overlays',
+			});
+
+			return;
+		}
+
 		dispatch({
 			id: gesture.id,
 			patch: {
@@ -377,6 +457,19 @@ export function OverlaysEditable({
 		}
 
 		pointerGesture.current = null;
+
+		if (multiSet.has(gesture.id) && multiSet.size > 1) {
+			dispatch({
+				dx: 0,
+				dy: 0,
+				ids: movingIds(gesture.id),
+				type: 'move-overlays',
+			});
+
+			onAnnounce(t('annotations-moved', multiSet.size));
+
+			return;
+		}
 
 		const overlay = current(gesture.id);
 
@@ -716,7 +809,8 @@ export function OverlaysEditable({
 								zoom={zoom}
 							/>
 						) : (
-							selectedId === overlay.id && (
+							(selectedId === overlay.id ||
+								multiSet.has(overlay.id)) && (
 								<FocusRing
 									bounds={bounds}
 									emphasis="pointer"
@@ -781,6 +875,7 @@ export function OverlaysEditable({
 							)}
 
 						{editing?.id !== overlay.id &&
+							multiSet.size <= 1 &&
 							(selectedId === overlay.id ||
 								focus?.id === overlay.id) && (
 							<g aria-hidden="true" className="object-handles">

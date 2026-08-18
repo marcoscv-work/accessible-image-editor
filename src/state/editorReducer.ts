@@ -36,6 +36,13 @@ export type EditorAction =
 	  }
 	| {angle: number; transient?: boolean; type: 'set-angle'}
 	| {crop: CropRect; transient?: boolean; type: 'set-crop'}
+	| {
+			dx: number;
+			dy: number;
+			ids: string[];
+			transient?: boolean;
+			type: 'move-overlays';
+	  }
 	| {filter: FilterPreset; type: 'set-filter'}
 	| {frame: Partial<Frame>; transient?: boolean; type: 'set-frame'}
 	| {type: 'flip-horizontal'}
@@ -413,6 +420,46 @@ export function editorReducer(
 				history,
 				{...present, overlays},
 				t('label-annotation')
+			);
+		}
+
+		case 'move-overlays': {
+
+			// One action for the whole set, so a multiselection drag is a
+			// single history entry however many annotations it carries.
+			// Only movement: multiselection promises nothing else.
+
+			const moving = new Set(action.ids);
+
+			if (!moving.size) {
+				return history;
+			}
+
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				!action.dx &&
+				!action.dy
+			) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					overlays: present.overlays.map((overlay) =>
+						moving.has(overlay.id)
+							? {
+									...overlay,
+									x: overlay.x + action.dx,
+									y: overlay.y + action.dy,
+								}
+							: overlay
+					),
+				},
+				t('label-annotation'),
+				action.transient
 			);
 		}
 

@@ -139,6 +139,13 @@ export default function EditorModal({config, image, onClose}: Props) {
 	 */
 	const clipboardRef = useRef<Overlay | null>(null);
 
+	/**
+	 * The move-together set: Shift+click curates it, and moving is the
+	 * only thing it does. The properties panel keeps following the
+	 * primary selection, never the group.
+	 */
+	const [multiSelectedIds, setMultiSelectedIds] = useState<string[]>([]);
+
 	/*
 	 * The selected annotation's padlock, here for the same reason: the
 	 * stage offers corners only while it is on. A picture arrives locked,
@@ -149,6 +156,31 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
 		null
 	);
+
+	const selectOverlay = (id: string | null) => {
+		setSelectedOverlayId(id);
+
+		// A plain deselection dissolves the group: the set exists only
+		// while it is being used.
+
+		if (id === null) {
+			setMultiSelectedIds([]);
+		}
+	};
+
+	const toggleMultiSelect = (id: string) => {
+		setMultiSelectedIds((currentIds) => {
+			const next = currentIds.includes(id)
+				? currentIds.filter((candidate) => candidate !== id)
+				: [...currentIds, id];
+
+			announce(t('annotations-selected', next.length));
+
+			return next;
+		});
+
+		setSelectedOverlayId(id);
+	};
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
 	/**
@@ -671,12 +703,14 @@ export default function EditorModal({config, image, onClose}: Props) {
 							drawing={Boolean(drawing)}
 							guidedDrawing={drawing?.guided}
 							image={image}
+							multiSelectedIds={multiSelectedIds}
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
 							onCopyOverlay={copyOverlay}
 							onFinishDrawing={finishDrawing}
+							onMultiSelectToggle={toggleMultiSelect}
 							onPasteOverlay={pasteOverlay}
-							onSelectOverlay={setSelectedOverlayId}
+							onSelectOverlay={selectOverlay}
 							onWorkspacePointerLeave={handleWorkspacePointerLeave}
 							onWorkspacePointerMove={handleWorkspacePointerMove}
 							onWorkspaceScroll={() => {
@@ -707,7 +741,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 							onAnnounce={announce}
 							onAspectLockedChange={setAspectLocked}
 							onProportionalChange={setLayerProportional}
-							onSelectOverlay={setSelectedOverlayId}
+							onSelectOverlay={selectOverlay}
 							onStartDrawing={(via) =>
 								setDrawing({guided: via === 'keyboard'})
 							}

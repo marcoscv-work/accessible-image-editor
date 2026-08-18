@@ -27,6 +27,8 @@ export default {
 	'annotation-moved': '{0} moved to x {1}, y {2}',
 	'annotation-pasted': '{0} pasted',
 	'annotation-removed': '{0} removed',
+	'annotations-moved': '{0} annotations moved together',
+	'annotations-selected': '{0} annotations selected to move together',
 	'app-description':
 		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',
 	'app-title': 'Accessible Image Editor',
@@ -212,6 +214,7 @@ export default {
 	'shortcut-center-crop': 'Fit the crop area to the window',
 	'shortcut-copy': 'Copy the focused annotation',
 	'shortcut-escape': 'Close the editor or the open dialog',
+	'shortcut-multi-select': 'Add or remove an annotation from a group that moves together',
 	'shortcut-paste': 'Paste the copied annotation',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move or adjust the focused control by 10',

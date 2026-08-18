@@ -42,10 +42,18 @@ interface Props {
 	onCenterCrop: () => void;
 
 	/**
+	 * The move-together set built with Shift+click, granted exactly one
+	 * power: moving as one.
+	 */
+	multiSelectedIds: string[];
+
+	/**
 	 * The editor-internal clipboard: copy is offered on the focused
 	 * annotation, paste anywhere in the workspace.
 	 */
 	onCopyOverlay?: (id: string) => void;
+
+	onMultiSelectToggle: (id: string) => void;
 
 	onFinishDrawing?: (
 		result: {points: number[]; smooth: boolean} | null
@@ -85,10 +93,12 @@ export function Workspace({
 	drawing,
 	guidedDrawing,
 	image,
+	multiSelectedIds,
 	onAnnounce,
 	onCenterCrop,
 	onCopyOverlay,
 	onFinishDrawing,
+	onMultiSelectToggle,
 	onPasteOverlay,
 	onSelectOverlay,
 	onWorkspacePointerLeave,
@@ -250,8 +260,10 @@ export function Workspace({
 
 					<OverlaysEditable
 						dispatch={dispatch}
+						multiSelectedIds={multiSelectedIds}
 						onAnnounce={onAnnounce}
 						onCopy={onCopyOverlay}
+						onMultiSelectToggle={onMultiSelectToggle}
 						onSelect={onSelectOverlay}
 						overlays={state.overlays}
 						proportional={proportional}

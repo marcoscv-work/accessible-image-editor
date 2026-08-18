@@ -50,6 +50,15 @@ function AnnotationHarness() {
 
 	const [drawing, setDrawing] = useState<null | {guided: boolean}>(null);
 
+	const [multiIds, setMultiIds] = useState<string[]>([]);
+
+	const toggleMulti = (id: string) =>
+		setMultiIds((ids) =>
+			ids.includes(id)
+				? ids.filter((candidate) => candidate !== id)
+				: [...ids, id]
+		);
+
 	const finishDrawing = (
 		result: {points: number[]; smooth: boolean} | null
 	) => {
@@ -92,9 +101,11 @@ function AnnotationHarness() {
 				drawing={Boolean(drawing)}
 				guidedDrawing={drawing?.guided}
 				image={IMAGE}
+				multiSelectedIds={multiIds}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
 				onFinishDrawing={finishDrawing}
+				onMultiSelectToggle={toggleMulti}
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
@@ -165,8 +176,10 @@ function TextStageHarness() {
 				aspectLocked={false}
 				dispatch={dispatch}
 				image={IMAGE}
+				multiSelectedIds={[]}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
+				onMultiSelectToggle={() => {}}
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
@@ -214,8 +227,10 @@ function CroppedHarness() {
 				aspectLocked={false}
 				dispatch={dispatch}
 				image={IMAGE}
+				multiSelectedIds={[]}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
+				onMultiSelectToggle={() => {}}
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
@@ -523,6 +538,50 @@ describe('Annotations, filters, and layers', () => {
 		});
 
 		expect(drawn()).toBeInTheDocument();
+	});
+
+	it('moves a shift-built group together, and only moves it', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Rectangle');
+		addShape('Circle');
+
+		const hits = container.querySelectorAll('.overlay-hit');
+
+		// Shift+click enrols both members.
+
+		fireEvent.pointerDown(hits[0], {shiftKey: true});
+		fireEvent.pointerDown(hits[1], {shiftKey: true});
+
+		// Both wear a ring, and the manipulation handles are gone: a
+		// group grants movement and nothing else.
+
+		expect(
+			container.querySelectorAll('.selection-ring, .focus-ring-outer')
+				.length
+		).toBeGreaterThanOrEqual(2);
+
+		expect(container.querySelectorAll('.object-handle')).toHaveLength(0);
+
+		// An arrow on one member moves both.
+
+		const rectangle = () =>
+			container.querySelector(
+				'.editor-workspace rect[fill]:not([class])'
+			) as SVGRectElement;
+		const circle = () =>
+			container.querySelector(
+				'.editor-workspace ellipse'
+			) as SVGEllipseElement;
+
+		const rectangleX = Number(rectangle().getAttribute('x'));
+		const circleX = Number(circle().getAttribute('cx'));
+
+		fireEvent.keyDown(hits[1], {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyUp(hits[1], {key: 'ArrowRight', shiftKey: true});
+
+		expect(Number(rectangle().getAttribute('x'))).toBe(rectangleX + 10);
+		expect(Number(circle().getAttribute('cx'))).toBe(circleX + 10);
 	});
 
 	it('adds an emoji as a layer of its own, sized but never coloured', async () => {

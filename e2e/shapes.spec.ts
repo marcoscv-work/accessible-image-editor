@@ -378,3 +378,82 @@ test('copy and paste clone the focused annotation, cascading', async ({
 
 	await expect(hits).toHaveCount(2);
 });
+
+test('a shift-built group drags as one and undoes as one', async ({page}) => {
+	await openEditor(page);
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Rectangle'})
+		.click();
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Circle'})
+		.click();
+
+	const rectangle = page.locator(
+		'.editor-workspace rect[fill]:not([class])'
+	);
+	const circle = page.locator('.editor-workspace ellipse');
+
+	// Both spawn at the crop's centre; walk the circle aside first so
+	// each hit target is its own.
+
+	for (let step = 0; step < 8; step++) {
+		await page.keyboard.press('Shift+ArrowDown');
+	}
+
+	const before = {
+		circleX: Number(await circle.getAttribute('cx')),
+		rectangleX: Number(await rectangle.getAttribute('x')),
+	};
+
+	// Shift+click both members.
+
+	const hits = page.locator('.editor-workspace .overlay-hit');
+
+	await hits.first().click({modifiers: ['Shift'], position: {x: 12, y: 12}});
+	await hits.nth(1).click({modifiers: ['Shift']});
+
+	await expect(page.getByRole('status')).toContainText(
+		'2 annotations selected'
+	);
+
+	// While the group exists, no handles: it moves and does nothing else.
+
+	await expect(page.locator('.object-handle')).toHaveCount(0);
+
+	// Drag one member; the other travels with it.
+
+	await hits.first().hover({position: {x: 12, y: 12}});
+	await page.mouse.down();
+
+	const box = (await hits.first().boundingBox())!;
+
+	await page.mouse.move(box.x + 12 + 80, box.y + 12 + 40, {steps: 8});
+	await page.mouse.up();
+
+	await expect(page.getByRole('status')).toContainText(
+		'2 annotations moved together'
+	);
+
+	const after = {
+		circleX: Number(await circle.getAttribute('cx')),
+		rectangleX: Number(await rectangle.getAttribute('x')),
+	};
+
+	expect(after.rectangleX - before.rectangleX).toBeGreaterThan(50);
+	expect(after.circleX - before.circleX).toBe(
+		after.rectangleX - before.rectangleX
+	);
+
+	// One undo returns both.
+
+	await page.getByRole('button', {exact: true, name: 'Undo'}).click();
+
+	expect(Number(await rectangle.getAttribute('x'))).toBe(before.rectangleX);
+	expect(Number(await circle.getAttribute('cx'))).toBe(before.circleX);
+});
