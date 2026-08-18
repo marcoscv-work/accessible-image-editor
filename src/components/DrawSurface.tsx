@@ -21,6 +21,27 @@ const DRAG_THRESHOLD = 4;
  */
 const CAPTURE_SPACING = 3;
 
+/**
+ * A fixed point of the guided line, drawn like the stage's handles but
+ * with a white halo so it survives any photograph underneath.
+ */
+function DrawAnchor({x, y, zoom}: {x: number; y: number; zoom: number}) {
+	return (
+		<g pointerEvents="none" transform={`translate(${x} ${y})`}>
+			<circle
+				className="editor-draw-anchor-halo"
+				r={6 / zoom}
+				strokeWidth={4 / zoom}
+			/>
+			<circle
+				className="editor-draw-anchor"
+				r={6 / zoom}
+				strokeWidth={2 / zoom}
+			/>
+		</g>
+	);
+}
+
 export interface DrawResult {
 	points: number[];
 	smooth: boolean;
@@ -485,24 +506,10 @@ export function DrawSurface({
 				/>
 			)}
 
-			{guided && (
-				<circle
-					className="editor-draw-anchor"
-					cx={start.x}
-					cy={start.y}
-					pointerEvents="none"
-					r={4 / zoom}
-				/>
-			)}
+			{guided && <DrawAnchor x={start.x} y={start.y} zoom={zoom} />}
 
 			{guided && guide.end && (
-				<circle
-					className="editor-draw-anchor"
-					cx={guide.end.x}
-					cy={guide.end.y}
-					pointerEvents="none"
-					r={4 / zoom}
-				/>
+				<DrawAnchor x={guide.end.x} y={guide.end.y} zoom={zoom} />
 			)}
 
 			{/*
@@ -515,19 +522,37 @@ export function DrawSurface({
 				pointerEvents="none"
 				transform={`translate(${cursor.x} ${cursor.y})`}
 			>
-				<line
-					strokeWidth={1.5 / zoom}
-					x1={-12 / zoom}
-					x2={12 / zoom}
-					y1={0}
-					y2={0}
-				/>
-				<line
-					strokeWidth={1.5 / zoom}
-					x1={0}
-					x2={0}
-					y1={-12 / zoom}
-					y2={12 / zoom}
+				{/*
+				  * Two passes, like every indicator on the stage: a white
+				  * halo under the accent, so the cross reads on stone and
+				  * on sky alike, at any zoom.
+				  */}
+				{[
+					{name: 'editor-draw-cursor-halo', width: 5},
+					{name: 'editor-draw-cursor-line', width: 2},
+				].map(({name, width}) => (
+					<g className={name} key={name}>
+						<line
+							strokeWidth={width / zoom}
+							x1={-14 / zoom}
+							x2={14 / zoom}
+							y1={0}
+							y2={0}
+						/>
+						<line
+							strokeWidth={width / zoom}
+							x1={0}
+							x2={0}
+							y1={-14 / zoom}
+							y2={14 / zoom}
+						/>
+					</g>
+				))}
+
+				<circle
+					className="editor-draw-cursor-dot"
+					r={2 / zoom}
+					strokeWidth={1 / zoom}
 				/>
 			</g>
 		</g>

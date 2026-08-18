@@ -9,6 +9,11 @@
  * Nothing here is artwork, so nothing here is licensed artwork: the
  * picker offers characters and the platform draws them.
  *
+ * The names are Unicode's English ones. When the picker needs another
+ * locale, this generator is the place: CLDR publishes per-locale
+ * annotation files with translated names for every emoji, and swapping
+ * the name source keeps the rest of the pipeline unchanged.
+ *
  * Skin-tone variants are left out. They are more than half of the file and
  * they multiply one gesture into six cells, which is a decision for a
  * later round rather than a reason to make the picker unusable now.

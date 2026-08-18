@@ -1201,7 +1201,21 @@ input.editor-color-input.editor-color-fill.form-control {
 
 /* Drawing mode: the keyboard cursor and the in-progress stroke. */
 
-.editor-draw-cursor line {
+/*
+ * White under accent, the same two-tone recipe as the focus rings: a
+ * one-colour cross disappears on the wrong photograph.
+ */
+
+.editor-draw-cursor-halo line {
+	stroke: #fff;
+}
+
+.editor-draw-cursor-line line {
+	stroke: var(--editor-accent);
+}
+
+.editor-draw-cursor-dot {
+	fill: #fff;
 	stroke: var(--editor-accent);
 }
 
@@ -1212,6 +1226,11 @@ input.editor-color-input.editor-color-fill.form-control {
 .editor-draw-anchor {
 	fill: #fff;
 	stroke: var(--editor-accent);
+}
+
+.editor-draw-anchor-halo {
+	fill: none;
+	stroke: #fff;
 }
 
 .editor-draw-surface rect:focus {
