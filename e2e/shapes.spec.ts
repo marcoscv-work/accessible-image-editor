@@ -462,7 +462,7 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 	// click outside the group dissolves it: a third thing selected next
 	// to two rings must not look like three.
 
-	await expect(page.getByText(/grouped to move together/)).toBeVisible();
+	await expect(page.getByText(/move and delete together/)).toBeVisible();
 
 	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
 	await page
@@ -470,8 +470,24 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 		.getByRole('button', {name: 'Square'})
 		.click();
 
-	await expect(page.getByText(/grouped to move together/)).toHaveCount(0);
+	await expect(page.getByText(/move and delete together/)).toHaveCount(0);
 	await expect(page.getByText(/Selected layer/)).toBeVisible();
+
+	// Deleting a member of a rebuilt group removes every member, and one
+	// undo returns them all.
+
+	const rebuiltHits = page.locator('.editor-workspace .overlay-hit');
+
+	await rebuiltHits.first().click({modifiers: ['Shift'], position: {x: 8, y: 8}});
+
+	await rebuiltHits.first().focus();
+	await page.keyboard.press('Delete');
+
+	await expect(rebuiltHits).toHaveCount(1);
+
+	await page.getByRole('button', {exact: true, name: 'Undo'}).click();
+
+	await expect(rebuiltHits).toHaveCount(3);
 
 	// Exactly one ringed annotation remains: the newcomer. Which ring it
 	// wears depends on how focus arrived, so both kinds are counted.

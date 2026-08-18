@@ -611,7 +611,7 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(screen.queryByText(/Selected layer/)).not.toBeInTheDocument();
 		expect(
-			screen.getByText(/grouped to move together/)
+			screen.getByText(/move and delete together/)
 		).toBeInTheDocument();
 
 		// A plain click on a member keeps the group (that is how it is
@@ -621,7 +621,7 @@ describe('Annotations, filters, and layers', () => {
 		fireEvent.pointerUp(hits[0]);
 
 		expect(
-			screen.getByText(/grouped to move together/)
+			screen.getByText(/move and delete together/)
 		).toBeInTheDocument();
 
 		addShape('Square');
@@ -632,10 +632,28 @@ describe('Annotations, filters, and layers', () => {
 		fireEvent.pointerUp(third);
 
 		expect(
-			screen.queryByText(/grouped to move together/)
+			screen.queryByText(/move and delete together/)
 		).not.toBeInTheDocument();
 
 		expect(screen.getByText(/Selected layer/)).toBeInTheDocument();
+	});
+
+	it('deletes a whole group with one key and undoes it whole', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Rectangle');
+		addShape('Circle');
+
+		const hits = container.querySelectorAll('.overlay-hit');
+
+		fireEvent.focus(hits[1]);
+		fireEvent.pointerDown(hits[0], {shiftKey: true});
+
+		// Delete on either member takes both.
+
+		fireEvent.keyDown(hits[0], {key: 'Delete'});
+
+		expect(container.querySelectorAll('.overlay-hit')).toHaveLength(0);
 	});
 
 	it('adds an emoji as a layer of its own, sized but never coloured', async () => {

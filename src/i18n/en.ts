@@ -28,6 +28,7 @@ export default {
 	'annotation-pasted': '{0} pasted',
 	'annotation-removed': '{0} removed',
 	'annotations-moved': '{0} annotations moved together',
+	'annotations-removed': '{0} annotations removed',
 	'annotations-ungrouped': 'Move-together group dissolved',
 	'app-description':
 		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',
@@ -164,7 +165,7 @@ export default {
 	'layer-updated': '{0} updated',
 	layers: 'Layers',
 	'layers-group-note':
-		'{0} annotations are grouped to move together. Select one without Shift to edit its properties.',
+		'{0} annotations are grouped: they move and delete together. Select one without Shift to edit its properties.',
 	'load-failed': 'The image could not be opened. Try a different file.',
 	'move-layer-down': 'Move {0} down',
 	'move-layer-up': 'Move {0} up',
@@ -216,7 +217,8 @@ export default {
 	'shortcut-center-crop': 'Fit the crop area to the window',
 	'shortcut-copy': 'Copy the focused annotation',
 	'shortcut-escape': 'Close the editor or the open dialog',
-	'shortcut-multi-select': 'Add or remove an annotation from a group that moves together',
+	'shortcut-multi-select':
+		'Add or remove an annotation from a group that moves and deletes together',
 	'shortcut-paste': 'Paste the copied annotation',
 	'shortcut-redo': 'Redo the last undone change',
 	'shortcut-shift-arrows': 'Move or adjust the focused control by 10',

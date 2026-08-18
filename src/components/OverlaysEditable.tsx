@@ -276,9 +276,22 @@ export function OverlaysEditable({
 			}
 
 			if (event.key === 'Delete' || event.key === 'Backspace') {
-				const overlay = current(id);
-
 				event.preventDefault();
+
+				// Delete on a group member takes the whole group: one
+				// entry, one undo, every ring accounted for.
+
+				if (multiSet.has(id) && multiSet.size > 1) {
+					dispatch({ids: [...multiSet], type: 'remove-overlays'});
+
+					onAnnounce(t('annotations-removed', multiSet.size));
+
+					onSelect(null);
+
+					return;
+				}
+
+				const overlay = current(id);
 
 				dispatch({id, type: 'remove-overlay'});
 

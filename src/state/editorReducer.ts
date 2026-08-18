@@ -43,6 +43,7 @@ export type EditorAction =
 			transient?: boolean;
 			type: 'move-overlays';
 	  }
+	| {ids: string[]; type: 'remove-overlays'}
 	| {filter: FilterPreset; type: 'set-filter'}
 	| {frame: Partial<Frame>; transient?: boolean; type: 'set-frame'}
 	| {type: 'flip-horizontal'}
@@ -460,6 +461,29 @@ export function editorReducer(
 				},
 				t('label-annotation'),
 				action.transient
+			);
+		}
+
+		case 'remove-overlays': {
+
+			// The group's other power: one entry removes every member,
+			// and one undo returns them all.
+
+			const removing = new Set(action.ids);
+
+			if (!removing.size) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					overlays: present.overlays.filter(
+						(overlay) => !removing.has(overlay.id)
+					),
+				},
+				t('label-annotation')
 			);
 		}
 

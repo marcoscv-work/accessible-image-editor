@@ -178,6 +178,23 @@ export function LayersPanel({
 	});
 
 	const remove = (overlay: Overlay) => {
+
+		// Deleting a group member deletes the group, on the stage and
+		// here alike: half-deleting a selection would be the surprise.
+
+		if (
+			multiSelectedIds.length > 1 &&
+			multiSelectedIds.includes(overlay.id)
+		) {
+			dispatch({ids: multiSelectedIds, type: 'remove-overlays'});
+
+			onAnnounce(t('annotations-removed', multiSelectedIds.length));
+
+			onSelect(null);
+
+			return;
+		}
+
 		dispatch({id: overlay.id, type: 'remove-overlay'});
 
 		onAnnounce(t('annotation-removed', overlayLabel(overlay)));
