@@ -22,7 +22,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 1.4.11 Non-text Contrast | AA | Pass | Focus indicators are white on dark (>12:1); crop border `#4b9bff` on the dark workspace >3:1; handles are white with accent stroke. |
 | 1.4.12 Text Spacing | AA | Pass | No fixed-height text containers. |
 | 1.4.13 Content on Hover or Focus | AA | Pass | No hover-only content; slider tooltips are disabled in favor of a persistent value display. |
-| 2.1.1 Keyboard | A | Pass | Proven by design: the Playwright journeys perform every feature keyboard-only (crop, ratio, zoom, adjustments, annotations, layers, undo/redo, save). |
+| 2.1.1 Keyboard | A | Pass | Proven by design: the Playwright journeys perform every feature keyboard-only (crop, ratio, zoom, adjustments, annotations, layers, undo/redo, save). Drawing included: the freehand drag falls under this criterion's explicit exemption for path-dependent input, and the pen reaches the same stroke keyboard-only (arrow-key cursor, Enter places, Enter in place finishes, Backspace retracts, Escape abandons), with every placed point announced. |
 | 2.1.2 No Keyboard Trap | A | Pass | The only trap is the modal's intentional focus trap with Esc; verified by the escape journey. |
 | 2.1.4 Character Key Shortcuts | A | Pass | `+`/`-` are active only while the workspace itself has focus (component-scoped, allowed by the criterion). |
 | 2.2.1 / 2.2.2 Timing | A | N/A | No time limits, no auto-updating content. |
@@ -39,7 +39,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 2.5.2 Pointer Cancellation | A | Pass | Gestures commit on pointer-up; pointer-down only captures. |
 | 2.5.3 Label in Name | A | Pass | Visible text is contained in accessible names. |
 | 2.5.4 Motion Actuation | A | N/A | No motion input. |
-| 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height, and an arrow has fields for the tip as well, so both of its ends are placeable without a drag; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value. |
+| 2.5.7 Dragging Movements | AA | Pass | Every draggable thing has a single-pointer route that needs no dragging. The crop has numeric X, Y, width, height and angle fields; a selected annotation has numeric X, Y, rotation and size or width and height, and an arrow has fields for the tip as well, so both of its ends are placeable without a drag; the sliders are native range inputs, so one click on the track sets the value (verified: a click at 75% of the brightness track moves it from 0 to 55). Dragging is never the only way to reach a value, and drawing keeps the rule: the freehand gesture is essential dragging under this criterion's exception, and the pen produces the same stroke from single clicks or keys, no drag anywhere. |
 | 2.5.8 Target Size (Minimum) | AA | Pass | No target is under 24 by 24 CSS pixels, including an annotation the author has made smaller than that: the painted shape shrinks, its hit area does not, and the minimum is applied in screen space so it survives zooming. The crop handles are exactly 24 by 24 with a painted dot smaller than the hit area, the compact sliders keep a 24 pixel band under a 14 pixel dot, and the filter radios are visually hidden so their target is the whole card. Measured across every button, input and stage handle. |
 | 3.1.1 Language of Page | A | Pass | `<html lang="en">`. |
 | 3.1.2 Language of Parts | AA | N/A | Single language. |
@@ -54,7 +54,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 3.3.7 Redundant Entry | A | N/A | Nothing is entered twice: there is no multi-step process, and every value stays in the edit state for as long as the editor is open. |
 | 3.3.8 Accessible Authentication (Minimum) | AA | N/A | No authentication. |
 | 4.1.1 Parsing | — | Removed | Obsolete in WCAG 2.2. The markup is React-generated and axe reports no parsing or ARIA violations, which is why it stayed green while the criterion existed. |
-| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs, and Clay's own menu buttons for the shapes and the emoji picker); axe-clean, and confirmed by ear in the screen reader passes. |
+| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs, and Clay's own menu buttons for the shapes and the emoji picker); axe-clean, and confirmed by ear in the screen reader passes. A drawn stroke is a named layer with editable properties, never anonymous ink. |
 | 4.1.3 Status Messages | AA | Pass | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e and heard in the screen reader passes. |
 
 ## Known refinements
