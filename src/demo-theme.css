@@ -95,6 +95,19 @@ html[data-color-scheme='dark'] .modal-content {
 	color: var(--demo-text);
 }
 
+/*
+ * The picker's popover. Clay's published build paints it white with no
+ * custom property to override, exactly as it does the modal above, so the
+ * demonstration restates it. Portal compiles Clay's dark token maps and
+ * needs none of this.
+ */
+
+html[data-color-scheme='dark'] .dropdown-menu {
+	background: var(--demo-surface-raised);
+	border-color: var(--editor-border);
+	color: var(--demo-text);
+}
+
 html[data-color-scheme='dark'] .modal-header,
 html[data-color-scheme='dark'] .modal-footer {
 	border-color: var(--editor-border);

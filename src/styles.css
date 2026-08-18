@@ -1023,6 +1023,18 @@ input.editor-color-input.editor-color-fill.form-control {
  * the ring, and tight enough that ten stickers stay one glance.
  */
 
+/*
+ * Doubled up on purpose: Clay's `.btn` carries a colour of its own, from
+ * the light theme, and it is loaded after this file, so a single class
+ * would lose the tie on order. The drawings inside are `currentColor`,
+ * which is why this decides whether they are visible: without it they
+ * stay dark on a dark popover.
+ */
+
+.editor-menu-cell.btn {
+	color: inherit;
+}
+
 .editor-menu-cell {
 	align-items: center;
 	border: 0;
@@ -1033,9 +1045,19 @@ input.editor-color-input.editor-color-fill.form-control {
 	width: 2rem;
 }
 
+/*
+ * The highlight is mixed from the cell's own text colour rather than from
+ * a surface token, because the surface under it is Clay's popover and not
+ * the editor's panel: a token that darkens with the editor would paint a
+ * dark patch on a light popover in the demo, and an invisible one on a
+ * dark popover in the product. Derived from `currentColor`, it contrasts
+ * with whatever the popover turns out to be, in either scheme.
+ */
+
 .editor-menu-cell:focus-visible,
 .editor-menu-cell:hover {
-	background-color: var(--editor-surface-subtle, #f1f2f5);
+	background-color: rgba(128, 128, 128, 0.25);
+	background-color: color-mix(in srgb, currentColor 14%, transparent);
 }
 
 .editor-menu-preview {
