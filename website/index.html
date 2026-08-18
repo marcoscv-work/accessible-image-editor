@@ -366,6 +366,10 @@
 									open head, so they point at what they mean
 								</li>
 								<li>
+									Freehand drawing whose strokes are real layers, with
+									a guided keyboard route to a curved line
+								</li>
+								<li>
 									Redactions that pixelate or blur for real, in four
 									strengths, destructive in the exported file
 								</li>
@@ -700,7 +704,7 @@
 									class="window"
 									src="screenshots/frame-panel.png"
 									width="560"
-									height="1050"
+									height="962"
 									style="max-width: min(100%, 280px)"
 									alt="The Frame panel: cards for None, Mat, Bevel and Line, with Mat selected and carrying a ring, a bold label and a check badge; below them a frame colour input, a checkbox reading Draw the frame over the annotations, and sliders for frame size at 4 percent and frame offset at 0 percent."
 								/>
@@ -771,8 +775,8 @@
 							</p>
 							<ul class="tick-list">
 								<li>
-									Text, shapes, arrows, redactions, emoji, and a
-									picture of your own
+									Text, shapes, arrows, strokes, redactions, emoji, and
+									a picture of your own
 								</li>
 								<li>Handles for the pointer, a panel for the keyboard</li>
 								<li>
@@ -788,10 +792,90 @@
 									width="1816"
 									height="1374"
 									style="max-width: min(100%, 908px)"
-								alt="The stage with five annotations: a blue rectangle, a star sticker selected with resize and rotate handles, a blue arrow pointing at a pixelated redaction over the clock, and the words Golden hour in white."
+								alt="The stage with five annotations: a blue rectangle, a star emoji selected with resize and rotate handles, a blue arrow pointing at a pixelated redaction over the clock, and the words Golden hour in white."
 							/>
 							<figcaption>
 								Five annotations on one stage, each a node of its own.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase showcase-reverse">
+						<div class="showcase-text">
+							<h3>Drawing, without giving up the contract</h3>
+							<p>
+								Freehand input is the one thing WCAG itself exempts from
+								the keyboard rule, because a gesture is defined by the
+								path of a hand. What was never exempt is what the gesture
+								leaves behind. In most editors that is dead ink; here it
+								is a stroke: a handful of anchor points with a colour, a
+								thickness and a line style, named in the layers list,
+								moved with the arrow keys, edited after the fact and
+								exported like everything else.
+							</p>
+							<p>
+								And the keyboard does not just inherit the result, it has
+								a route of its own: activate Draw with Enter and a guided
+								line starts at the centre of the crop. The arrow keys aim
+								the end and Enter sets it; the arrow keys then bend the
+								middle, curving the line in whatever direction they move,
+								and Enter finishes. Every stage is announced as it
+								arrives, Backspace steps back, Escape abandons.
+							</p>
+							<ul class="tick-list">
+								<li>
+									A drag draws freehand; clicks place pen points; both
+									end in the same editable stroke
+								</li>
+								<li>
+									Curved lines by keyboard alone: aim the end, bend the
+									middle, three announced stages
+								</li>
+								<li>
+									Rectangles and circles can dress in a hand-drawn
+									style, a stored seed instead of a gesture
+								</li>
+							</ul>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/draw-keyboard.png"
+								width="1120"
+								height="680"
+								style="max-width: min(100%, 560px)"
+								alt="Mid-drawing on the stage: a blue curved line between two circular anchors, with a haloed crosshair cursor bending its middle upward."
+							/>
+							<figcaption>
+								The guided line, mid-bend: anchors at both ends, the
+								crosshair holding the middle.
+							</figcaption>
+						</figure>
+					</div>
+
+					<div class="showcase">
+						<div class="showcase-text">
+							<h3>Strokes you can hear and revisit</h3>
+							<p>
+								A finished stroke announces itself, lands selected, and
+								stays honest afterwards: its curve is a reading of its
+								points, so Smooth can become Straight later without
+								redrawing anything, and a freehand gesture is simplified
+								to the same anchors the pen would have placed.
+							</p>
+						</div>
+						<figure class="figure reveal">
+							<img
+								class="window"
+								src="screenshots/drawing.jpg"
+								width="1816"
+								height="1374"
+								style="max-width: min(100%, 908px)"
+								alt="The stage with three drawn annotations: a freehand wave along the balustrade, a check mark drawn with the pen, and a rectangle in the wobbly hand-drawn style."
+							/>
+							<figcaption>
+								A freehand wave, a pen check mark, and the hand-drawn
+								style on a rectangle.
 							</figcaption>
 						</figure>
 					</div>
@@ -902,9 +986,9 @@
 									class="window"
 									src="screenshots/layers.png"
 									width="560"
-									height="932"
+									height="994"
 									style="max-width: min(100%, 280px)"
-									alt="The Layers panel listing a star sticker, a text layer, a redaction and a rectangle, with the star sticker selected and its colour, position, opacity, size and rotation below in a two column grid."
+									alt="The Layers panel listing a star emoji, a text layer, a redaction and a rectangle, with the star emoji selected and its position, size, rotation and opacity below in a two column grid."
 								/>
 							</div>
 						</figure>
@@ -1071,7 +1155,7 @@
 									width="412"
 									height="412"
 									style="max-width: min(100%, 206px)"
-									alt="A star sticker with a single thin selection ring and square resize handles."
+									alt="A star emoji with a single thin selection ring and square resize handles."
 								/>
 								<figcaption>Selected with the pointer</figcaption>
 							</figure>
@@ -1082,7 +1166,7 @@
 									width="412"
 									height="412"
 									style="max-width: min(100%, 206px)"
-									alt="The same star sticker with a thicker two-tone focus ring, white inside and blue outside."
+									alt="The same star emoji with a thicker two-tone focus ring, white inside and blue outside."
 								/>
 								<figcaption>Reached with the keyboard</figcaption>
 							</figure>
@@ -1313,13 +1397,12 @@
 								class="window"
 								src="screenshots/mobile-annotate.png"
 									width="800"
-									height="430"
+									height="730"
 									style="max-width: min(100%, 400px)"
-								alt="The Annotate panel on a narrow screen: five buttons, with the Add sticker menu open below them showing the ten stickers as a grid of two rows of five drawings."
+								alt="The Annotate panel on a narrow screen: six labelled icon tiles, with the emoji picker open below them showing a search field over a grid of emoji."
 							/>
 							<figcaption>
-								Ten stickers as a grid behind one button, rather than ten
-								buttons
+								Every emoji behind one tile, searched rather than scrolled
 							</figcaption>
 						</figure>
 					</div>

@@ -360,9 +360,7 @@ async function collapse(page, ...titles) {
 
 	await shot(page, 'frame-over.jpg', {clip: stage});
 
-	await page
-		.getByRole('checkbox', {name: 'Draw the frame over the annotations'})
-		.uncheck();
+	await page.getByLabel('Placement', {exact: true}).selectOption('under');
 
 	await page.waitForTimeout(400);
 
@@ -532,6 +530,97 @@ async function dragLast(page, dx, dy) {
 
 	await shot(page, 'picture-layer.png', {
 		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
+	});
+
+	await page.close();
+}
+
+// 5d. Drawing. Two captures: the guided keyboard line mid-bend (anchors
+// and the haloed crosshair), and a stage holding a freehand wave, a pen
+// check mark and a hand-drawn rectangle.
+
+{
+	const page = await openEditor();
+
+	// The guided line, entered by keyboard, caught mid-bend.
+
+	await page.getByRole('button', {exact: true, name: 'Draw'}).focus();
+	await page.keyboard.press('Enter');
+
+	for (let step = 0; step < 12; step++) {
+		await page.keyboard.press('Shift+ArrowRight');
+	}
+
+	await page.keyboard.press('Enter');
+
+	for (let step = 0; step < 6; step++) {
+		await page.keyboard.press('Shift+ArrowUp');
+	}
+
+	await page.waitForTimeout(300);
+
+	const workspace = await region(page, '.editor-workspace');
+
+	await shot(page, 'draw-keyboard.png', {
+		clip: {
+			height: 340,
+			width: 560,
+			x: workspace.x + workspace.width * 0.34,
+			y: workspace.y + workspace.height * 0.3,
+		},
+	});
+
+	// Finish it so the stage below shows completed work.
+
+	await page.keyboard.press('Enter');
+	await page.waitForTimeout(300);
+
+	// A freehand wave along the balustrade.
+
+	await page.getByRole('button', {exact: true, name: 'Draw'}).click();
+
+	const surface = page.getByRole('application', {name: 'Drawing area'});
+
+	await surface.hover({position: {x: 10, y: 10}});
+
+	const area = (await surface.boundingBox());
+
+	await page.mouse.move(area.x + area.width * 0.12, area.y + area.height * 0.78);
+	await page.mouse.down();
+
+	for (let step = 1; step <= 26; step++) {
+		await page.mouse.move(
+			area.x + area.width * (0.12 + step * 0.02),
+			area.y + area.height * (0.78 + Math.sin(step / 2.4) * 0.05),
+			{steps: 2}
+		);
+	}
+
+	await page.mouse.up();
+	await page.waitForTimeout(300);
+
+	// A pen check mark, clicked point by point.
+
+	await page.getByRole('button', {exact: true, name: 'Draw'}).click();
+	await surface.click({position: {x: area.width * 0.63, y: area.height * 0.3}});
+	await surface.click({position: {x: area.width * 0.68, y: area.height * 0.38}});
+	await surface.click({position: {x: area.width * 0.78, y: area.height * 0.18}});
+	await surface.click({position: {x: area.width * 0.78, y: area.height * 0.18}});
+	await page.waitForTimeout(300);
+
+	// And the hand-drawn style on a rectangle.
+
+	await addShape(page, 'Rectangle');
+	await page.getByLabel('Style', {exact: true}).selectOption('sketchy');
+	await page.waitForTimeout(400);
+
+	// Deselect so no handles distract from the artwork.
+
+	await page.locator('.editor-workspace').click({position: {x: 30, y: 30}});
+	await page.waitForTimeout(300);
+
+	await shot(page, 'drawing.jpg', {
+		clip: await region(page, '.editor-workspace'),
 	});
 
 	await page.close();
