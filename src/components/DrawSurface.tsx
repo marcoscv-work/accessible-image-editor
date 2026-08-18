@@ -35,6 +35,17 @@ interface Props {
 	area: CropRect;
 
 	color: string;
+
+	/**
+	 * Keyboard-triggered drawing runs as a guided line instead of the
+	 * free pen: the start is placed at the centre, the arrows aim the
+	 * end, Enter sets it, the arrows then bend the middle, Enter
+	 * finishes. A fixed number of announced steps, because "place as
+	 * many points as you like" is a fine pointer contract and a vague
+	 * ear-only one.
+	 */
+	guided?: boolean;
+
 	onAnnounce: (message: string) => void;
 
 	/**
@@ -58,6 +69,7 @@ interface Props {
 export function DrawSurface({
 	area,
 	color,
+	guided,
 	onAnnounce,
 	onFinish,
 	width,
@@ -70,6 +82,21 @@ export function DrawSurface({
 		y: Math.round(area.y + area.height / 2),
 	});
 
+	/**
+	 * The guided line's fixed parts: the start (always the crop centre)
+	 * and, once Enter has set it, the end. `stage` is which point the
+	 * arrows are moving.
+	 */
+	const [guide, setGuide] = useState<{
+		end: {x: number; y: number} | null;
+		stage: 'bend' | 'end';
+	}>({end: null, stage: 'end'});
+
+	const start = {
+		x: Math.round(area.x + area.width / 2),
+		y: Math.round(area.y + area.height / 2),
+	};
+
 	const surfaceRef = useRef<SVGRectElement>(null);
 
 	const gesture = useRef<{capturing: boolean; last: [number, number]} | null>(
@@ -81,7 +108,7 @@ export function DrawSurface({
 	useEffect(() => {
 		surfaceRef.current?.focus({preventScroll: true});
 
-		onAnnounce(t('draw-started'));
+		onAnnounce(t(guided ? 'draw-guided-start' : 'draw-started'));
 
 		// The announcement belongs to the mode's opening, not to any
 		// later change of the announcer's identity.
@@ -118,6 +145,10 @@ export function DrawSurface({
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<SVGRectElement>) => {
+		if (guided) {
+			return;
+		}
+
 		event.currentTarget.setPointerCapture?.(event.pointerId);
 
 		const [x, y] = toImage(event);
@@ -210,7 +241,123 @@ export function DrawSurface({
 		);
 	};
 
+	const handleGuidedKeyDown = (
+		event: React.KeyboardEvent<SVGRectElement>
+	) => {
+		const step = (event.shiftKey ? 10 : 1) / zoom;
+
+		switch (event.key) {
+			case 'ArrowDown':
+				setCursor((at) => ({...at, y: at.y + step}));
+				break;
+
+			case 'ArrowLeft':
+				setCursor((at) => ({...at, x: at.x - step}));
+				break;
+
+			case 'ArrowRight':
+				setCursor((at) => ({...at, x: at.x + step}));
+				break;
+
+			case 'ArrowUp':
+				setCursor((at) => ({...at, y: at.y - step}));
+				break;
+
+			case 'Enter':
+				if (guide.stage === 'end') {
+
+					// A line needs a length before it can be set.
+
+					if (
+						Math.hypot(cursor.x - start.x, cursor.y - start.y) < 1
+					) {
+						onAnnounce(t('draw-guided-move-first'));
+
+						break;
+					}
+
+					// The end is fixed; the arrows now hold the middle,
+					// starting from the straight line's own midpoint.
+
+					setGuide({end: {...cursor}, stage: 'bend'});
+
+					setCursor({
+						x: Math.round((start.x + cursor.x) / 2),
+						y: Math.round((start.y + cursor.y) / 2),
+					});
+
+					onAnnounce(t('draw-guided-bend'));
+
+					break;
+				}
+
+				{
+					const end = guide.end!;
+
+					const straightX = (start.x + end.x) / 2;
+					const straightY = (start.y + end.y) / 2;
+
+					// A middle never moved is no middle at all: the line
+					// commits as its two ends.
+
+					const bent =
+						Math.hypot(
+							cursor.x - straightX,
+							cursor.y - straightY
+						) >= 1;
+
+					finish(
+						bent
+							? [
+									start.x,
+									start.y,
+									cursor.x,
+									cursor.y,
+									end.x,
+									end.y,
+								]
+							: [start.x, start.y, end.x, end.y],
+						true
+					);
+				}
+				break;
+
+			case 'Backspace':
+			case 'Delete':
+
+				// One stage back: the end unfixes and the arrows hold it
+				// again.
+
+				if (guide.stage === 'bend') {
+					setCursor({...guide.end!});
+
+					setGuide({end: null, stage: 'end'});
+
+					onAnnounce(t('draw-guided-start'));
+				}
+				break;
+
+			case 'Escape':
+				onFinish(null);
+
+				onAnnounce(t('draw-cancelled'));
+				break;
+
+			default:
+				return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+	};
+
 	const handleKeyDown = (event: React.KeyboardEvent<SVGRectElement>) => {
+		if (guided) {
+			handleGuidedKeyDown(event);
+
+			return;
+		}
+
 		const step = (event.shiftKey ? 10 : 1) / zoom;
 
 		switch (event.key) {
@@ -282,7 +429,26 @@ export function DrawSurface({
 		event.stopPropagation();
 	};
 
-	const preview = pointsToPath(points, true);
+	const preview = guided
+		? guide.stage === 'end'
+			? Math.hypot(cursor.x - start.x, cursor.y - start.y) >= 1
+				? pointsToPath(
+						[start.x, start.y, cursor.x, cursor.y],
+						false
+					)
+				: ''
+			: pointsToPath(
+					[
+						start.x,
+						start.y,
+						cursor.x,
+						cursor.y,
+						guide.end!.x,
+						guide.end!.y,
+					],
+					true
+				)
+		: pointsToPath(points, true);
 
 	return (
 		<g className="editor-draw-surface">
@@ -316,6 +482,26 @@ export function DrawSurface({
 					strokeLinecap="round"
 					strokeLinejoin="round"
 					strokeWidth={width}
+				/>
+			)}
+
+			{guided && (
+				<circle
+					className="editor-draw-anchor"
+					cx={start.x}
+					cy={start.y}
+					pointerEvents="none"
+					r={4 / zoom}
+				/>
+			)}
+
+			{guided && guide.end && (
+				<circle
+					className="editor-draw-anchor"
+					cx={guide.end.x}
+					cy={guide.end.y}
+					pointerEvents="none"
+					r={4 / zoom}
 				/>
 			)}
 

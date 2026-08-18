@@ -181,9 +181,11 @@ interface Props {
 
 	/**
 	 * Enters drawing mode on the stage: the pen and the freehand gesture
-	 * live there, not in this panel.
+	 * live there, not in this panel. The argument says what pressed the
+	 * button, because a keyboard entry runs the guided line instead of
+	 * the free pen.
 	 */
-	onStartDrawing: () => void;
+	onStartDrawing: (via: 'keyboard' | 'pointer') => void;
 
 	/**
 	 * Which annotation tools to offer.
@@ -537,7 +539,16 @@ export function AnnotatePanel({
 						aria-label={t('add-draw')}
 						className="editor-tool-tile"
 						displayType="secondary"
-						onClick={onStartDrawing}
+						onClick={(event: React.MouseEvent) =>
+
+							// A click a keyboard produced reports no
+							// detail: that is the browser's own record of
+							// how the button was pressed.
+
+							onStartDrawing(
+								event.detail === 0 ? 'keyboard' : 'pointer'
+							)
+						}
 					>
 						<ToolTile icon="pencil" label={t('tool-draw')} />
 					</ClayButton>

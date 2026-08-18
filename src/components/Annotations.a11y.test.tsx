@@ -48,12 +48,12 @@ function AnnotationHarness() {
 	// The drawing mode, wired the way the editor wires it: the panel
 	// requests it, the stage hosts it, the finish becomes an overlay.
 
-	const [drawing, setDrawing] = useState(false);
+	const [drawing, setDrawing] = useState<null | {guided: boolean}>(null);
 
 	const finishDrawing = (
 		result: {points: number[]; smooth: boolean} | null
 	) => {
-		setDrawing(false);
+		setDrawing(null);
 
 		if (!result) {
 			return;
@@ -89,7 +89,8 @@ function AnnotationHarness() {
 			<Workspace
 				aspectLocked={false}
 				dispatch={dispatch}
-				drawing={drawing}
+				drawing={Boolean(drawing)}
+				guidedDrawing={drawing?.guided}
 				image={IMAGE}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
@@ -119,7 +120,9 @@ function AnnotationHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
-				onStartDrawing={() => setDrawing(true)}
+				onStartDrawing={(via) =>
+					setDrawing({guided: via === 'keyboard'})
+				}
 				tools={ANNOTATE_TOOLS}
 			/>
 
@@ -356,12 +359,14 @@ describe('Annotations, filters, and layers', () => {
 		).toHaveLength(1);
 	});
 
-	it('draws a stroke with the keyboard alone', () => {
+	it('draws a guided line with the keyboard alone', () => {
 		const {container} = render(<AnnotationHarness />);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
+		// A click with no detail is the browser's record of a keyboard
+		// activation, which is what fireEvent produces by default: the
+		// guided line, not the free pen.
 
-		// The mode starts on the surface, cursor at the crop's centre.
+		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
 
 		const surface = screen.getByRole('application', {
 			name: 'Drawing area',
@@ -369,15 +374,16 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(surface).toHaveFocus();
 
-		// Three points: centre, right, down. Enter places each one.
+		// Stage one: the start sits at the centre, the arrows aim the
+		// end, Enter sets the line.
 
-		fireEvent.keyDown(surface, {key: 'Enter'});
-
-		for (let step = 0; step < 3; step++) {
+		for (let step = 0; step < 4; step++) {
 			fireEvent.keyDown(surface, {key: 'ArrowRight', shiftKey: true});
 		}
 
 		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		// Stage two: the arrows now bend the middle, Enter finishes.
 
 		for (let step = 0; step < 3; step++) {
 			fireEvent.keyDown(surface, {key: 'ArrowDown', shiftKey: true});
@@ -385,14 +391,7 @@ describe('Annotations, filters, and layers', () => {
 
 		fireEvent.keyDown(surface, {key: 'Enter'});
 
-		// Enter again without moving finishes: the keyboard's double
-		// click.
-
-		fireEvent.keyDown(surface, {key: 'Enter'});
-
 		// The stroke is a layer like any other, and the mode is gone.
-		// Named twice, as everything is: once on the stage, once in the
-		// layer row.
 
 		expect(
 			within(container).getAllByRole('button', {name: 'Stroke'})
@@ -402,8 +401,7 @@ describe('Annotations, filters, and layers', () => {
 			screen.queryByRole('application', {name: 'Drawing area'})
 		).not.toBeInTheDocument();
 
-		// Its properties are a path's: thickness and line style, never
-		// width and height, because the points are the geometry.
+		// Its properties are a path's.
 
 		fireEvent.click(
 			container.querySelector('.editor-layer-name') as Element
@@ -413,6 +411,51 @@ describe('Annotations, filters, and layers', () => {
 		expect(screen.getByLabelText('Line style')).toBeInTheDocument();
 		expect(screen.queryByLabelText('Width')).not.toBeInTheDocument();
 	});
+
+	it('refuses to set a line with no length, and says so', () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
+
+		const surface = screen.getByRole('application', {
+			name: 'Drawing area',
+		});
+
+		// Enter before any movement: the line cannot be set yet, and the
+		// mode stays.
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		expect(
+			screen.getByRole('application', {name: 'Drawing area'})
+		).toBeInTheDocument();
+	});
+
+	it('steps back from the bend to re-aim the end', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
+
+		const surface = screen.getByRole('application', {
+			name: 'Drawing area',
+		});
+
+		fireEvent.keyDown(surface, {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		// Backspace returns to the first stage: the end unfixes.
+
+		fireEvent.keyDown(surface, {key: 'Backspace'});
+
+		fireEvent.keyDown(surface, {key: 'ArrowDown', shiftKey: true});
+		fireEvent.keyDown(surface, {key: 'Enter'});
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		expect(
+			within(container).getAllByRole('button', {name: 'Stroke'})
+		).toHaveLength(2);
+	});
+
 
 	it('abandons a drawing with Escape', () => {
 		render(<AnnotationHarness />);

@@ -26,5 +26,5 @@ Setup for the VoiceOver run: macOS, Safari and Chrome, VoiceOver on (`Cmd+F5`), 
 | 13 | `Cmd+Z` / `Cmd+Shift+Z` | "Undo: crop change" / "Redo: …" with the operation name | ☐ |
 | 14 | Save | "Image saved as sample-edited.jpg"; dialog closes; focus returns to the opening button and is announced | ☐ |
 | 15 | Keyboard shortcuts dialog | Opens as a dialog, table of shortcuts readable, `Esc` closes only this dialog | ☐ |
-| 16 | Activate Draw, place three points with Enter and the arrow keys, press Enter in place to finish | Entering announces the instructions; each Enter announces "Point N at X, Y"; finishing announces "Stroke added" and focus lands on the stroke | ☐ |
+| 16 | Activate Draw with Enter, aim the end with arrows, Enter, bend the middle with arrows, Enter | Entering announces the guided instructions; setting the line announces the bend stage; finishing announces "Stroke added" and focus lands on the stroke | ☐ |
 | 17 | On a rectangle, switch Style to Hand-drawn and back | The select is announced with its options; the change is silent on the canvas but the layer stays selected and unchanged in name | ☐ |

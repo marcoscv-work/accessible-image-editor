@@ -117,16 +117,28 @@ test('the pen places points one click at a time, no dragging', async ({
 	).toHaveAccessibleName('Stroke');
 });
 
-test('the pen draws from the keyboard alone', async ({page}) => {
+test('the keyboard runs the guided line, stage by announced stage', async ({
+	page,
+}) => {
 	await openEditor(page);
 
-	await page.getByRole('button', {exact: true, name: 'Draw'}).click();
+	// Entered by keyboard, which is what selects the guided flow over
+	// the free pen.
 
-	const surface = page.getByRole('application', {name: 'Drawing area'});
+	await page.getByRole('button', {exact: true, name: 'Draw'}).focus();
+	await page.keyboard.press('Enter');
 
-	await expect(surface).toBeFocused();
+	const status = page.getByRole('status');
+
+	await expect(status).toContainText('Move its end with the arrow keys');
+
+	// Enter before moving is refused, in words.
 
 	await page.keyboard.press('Enter');
+
+	await expect(status).toContainText('Move the end away from the start');
+
+	// Stage one: aim the end and set the line.
 
 	for (let step = 0; step < 8; step++) {
 		await page.keyboard.press('Shift+ArrowRight');
@@ -134,30 +146,37 @@ test('the pen draws from the keyboard alone', async ({page}) => {
 
 	await page.keyboard.press('Enter');
 
-	for (let step = 0; step < 6; step++) {
+	await expect(status).toContainText('Move the middle point');
+
+	// Stage two: bend the middle, finish.
+
+	for (let step = 0; step < 5; step++) {
 		await page.keyboard.press('Shift+ArrowDown');
 	}
 
 	await page.keyboard.press('Enter');
 
-	// Enter without moving finishes.
+	await expect(status).toContainText('Stroke added');
 
-	await page.keyboard.press('Enter');
+	// Three anchors curved through the middle: the path carries beziers.
 
-	await expect(page.getByRole('status')).toContainText('Stroke added');
+	const stroke = page.locator(
+		'.editor-workspace [data-overlay-id^="stroke"]'
+	);
+
+	await expect(stroke).toHaveCount(1);
+
+	expect(
+		await page
+			.locator('.editor-stage path[stroke-linecap="round"]')
+			.first()
+			.getAttribute('d')
+	).toContain('C');
 
 	// And the layer's properties are a path's: thickness and line style.
 
 	await expect(page.getByLabel('Thickness', {exact: true})).toBeVisible();
 	await expect(page.getByLabel('Line style', {exact: true})).toBeVisible();
-
-	// Straightening the same points is an edit, not a redraw.
-
-	await page.getByLabel('Line style', {exact: true}).selectOption('straight');
-
-	await expect(
-		page.locator('.editor-workspace [data-overlay-id^="stroke"]')
-	).toHaveCount(1);
 });
 
 test('escape abandons the stroke and the mode', async ({page}) => {

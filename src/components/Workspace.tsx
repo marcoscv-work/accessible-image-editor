@@ -32,6 +32,11 @@ interface Props {
 	 */
 	drawing?: boolean;
 
+	/**
+	 * Whether the drawing runs as the guided keyboard line.
+	 */
+	guidedDrawing?: boolean;
+
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
@@ -70,6 +75,7 @@ export function Workspace({
 	aspectLocked,
 	dispatch,
 	drawing,
+	guidedDrawing,
 	image,
 	onAnnounce,
 	onCenterCrop,
@@ -260,6 +266,7 @@ export function Workspace({
 						<DrawSurface
 							area={crop}
 							color="#0b5fff"
+							guided={guidedDrawing}
 							onAnnounce={onAnnounce}
 							onFinish={onFinishDrawing}
 							width={Math.max(

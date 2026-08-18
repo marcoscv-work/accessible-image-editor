@@ -123,10 +123,11 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const [aspectLocked, setAspectLocked] = useState(false);
 
 	/**
-	 * Whether the stage is in drawing mode: the pen and the freehand
-	 * gesture, which both end in the same stroke overlay.
+	 * Whether the stage is in drawing mode, and how it was entered: a
+	 * keyboard entry runs the guided line, a pointer entry the free pen.
+	 * Both end in the same stroke overlay.
 	 */
-	const [drawing, setDrawing] = useState(false);
+	const [drawing, setDrawing] = useState<null | {guided: boolean}>(null);
 
 	/*
 	 * The selected annotation's padlock, here for the same reason: the
@@ -160,7 +161,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const state = history.present;
 
 	const finishDrawing = (result: {points: number[]; smooth: boolean} | null) => {
-		setDrawing(false);
+		setDrawing(null);
 
 		if (!result) {
 			return;
@@ -603,7 +604,8 @@ export default function EditorModal({config, image, onClose}: Props) {
 						<Workspace
 							aspectLocked={aspectLocked}
 							dispatch={dispatch}
-							drawing={drawing}
+							drawing={Boolean(drawing)}
+							guidedDrawing={drawing?.guided}
 							image={image}
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
@@ -640,7 +642,9 @@ export default function EditorModal({config, image, onClose}: Props) {
 							onAspectLockedChange={setAspectLocked}
 							onProportionalChange={setLayerProportional}
 							onSelectOverlay={setSelectedOverlayId}
-							onStartDrawing={() => setDrawing(true)}
+							onStartDrawing={(via) =>
+								setDrawing({guided: via === 'keyboard'})
+							}
 							proportional={layerProportional}
 							selectedOverlayId={selectedOverlayId}
 							sidebarRef={sidebarRef}

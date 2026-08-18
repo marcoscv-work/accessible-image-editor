@@ -126,8 +126,14 @@ test('keyboard-only annotation journey', async ({page}) => {
 	).toBe(0);
 
 	// Pick a filter preset with the arrow keys inside the radio group.
+	// Focus is asserted before the arrow fires: under CPU contention the
+	// tab walk can report the id a beat before focus has settled, and an
+	// arrow pressed into the void selects nothing.
 
 	await tabUntil(page, 'filter-none');
+
+	await expect(page.locator('#filter-none')).toBeFocused();
+
 	await page.keyboard.press('ArrowDown');
 
 	await expect(page.locator('#filter-grayscale')).toBeChecked();

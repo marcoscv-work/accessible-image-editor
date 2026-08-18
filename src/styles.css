@@ -1209,6 +1209,11 @@ input.editor-color-input.editor-color-fill.form-control {
 	opacity: 0.9;
 }
 
+.editor-draw-anchor {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
 .editor-draw-surface rect:focus {
 	outline: none;
 }

@@ -40,9 +40,10 @@ interface Props {
 	onSelectOverlay: (id: string | null) => void;
 
 	/**
-	 * Enters drawing mode on the stage.
+	 * Enters drawing mode on the stage; the argument says what pressed
+	 * the button.
 	 */
-	onStartDrawing: () => void;
+	onStartDrawing: (via: 'keyboard' | 'pointer') => void;
 
 
 	/**
