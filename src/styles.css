@@ -944,10 +944,19 @@ input.editor-color-input.editor-color-fill.form-control {
 	position: relative;
 }
 
+/*
+ * A group member wears the full selected dress, not a tinted name: the
+ * point of the highlight is reading WHICH layers move together, and text
+ * has to stay text wherever the highlight lands.
+ */
+
+.editor-layer-item-grouped,
 .editor-layer-item-selected {
 	background: var(--primary, #0b5fff);
 }
 
+.editor-layer-item-grouped .editor-layer-actions .btn,
+.editor-layer-item-grouped .editor-layer-name,
 .editor-layer-item-selected .editor-layer-actions .btn,
 .editor-layer-item-selected .editor-layer-name {
 	color: #fff;
@@ -1235,10 +1244,6 @@ input.editor-color-input.editor-color-fill.form-control {
 
 .editor-draw-surface rect:focus {
 	outline: none;
-}
-
-.editor-layer-item-grouped .editor-layer-name {
-	color: var(--editor-accent-text);
 }
 
 .editor-group-note {
