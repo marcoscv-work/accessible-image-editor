@@ -52,12 +52,31 @@ function AnnotationHarness() {
 
 	const [multiIds, setMultiIds] = useState<string[]>([]);
 
-	const toggleMulti = (id: string) =>
+	// Seeded from the standing selection, exactly as the editor does it.
+
+	const selectAsEditor = (id: string | null) => {
+		setSelectedId(id);
+
 		setMultiIds((ids) =>
-			ids.includes(id)
-				? ids.filter((candidate) => candidate !== id)
-				: [...ids, id]
+			id !== null && ids.includes(id) ? ids : []
 		);
+	};
+
+	const toggleMulti = (id: string) => {
+		const base = multiIds.length
+			? multiIds
+			: selectedId && selectedId !== id
+				? [selectedId]
+				: [];
+
+		const next = multiIds.includes(id)
+			? multiIds.filter((candidate) => candidate !== id)
+			: [...base, id];
+
+		setMultiIds(next.length >= 2 ? next : []);
+
+		setSelectedId(id);
+	};
 
 	const finishDrawing = (
 		result: {points: number[]; smooth: boolean} | null
@@ -106,7 +125,7 @@ function AnnotationHarness() {
 				onCenterCrop={() => {}}
 				onFinishDrawing={finishDrawing}
 				onMultiSelectToggle={toggleMulti}
-				onSelectOverlay={setSelectedId}
+				onSelectOverlay={selectAsEditor}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
 				onZoomActual={() => {}}
@@ -139,9 +158,10 @@ function AnnotationHarness() {
 
 			<LayersPanel
 				dispatch={dispatch}
+				multiSelectedIds={multiIds}
 				onAnnounce={() => {}}
 				onProportionalChange={setProportional}
-				onSelect={setSelectedId}
+				onSelect={selectAsEditor}
 				overlays={history.present.overlays}
 				proportional={proportional}
 				selectedId={selectedId}
@@ -195,6 +215,7 @@ function TextStageHarness() {
 
 			<LayersPanel
 				dispatch={dispatch}
+				multiSelectedIds={[]}
 				onAnnounce={() => {}}
 				onProportionalChange={setProportional}
 				onSelect={setSelectedId}
@@ -548,10 +569,11 @@ describe('Annotations, filters, and layers', () => {
 
 		const hits = container.querySelectorAll('.overlay-hit');
 
-		// Shift+click enrols both members.
+		// Select the circle plainly, then Shift+click the rectangle: the
+		// pair is seeded from the standing selection.
 
+		fireEvent.focus(hits[1]);
 		fireEvent.pointerDown(hits[0], {shiftKey: true});
-		fireEvent.pointerDown(hits[1], {shiftKey: true});
 
 		// Both wear a ring, and the manipulation handles are gone: a
 		// group grants movement and nothing else.
@@ -582,6 +604,38 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(Number(rectangle().getAttribute('x'))).toBe(rectangleX + 10);
 		expect(Number(circle().getAttribute('cx'))).toBe(circleX + 10);
+
+		// While the group lives, the properties yield to a note: editing
+		// "the selected layer" beside three rings changes one and reads
+		// as a lie.
+
+		expect(screen.queryByText(/Selected layer/)).not.toBeInTheDocument();
+		expect(
+			screen.getByText(/grouped to move together/)
+		).toBeInTheDocument();
+
+		// A plain click on a member keeps the group (that is how it is
+		// dragged); a plain click outside it dissolves it.
+
+		fireEvent.pointerDown(hits[0]);
+		fireEvent.pointerUp(hits[0]);
+
+		expect(
+			screen.getByText(/grouped to move together/)
+		).toBeInTheDocument();
+
+		addShape('Square');
+
+		const third = container.querySelectorAll('.overlay-hit')[2];
+
+		fireEvent.pointerDown(third);
+		fireEvent.pointerUp(third);
+
+		expect(
+			screen.queryByText(/grouped to move together/)
+		).not.toBeInTheDocument();
+
+		expect(screen.getByText(/Selected layer/)).toBeInTheDocument();
 	});
 
 	it('adds an emoji as a layer of its own, sized but never coloured', async () => {

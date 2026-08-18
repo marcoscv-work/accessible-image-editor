@@ -15,6 +15,13 @@ import {LayerProperties} from './LayerProperties';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
+
+	/**
+	 * The move-together set. While it holds two or more, the properties
+	 * editor steps aside: editing "the selected layer" with three rings
+	 * on screen changes one of them and reads as a lie.
+	 */
+	multiSelectedIds: string[];
 	onAnnounce: (message: string) => void;
 	onProportionalChange: (proportional: boolean) => void;
 	onSelect: (id: string | null) => void;
@@ -37,6 +44,7 @@ interface Props {
  */
 export function LayersPanel({
 	dispatch,
+	multiSelectedIds,
 	onAnnounce,
 	onProportionalChange,
 	onSelect,
@@ -251,11 +259,14 @@ export function LayersPanel({
 
 					return (
 						<li
-							className={
-								isSelected
-									? 'editor-layer-item editor-layer-item-selected'
-									: 'editor-layer-item'
-							}
+							className={[
+								'editor-layer-item',
+								isSelected && 'editor-layer-item-selected',
+								multiSelectedIds.includes(overlay.id) &&
+									'editor-layer-item-grouped',
+							]
+								.filter(Boolean)
+								.join(' ')}
 							key={overlay.id}
 						>
 							<button
@@ -372,15 +383,21 @@ export function LayersPanel({
 				})}
 			</ul>
 
-			{selected && (
-				<LayerProperties
-					dispatch={dispatch}
-					key={selected.id}
-					onAnnounce={onAnnounce}
-					onProportionalChange={onProportionalChange}
-					overlay={selected}
-					proportional={proportional}
-				/>
+			{multiSelectedIds.length >= 2 ? (
+				<p className="editor-group-note editor-panel-subtitle">
+					{t('layers-group-note', multiSelectedIds.length)}
+				</p>
+			) : (
+				selected && (
+					<LayerProperties
+						dispatch={dispatch}
+						key={selected.id}
+						onAnnounce={onAnnounce}
+						onProportionalChange={onProportionalChange}
+						overlay={selected}
+						proportional={proportional}
+					/>
+				)
 			)}
 		</EditorSection>
 	);

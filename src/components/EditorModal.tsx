@@ -160,24 +160,48 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const selectOverlay = (id: string | null) => {
 		setSelectedOverlayId(id);
 
-		// A plain deselection dissolves the group: the set exists only
-		// while it is being used.
+		// A plain selection outside the group dissolves it, and so does
+		// deselecting: the set survives only plain clicks on its own
+		// members, which is how the group is dragged.
 
-		if (id === null) {
-			setMultiSelectedIds([]);
-		}
+		setMultiSelectedIds((currentIds) =>
+			id !== null && currentIds.includes(id) ? currentIds : []
+		);
 	};
 
 	const toggleMultiSelect = (id: string) => {
-		setMultiSelectedIds((currentIds) => {
-			const next = currentIds.includes(id)
-				? currentIds.filter((candidate) => candidate !== id)
-				: [...currentIds, id];
+		const removing = multiSelectedIds.includes(id);
+
+		// A Shift+click with a standing plain selection reads as "these
+		// two together": the group is seeded with what was already
+		// selected, the way every editor treats it.
+
+		const base = multiSelectedIds.length
+			? multiSelectedIds
+			: selectedOverlayId && selectedOverlayId !== id
+				? [selectedOverlayId]
+				: [];
+
+		const next = removing
+			? multiSelectedIds.filter((candidate) => candidate !== id)
+			: [...base, id];
+
+		if (next.length >= 2) {
+			setMultiSelectedIds(next);
 
 			announce(t('annotations-selected', next.length));
+		}
+		else {
 
-			return next;
-		});
+			// A group of one is just a selection: dissolve rather than
+			// keep an invisible group around.
+
+			setMultiSelectedIds([]);
+
+			if (multiSelectedIds.length >= 2) {
+				announce(t('annotations-ungrouped'));
+			}
+		}
 
 		setSelectedOverlayId(id);
 	};
@@ -738,6 +762,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 							dispatch={dispatch}
 							enabled={enabled}
 							image={image}
+							multiSelectedIds={multiSelectedIds}
 							onAnnounce={announce}
 							onAspectLockedChange={setAspectLocked}
 							onProportionalChange={setLayerProportional}

@@ -411,12 +411,13 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 		rectangleX: Number(await rectangle.getAttribute('x')),
 	};
 
-	// Shift+click both members.
+	// The circle arrived selected, so a single Shift+click on the
+	// rectangle seeds the pair with it: selection plus Shift reads as
+	// "these two together".
 
 	const hits = page.locator('.editor-workspace .overlay-hit');
 
 	await hits.first().click({modifiers: ['Shift'], position: {x: 12, y: 12}});
-	await hits.nth(1).click({modifiers: ['Shift']});
 
 	await expect(page.getByRole('status')).toContainText(
 		'2 annotations selected'
@@ -456,4 +457,41 @@ test('a shift-built group drags as one and undoes as one', async ({page}) => {
 
 	expect(Number(await rectangle.getAttribute('x'))).toBe(before.rectangleX);
 	expect(Number(await circle.getAttribute('cx'))).toBe(before.circleX);
+
+	// While the group lives the properties yield to a note, and a plain
+	// click outside the group dissolves it: a third thing selected next
+	// to two rings must not look like three.
+
+	await expect(page.getByText(/grouped to move together/)).toBeVisible();
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Square'})
+		.click();
+
+	await expect(page.getByText(/grouped to move together/)).toHaveCount(0);
+	await expect(page.getByText(/Selected layer/)).toBeVisible();
+
+	// Exactly one ringed annotation remains: the newcomer. Which ring it
+	// wears depends on how focus arrived, so both kinds are counted.
+
+	expect(
+		await page
+			.locator(
+				'.editor-stage .focus-ring-outer, .editor-stage .selection-ring'
+			)
+			.count()
+	).toBeLessThanOrEqual(2);
+
+	expect(
+		await page.evaluate(
+			() =>
+				new Set(
+					[...document.querySelectorAll(
+						'.editor-stage .focus-ring-outer, .editor-stage .selection-ring'
+					)].map((ring) => ring.closest('g'))
+				).size
+		)
+	).toBe(1);
 });

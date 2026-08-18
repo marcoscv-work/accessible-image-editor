@@ -37,6 +37,8 @@ interface Props {
 	onAnnounce: (message: string) => void;
 	onAspectLockedChange: (locked: boolean) => void;
 	onProportionalChange: (proportional: boolean) => void;
+	multiSelectedIds: string[];
+
 	onSelectOverlay: (id: string | null) => void;
 
 	/**
@@ -68,6 +70,7 @@ export function EditorSidebar({
 	dispatch,
 	enabled,
 	image,
+	multiSelectedIds,
 	onAnnounce,
 	onAspectLockedChange,
 	onProportionalChange,
@@ -138,6 +141,7 @@ export function EditorSidebar({
 
 				<LayersPanel
 					dispatch={dispatch}
+					multiSelectedIds={multiSelectedIds}
 					onAnnounce={onAnnounce}
 					onProportionalChange={onProportionalChange}
 					onSelect={onSelectOverlay}

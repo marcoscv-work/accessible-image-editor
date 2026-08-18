@@ -29,6 +29,7 @@ export default {
 	'annotation-removed': '{0} removed',
 	'annotations-moved': '{0} annotations moved together',
 	'annotations-selected': '{0} annotations selected to move together',
+	'annotations-ungrouped': 'Move-together group dissolved',
 	'app-description':
 		'A fully accessible, non-canvas image editor built on Clay. Open the bundled sample or pick an image from your device.',
 	'app-title': 'Accessible Image Editor',
@@ -163,6 +164,8 @@ export default {
 		'Press Enter to move focus to this element on the image. Press Delete to remove it.',
 	'layer-updated': '{0} updated',
 	layers: 'Layers',
+	'layers-group-note':
+		'{0} annotations are grouped to move together. Select one without Shift to edit its properties.',
 	'load-failed': 'The image could not be opened. Try a different file.',
 	'move-layer-down': 'Move {0} down',
 	'move-layer-up': 'Move {0} up',
