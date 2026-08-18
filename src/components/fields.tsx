@@ -21,7 +21,11 @@ interface FieldProps {
 
 /**
  * Commits on Enter and on blur, and puts the last good value back when
- * what was typed is not a number.
+ * what was typed is not a number. Typing stays a draft, because "15" on
+ * the way to "150" is an artifact of decimal notation, not a chosen
+ * value; the arrow keys, whose every step IS a complete chosen value,
+ * preview live when the field offers a preview, and the whole stepping
+ * run still lands as a single history entry on Enter or blur.
  */
 export function NumberField({
 	id,
@@ -29,18 +33,29 @@ export function NumberField({
 	max,
 	min = 1,
 	onCommit,
+	onPreview,
 	suffix,
 	value,
 }: FieldProps & {
 	max?: number;
 	min?: number;
 	onCommit: (value: number) => void;
+
+	/**
+	 * Called on every arrow-key step with the complete value it
+	 * produced, dispatched as transient by the owner.
+	 */
+	onPreview?: (value: number) => void;
+
 	suffix?: string;
 	value: number;
 }) {
 	const [draft, setDraft] = useState(String(value));
 
 	useEffect(() => setDraft(String(value)), [value]);
+
+	const clamp = (raw: number) =>
+		Math.min(Math.max(raw, min), max ?? Infinity);
 
 	const commit = () => {
 		const parsed = Number.parseInt(draft, 10);
@@ -51,7 +66,20 @@ export function NumberField({
 			return;
 		}
 
-		onCommit(Math.min(Math.max(parsed, min), max ?? Infinity));
+		onCommit(clamp(parsed));
+	};
+
+	const step = (direction: -1 | 1, large: boolean) => {
+		const parsed = Number.parseInt(draft, 10);
+
+		const next = clamp(
+			(Number.isNaN(parsed) ? value : parsed) +
+				direction * (large ? 10 : 1)
+		);
+
+		setDraft(String(next));
+
+		onPreview?.(next);
 	};
 
 	const input = (
@@ -65,6 +93,22 @@ export function NumberField({
 				if (event.key === 'Enter') {
 					event.preventDefault();
 					commit();
+				}
+				else if (
+					event.key === 'ArrowUp' ||
+					event.key === 'ArrowDown'
+				) {
+
+					// Owned rather than left to the browser: this is what
+					// adds Shift for 10, keeps the draft in range, and
+					// lets the step preview on the stage.
+
+					event.preventDefault();
+
+					step(
+						event.key === 'ArrowUp' ? 1 : -1,
+						event.shiftKey
+					);
 				}
 			}}
 			sizing="sm"
@@ -310,6 +354,7 @@ export function BorderField({
 	onColorCommit,
 	onColorPreview,
 	onWidthCommit,
+	onWidthPreview,
 	widthLabel,
 	widthValue,
 }: FieldProps & {
@@ -318,6 +363,7 @@ export function BorderField({
 	onColorCommit: (value: string) => void;
 	onColorPreview: (value: string) => void;
 	onWidthCommit: (value: number) => void;
+	onWidthPreview?: (value: number) => void;
 	widthLabel: string;
 	widthValue: number;
 }) {
@@ -365,6 +411,29 @@ export function BorderField({
 								if (event.key === 'Enter') {
 									event.preventDefault();
 									commit();
+								}
+								else if (
+									event.key === 'ArrowUp' ||
+									event.key === 'ArrowDown'
+								) {
+									event.preventDefault();
+
+									const parsed = Number.parseInt(draft, 10);
+
+									const next = Math.max(
+										(Number.isNaN(parsed)
+											? widthValue
+											: parsed) +
+											(event.key === 'ArrowUp'
+												? 1
+												: -1) *
+												(event.shiftKey ? 10 : 1),
+										0
+									);
+
+									setDraft(String(next));
+
+									onWidthPreview?.(next);
 								}
 							}}
 							sizing="sm"

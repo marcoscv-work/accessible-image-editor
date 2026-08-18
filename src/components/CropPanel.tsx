@@ -134,12 +134,20 @@ export function CropPanel({
 			y: String(next.y),
 		});
 
-		if (
+		const unchanged =
 			next.height === crop.height &&
 			next.width === crop.width &&
 			next.x === crop.x &&
-			next.y === crop.y
-		) {
+			next.y === crop.y;
+
+		// Dispatched even when nothing changed: an arrow-stepping run has
+		// left a transient gesture open, and only a non-transient commit
+		// closes it into a single history entry. The reducer already
+		// treats a same-value commit outside a gesture as a no-op.
+
+		dispatch({crop: next, type: 'set-crop'});
+
+		if (unchanged) {
 
 			// The field snapped back in front of a sighted reader; say so
 			// for everyone else, rather than leaving the typed value to
@@ -154,11 +162,36 @@ export function CropPanel({
 			return;
 		}
 
-		dispatch({crop: next, type: 'set-crop'});
-
 		onAnnounce(
 			t('crop-applied', next.x, next.y, next.width, next.height)
 		);
+	};
+
+	/**
+	 * The arrow keys' live route: each step is a complete value, clamped
+	 * by the same geometry the commit uses, shown on the stage at once
+	 * and folded into one history entry by the commit on Enter or blur.
+	 */
+	const stepField = (field: Field, direction: -1 | 1, large: boolean) => {
+		const parsed = Number.parseInt(drafts[field], 10);
+
+		const requested = {
+			...crop,
+			[field]:
+				(Number.isNaN(parsed) ? crop[field] : parsed) +
+				direction * (large ? 10 : 1),
+		};
+
+		const next = clampCrop(requested, bounds);
+
+		setDrafts({
+			height: String(next.height),
+			width: String(next.width),
+			x: String(next.x),
+			y: String(next.y),
+		});
+
+		dispatch({crop: next, transient: true, type: 'set-crop'});
 	};
 
 	const renderField = (field: Field) => (
@@ -179,6 +212,18 @@ export function CropPanel({
 					if (event.key === 'Enter') {
 						event.preventDefault();
 						commit(field);
+					}
+					else if (
+						event.key === 'ArrowUp' ||
+						event.key === 'ArrowDown'
+					) {
+						event.preventDefault();
+
+						stepField(
+							field,
+							event.key === 'ArrowUp' ? 1 : -1,
+							event.shiftKey
+						);
 					}
 				}}
 				sizing="sm"

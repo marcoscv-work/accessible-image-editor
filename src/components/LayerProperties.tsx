@@ -58,15 +58,24 @@ export function LayerProperties({
 	};
 
 	/**
+	 * The arrow keys' live twin of commitPatch: every step is a complete
+	 * value, so it goes to the stage at once, transient, and the commit
+	 * on Enter or blur closes the whole run as one history entry.
+	 */
+	const previewPatch = (patch: Partial<Overlay>) =>
+		dispatch({id: overlay.id, patch, transient: true, type: 'update-overlay'});
+
+	/**
 	 * With the padlock on, the side that was not typed follows, so nobody
 	 * has to work out what the other number should be. The ratio comes
 	 * from the box as it stands, which is what the picture arrived with.
 	 */
-	const commitSize = (side: 'height' | 'width', value: number) => {
+	const sizePatch = (
+		side: 'height' | 'width',
+		value: number
+	): Partial<Overlay> => {
 		if (!proportional || !isBoxOverlay(overlay)) {
-			commitPatch({[side]: value});
-
-			return;
+			return {[side]: value};
 		}
 
 		const ratio = overlay.width / overlay.height;
@@ -76,12 +85,13 @@ export function LayerProperties({
 			1
 		);
 
-		commitPatch(
-			side === 'width'
-				? {height: other, width: value}
-				: {height: value, width: other}
-		);
+		return side === 'width'
+			? {height: other, width: value}
+			: {height: value, width: other};
 	};
+
+	const commitSize = (side: 'height' | 'width', value: number) =>
+		commitPatch(sizePatch(side, value));
 
 	const pairedWithColor = hasColor(overlay) || overlay.kind === 'redact';
 
@@ -92,6 +102,7 @@ export function LayerProperties({
 			max={360}
 			min={-360}
 			onCommit={(rotation) => commitPatch({rotation})}
+			onPreview={(rotation) => previewPatch({rotation})}
 			suffix={t('unit-degrees')}
 			value={overlay.rotation ?? 0}
 		/>
@@ -104,6 +115,7 @@ export function LayerProperties({
 			max={100}
 			min={0}
 			onCommit={(opacity) => commitPatch({opacity})}
+			onPreview={(opacity) => previewPatch({opacity})}
 			suffix={t('unit-percent')}
 			value={overlay.opacity ?? 100}
 		/>
@@ -236,6 +248,7 @@ export function LayerProperties({
 					label={t('x-position')}
 					min={-Infinity}
 					onCommit={(x) => commitPatch({x})}
+					onPreview={(x) => previewPatch({x})}
 					value={Math.round(overlay.x)}
 				/>
 
@@ -244,6 +257,7 @@ export function LayerProperties({
 					label={t('y-position')}
 					min={-Infinity}
 					onCommit={(y) => commitPatch({y})}
+					onPreview={(y) => previewPatch({y})}
 					value={Math.round(overlay.y)}
 				/>
 
@@ -303,6 +317,9 @@ export function LayerProperties({
 						onCommit={(tipX) =>
 							commitPatch({dx: Math.round(tipX - overlay.x)})
 						}
+						onPreview={(tipX) =>
+							previewPatch({dx: Math.round(tipX - overlay.x)})
+						}
 						value={Math.round(overlay.x + overlay.dx)}
 					/>
 				)}
@@ -315,6 +332,9 @@ export function LayerProperties({
 						onCommit={(tipY) =>
 							commitPatch({dy: Math.round(tipY - overlay.y)})
 						}
+						onPreview={(tipY) =>
+							previewPatch({dy: Math.round(tipY - overlay.y)})
+						}
 						value={Math.round(overlay.y + overlay.dy)}
 					/>
 				)}
@@ -325,6 +345,7 @@ export function LayerProperties({
 						label={t('thickness')}
 						min={1}
 						onCommit={(thickness) => commitPatch({thickness})}
+						onPreview={(thickness) => previewPatch({thickness})}
 						value={overlay.thickness}
 					/>
 				)}
@@ -335,6 +356,7 @@ export function LayerProperties({
 						label={t('thickness')}
 						min={1}
 						onCommit={(width) => commitPatch({width})}
+						onPreview={(width) => previewPatch({width})}
 						value={overlay.width}
 					/>
 				)}
@@ -380,6 +402,7 @@ export function LayerProperties({
 						label={t('size')}
 						min={8}
 						onCommit={(size) => commitPatch({size})}
+						onPreview={(size) => previewPatch({size})}
 						value={overlay.size}
 					/>
 				)}
@@ -415,6 +438,7 @@ export function LayerProperties({
 						label={t('font-size')}
 						min={8}
 						onCommit={(fontSize) => commitPatch({fontSize})}
+						onPreview={(fontSize) => previewPatch({fontSize})}
 						value={overlay.fontSize}
 					/>
 				)}
@@ -425,6 +449,9 @@ export function LayerProperties({
 							id="layer-prop-width"
 							label={t('width')}
 							onCommit={(width) => commitSize('width', width)}
+							onPreview={(width) =>
+								previewPatch(sizePatch('width', width))
+							}
 							value={overlay.width}
 						/>
 
@@ -454,6 +481,9 @@ export function LayerProperties({
 							id="layer-prop-height"
 							label={t('height')}
 							onCommit={(height) => commitSize('height', height)}
+							onPreview={(height) =>
+								previewPatch(sizePatch('height', height))
+							}
 							value={overlay.height}
 						/>
 					</div>
@@ -521,6 +551,9 @@ export function LayerProperties({
 						}
 						onWidthCommit={(borderWidth) =>
 							commitPatch({borderWidth})
+						}
+						onWidthPreview={(borderWidth) =>
+							previewPatch({borderWidth})
 						}
 						widthLabel={t('border-width')}
 						widthValue={overlay.borderWidth ?? 0}

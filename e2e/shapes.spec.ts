@@ -264,3 +264,67 @@ test('both menus open and commit from the keyboard alone', async ({page}) => {
 		page.getByRole('button', {exact: true, name: 'Draw'})
 	).toBeFocused();
 });
+
+test('arrow steps preview live and land as one undo entry', async ({
+	page,
+}) => {
+	await openEditor(page);
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Rectangle'})
+		.click();
+
+	const stageWidth = () =>
+		page
+			.locator('.editor-workspace rect[fill="#0b5fff"]')
+			.getAttribute('width')
+			.then(Number);
+
+	const before = await stageWidth();
+
+	// Three steps, one of them large: the stage follows each one before
+	// anything is committed.
+
+	const width = page.locator('#layer-prop-width');
+
+	await width.focus();
+	await page.keyboard.press('ArrowUp');
+
+	expect(await stageWidth()).toBe(before + 1);
+
+	await page.keyboard.press('Shift+ArrowUp');
+	await page.keyboard.press('ArrowUp');
+
+	expect(await stageWidth()).toBe(before + 12);
+
+	// Blur commits the whole run as a single history entry.
+
+	await page.keyboard.press('Tab');
+
+	await page.getByRole('button', {exact: true, name: 'Undo'}).click();
+
+	expect(await stageWidth()).toBe(before);
+
+	// The crop fields step through the same clamp. The default crop is
+	// the whole image, so X genuinely cannot move yet: the step is
+	// refused by geometry. Shrink the width first, and X gains room.
+
+	const cropX = page.locator('#crop-x');
+
+	await cropX.focus();
+	await page.keyboard.press('Shift+ArrowUp');
+
+	await expect(cropX).toHaveValue('0');
+
+	await page.locator('#crop-width').focus();
+	await page.keyboard.press('Shift+ArrowDown');
+
+	await expect(page.locator('#crop-width')).toHaveValue('1540');
+
+	await cropX.focus();
+	await page.keyboard.press('Shift+ArrowUp');
+
+	await expect(cropX).toHaveValue('10');
+});
