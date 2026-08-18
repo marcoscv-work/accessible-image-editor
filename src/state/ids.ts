@@ -6,7 +6,7 @@
 /**
  * Identifiers for the things a session creates. They are part of the edit
  * state, so they have to be stable, unique and readable in a serialized
- * session: `sticker-9f3a1c2b` says what it is at a glance.
+ * session: `emoji-9f3a1c2b` says what it is at a glance.
  */
 export function nextId(kind: string): string {
 	return `${kind}-${crypto.randomUUID().slice(0, 8)}`;

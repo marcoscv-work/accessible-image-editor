@@ -37,9 +37,9 @@ interface Props {
  * for the whole thing, and it re-enters where it was left.
  *
  * The names are on the cells rather than beside them, which is what keeps
- * ten stickers a glance instead of a list. Nothing here relies on the
- * tooltip: it repeats the accessible name for people using a pointer, and
- * removing it would cost nothing but convenience.
+ * a page of drawings a glance instead of a list. Nothing here relies on
+ * the tooltip: it repeats the accessible name for people using a pointer,
+ * and removing it would cost nothing but convenience.
  */
 export function MenuGrid({choices, columns, label, onChoose}: Props) {
 	const [active, setActive] = useState(0);

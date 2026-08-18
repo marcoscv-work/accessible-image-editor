@@ -15,14 +15,10 @@ import {
 } from '../editorConfig';
 import {t} from '../i18n';
 import {loadOverlayImage} from '../imaging/loadImage';
-import {
-	STICKER_DEFAULT_COLORS,
-	StickerArt,
-	textWidth,
-} from '../imaging/overlayShapes';
+import {textWidth} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {nextId} from '../state/ids';
-import {CropRect, Overlay, StickerKind} from '../state/types';
+import {CropRect, Overlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
@@ -134,27 +130,6 @@ function ShapePreview({shape}: {shape: ShapeTool}) {
 	);
 }
 
-function StickerPreview({sticker}: {sticker: StickerKind}) {
-	return (
-		<svg
-			aria-hidden="true"
-			className="editor-menu-preview"
-			focusable="false"
-			height={22}
-			viewBox="0 0 24 24"
-			width={22}
-		>
-			<StickerArt
-				color={STICKER_DEFAULT_COLORS[sticker]}
-				size={22}
-				sticker={sticker}
-				x={12}
-				y={12}
-			/>
-		</svg>
-	);
-}
-
 interface Props {
 
 	/**
@@ -167,18 +142,13 @@ interface Props {
 	onAnnounce: (message: string) => void;
 
 	/**
-	 * Which sticker shapes to offer, in canonical order.
-	 */
-	stickers: StickerKind[];
-
-	/**
 	 * Which annotation tools to offer.
 	 */
 	tools: AnnotateTool[];
 }
 
 /**
- * The accessible annotation route: parametric text, shapes, and stickers
+ * The accessible annotation route: parametric text, shapes and emoji
  * added through regular form controls, never through freehand pointer
  * drawing.
  */
@@ -186,14 +156,11 @@ export function AnnotatePanel({
 	area,
 	dispatch,
 	onAnnounce,
-	stickers,
 	tools,
 }: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
 	const [shapeMenuOpen, setShapeMenuOpen] = useState(false);
-
-	const [stickerMenuOpen, setStickerMenuOpen] = useState(false);
 
 	const [emojiMenuOpen, setEmojiMenuOpen] = useState(false);
 
@@ -214,14 +181,11 @@ export function AnnotatePanel({
 
 	const shapeTools = tools.filter(isShapeTool);
 
-	const hasStickers = tools.includes('stickers') && stickers.length > 0;
-
 	const controls: string[] = [
 		...(tools.includes('text') ? ['text'] : []),
 		...(shapeTools.length ? ['shapes'] : []),
 		...(tools.includes('redaction') ? ['redaction'] : []),
 		...(tools.includes('image') ? ['image'] : []),
-		...(hasStickers ? ['stickers'] : []),
 		...(tools.includes('emoji') ? ['emoji'] : []),
 	];
 
@@ -461,20 +425,6 @@ export function AnnotatePanel({
 			name
 		);
 
-	const addSticker = (sticker: StickerKind) =>
-		add(
-			{
-				color: STICKER_DEFAULT_COLORS[sticker],
-				id: nextId('sticker'),
-				kind: 'sticker',
-				size: Math.round(Math.min(area.width, area.height) * 0.2),
-				sticker,
-				x: centerX,
-				y: centerY,
-			},
-			t(`sticker-${sticker}`)
-		);
-
 	return (
 		<EditorSection title={t('annotate')} titleId="annotate-panel-title">
 			<div
@@ -576,38 +526,6 @@ export function AnnotatePanel({
 					</>
 				)}
 
-				{hasStickers && (
-					<ClayDropDown
-						active={stickerMenuOpen}
-						menuElementAttrs={{className: 'editor-menu-popover'}}
-						onActiveChange={setStickerMenuOpen}
-						trigger={
-							<ClayButton
-								{...rovingProps(indexOf('stickers'))}
-								data-menu-trigger
-								displayType="secondary"
-								size="sm"
-							>
-								{t('add-sticker')}
-							</ClayButton>
-						}
-					>
-						<MenuGrid
-							choices={stickers.map((sticker) => ({
-								art: <StickerPreview sticker={sticker} />,
-								id: sticker,
-								label: t(`sticker-${sticker}`),
-							}))}
-							columns={5}
-							label={t('add-sticker')}
-							onChoose={(sticker) => {
-								setStickerMenuOpen(false);
-
-								addSticker(sticker as StickerKind);
-							}}
-						/>
-					</ClayDropDown>
-				)}
 				{tools.includes('emoji') && (
 					<ClayDropDown
 					active={emojiMenuOpen}

@@ -34,7 +34,7 @@ test('opens on a curated page and reaches everything by search', async ({
 
 	const shown = await cells.count();
 
-	expect(shown).toBeLessThan(100);
+	expect(shown).toBeLessThan(200);
 	expect(shown % 8).toBe(0);
 
 	await expect(page.locator('.editor-emoji-count')).toContainText(

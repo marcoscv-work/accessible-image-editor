@@ -22,7 +22,7 @@ The editor is **parametric and declarative**:
 - **A proportion lock reaches the stage**, for the crop and for every box annotation alike: with it on, only the four corners are offered and no side handles, because stretching one axis is exactly what the lock forbids, and a corner drag keeps the ratio without asking for Shift. A picture arrives locked, a shape arrives free, and choosing another layer starts again from that.
 - **A crop field never shows a value that was refused**: a crop as wide as the image cannot also start at x 200, and the field says so at once rather than keeping the number until some later edit appears to reset it.
 - **Small annotations keep a full-size target**: whatever an annotation is painted at, the area that can be clicked or reached never falls below 24 by 24 screen pixels, measured in screen space so it holds at any zoom.
-- **The drawn shapes live behind one menu**: rectangle, square, circle and arrow, so the panel keeps five buttons however many shapes are added later. The menu narrows with the tool list, so a host that offers two shapes gets a menu of two. The ten stickers sit behind a menu of their own for the same reason.
+- **The drawn shapes live behind one menu**: rectangle, square, circle and arrow, so the panel keeps five buttons however many shapes are added later. The menu narrows with the tool list, so a host that offers two shapes gets a menu of two.
 - **Both menus are grids of drawings rather than lists of words**, because a shape is recognised faster than it is read. Each cell is 32 by 32, above the 24-pixel floor, and carries the name as its accessible label and its tooltip, so nothing depends on the tooltip. The arrows move in two dimensions (APG grid pattern), the whole grid is one tab stop, and the popover grows with its contents and scrolls natively rather than paging.
 - **Rectangles, squares and circles take an optional border**, off until a width is set, with its own colour.
 - **An arrow is the one annotation that is not a box.** It is a tail and a vector, so both ends are placed independently, by dragging either endpoint or by typing where the tip goes; it has no rotation, because two ends already say where it points. The head is solid or open, and the weight drives the shaft and the head together so a heavy arrow still reads as an arrow. Holding the tip as a vector rather than as a second point is what lets every existing operation, moving it, duplicating it, mirroring it with the photograph, carry the arrow without knowing what an arrow is.
@@ -48,7 +48,7 @@ complete editor.
   onClose={close}
   config={{
     adjustments: {sliders: ['brightness', 'contrast']},
-    annotate: {stickers: ['star', 'heart'], tools: ['text', 'stickers']},
+    annotate: {tools: ['text', 'emoji']},
     crop: {ratios: ['original', '1:1'], rotate: false},
     filters: {presets: ['none', 'grayscale', 'sepia']},
   }}
@@ -58,7 +58,7 @@ complete editor.
 | Key | `false` | Object |
 | --- | --- | --- |
 | `adjustments` | hides the panel | `sliders`: any of brightness, contrast, saturation, shadows, highlights |
-| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, square, circle, arrow, redaction, image, stickers, emoji · `stickers`: any of the 10 shapes |
+| `annotate` | hides the panel and the layers list | `tools`: text, rectangle, square, circle, arrow, redaction, image, emoji |
 | `crop` | hides the panel, the on-stage marquee and the ratio control | `ratios`: which presets to offer · `rotate`: the quarter-turn and flip buttons · `straighten`: the angle slider |
 | `filters` | hides the gallery | `presets`: any of the 19 looks |
 | `frames` | hides the frame gallery | `presets`: any of the 9 frames, plus none |
@@ -142,7 +142,7 @@ The same map is available in the UI through the "Keyboard shortcuts" button.
 src/
   state/        EditState + pure reducer with labelled undo/redo history, ids
   imaging/      loadImage (decode + downscale), FilterDefs (colour pipeline),
-                geometry (rotation, arrow steps), overlayShapes, stickerArt,
+                geometry (rotation, arrow steps), overlayShapes,
                 frameShapes, exportImage (SVG → encoder)
   components/   EditorModal (Clay full-screen modal shell), EditorSidebar,
                 Workspace (SVG stage), CropMarquee, OverlaysEditable,
@@ -161,7 +161,7 @@ The bundled sample image (`src/assets/sample.jpg`) is an [Unsplash](https://unsp
 
 ## Out of scope
 
-- **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, arrows, and stickers.
+- **Freehand drawing** — deliberately excluded: it is the one interaction that cannot be made accessible in any technology (the LPD-93990 finding). The accessible annotation route is parametric text, shapes, arrows, and emoji.
 - Background removal.
 - EXIF orientation/metadata preservation and color management (ICC).
 - HEIC input.

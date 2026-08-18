@@ -20,20 +20,28 @@ const COLUMNS = 8;
 const SEARCH_KEYS = EMOJI.map((entry) => entry.n.toLowerCase());
 
 /**
- * What the picker offers before anyone types: seven rows of the emoji
- * people actually reach for, which are faces first, then hearts and hands,
- * and only then the handful of marks that earn their place on a picture.
- * Nineteen hundred cells is an inventory rather than a choice, so the full
- * set is what searching is for.
+ * What the picker offers before anyone types: the groups that are common
+ * in the honest sense of the word. Eight rows of faces, three of hands,
+ * two of hearts, one of celebration and one of marks, in Unicode's own
+ * order within each group. Nineteen hundred cells is an inventory rather
+ * than a choice, so the full set is what searching is for.
  */
 const COMMON = [
-	'😀', '😃', '😄', '😁', '😊', '🙂', '😉', '😍',
-	'🥰', '😘', '😎', '🤩', '🤔', '🙃', '😅', '😂',
-	'🥲', '😢', '😭', '😡', '🤯', '😱', '😴', '🥺',
-	'🤗', '🤭', '🙄', '😬', '😳', '🥳', '🤠', '😇',
-	'❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '💔',
-	'💕', '💖', '💯', '👍', '👎', '👏', '🙌', '🙏',
-	'👀', '✅', '❌', '⚠️', '⭐', '🔥', '🎉', '🚀',
+	'😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣',
+	'🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩',
+	'😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪',
+	'🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶', '🙄',
+	'😏', '😒', '😬', '🥱', '😴', '🤤', '😌', '😔',
+	'🥳', '🤠', '😎', '🤓', '🧐', '😕', '😟', '🙁',
+	'😲', '😳', '🥺', '😢', '😭', '😤', '😡', '🤬',
+	'😱', '😨', '😰', '🤯', '😖', '😣', '😞', '😓',
+	'👍', '👎', '👌', '🤌', '✌️', '🤞', '🫶', '🤟',
+	'🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '✋',
+	'🤚', '🖐️', '🖖', '👋', '🤝', '🙏', '👏', '🙌',
+	'❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+	'🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖',
+	'💯', '✨', '🎉', '🎊', '🎈', '🎁', '🔥', '⭐',
+	'✅', '❌', '⚠️', '❓', '❗', '👀', '💬', '🚀',
 ];
 
 const BY_CHARACTER = new Map(EMOJI.map((entry) => [entry.c, entry]));
@@ -52,7 +60,7 @@ const COMMON_ENTRIES = COMMON.map((character) =>
  * nineteen hundred DOM nodes for a list nobody scrolls to the end of, so
  * the grid renders a window and extends it as the popover is scrolled.
  */
-const PAGE = 96;
+const PAGE = 120;
 
 interface Props {
 	onChoose: (emoji: EmojiEntry) => void;

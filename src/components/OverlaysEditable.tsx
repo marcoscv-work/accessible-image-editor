@@ -545,8 +545,8 @@ export function OverlaysEditable({
 
 		// Corner resize, anchored at the center so the geometry stays
 		// stable under rotation. Boxes resize freely by default and keep
-		// their proportions with Shift, matching the crop; stickers and
-		// text scale proportionally because size is a single value.
+		// their proportions with Shift, matching the crop; emoji and text
+		// scale proportionally because size is a single value.
 
 		const scale = Math.max(
 			Math.hypot(pointX - centerX, pointY - centerY) /
@@ -554,7 +554,7 @@ export function OverlaysEditable({
 			0.05
 		);
 
-		if (overlay.kind === 'emoji' || overlay.kind === 'sticker') {
+		if (overlay.kind === 'emoji') {
 			dispatch({
 				id: gesture.id,
 				patch: {size: Math.max(Math.round(overlay.size * scale), 8)},

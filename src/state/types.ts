@@ -142,29 +142,6 @@ export interface ShapeOverlay {
 	y: number;
 }
 
-export type StickerKind =
-	| 'arrow'
-	| 'bolt'
-	| 'check'
-	| 'cool'
-	| 'heart'
-	| 'laugh'
-	| 'love'
-	| 'sad'
-	| 'smiley'
-	| 'star';
-
-export interface StickerOverlay {
-	color: string;
-	id: string;
-	kind: 'sticker';
-	opacity?: number;
-	rotation?: number;
-	size: number;
-	sticker: StickerKind;
-	x: number;
-	y: number;
-}
 
 /**
  * A picture the user brings in: a logo, a signature, a badge. The bitmap
@@ -265,12 +242,12 @@ export interface EmojiOverlay {
 
 	/**
 	 * Drawn as a font size, and the same on both axes, so an emoji scales
-	 * from a corner like a sticker rather than stretching like a box.
+	 * from a corner rather than stretching like a box.
 	 */
 	size: number;
 
 	/**
-	 * The centre, as with a sticker.
+	 * The centre of the glyph, not a corner.
 	 */
 	x: number;
 
@@ -312,12 +289,11 @@ export interface RedactOverlay {
 
 export type Overlay =
 	| ArrowOverlay
-	| EmojiOverlay
-	| RedactOverlay
 	| CircleOverlay
+	| EmojiOverlay
 	| ImageOverlay
+	| RedactOverlay
 	| ShapeOverlay
-	| StickerOverlay
 	| TextOverlay;
 
 /**

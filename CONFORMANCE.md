@@ -54,7 +54,7 @@ Legend: **Pass** — implemented and verified by tests, inspection, or the scree
 | 3.3.7 Redundant Entry | A | N/A | Nothing is entered twice: there is no multi-step process, and every value stays in the edit state for as long as the editor is open. |
 | 3.3.8 Accessible Authentication (Minimum) | AA | N/A | No authentication. |
 | 4.1.1 Parsing | — | Removed | Obsolete in WCAG 2.2. The markup is React-generated and axe reports no parsing or ARIA violations, which is why it stayed green while the criterion existed. |
-| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs, and Clay's own menu buttons for the shapes and the stickers); axe-clean, and confirmed by ear in the screen reader passes. |
+| 4.1.2 Name, Role, Value | A | Pass | APG-patterned custom widgets (composite crop control, listbox, radio group, dialogs, and Clay's own menu buttons for the shapes and the emoji picker); axe-clean, and confirmed by ear in the screen reader passes. |
 | 4.1.3 Status Messages | AA | Pass | A single polite `role="status"` live region announces every operation result without moving focus; asserted in e2e and heard in the screen reader passes. |
 
 ## Known refinements

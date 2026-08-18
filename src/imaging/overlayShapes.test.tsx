@@ -165,7 +165,7 @@ const EMOJI_OVERLAY: EmojiOverlay = {
 };
 
 describe('an emoji annotation', () => {
-	it('is a square centred on its point, like a sticker', () => {
+	it('is a square centred on its point', () => {
 		expect(isBoxOverlay(EMOJI_OVERLAY)).toBe(false);
 
 		expect(overlayBounds(EMOJI_OVERLAY)).toEqual({

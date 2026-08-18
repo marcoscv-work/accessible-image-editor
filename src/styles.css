@@ -988,12 +988,11 @@ input.editor-color-input.editor-color-fill.form-control {
 	flex: 0 0 auto;
 }
 
-/* Sticker picker */
+/* The drawing pickers */
 
 /*
- * A picker of drawings: shapes and stickers are recognised faster than
- * they are read, so the cell is the drawing and the name is its label and
- * its tooltip. The popover is sized by the grid rather than by the menu's
+ * A picker of drawings: a shape is recognised faster than it is read, so
+ * the cell is the drawing and the name is its label and its tooltip. The popover is sized by the grid rather than by the menu's
  * usual minimum, which exists for rows of text.
  */
 
@@ -1044,7 +1043,7 @@ input.editor-color-input.editor-color-fill.form-control {
 
 /*
  * 2rem, which is above the 24 pixel floor (WCAG 2.2, 2.5.8) with room for
- * the ring, and tight enough that ten stickers stay one glance.
+ * the ring, and tight enough that a page of drawings stays one glance.
  */
 
 /*

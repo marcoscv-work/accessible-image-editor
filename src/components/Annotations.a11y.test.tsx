@@ -10,7 +10,6 @@ import {useReducer, useState} from 'react';
 import {ANNOTATE_TOOLS} from '../editorConfig';
 import {FILTER_PRESETS} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
-import {STICKER_KINDS} from '../imaging/overlayShapes';
 import {
 	editorReducer,
 	initialHistory,
@@ -79,7 +78,6 @@ function AnnotationHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
-				stickers={STICKER_KINDS}
 				tools={ANNOTATE_TOOLS}
 			/>
 
@@ -190,7 +188,6 @@ function CroppedHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
-				stickers={STICKER_KINDS}
 				tools={ANNOTATE_TOOLS}
 			/>
 		</>
@@ -198,10 +195,10 @@ function CroppedHarness() {
 }
 
 /**
- * Shapes and stickers live behind a menu of drawings, so adding one is two
- * steps: open the menu, then pick the cell. The cells are named rather
- * than labelled in text, and the query goes through the grid because the
- * same name also belongs to the stage node and the layer row it creates.
+ * Shapes live behind a menu of drawings, so adding one is two steps: open
+ * the menu, then pick the cell. The cells are named rather than labelled
+ * in text, and the query goes through the grid because the same name also
+ * belongs to the stage node and the layer row it creates.
  */
 function addFromMenu(menu: string, item: string) {
 	fireEvent.click(screen.getByRole('button', {name: menu}));
@@ -215,13 +212,26 @@ function addFromMenu(menu: string, item: string) {
 
 const addShape = (shape: string) => addFromMenu('Add shape', shape);
 
-const addSticker = (sticker: string) => addFromMenu('Add sticker', sticker);
+/**
+ * The emoji picker is a lazy chunk, so entering it is asynchronous once
+ * per test: the grid is found, not got.
+ */
+async function addEmoji(name: string) {
+	fireEvent.click(screen.getByRole('button', {name: 'Add emoji'}));
+
+	fireEvent.click(
+		within(await screen.findByRole('grid', {name: 'Add emoji'})).getByRole(
+			'button',
+			{name}
+		)
+	);
+}
 
 describe('Annotations, filters, and layers', () => {
 	it('has no axe violations with annotations present', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 		addShape('Rectangle');
 
 		expect(await axe(container)).toHaveNoViolations();
@@ -358,23 +368,23 @@ describe('Annotations, filters, and layers', () => {
 		).toBeInTheDocument();
 	});
 
-	it('adds a sticker as a focusable, keyboard-movable SVG node', () => {
+	it('adds an emoji as a focusable, keyboard-movable SVG node', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 
-		const sticker = container.querySelector(
+		const emoji = container.querySelector(
 			'.overlay-hit'
 		) as SVGRectElement;
 
-		expect(sticker).toHaveAttribute('aria-label', 'Star sticker');
+		expect(emoji).toHaveAttribute('aria-label', 'star');
 
-		const initialX = Number(sticker.getAttribute('x'));
+		const initialX = Number(emoji.getAttribute('x'));
 
-		fireEvent.keyDown(sticker, {key: 'ArrowRight', shiftKey: true});
-		fireEvent.keyUp(sticker, {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyDown(emoji, {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyUp(emoji, {key: 'ArrowRight', shiftKey: true});
 
-		expect(Number(sticker.getAttribute('x'))).toBe(initialX + 10);
+		expect(Number(emoji.getAttribute('x'))).toBe(initialX + 10);
 	});
 
 	it('applies a filter preset from the radio group', () => {
@@ -420,18 +430,21 @@ describe('Annotations, filters, and layers', () => {
 		).toBe(true);
 	});
 
-	it('lists layers topmost first and reorders them from the listbox', () => {
+	it('lists layers topmost first and reorders them from the listbox', async () => {
 		render(<AnnotationHarness />);
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 		addShape('Rectangle');
 
+		// The accessible name, not the text content: the row leads with a
+		// decorative glyph the name deliberately leaves out.
+
 		const layerNames = () =>
-			[...document.querySelectorAll('.editor-layer-name')].map(
-				(node) => node.textContent
+			[...document.querySelectorAll('.editor-layer-name')].map((node) =>
+				node.getAttribute('aria-label')
 			);
 
-		expect(layerNames()).toEqual(['Rectangle', 'Star sticker']);
+		expect(layerNames()).toEqual(['Rectangle', 'star']);
 
 		// Per-row action: move the topmost layer down.
 
@@ -439,7 +452,7 @@ describe('Annotations, filters, and layers', () => {
 			screen.getByRole('button', {name: 'Move Rectangle down'})
 		);
 
-		expect(layerNames()).toEqual(['Star sticker', 'Rectangle']);
+		expect(layerNames()).toEqual(['star', 'Rectangle']);
 	});
 
 	it('edits the selected layer properties from the layers panel', () => {
@@ -558,10 +571,10 @@ describe('Annotations, filters, and layers', () => {
 		expect(Number(height.value)).toBe(Math.round(100 / ratio));
 	});
 
-	it('syncs selection between the stage and the layers panel', () => {
+	it('syncs selection between the stage and the layers panel', async () => {
 		const {container} = render(<AnnotationHarness />);
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 		addShape('Rectangle');
 
 		// Focusing the sticker on the stage selects its layer row.
@@ -571,7 +584,7 @@ describe('Annotations, filters, and layers', () => {
 		fireEvent.focus(hits[0]);
 
 		expect(
-			screen.getByRole('button', {name: 'Star sticker', pressed: true})
+			screen.getByRole('button', {name: 'star', pressed: true})
 		).toBeInTheDocument();
 
 		// Selecting the rectangle row shows the light ring on the stage.
@@ -682,7 +695,7 @@ describe('Annotations, filters, and layers', () => {
 			});
 		}
 
-		expect(document.activeElement).toHaveAccessibleName('Add sticker');
+		expect(document.activeElement).toHaveAccessibleName('Add emoji');
 
 		// One tab stop for the whole panel, wherever the roving index
 		// happens to be sitting.
@@ -893,10 +906,10 @@ describe('Annotations, filters, and layers', () => {
 		expect(shape()).not.toHaveAttribute('stroke');
 	});
 
-	it('centers a new annotation on the crop, not on the image', () => {
+	it('centers a new annotation on the crop, not on the image', async () => {
 		const {container} = render(<CroppedHarness />);
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 
 		const sticker = container.querySelector(
 			'.overlay-hit'
@@ -915,19 +928,19 @@ describe('Annotations, filters, and layers', () => {
 		expect(Math.round(centerY)).toBe(600);
 	});
 
-	it('deletes a layer from its row and hides the empty panel', () => {
+	it('deletes a layer from its row and hides the empty panel', async () => {
 		render(<AnnotationHarness />);
 
 		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 
-		addSticker('Star sticker');
+		await addEmoji('star');
 
 		expect(screen.getByText('Layers')).toBeInTheDocument();
 
 		// Delete on the layer's name button removes the layer.
 
 		fireEvent.keyDown(
-			screen.getByRole('button', {name: 'Star sticker', pressed: true}),
+			screen.getByRole('button', {name: 'star', pressed: true}),
 			{key: 'Delete'}
 		);
 

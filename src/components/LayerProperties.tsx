@@ -84,6 +84,18 @@ export function LayerProperties({
 
 	const pairedWithColor = hasColor(overlay) || overlay.kind === 'redact';
 
+	const rotationField = overlay.kind !== 'arrow' && (
+		<NumberField
+			id="layer-prop-rotation"
+			label={t('rotation-degrees')}
+			max={360}
+			min={-360}
+			onCommit={(rotation) => commitPatch({rotation})}
+			suffix={t('unit-degrees')}
+			value={overlay.rotation ?? 0}
+		/>
+	);
+
 	const opacityField = (
 		<NumberField
 			id="layer-prop-opacity"
@@ -242,6 +254,13 @@ export function LayerProperties({
 				  */}
 				{pairedWithColor && opacityField}
 
+				{/*
+				  * A redaction has no colour and no border, so without this
+				  * the opacity and the rotation would each sit in a
+				  * half-empty row of their own, straddling the size pair.
+				  */}
+				{overlay.kind === 'redact' && rotationField}
+
 				{overlay.kind === 'arrow' && (
 					<ClayForm.Group small>
 						<label htmlFor="layer-prop-head">
@@ -309,7 +328,7 @@ export function LayerProperties({
 					/>
 				)}
 
-				{(overlay.kind === 'emoji' || overlay.kind === 'sticker') && (
+				{overlay.kind === 'emoji' && (
 					<NumberField
 						id="layer-prop-size"
 						label={t('size')}
@@ -394,17 +413,7 @@ export function LayerProperties({
 					</div>
 				)}
 
-				{overlay.kind !== 'arrow' && (
-					<NumberField
-						id="layer-prop-rotation"
-						label={t('rotation-degrees')}
-						max={360}
-						min={-360}
-						onCommit={(rotation) => commitPatch({rotation})}
-						suffix={t('unit-degrees')}
-						value={overlay.rotation ?? 0}
-					/>
-				)}
+				{overlay.kind !== 'redact' && rotationField}
 
 				{!pairedWithColor && opacityField}
 
@@ -437,10 +446,6 @@ export function LayerProperties({
 	);
 }
 
-/**
- * Which overlays can carry an outline: the drawn shapes. A redaction is a
- * mosaic and a sticker brings its own artwork.
- */
 /**
  * Everything but a redaction, a picture and an emoji, which take their
  * pixels from elsewhere and have no fill of their own.

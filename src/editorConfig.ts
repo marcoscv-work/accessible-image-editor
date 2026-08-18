@@ -5,13 +5,11 @@
 
 import {FILTER_PRESETS} from './imaging/FilterDefs';
 import {FRAME_KINDS} from './imaging/frameShapes';
-import {STICKER_KINDS} from './imaging/overlayShapes';
 import {
 	Adjustments,
 	FilterPreset,
 	FrameKind,
 	RatioPreset,
-	StickerKind,
 } from './state/types';
 
 export type AdjustmentKey = keyof Adjustments;
@@ -24,7 +22,6 @@ export type AnnotateTool =
 	| 'rectangle'
 	| 'redaction'
 	| 'square'
-	| 'stickers'
 	| 'text';
 
 /**
@@ -61,7 +58,6 @@ export const ANNOTATE_TOOLS: AnnotateTool[] = [
 	'arrow',
 	'redaction',
 	'image',
-	'stickers',
 	'emoji',
 ];
 
@@ -83,12 +79,7 @@ export const RATIO_PRESETS: RatioPreset[] = [
 export interface EditorConfig {
 	adjustments?: false | {sliders?: AdjustmentKey[]};
 
-	annotate?:
-		| false
-		| {
-				stickers?: StickerKind[];
-				tools?: AnnotateTool[];
-		  };
+	annotate?: false | {tools?: AnnotateTool[]};
 
 	crop?:
 		| false
@@ -110,7 +101,7 @@ export interface EditorConfig {
  */
 export interface ResolvedEditorConfig {
 	adjustments: AdjustmentKey[];
-	annotate: {stickers: StickerKind[]; tools: AnnotateTool[]};
+	annotate: {tools: AnnotateTool[]};
 	crop: {
 		enabled: boolean;
 		ratios: RatioPreset[];
@@ -146,11 +137,8 @@ export function resolveConfig(config: EditorConfig = {}): ResolvedEditorConfig {
 				: pick(ADJUSTMENT_KEYS, config.adjustments?.sliders),
 		annotate:
 			annotate === false
-				? {stickers: [], tools: []}
-				: {
-						stickers: pick(STICKER_KINDS, annotate?.stickers),
-						tools: pick(ANNOTATE_TOOLS, annotate?.tools),
-					},
+				? {tools: []}
+				: {tools: pick(ANNOTATE_TOOLS, annotate?.tools)},
 		crop:
 			crop === false
 				? {enabled: false, ratios: [], rotate: false, straighten: false}
@@ -223,23 +211,6 @@ export function configFromSearch(search: string): EditorConfig {
 		config.annotate = annotate.length
 			? {tools: annotate as AnnotateTool[]}
 			: false;
-	}
-
-	const stickers = list(params.get('stickers'));
-
-	if (stickers?.length && config.annotate !== false) {
-		const current = config.annotate ?? {};
-
-		// Naming stickers implies wanting the sticker tool, even when the
-		// tool list did not mention it.
-
-		config.annotate = {
-			...current,
-			stickers: stickers as StickerKind[],
-			tools: current.tools
-				? [...new Set([...current.tools, 'stickers' as AnnotateTool])]
-				: undefined,
-		};
 	}
 
 	const crop = list(params.get('crop'));

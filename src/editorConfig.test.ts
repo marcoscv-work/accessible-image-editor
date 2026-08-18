@@ -10,7 +10,6 @@ import {
 	resolveConfig,
 } from './editorConfig';
 import {FILTER_PRESETS} from './imaging/FilterDefs';
-import {STICKER_KINDS} from './imaging/overlayShapes';
 
 describe('resolveConfig', () => {
 	it('exposes everything by default', () => {
@@ -18,7 +17,6 @@ describe('resolveConfig', () => {
 
 		expect(resolved.adjustments).toEqual(ADJUSTMENT_KEYS);
 		expect(resolved.annotate.tools).toEqual(ANNOTATE_TOOLS);
-		expect(resolved.annotate.stickers).toEqual(STICKER_KINDS);
 		expect(resolved.filters).toEqual(FILTER_PRESETS);
 		expect(resolved.crop).toMatchObject({
 			enabled: true,
@@ -87,28 +85,9 @@ describe('configFromSearch', () => {
 		expect(configFromSearch('?annotate=')).toEqual({annotate: false});
 	});
 
-	it('reads crop features and sticker subsets', () => {
-		expect(
-			configFromSearch('?crop=straighten&stickers=star,heart')
-		).toEqual({
-			annotate: {stickers: ['star', 'heart'], tools: undefined},
+	it('reads crop features', () => {
+		expect(configFromSearch('?crop=straighten')).toEqual({
 			crop: {rotate: false, straighten: true},
-		});
-	});
-
-	it('implies the sticker tool when stickers are listed', () => {
-		const config = configFromSearch(
-			'?annotate=text&stickers=star,heart'
-		);
-
-		expect(config.annotate).toEqual({
-			stickers: ['star', 'heart'],
-			tools: ['text', 'stickers'],
-		});
-
-		expect(resolveConfig(config).annotate).toEqual({
-			stickers: ['star', 'heart'],
-			tools: ['text', 'stickers'],
 		});
 	});
 });

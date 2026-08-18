@@ -381,9 +381,13 @@ async function addShape(page, shape) {
 	await page.waitForTimeout(300);
 }
 
-async function addSticker(page, sticker) {
-	await page.getByRole('button', {exact: true, name: 'Add sticker'}).click();
-	await page.locator('.dropdown-menu.show').getByRole('button', {name: sticker}).click();
+async function addEmoji(page, name) {
+	await page.getByRole('button', {exact: true, name: 'Add emoji'}).click();
+	await page.getByLabel('Search emoji').fill(name);
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {exact: true, name})
+		.click();
 	await page.waitForTimeout(300);
 }
 
@@ -425,7 +429,7 @@ async function dragLast(page, dx, dy) {
 	await page.waitForTimeout(400);
 	await dragLast(page, -170, 190);
 
-	await addSticker(page, 'Star sticker');
+	await addEmoji(page, 'star');
 	await dragLast(page, 250, -190);
 
 	await shot(page, 'annotate.jpg', {
@@ -457,7 +461,7 @@ async function dragLast(page, dx, dy) {
 			() => document.activeElement.getAttribute('aria-label') ?? ''
 		);
 
-		if (label === 'Star sticker') {
+		if (label === 'star') {
 			break;
 		}
 	}
@@ -726,7 +730,8 @@ for (const scheme of ['light', 'dark']) {
 
 	await revealPanel(page, '.editor-panel:has(#annotate-panel-title)');
 
-	await page.getByRole('button', {exact: true, name: 'Add sticker'}).click();
+	await page.getByRole('button', {exact: true, name: 'Add emoji'}).click();
+	await page.locator('.editor-emoji-cell').first().waitFor();
 	await page.waitForTimeout(400);
 
 	await shot(page, 'mobile-annotate.png', {

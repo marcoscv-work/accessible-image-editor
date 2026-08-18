@@ -260,7 +260,14 @@ export function LayersPanel({
 						>
 							<button
 								{...rovingProps(row, 0)}
+
+								// Named explicitly, not from contents: the
+								// glyph inside is decoration, and letting
+								// it into the name is exactly the mistake
+								// jsdom's name computation makes.
+
 								aria-describedby="layer-name-description"
+								aria-label={label}
 								aria-pressed={isSelected}
 								className="editor-layer-name"
 								onClick={() => onSelect(overlay.id)}

@@ -4,21 +4,8 @@
  */
 
 import {t} from '../i18n';
-import {
-	ArrowOverlay,
-	Overlay,
-	RedactLevel,
-	StickerOverlay,
-} from '../state/types';
+import {ArrowOverlay, Overlay, RedactLevel} from '../state/types';
 import {REDACT_SIZES} from './loadImage';
-import {StickerArt} from './stickerArt';
-
-export {
-	STICKER_DEFAULT_COLORS,
-	STICKER_KINDS,
-	StickerArt,
-	starPath,
-} from './stickerArt';
 
 export const DEFAULT_BORDER_COLOR = '#272833';
 
@@ -113,7 +100,6 @@ export function overlayBounds(overlay: Overlay): {
 			};
 
 		case 'emoji':
-		case 'sticker':
 			return {
 				height: overlay.size,
 				width: overlay.size,
@@ -188,9 +174,6 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'emoji':
 			return overlay.name;
-
-		case 'sticker':
-			return t(`sticker-${overlay.sticker}`);
 
 		case 'text':
 			return t('overlay-text-label', overlay.text);
@@ -523,17 +506,6 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 				</text>
 			);
 
-		case 'sticker':
-			return (
-				<StickerArt
-					color={(overlay as StickerOverlay).color}
-					size={overlay.size}
-					sticker={overlay.sticker}
-					x={overlay.x}
-					y={overlay.y}
-				/>
-			);
-
 		case 'text':
 			return (
 				<text
@@ -574,7 +546,7 @@ export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
 
 	const rotation = overlay.rotation ? -overlay.rotation : overlay.rotation;
 
-	if (overlay.kind === 'emoji' || overlay.kind === 'sticker') {
+	if (overlay.kind === 'emoji') {
 		return {...overlay, rotation, x: boundsWidth - overlay.x};
 	}
 

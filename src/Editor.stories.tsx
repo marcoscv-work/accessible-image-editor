@@ -13,12 +13,10 @@ import {
 } from './editorConfig';
 import {FILTER_PRESETS} from './imaging/FilterDefs';
 import {FRAME_KINDS} from './imaging/frameShapes';
-import {STICKER_KINDS} from './imaging/overlayShapes';
 import {
 	FilterPreset,
 	FrameKind,
 	RatioPreset,
-	StickerKind,
 } from './state/types';
 
 import type {Meta, StoryObj} from '@storybook/react-vite';
@@ -35,7 +33,6 @@ interface StoryArgs {
 	frames: FrameKind[];
 	ratios: RatioPreset[];
 	rotate: boolean;
-	stickers: StickerKind[];
 	straighten: boolean;
 }
 
@@ -48,7 +45,6 @@ const meta: Meta<StoryArgs> = {
 		frames: {control: 'check', options: FRAME_KINDS},
 		ratios: {control: 'check', options: RATIO_PRESETS},
 		rotate: {control: 'boolean'},
-		stickers: {control: 'check', options: STICKER_KINDS},
 		straighten: {control: 'boolean'},
 	},
 	args: {
@@ -59,7 +55,6 @@ const meta: Meta<StoryArgs> = {
 		frames: FRAME_KINDS,
 		ratios: RATIO_PRESETS,
 		rotate: true,
-		stickers: STICKER_KINDS,
 		straighten: true,
 	},
 	render: ({
@@ -70,13 +65,12 @@ const meta: Meta<StoryArgs> = {
 		frames,
 		ratios,
 		rotate,
-		stickers,
-		straighten,
+			straighten,
 	}) => (
 		<EditorStory
 			config={{
 				adjustments: adjustments.length ? {sliders: adjustments} : false,
-				annotate: annotate.length ? {stickers, tools: annotate} : false,
+				annotate: annotate.length ? {tools: annotate} : false,
 				crop: crop ? {ratios, rotate, straighten} : false,
 				filters: filters.length ? {presets: filters} : false,
 				frames: frames.length ? {presets: frames} : false,
@@ -162,16 +156,15 @@ export const ArrowsAndShapes: Story = {
 };
 
 /**
- * Annotation kit with a reduced sticker set.
+ * The expressive kit: words and the whole emoji set, nothing geometric.
  */
-export const AnnotateWithFewStickers: Story = {
+export const TextAndEmoji: Story = {
 	args: {
 		adjustments: [],
-		annotate: ['text', 'stickers'],
+		annotate: ['text', 'emoji'],
 		crop: false,
 		filters: [],
 		frames: [],
-		stickers: ['star', 'heart', 'check'],
 	},
 };
 
@@ -237,12 +230,11 @@ export const WatermarkOnly: Story = {
 export const SocialPost: Story = {
 	args: {
 		adjustments: ['brightness', 'contrast'],
-		annotate: ['text', 'arrow', 'image', 'stickers'],
+		annotate: ['text', 'arrow', 'image', 'emoji'],
 		filters: ['none', 'vintage', 'vivid', 'noir'],
 		frames: ['none', 'mat', 'polaroid'],
 		ratios: ['1:1', '4:3', '9:16'],
 		rotate: false,
-		stickers: ['star', 'heart', 'laugh', 'love'],
 		straighten: false,
 	},
 };

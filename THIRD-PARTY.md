@@ -1,6 +1,6 @@
 # Third-Party Code
 
-The editor is original code, written for Liferay. Every file under `src/` carries the Liferay copyright and SPDX header. Nothing is vendored: no bundled libraries, no minified files, no copied implementation. Four icon glyphs are the exception, and they are set out below.
+The editor is original code, written for Liferay. Every file under `src/` carries the Liferay copyright and SPDX header. Nothing is vendored: no bundled libraries, no minified files, no copied implementation, no third-party artwork.
 
 ## What the component depends on at runtime
 
@@ -31,20 +31,7 @@ The standalone shell that opens the editor for a demonstration (`App.tsx`, the s
 
 ## Artwork that did not originate here
 
-Four of the sticker glyphs are Material Design icons rather than our own drawings. This was found by auditing the path data, and each one was then compared byte for byte against the upstream file in `google/material-design-icons`.
-
-| Sticker | Source | Upstream icon | Relationship |
-| --- | --- | --- | --- |
-| Heart | [`stickerArt.tsx:83`](src/imaging/stickerArt.tsx) | `action/favorite` | Identical |
-| Arrow | [`stickerArt.tsx:165`](src/imaging/stickerArt.tsx) | `navigation/arrow_forward` | Identical |
-| Bolt | [`stickerArt.tsx:173`](src/imaging/stickerArt.tsx) | `image/flash_on` | Identical |
-| Check | [`stickerArt.tsx:195`](src/imaging/stickerArt.tsx) | `navigation/check` | Same geometry, coordinates rounded to one decimal |
-
-In each case only the glyph is Material's. What surrounds it is ours: the badge disc, the derived outline, the gloss, the drop shadow, and the colour treatment.
-
-Material Design icons are Apache License 2.0, which permits the reuse and asks for attribution, a copy of the license, and a note of any change. Two points are for legal to settle rather than for this document to assert. Apache-2.0 carries a patent grant and a notice obligation that Liferay does not otherwise take on in this component, and its compatibility with the header these files carry holds through the *or later* in `LGPL-2.1-or-later`, since Apache-2.0 and LGPL-2.1 on its own are not compatible.
-
-The four shapes are a heart, an arrow, a bolt and a checkmark. Redrawing them is a small piece of work and would leave the component free of the obligation altogether, which is the cleaner outcome if these stickers ship.
+None, since the sticker set was retired. Four of its ten glyphs (the heart, arrow, bolt and check) had turned out to be Material Design icon paths, Apache-2.0 licensed, found by auditing the path data and confirmed byte for byte against `google/material-design-icons`. Rather than carry the attribution and the licence question for four trivial shapes, the stickers were removed altogether: emoji cover the expressive ground with no artwork to license, a picture of the user's own covers custom art, and the drawn shapes cover the geometry.
 
 ## The website, which is not the component
 
@@ -53,4 +40,4 @@ The demonstration site under `website/` is scaffolding, but its provenance is wo
 - **The light and dark toggle** inlines Clay's own `sun` and `moon` icons, verified against `clay-css`. Clay is Liferay's, and already a dependency of the component, so this is our own artwork taking a shorter route than the sprite.
 - **The repository link** uses the GitHub logo mark. That is a trademark used to name the thing it links to, not code we are licensing, and it does not match any published Octicons release.
 
-Everything else in the editor was drawn or derived here, including the rest of the sticker artwork, the frames, the focus rings, the tone curves, and the pixelation of redactions.
+Everything else in the editor was drawn or derived here, including the frames, the focus rings, the tone curves, and the pixelation of redactions.

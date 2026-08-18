@@ -90,22 +90,24 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 	expect(results.violations).toEqual([]);
 });
 
-test('the sticker menu opens and stays usable when stacked', async ({page}) => {
+test('the emoji picker opens and stays usable when stacked', async ({
+	page,
+}) => {
 	await openEditor(page);
 
 	for (const name of ['Crop and rotation', 'Adjustments', 'Filters']) {
 		await page.getByRole('button', {exact: true, name}).click();
 	}
 
-	// Ten stickers used to wrap onto three rows here, which is what the
-	// swipeable track was for. As a grid of drawings behind one button
-	// they cost a single control, and the grid fits a narrow screen.
+	// Nineteen hundred characters behind one button: the grid fits the
+	// narrow viewport, the cells hold the 24 pixel floor, and the popover
+	// scrolls its grid rather than paging it.
 
-	const trigger = page.getByRole('button', {exact: true, name: 'Add sticker'});
+	const trigger = page.getByRole('button', {exact: true, name: 'Add emoji'});
 
 	await trigger.click();
 
-	const grid = page.getByRole('grid', {name: 'Add sticker'});
+	const grid = page.getByRole('grid', {name: 'Add emoji'});
 
 	await expect(grid).toBeVisible();
 
@@ -114,17 +116,15 @@ test('the sticker menu opens and stays usable when stacked', async ({page}) => {
 
 	expect(gridBox.width).toBeLessThanOrEqual(viewport.width);
 
-	// Two rows of five, and every cell above the 24 pixel floor even here.
-
 	const cell = (await page
-		.locator('.dropdown-menu.show .editor-menu-cell')
+		.locator('.editor-emoji-cell')
 		.first()
 		.boundingBox())!;
 
 	expect(cell.height).toBeGreaterThanOrEqual(24);
 
-	// Scanned with the menu open: this is the state the user is in. The
-	// region rule is set aside, because Clay portals the menu to a
+	// Scanned with the picker open: this is the state the user is in. The
+	// region rule is set aside, because Clay portals the popover to a
 	// body-level div that no landmark contains, exactly as it does with
 	// tooltips.
 
@@ -134,16 +134,21 @@ test('the sticker menu opens and stays usable when stacked', async ({page}) => {
 
 	expect(results.violations).toEqual([]);
 
+	await page.getByLabel('Search emoji').fill('star');
+
+	// By its exact name: the search ranks by Unicode's order, and
+	// "star-struck" comes before "star".
+
 	await page
 		.locator('.dropdown-menu.show')
-		.getByRole('button', {name: 'Star sticker'})
+		.getByRole('button', {exact: true, name: 'star'})
 		.click();
 
-	// On the stage, since the name also belongs to the picker cell and to
-	// the layer row it just gained.
+	// On the stage, since the name also belongs to the layer row it just
+	// gained.
 
 	await expect(
-		page.locator('.editor-stage [aria-label="Star sticker"]')
+		page.locator('.editor-stage [aria-label="star"]')
 	).toHaveCount(1);
 });
 

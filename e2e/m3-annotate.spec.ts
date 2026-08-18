@@ -7,7 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {Page, expect, test} from '@playwright/test';
 
 /**
- * Keyboard-only annotation journey: add a sticker and a text overlay, move
+ * Keyboard-only annotation journey: add an emoji and a text overlay, move
  * them as focusable SVG nodes, pick a filter preset, manage layers in the
  * listbox, and save with everything composited into the export.
  */
@@ -49,11 +49,11 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	const status = page.getByRole('status');
 
-	// Add a star sticker from the panel.
+	// Add an emoji from the panel.
 
 	// The arrows walk the annotate group as one sequence: enter at Add
 	// text and step past the shape, redaction and picture tools to the
-	// sticker menu, which the down arrow opens.
+	// emoji picker, which the down arrow opens onto its search field.
 
 	await tabUntil(page, 'Add text');
 
@@ -63,17 +63,20 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await page.keyboard.press('ArrowDown');
 
-	await expect(
-		page.locator('.dropdown-menu.show .editor-menu-cell').first()
-	).toBeFocused();
+	await expect(page.getByLabel('Search emoji')).toBeFocused();
 
+	// Typed in full because the search ranks by Unicode's order and a
+	// prefix like "star" surfaces "star-struck" first.
+
+	await page.keyboard.type('party popper');
+	await page.keyboard.press('ArrowDown');
 	await page.keyboard.press('Enter');
 
-	await expect(status).toContainText('Star sticker added');
+	await expect(status).toContainText('party popper added');
 
-	// The sticker is a focusable node in the workspace; nudge it right.
+	// The emoji is a focusable node in the workspace; nudge it right.
 
-	// Focus lands on the inserted sticker automatically.
+	// Focus lands on the inserted emoji automatically.
 
 	await expect(
 		page.locator('.editor-workspace .overlay-hit')
@@ -81,14 +84,14 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await page.keyboard.press('Shift+ArrowRight');
 
-	await expect(status).toContainText('Star sticker moved to x 785');
+	await expect(status).toContainText('party popper moved to x 785');
 
 	// Add a text overlay through the dialog.
 
-	// Tab re-enters the panel at the last used control (the sticker
-	// menu), and the arrows walk back to Add text.
+	// Tab re-enters the panel at the last used control (the emoji
+	// picker), and the arrows walk back to Add text.
 
-	await tabUntil(page, 'Add sticker');
+	await tabUntil(page, 'Add emoji');
 
 	for (let step = 0; step < 4; step++) {
 		await page.keyboard.press('ArrowLeft');

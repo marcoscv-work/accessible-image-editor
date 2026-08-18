@@ -124,7 +124,6 @@ export function EditorSidebar({
 					area={state.crop}
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
-					stickers={enabled.annotate.stickers}
 					tools={enabled.annotate.tools}
 				/>
 
