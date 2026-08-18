@@ -261,6 +261,6 @@ test('both menus open and commit from the keyboard alone', async ({page}) => {
 	await page.keyboard.press('ArrowRight');
 
 	await expect(
-		page.getByRole('button', {exact: true, name: 'Add redaction'})
+		page.getByRole('button', {exact: true, name: 'Draw'})
 	).toBeFocused();
 });

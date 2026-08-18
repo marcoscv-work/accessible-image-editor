@@ -18,6 +18,7 @@ import {
 	RedactOverlay,
 	RedactStyle,
 	ShapeOverlay,
+	StrokeOverlay,
 	isBoxOverlay,
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
@@ -328,6 +329,51 @@ export function LayerProperties({
 					/>
 				)}
 
+				{overlay.kind === 'stroke' && (
+					<NumberField
+						id="layer-prop-stroke-width"
+						label={t('thickness')}
+						min={1}
+						onCommit={(width) => commitPatch({width})}
+						value={overlay.width}
+					/>
+				)}
+
+				{/*
+				  * How the points connect, editable after the fact: a
+				  * freehand scribble can become a crisp polyline and a
+				  * pen path can soften, because the points are the truth
+				  * and the curve is just a reading of them.
+				  */}
+				{overlay.kind === 'stroke' && (
+					<ClayForm.Group small>
+						<label htmlFor="layer-prop-stroke-style">
+							{t('stroke-style')}
+						</label>
+
+						<ClaySelectWithOption
+							id="layer-prop-stroke-style"
+							onChange={(event) =>
+								commitPatch({
+									smooth: event.target.value === 'smooth',
+								} as Partial<StrokeOverlay>)
+							}
+							options={[
+								{
+									label: t('stroke-smooth'),
+									value: 'smooth',
+								},
+								{
+									label: t('stroke-straight'),
+									value: 'straight',
+								},
+							]}
+							sizing="sm"
+							value={overlay.smooth ? 'smooth' : 'straight'}
+						/>
+					</ClayForm.Group>
+				)}
+
 				{overlay.kind === 'emoji' && (
 					<NumberField
 						id="layer-prop-size"
@@ -416,6 +462,45 @@ export function LayerProperties({
 				{overlay.kind !== 'redact' && rotationField}
 
 				{!pairedWithColor && opacityField}
+
+				{hasBorder(overlay) && (
+					<ClayForm.Group small>
+						<label htmlFor="layer-prop-shape-style">
+							{t('shape-style')}
+						</label>
+
+						<ClaySelectWithOption
+							id="layer-prop-shape-style"
+							onChange={(event) =>
+								commitPatch({
+									sketchSeed:
+										event.target.value === 'sketchy'
+											? Math.floor(
+													Math.random() *
+														2 ** 31
+												)
+											: undefined,
+								})
+							}
+							options={[
+								{
+									label: t('shape-style-clean'),
+									value: 'clean',
+								},
+								{
+									label: t('shape-style-sketchy'),
+									value: 'sketchy',
+								},
+							]}
+							sizing="sm"
+							value={
+								overlay.sketchSeed === undefined
+									? 'clean'
+									: 'sketchy'
+							}
+						/>
+					</ClayForm.Group>
+				)}
 
 				{hasBorder(overlay) && (
 					<BorderField

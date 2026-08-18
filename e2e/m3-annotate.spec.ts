@@ -57,7 +57,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await tabUntil(page, 'Add text');
 
-	for (let step = 0; step < 4; step++) {
+	for (let step = 0; step < 5; step++) {
 		await page.keyboard.press('ArrowRight');
 	}
 
@@ -93,7 +93,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await tabUntil(page, 'Add emoji');
 
-	for (let step = 0; step < 4; step++) {
+	for (let step = 0; step < 5; step++) {
 		await page.keyboard.press('ArrowLeft');
 	}
 

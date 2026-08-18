@@ -113,6 +113,15 @@ export interface CircleOverlay {
 	borderColor?: string;
 	borderWidth?: number;
 	color: string;
+
+	/**
+	 * Present when the shape is drawn in the hand-drawn style: the value
+	 * seeds the jitter, so the wobble is decided once and the preview,
+	 * the export and every re-render agree on it. Style as a property,
+	 * not a gesture: the informal look without the freehand input.
+	 */
+	sketchSeed?: number;
+
 	height: number;
 	id: string;
 	kind: 'circle';
@@ -132,6 +141,12 @@ export interface ShapeOverlay {
 	borderColor?: string;
 	borderWidth?: number;
 	color: string;
+
+	/**
+	 * Seed for the hand-drawn style; see CircleOverlay.sketchSeed.
+	 */
+	sketchSeed?: number;
+
 	height: number;
 	id: string;
 	kind: 'shape';
@@ -211,6 +226,46 @@ export interface ArrowOverlay {
 }
 
 export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
+
+/**
+ * A drawn line: the one annotation whose geometry is a path rather than a
+ * box or a pair of points. It exists twice over in the interaction model,
+ * on purpose: the pen places its points one at a time (click by click or
+ * key by key, no dragging anywhere), and the freehand gesture captures
+ * them in one movement. Both produce exactly this object, which is what
+ * keeps the pointer a convenience instead of a requirement: the WCAG
+ * path-dependent-input exemption covers the gesture, and the object it
+ * leaves behind is as parametric as everything else here.
+ */
+export interface StrokeOverlay {
+	color: string;
+	id: string;
+	kind: 'stroke';
+	opacity?: number;
+
+	/**
+	 * Flat [x0, y0, x1, y1, ...], relative to `x`/`y` (the bounding
+	 * origin), so moving a stroke is the same x/y patch as moving
+	 * anything else and nothing downstream has to know what a path is.
+	 */
+	points: number[];
+
+	rotation?: number;
+
+	/**
+	 * Whether a curve is drawn through the points or straight segments
+	 * between them. Freehand and the pen both default to the curve.
+	 */
+	smooth: boolean;
+
+	/**
+	 * Stroke weight, in image pixels.
+	 */
+	width: number;
+
+	x: number;
+	y: number;
+}
 
 /**
  * How the area is obscured. Both are destructive in the exported file,
@@ -294,6 +349,7 @@ export type Overlay =
 	| ImageOverlay
 	| RedactOverlay
 	| ShapeOverlay
+	| StrokeOverlay
 	| TextOverlay;
 
 /**

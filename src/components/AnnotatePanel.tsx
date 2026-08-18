@@ -180,20 +180,28 @@ interface Props {
 	onAnnounce: (message: string) => void;
 
 	/**
+	 * Enters drawing mode on the stage: the pen and the freehand gesture
+	 * live there, not in this panel.
+	 */
+	onStartDrawing: () => void;
+
+	/**
 	 * Which annotation tools to offer.
 	 */
 	tools: AnnotateTool[];
 }
 
 /**
- * The accessible annotation route: parametric text, shapes and emoji
- * added through regular form controls, never through freehand pointer
- * drawing.
+ * The accessible annotation route: parametric text, shapes, strokes and
+ * emoji added through regular form controls. The freehand gesture exists,
+ * but as one route into the same parametric stroke the pen reaches
+ * without dragging, never as ink of its own.
  */
 export function AnnotatePanel({
 	area,
 	dispatch,
 	onAnnounce,
+	onStartDrawing,
 	tools,
 }: Props) {
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
@@ -222,6 +230,7 @@ export function AnnotatePanel({
 	const controls: string[] = [
 		...(tools.includes('text') ? ['text'] : []),
 		...(shapeTools.length ? ['shapes'] : []),
+		...(tools.includes('draw') ? ['draw'] : []),
 		...(tools.includes('redaction') ? ['redaction'] : []),
 		...(tools.includes('image') ? ['image'] : []),
 		...(tools.includes('emoji') ? ['emoji'] : []),
@@ -520,6 +529,18 @@ export function AnnotatePanel({
 							}}
 						/>
 					</ClayDropDown>
+				)}
+
+				{tools.includes('draw') && (
+					<ClayButton
+						{...rovingProps(indexOf('draw'))}
+						aria-label={t('add-draw')}
+						className="editor-tool-tile"
+						displayType="secondary"
+						onClick={onStartDrawing}
+					>
+						<ToolTile icon="pencil" label={t('tool-draw')} />
+					</ClayButton>
 				)}
 
 				{tools.includes('redaction') && (

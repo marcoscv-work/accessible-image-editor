@@ -1199,6 +1199,20 @@ input.editor-color-input.editor-color-fill.form-control {
 	padding: 0 0.125rem 0.5rem;
 }
 
+/* Drawing mode: the keyboard cursor and the in-progress stroke. */
+
+.editor-draw-cursor line {
+	stroke: var(--editor-accent);
+}
+
+.editor-draw-preview {
+	opacity: 0.9;
+}
+
+.editor-draw-surface rect:focus {
+	outline: none;
+}
+
 .editor-layer-glyph {
 	margin-right: 0.375rem;
 }

@@ -24,6 +24,7 @@ import {
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
+import {nextId} from '../state/ids';
 import {CropRect, rotatedSize} from '../state/types';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
@@ -121,6 +122,12 @@ export default function EditorModal({config, image, onClose}: Props) {
 
 	const [aspectLocked, setAspectLocked] = useState(false);
 
+	/**
+	 * Whether the stage is in drawing mode: the pen and the freehand
+	 * gesture, which both end in the same stroke overlay.
+	 */
+	const [drawing, setDrawing] = useState(false);
+
 	/*
 	 * The selected annotation's padlock, here for the same reason: the
 	 * stage offers corners only while it is on. A picture arrives locked,
@@ -151,6 +158,58 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const autoFitRef = useRef(true);
 
 	const state = history.present;
+
+	const finishDrawing = (result: {points: number[]; smooth: boolean} | null) => {
+		setDrawing(false);
+
+		if (!result) {
+			return;
+		}
+
+		// Stored relative to the bounding origin, so moving the stroke is
+		// the same x/y patch as moving anything else.
+
+		let minX = Infinity;
+		let minY = Infinity;
+
+		for (let index = 0; index < result.points.length; index += 2) {
+			minX = Math.min(minX, result.points[index]);
+			minY = Math.min(minY, result.points[index + 1]);
+		}
+
+		const id = nextId('stroke');
+
+		dispatch({
+			overlay: {
+				color: '#0b5fff',
+				id,
+				kind: 'stroke',
+				points: result.points.map((value, index) =>
+					Math.round(
+						(value - (index % 2 === 0 ? minX : minY)) * 10
+					) / 10
+				),
+				smooth: result.smooth,
+				width: Math.max(
+					3,
+					Math.round(
+						Math.min(state.crop.width, state.crop.height) * 0.008
+					)
+				),
+				x: Math.round(minX),
+				y: Math.round(minY),
+			},
+			type: 'add-overlay',
+		});
+
+		announce(t('annotation-added', t('overlay-stroke-label')));
+
+		window.setTimeout(() => {
+			document
+				.querySelector<HTMLElement>(`[data-overlay-id="${id}"]`)
+				?.focus({preventScroll: true});
+		}, 0);
+	};
 
 	const stageBoundsRef = useRef(rotatedSize(state));
 
@@ -544,9 +603,11 @@ export default function EditorModal({config, image, onClose}: Props) {
 						<Workspace
 							aspectLocked={aspectLocked}
 							dispatch={dispatch}
+							drawing={drawing}
 							image={image}
 							onAnnounce={announce}
 							onCenterCrop={centerCrop}
+							onFinishDrawing={finishDrawing}
 							onSelectOverlay={setSelectedOverlayId}
 							onWorkspacePointerLeave={handleWorkspacePointerLeave}
 							onWorkspacePointerMove={handleWorkspacePointerMove}
@@ -579,6 +640,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 							onAspectLockedChange={setAspectLocked}
 							onProportionalChange={setLayerProportional}
 							onSelectOverlay={setSelectedOverlayId}
+							onStartDrawing={() => setDrawing(true)}
 							proportional={layerProportional}
 							selectedOverlayId={selectedOverlayId}
 							sidebarRef={sidebarRef}

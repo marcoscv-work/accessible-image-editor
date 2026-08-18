@@ -40,6 +40,12 @@ interface Props {
 	onSelectOverlay: (id: string | null) => void;
 
 	/**
+	 * Enters drawing mode on the stage.
+	 */
+	onStartDrawing: () => void;
+
+
+	/**
 	 * Whether the selected annotation keeps its proportions.
 	 */
 	proportional: boolean;
@@ -65,6 +71,7 @@ export function EditorSidebar({
 	onAspectLockedChange,
 	onProportionalChange,
 	onSelectOverlay,
+	onStartDrawing,
 	proportional,
 	selectedOverlayId,
 	sidebarRef,
@@ -124,6 +131,7 @@ export function EditorSidebar({
 					area={state.crop}
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
+					onStartDrawing={onStartDrawing}
 					tools={enabled.annotate.tools}
 				/>
 

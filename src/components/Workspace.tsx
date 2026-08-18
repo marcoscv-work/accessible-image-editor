@@ -13,6 +13,7 @@ import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {EditState, rotatedSize} from '../state/types';
 import {CropMarquee} from './CropMarquee';
+import {DrawSurface} from './DrawSurface';
 import {OverlaysEditable} from './OverlaysEditable';
 
 interface Props {
@@ -24,9 +25,21 @@ interface Props {
 	aspectLocked: boolean;
 
 	dispatch: (action: EditorAction) => void;
+
+	/**
+	 * Whether the stage is in drawing mode, with the surface capturing
+	 * the pen's clicks and the freehand gesture.
+	 */
+	drawing?: boolean;
+
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
+
+	onFinishDrawing?: (
+		result: {points: number[]; smooth: boolean} | null
+	) => void;
+
 	onSelectOverlay: (id: string | null) => void;
 	onWorkspacePointerLeave?: () => void;
 	onWorkspacePointerMove?: (event: React.PointerEvent) => void;
@@ -56,9 +69,11 @@ interface Props {
 export function Workspace({
 	aspectLocked,
 	dispatch,
+	drawing,
 	image,
 	onAnnounce,
 	onCenterCrop,
+	onFinishDrawing,
 	onSelectOverlay,
 	onWorkspacePointerLeave,
 	onWorkspacePointerMove,
@@ -235,6 +250,26 @@ export function Workspace({
 					  */}
 					{state.frame.overAnnotations && (
 						<FrameShape crop={crop} frame={state.frame} />
+					)}
+
+					{/*
+					  * The drawing surface rides above everything while it
+					  * lasts, because while drawing, drawing is the mode.
+					  */}
+					{drawing && onFinishDrawing && (
+						<DrawSurface
+							area={crop}
+							color="#0b5fff"
+							onAnnounce={onAnnounce}
+							onFinish={onFinishDrawing}
+							width={Math.max(
+								3,
+								Math.round(
+									Math.min(crop.width, crop.height) * 0.008
+								)
+							)}
+							zoom={zoom}
+						/>
 					)}
 				</CropMarquee>
 			</svg>

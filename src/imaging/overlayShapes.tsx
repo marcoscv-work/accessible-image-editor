@@ -6,6 +6,12 @@
 import {t} from '../i18n';
 import {ArrowOverlay, Overlay, RedactLevel} from '../state/types';
 import {REDACT_SIZES} from './loadImage';
+import {
+	pointsBounds,
+	pointsToPath,
+	sketchyEllipsePath,
+	sketchyRectPath,
+} from './strokeGeometry';
 
 export const DEFAULT_BORDER_COLOR = '#272833';
 
@@ -99,6 +105,21 @@ export function overlayBounds(overlay: Overlay): {
 				y: overlay.y,
 			};
 
+		case 'stroke': {
+
+			// The points' own box, grown by the stroke on every side.
+
+			const box = pointsBounds(overlay.points);
+			const pad = overlay.width / 2;
+
+			return {
+				height: box.height + overlay.width,
+				width: box.width + overlay.width,
+				x: overlay.x + box.x - pad,
+				y: overlay.y + box.y - pad,
+			};
+		}
+
 		case 'emoji':
 			return {
 				height: overlay.size,
@@ -162,6 +183,9 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'redact':
 			return t('overlay-redact-label');
+
+		case 'stroke':
+			return t('overlay-stroke-label');
 
 		case 'circle':
 			return t('overlay-circle-label');
@@ -448,6 +472,24 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 			return <RedactBlock overlay={overlay} source={redactSource} />;
 
 		case 'circle':
+			if (overlay.sketchSeed !== undefined) {
+				return (
+					<path
+						d={sketchyEllipsePath(
+							overlay.x + overlay.width / 2,
+							overlay.y + overlay.height / 2,
+							overlay.width / 2,
+							overlay.height / 2,
+							overlay.sketchSeed
+						)}
+						fill={overlay.color}
+						stroke={borderStroke(overlay)}
+						strokeLinejoin="round"
+						strokeWidth={overlay.borderWidth || undefined}
+					/>
+				);
+			}
+
 			return (
 				<ellipse
 					cx={overlay.x + overlay.width / 2}
@@ -477,6 +519,24 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 			);
 
 		case 'shape':
+			if (overlay.sketchSeed !== undefined) {
+				return (
+					<path
+						d={sketchyRectPath(
+							overlay.x,
+							overlay.y,
+							overlay.width,
+							overlay.height,
+							overlay.sketchSeed
+						)}
+						fill={overlay.color}
+						stroke={borderStroke(overlay)}
+						strokeLinejoin="round"
+						strokeWidth={overlay.borderWidth || undefined}
+					/>
+				);
+			}
+
 			return (
 				<rect
 					fill={overlay.color}
@@ -486,6 +546,19 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 					width={overlay.width}
 					x={overlay.x}
 					y={overlay.y}
+				/>
+			);
+
+		case 'stroke':
+			return (
+				<path
+					d={pointsToPath(overlay.points, overlay.smooth)}
+					fill="none"
+					stroke={overlay.color}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={overlay.width}
+					transform={`translate(${overlay.x} ${overlay.y})`}
 				/>
 			);
 
@@ -548,6 +621,24 @@ export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
 
 	if (overlay.kind === 'emoji') {
 		return {...overlay, rotation, x: boundsWidth - overlay.x};
+	}
+
+	if (overlay.kind === 'stroke') {
+
+		// The origin reflects and every relative x negates, exactly as
+		// the arrow's vector does: the stroke keeps hugging whatever it
+		// was drawn around.
+
+		const box = pointsBounds(overlay.points);
+
+		return {
+			...overlay,
+			points: overlay.points.map((value, index) =>
+				index % 2 === 0 ? box.width - (value - box.x) + box.x : value
+			),
+			rotation,
+			x: boundsWidth - overlay.x - box.width - box.x * 2,
+		};
 	}
 
 	if (overlay.kind === 'text') {

@@ -45,14 +45,55 @@ function AnnotationHarness() {
 
 	const [proportional, setProportional] = useState(false);
 
+	// The drawing mode, wired the way the editor wires it: the panel
+	// requests it, the stage hosts it, the finish becomes an overlay.
+
+	const [drawing, setDrawing] = useState(false);
+
+	const finishDrawing = (
+		result: {points: number[]; smooth: boolean} | null
+	) => {
+		setDrawing(false);
+
+		if (!result) {
+			return;
+		}
+
+		let minX = Infinity;
+		let minY = Infinity;
+
+		for (let index = 0; index < result.points.length; index += 2) {
+			minX = Math.min(minX, result.points[index]);
+			minY = Math.min(minY, result.points[index + 1]);
+		}
+
+		dispatch({
+			overlay: {
+				color: '#0b5fff',
+				id: `stroke-${Date.now()}`,
+				kind: 'stroke',
+				points: result.points.map((value, index) =>
+					value - (index % 2 === 0 ? minX : minY)
+				),
+				smooth: result.smooth,
+				width: 6,
+				x: minX,
+				y: minY,
+			},
+			type: 'add-overlay',
+		});
+	};
+
 	return (
 		<>
 			<Workspace
 				aspectLocked={false}
 				dispatch={dispatch}
+				drawing={drawing}
 				image={IMAGE}
 				onAnnounce={() => {}}
 				onCenterCrop={() => {}}
+				onFinishDrawing={finishDrawing}
 				onSelectOverlay={setSelectedId}
 				onWorkspaceScroll={() => {}}
 				onZoom={() => {}}
@@ -78,6 +119,7 @@ function AnnotationHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onStartDrawing={() => setDrawing(true)}
 				tools={ANNOTATE_TOOLS}
 			/>
 
@@ -188,6 +230,7 @@ function CroppedHarness() {
 				area={history.present.crop}
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onStartDrawing={() => {}}
 				tools={ANNOTATE_TOOLS}
 			/>
 		</>
@@ -311,6 +354,132 @@ describe('Annotations, filters, and layers', () => {
 		expect(
 			container.querySelectorAll('.editor-workspace ellipse')
 		).toHaveLength(1);
+	});
+
+	it('draws a stroke with the keyboard alone', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
+
+		// The mode starts on the surface, cursor at the crop's centre.
+
+		const surface = screen.getByRole('application', {
+			name: 'Drawing area',
+		});
+
+		expect(surface).toHaveFocus();
+
+		// Three points: centre, right, down. Enter places each one.
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		for (let step = 0; step < 3; step++) {
+			fireEvent.keyDown(surface, {key: 'ArrowRight', shiftKey: true});
+		}
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		for (let step = 0; step < 3; step++) {
+			fireEvent.keyDown(surface, {key: 'ArrowDown', shiftKey: true});
+		}
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		// Enter again without moving finishes: the keyboard's double
+		// click.
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+
+		// The stroke is a layer like any other, and the mode is gone.
+		// Named twice, as everything is: once on the stage, once in the
+		// layer row.
+
+		expect(
+			within(container).getAllByRole('button', {name: 'Stroke'})
+		).toHaveLength(2);
+
+		expect(
+			screen.queryByRole('application', {name: 'Drawing area'})
+		).not.toBeInTheDocument();
+
+		// Its properties are a path's: thickness and line style, never
+		// width and height, because the points are the geometry.
+
+		fireEvent.click(
+			container.querySelector('.editor-layer-name') as Element
+		);
+
+		expect(screen.getByLabelText('Thickness')).toBeInTheDocument();
+		expect(screen.getByLabelText('Line style')).toBeInTheDocument();
+		expect(screen.queryByLabelText('Width')).not.toBeInTheDocument();
+	});
+
+	it('abandons a drawing with Escape', () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
+
+		const surface = screen.getByRole('application', {
+			name: 'Drawing area',
+		});
+
+		fireEvent.keyDown(surface, {key: 'Enter'});
+		fireEvent.keyDown(surface, {key: 'Escape'});
+
+		expect(
+			screen.queryByRole('application', {name: 'Drawing area'})
+		).not.toBeInTheDocument();
+
+		expect(screen.queryByRole('button', {name: 'Stroke'})).toBeNull();
+	});
+
+	it('dresses a rectangle in the hand-drawn style and back', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Rectangle');
+
+		const drawn = () =>
+			container.querySelector(
+				'.editor-workspace rect[fill]:not([class])'
+			);
+
+		expect(drawn()).toBeInTheDocument();
+
+		fireEvent.change(screen.getByLabelText('Style'), {
+			target: {value: 'sketchy'},
+		});
+
+		// The rectangle becomes a wobbled closed path, and the wobble is
+		// a stored seed, so it survives re-renders identically.
+
+		expect(drawn()).toBeNull();
+
+		const path = container.querySelector(
+			'.editor-workspace path[fill="#0b5fff"]'
+		) as SVGPathElement;
+
+		const wobble = path.getAttribute('d')!;
+
+		expect(wobble.endsWith('Z')).toBe(true);
+
+		// The seed lives in the state, so a re-render redraws the same
+		// wobble instead of a new one.
+
+		fireEvent.click(
+			container.querySelector('.editor-layer-name') as Element
+		);
+
+		expect(
+			container
+				.querySelector('.editor-workspace path[fill="#0b5fff"]')
+				?.getAttribute('d')
+		).toBe(wobble);
+
+		fireEvent.change(screen.getByLabelText('Style'), {
+			target: {value: 'clean'},
+		});
+
+		expect(drawn()).toBeInTheDocument();
 	});
 
 	it('adds an emoji as a layer of its own, sized but never coloured', async () => {
@@ -687,9 +856,9 @@ describe('Annotations, filters, and layers', () => {
 
 		addText.focus();
 
-		// Add text, Add shape, Add redaction, Add image, Add emoji.
+		// Add text, Add shape, Draw, Add redaction, Add image, Add emoji.
 
-		for (let step = 0; step < 4; step++) {
+		for (let step = 0; step < 5; step++) {
 			fireEvent.keyDown(document.activeElement as Element, {
 				key: 'ArrowRight',
 			});
