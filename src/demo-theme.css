@@ -24,6 +24,7 @@ html[data-color-scheme='dark'] {
 
 	/* What a theme sets: the editor follows these on its own. */
 
+	--editor-accent-text: #4b9bff;
 	--editor-border: #3b3b49;
 	--editor-surface: #1c1c24;
 	--editor-surface-subtle: #24242f;

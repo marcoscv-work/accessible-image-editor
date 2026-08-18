@@ -7,6 +7,15 @@
 	--editor-accent: #4b9bff;
 
 	/*
+	 * The accent as text on a panel, which is a different problem from the
+	 * accent as a border or a fill: text has to clear 4.5:1 against the
+	 * surface behind it, and Clay's primary does that on white and not on
+	 * a dark panel. A theme that darkens the surfaces lifts this with them.
+	 */
+
+	--editor-accent-text: var(--primary, #0b5fff);
+
+	/*
 	 * The few surfaces the editor paints itself. Everything else is standard
 	 * Clay chrome and follows the theme's colour scheme on its own, and
 	 * these read the theme's tokens so they do the same.
@@ -527,7 +536,7 @@
 }
 
 .editor-panel .panel-header:hover {
-	color: var(--primary, #0b5fff);
+	color: var(--editor-accent-text);
 }
 
 .editor-panel .panel-body {
@@ -632,7 +641,7 @@
 }
 
 .editor-aspect-lock[aria-pressed='true'] {
-	color: #0b5fff;
+	color: var(--editor-accent-text);
 }
 
 /* Action bar: a standard modal footer, so the theme owns its colours */
@@ -787,7 +796,7 @@
 }
 
 .editor-preset-input:checked ~ .editor-preset-label .editor-preset-name {
-	color: var(--primary, #0b5fff);
+	color: var(--editor-accent-text);
 	font-weight: 600;
 }
 
