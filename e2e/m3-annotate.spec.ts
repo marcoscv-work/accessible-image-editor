@@ -168,3 +168,34 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	expect(download.suggestedFilename()).toBe('sample-edited.jpg');
 });
+
+test('Enter reaches the properties even while Layers is collapsed', async ({
+	page,
+}) => {
+	await page.goto('/');
+
+	await page.getByRole('button', {name: 'Edit sample image'}).click();
+	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
+
+	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();
+	await page
+		.locator('.dropdown-menu.show')
+		.getByRole('button', {name: 'Rectangle'})
+		.click();
+
+	// Fold the section the properties live in: a collapsed section keeps
+	// them at display none, where focusing is a silent no-op, so the key
+	// has to open the disclosure as part of honouring the jump.
+
+	const layers = page.getByRole('button', {exact: true, name: 'Layers'});
+
+	await layers.click();
+
+	await expect(layers).toHaveAttribute('aria-expanded', 'false');
+
+	await page.locator('.overlay-hit').first().focus();
+	await page.keyboard.press('Enter');
+
+	await expect(layers).toHaveAttribute('aria-expanded', 'true');
+	await expect(page.locator('#layer-prop-color')).toBeFocused();
+});

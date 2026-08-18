@@ -206,6 +206,21 @@ export function OverlaysEditable({
 				// panel is often already open, but it is not always.
 
 				window.setTimeout(() => {
+
+					// The properties live inside the Layers section, and a
+					// collapsed section keeps them at display none, where a
+					// focus() is a silent no-op: the jump would select the
+					// layer and appear to do nothing at all. Opening the
+					// disclosure is part of honouring the key.
+
+					const header = document
+						.querySelector('#layers-panel-title')
+						?.closest('button');
+
+					if (header?.getAttribute('aria-expanded') === 'false') {
+						(header as HTMLButtonElement).click();
+					}
+
 					window.requestAnimationFrame(() => {
 						document
 							.querySelector<HTMLElement>(
