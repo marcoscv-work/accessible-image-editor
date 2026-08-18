@@ -5,6 +5,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import React, {Suspense, lazy, useRef, useState} from 'react';
 
 import {
@@ -82,6 +83,43 @@ function revealInWorkspace(node: SVGElement): void {
 
 	workspace.scrollLeft += overflow(box.left, box.right, area.left, area.right);
 	workspace.scrollTop += overflow(box.top, box.bottom, area.top, area.bottom);
+}
+
+/**
+ * A tool tile: Clay's icon over a one-word label, because a row of five
+ * text buttons reads as a wall. The accessible name stays the full verb
+ * phrase, which also keeps the visible word inside it (WCAG 2.5.3).
+ */
+function ToolTile({
+	icon,
+	label,
+	menu,
+}: {
+	icon: string;
+	label: string;
+
+	/**
+	 * Whether the tile opens a menu rather than acting at once: it earns
+	 * a small caret on its trailing edge. Decoration only, since the
+	 * trigger already carries `aria-expanded` for anyone not looking.
+	 */
+	menu?: boolean;
+}) {
+	return (
+		<>
+			<ClayIcon aria-hidden="true" symbol={icon} />
+
+			<span className="editor-tool-tile-label">{label}</span>
+
+			{menu && (
+				<ClayIcon
+					aria-hidden="true"
+					className="editor-tool-tile-caret"
+					symbol="angle-down-small"
+				/>
+			)}
+		</>
+	);
 }
 
 /**
@@ -435,11 +473,12 @@ export function AnnotatePanel({
 				{tools.includes('text') && (
 					<ClayButton
 						{...rovingProps(indexOf('text'))}
+						aria-label={t('add-text')}
+						className="editor-tool-tile"
 						displayType="secondary"
 						onClick={() => setTextDialogOpen(true)}
-						size="sm"
 					>
-						{t('add-text')}
+						<ToolTile icon="text" label={t('tool-text')} />
 					</ClayButton>
 				)}
 
@@ -451,11 +490,16 @@ export function AnnotatePanel({
 						trigger={
 							<ClayButton
 								{...rovingProps(indexOf('shapes'))}
+								aria-label={t('add-shape')}
+								className="editor-tool-tile"
 								data-menu-trigger
 								displayType="secondary"
-								size="sm"
 							>
-								{t('add-shape')}
+								<ToolTile
+									icon="squares"
+									label={t('tool-shape')}
+									menu
+								/>
 							</ClayButton>
 						}
 					>
@@ -481,11 +525,12 @@ export function AnnotatePanel({
 				{tools.includes('redaction') && (
 					<ClayButton
 						{...rovingProps(indexOf('redaction'))}
+						aria-label={t('add-redaction')}
+						className="editor-tool-tile"
 						displayType="secondary"
 						onClick={addRedaction}
-						size="sm"
 					>
-						{t('add-redaction')}
+						<ToolTile icon="hidden" label={t('tool-redact')} />
 					</ClayButton>
 				)}
 
@@ -493,11 +538,15 @@ export function AnnotatePanel({
 					<>
 						<ClayButton
 							{...rovingProps(indexOf('image'))}
+							aria-label={t('add-image')}
+							className="editor-tool-tile"
 							displayType="secondary"
 							onClick={() => fileInputRef.current?.click()}
-							size="sm"
 						>
-							{t('add-image')}
+							<ToolTile
+								icon="picture"
+								label={t('tool-image')}
+							/>
 						</ClayButton>
 
 						{/*
@@ -536,11 +585,16 @@ export function AnnotatePanel({
 					trigger={
 						<ClayButton
 							{...rovingProps(indexOf('emoji'))}
+							aria-label={t('add-emoji')}
+							className="editor-tool-tile"
 							data-menu-trigger
 							displayType="secondary"
-							size="sm"
 						>
-							{t('add-emoji')}
+							<ToolTile
+								icon="emoji"
+								label={t('tool-emoji')}
+								menu
+							/>
 						</ClayButton>
 					}
 				>

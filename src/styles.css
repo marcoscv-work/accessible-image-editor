@@ -824,10 +824,68 @@
 
 /* Annotate */
 
+/*
+ * A lattice, not a wrap: equal columns sized by what a tile needs, two of
+ * them in the sidebar, so the five tools read as a tidy two-by-two block
+ * with the fifth starting the next row.
+ */
+
 .editor-annotate-actions {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
 	gap: 0.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+}
+
+/*
+ * The tools as tiles: Clay's icon over one word, equal widths, wrapping
+ * to a second row when the sidebar is narrow. A row of five text buttons
+ * is a wall; five pictures with names are a toolbox.
+ */
+
+/*
+ * Horizontal: the icon leads and the word follows, reading like a row of
+ * labelled entries rather than a wall of buttons.
+ */
+
+.editor-tool-tile {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-start;
+	padding: 0.5rem 0.75rem;
+	width: 100%;
+}
+
+/*
+ * Two of the tools are dropdown triggers, and Clay wraps a trigger in a
+ * `div.dropdown` of its own: that wrapper is the grid cell, so the tile
+ * inside has to fill it or the lattice shows holes.
+ */
+
+.editor-annotate-actions .dropdown {
+	display: flex;
+}
+
+.editor-tool-tile .lexicon-icon {
+	font-size: 1rem;
+	margin: 0;
+}
+
+.editor-tool-tile-label {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	line-height: 1;
+}
+
+/*
+ * The caret that marks a tile as a menu, on the trailing edge where every
+ * dropdown puts it.
+ */
+
+.editor-tool-tile .editor-tool-tile-caret {
+	font-size: 0.625rem;
+	margin-left: auto;
+	opacity: 0.6;
 }
 
 
