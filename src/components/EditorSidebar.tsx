@@ -36,7 +36,14 @@ interface Props {
 	image: LoadedImage;
 	onAnnounce: (message: string) => void;
 	onAspectLockedChange: (locked: boolean) => void;
+	onProportionalChange: (proportional: boolean) => void;
 	onSelectOverlay: (id: string | null) => void;
+
+	/**
+	 * Whether the selected annotation keeps its proportions.
+	 */
+	proportional: boolean;
+
 	selectedOverlayId: string | null;
 	sidebarRef: React.Ref<HTMLElement>;
 	state: EditState;
@@ -56,7 +63,9 @@ export function EditorSidebar({
 	image,
 	onAnnounce,
 	onAspectLockedChange,
+	onProportionalChange,
 	onSelectOverlay,
+	proportional,
 	selectedOverlayId,
 	sidebarRef,
 	state,
@@ -122,8 +131,10 @@ export function EditorSidebar({
 				<LayersPanel
 					dispatch={dispatch}
 					onAnnounce={onAnnounce}
+					onProportionalChange={onProportionalChange}
 					onSelect={onSelectOverlay}
 					overlays={state.overlays}
+					proportional={proportional}
 					selectedId={selectedOverlayId}
 				/>
 			</>

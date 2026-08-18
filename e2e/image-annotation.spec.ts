@@ -96,6 +96,15 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	await expect(picture).toHaveAttribute('width', '200');
 
+	// The padlock reaches the stage as well: with it on there are no side
+	// handles, since stretching one axis is what it forbids, and a corner
+	// keeps the ratio without asking for Shift.
+
+	const dragHandles = () => page.locator('.object-handles rect').count();
+
+	expect(await dragHandles()).toBe(4);
+
+
 	// Unlocked, the two sides are independent again.
 
 	await padlock.click();
@@ -103,6 +112,10 @@ test('brings a picture in as an annotation', async ({page}) => {
 	await expect(page.getByRole('status')).toContainText(
 		'Aspect ratio unlocked'
 	);
+
+	// And the side handles come back with it.
+
+	expect(await dragHandles()).toBe(8);
 
 	await page.locator('#layer-prop-width').fill('320');
 	await page.locator('#layer-prop-width').press('Enter');
@@ -137,6 +150,46 @@ test('brings a picture in as an annotation', async ({page}) => {
 		.analyze();
 
 	expect(results.violations).toEqual([]);
+
+	// Locked again, a corner drag keeps whatever proportions it has now,
+	// without asking for Shift.
+
+	await padlock.click();
+
+	const size = () =>
+		page.evaluate(() => ({
+			height: Number(
+				(document.getElementById('layer-prop-height') as HTMLInputElement)
+					.value
+			),
+			width: Number(
+				(document.getElementById('layer-prop-width') as HTMLInputElement)
+					.value
+			),
+		}));
+
+	const before = await size();
+
+	const corner = page.locator('.object-handles rect').first();
+
+	await corner.hover();
+
+	const handleBox = (await corner.boundingBox())!;
+
+	await page.mouse.down();
+	await page.mouse.move(handleBox.x - 60, handleBox.y - 30, {steps: 8});
+	await page.mouse.up();
+
+	const after = await size();
+
+	// The drag resizes from the centre, so which way it goes depends on
+	// the corner; what the padlock promises is the ratio, not a direction.
+
+	expect(after.width).not.toBe(before.width);
+	expect(after.width / after.height).toBeCloseTo(
+		before.width / before.height,
+		1
+	);
 
 	const downloadPromise = page.waitForEvent('download');
 

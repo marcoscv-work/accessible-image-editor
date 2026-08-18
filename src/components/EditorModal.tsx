@@ -120,6 +120,14 @@ export default function EditorModal({config, image, onClose}: Props) {
 	 */
 
 	const [aspectLocked, setAspectLocked] = useState(false);
+
+	/*
+	 * The selected annotation's padlock, here for the same reason: the
+	 * stage offers corners only while it is on. A picture arrives locked,
+	 * a shape free, and choosing another layer starts again from that.
+	 */
+
+	const [layerProportional, setLayerProportional] = useState(false);
 	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
 		null
 	);
@@ -487,6 +495,19 @@ export default function EditorModal({config, image, onClose}: Props) {
 		}
 	};
 
+	useEffect(() => {
+		const overlay = state.overlays.find(
+			(candidate) => candidate.id === selectedOverlayId
+		);
+
+		setLayerProportional(overlay?.kind === 'image');
+
+		// Only when the selection changes: the padlock is the reader's to
+		// set once they are on a layer.
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedOverlayId]);
+
 	const handleSave = async () => {
 		setSaving(true);
 
@@ -540,6 +561,7 @@ export default function EditorModal({config, image, onClose}: Props) {
 							onZoom={zoomBy}
 							onZoomActual={zoomToActual}
 							onZoomFit={zoomToFit}
+							proportional={layerProportional}
 							selectedOverlayId={selectedOverlayId}
 							showCrop={enabled.crop.enabled}
 							showRecenter={!cropFramed}
@@ -555,7 +577,9 @@ export default function EditorModal({config, image, onClose}: Props) {
 							image={image}
 							onAnnounce={announce}
 							onAspectLockedChange={setAspectLocked}
+							onProportionalChange={setLayerProportional}
 							onSelectOverlay={setSelectedOverlayId}
+							proportional={layerProportional}
 							selectedOverlayId={selectedOverlayId}
 							sidebarRef={sidebarRef}
 							state={state}

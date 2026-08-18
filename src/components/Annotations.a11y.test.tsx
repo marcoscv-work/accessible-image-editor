@@ -42,6 +42,10 @@ function AnnotationHarness() {
 	);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
+	// Held as the editor holds it: the panel offers it, the stage obeys.
+
+	const [proportional, setProportional] = useState(false);
+
 	return (
 		<>
 			<Workspace
@@ -55,6 +59,7 @@ function AnnotationHarness() {
 				onZoom={() => {}}
 				onZoomActual={() => {}}
 				onZoomFit={() => {}}
+				proportional={proportional}
 				selectedOverlayId={selectedId}
 				showCrop
 				showRecenter
@@ -81,8 +86,10 @@ function AnnotationHarness() {
 			<LayersPanel
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onProportionalChange={setProportional}
 				onSelect={setSelectedId}
 				overlays={history.present.overlays}
+				proportional={proportional}
 				selectedId={selectedId}
 			/>
 		</>
@@ -107,6 +114,8 @@ function TextStageHarness() {
 	);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
+	const [proportional, setProportional] = useState(false);
+
 	return (
 		<>
 			<Workspace
@@ -120,6 +129,7 @@ function TextStageHarness() {
 				onZoom={() => {}}
 				onZoomActual={() => {}}
 				onZoomFit={() => {}}
+				proportional={proportional}
 				selectedOverlayId={selectedId}
 				showCrop
 				showRecenter
@@ -130,8 +140,10 @@ function TextStageHarness() {
 			<LayersPanel
 				dispatch={dispatch}
 				onAnnounce={() => {}}
+				onProportionalChange={setProportional}
 				onSelect={setSelectedId}
 				overlays={history.present.overlays}
+				proportional={proportional}
 				selectedId={selectedId}
 			/>
 		</>
@@ -151,6 +163,8 @@ function CroppedHarness() {
 	);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
+	const [proportional] = useState(false);
+
 	return (
 		<>
 			<Workspace
@@ -164,6 +178,7 @@ function CroppedHarness() {
 				onZoom={() => {}}
 				onZoomActual={() => {}}
 				onZoomFit={() => {}}
+				proportional={proportional}
 				selectedOverlayId={selectedId}
 				showCrop
 				showRecenter

@@ -5,7 +5,6 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClaySelectWithOption} from '@clayui/form';
-import {useState} from 'react';
 
 import {t} from '../i18n';
 import {DEFAULT_BORDER_COLOR, overlayLabel} from '../imaging/overlayShapes';
@@ -24,7 +23,14 @@ import {BorderField, ColorField, NumberField, TextField} from './fields';
 interface LayerPropertiesProps {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onProportionalChange: (proportional: boolean) => void;
 	overlay: Overlay;
+
+	/**
+	 * Whether width and height move together. The stage reads it too, so
+	 * the editor holds it rather than this panel.
+	 */
+	proportional: boolean;
 }
 
 /**
@@ -32,17 +38,14 @@ interface LayerPropertiesProps {
  * regular form controls dispatching parametric updates, so every visual
  * attribute stays editable after creation without any pointer work.
  */
-export function LayerProperties({dispatch, onAnnounce, overlay}: LayerPropertiesProps) {
+export function LayerProperties({
+	dispatch,
+	onAnnounce,
+	onProportionalChange,
+	overlay,
+	proportional,
+}: LayerPropertiesProps) {
 	const label = overlayLabel(overlay);
-
-	/*
-	 * A picture has proportions of its own, and stretching it is rarely
-	 * what was meant, so it arrives with them locked. A rectangle, a
-	 * circle and a redaction are shapes rather than pictures, so they
-	 * arrive free, with the same padlock available.
-	 */
-
-	const [proportional, setProportional] = useState(overlay.kind === 'image');
 
 	const commitPatch = (patch: Partial<Overlay>) => {
 		dispatch({id: overlay.id, patch, type: 'update-overlay'});
@@ -263,17 +266,15 @@ export function LayerProperties({dispatch, onAnnounce, overlay}: LayerProperties
 							className="editor-aspect-lock"
 							displayType="secondary"
 							onClick={() => {
-								setProportional((locked) => {
-									onAnnounce(
-										t(
-											locked
-												? 'aspect-ratio-unlocked'
-												: 'aspect-ratio-locked'
-										)
-									);
+								onAnnounce(
+									t(
+										proportional
+											? 'aspect-ratio-unlocked'
+											: 'aspect-ratio-locked'
+									)
+								);
 
-									return !locked;
-								});
+								onProportionalChange(!proportional);
 							}}
 							size="xs"
 							symbol={proportional ? 'lock' : 'unlock'}

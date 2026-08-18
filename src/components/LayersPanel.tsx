@@ -16,8 +16,15 @@ import {LayerProperties} from './LayerProperties';
 interface Props {
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
+	onProportionalChange: (proportional: boolean) => void;
 	onSelect: (id: string | null) => void;
 	overlays: Overlay[];
+
+	/**
+	 * Whether the selected layer keeps its proportions.
+	 */
+	proportional: boolean;
+
 	selectedId: string | null;
 }
 
@@ -31,8 +38,10 @@ interface Props {
 export function LayersPanel({
 	dispatch,
 	onAnnounce,
+	onProportionalChange,
 	onSelect,
 	overlays,
+	proportional,
 	selectedId,
 }: Props) {
 	const items = [...overlays].reverse();
@@ -346,7 +355,9 @@ export function LayersPanel({
 					dispatch={dispatch}
 					key={selected.id}
 					onAnnounce={onAnnounce}
+					onProportionalChange={onProportionalChange}
 					overlay={selected}
+					proportional={proportional}
 				/>
 			)}
 		</EditorSection>

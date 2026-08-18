@@ -101,6 +101,13 @@ interface ManipGesture {
 }
 
 interface Props {
+
+	/**
+	 * Whether the selected annotation keeps its proportions. With it on
+	 * the side handles are not offered, since stretching one axis is what
+	 * the padlock forbids, and a corner keeps the ratio without Shift.
+	 */
+	proportional: boolean;
 	dispatch: (action: EditorAction) => void;
 	onAnnounce: (message: string) => void;
 	onSelect: (id: string | null) => void;
@@ -120,6 +127,7 @@ export function OverlaysEditable({
 	onAnnounce,
 	onSelect,
 	overlays,
+	proportional,
 	redactSource,
 	selectedId,
 	zoom,
@@ -530,7 +538,7 @@ export function OverlaysEditable({
 			let width;
 			let height;
 
-			if (event.shiftKey) {
+			if (event.shiftKey || proportional) {
 				width = Math.max(overlay.width * scale, 8);
 				height = Math.max(overlay.height * scale, 8);
 			}
@@ -713,6 +721,7 @@ export function OverlaysEditable({
 								})}
 
 								{isBoxOverlay(overlay) &&
+									!proportional &&
 									STRETCH_EDGES.map((edge) => {
 										const handleX =
 											bounds.x +

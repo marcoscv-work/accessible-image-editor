@@ -34,6 +34,12 @@ interface Props {
 	onZoom: (direction: -1 | 1) => void;
 	onZoomActual: () => void;
 	onZoomFit: () => void;
+
+	/**
+	 * Whether the selected annotation keeps its proportions.
+	 */
+	proportional: boolean;
+
 	selectedOverlayId: string | null;
 	showCrop: boolean;
 	showRecenter: boolean;
@@ -60,6 +66,7 @@ export function Workspace({
 	onZoom,
 	onZoomActual,
 	onZoomFit,
+	proportional,
 	selectedOverlayId,
 	showCrop,
 	showRecenter,
@@ -204,6 +211,7 @@ export function Workspace({
 						onAnnounce={onAnnounce}
 						onSelect={onSelectOverlay}
 						overlays={state.overlays}
+						proportional={proportional}
 						redactSource={{
 							filter: isIdentityFilter(
 								state.adjustments,

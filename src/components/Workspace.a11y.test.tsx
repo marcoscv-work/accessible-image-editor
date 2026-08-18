@@ -63,6 +63,7 @@ function EditorHarness() {
 				}
 				onZoomActual={() => {}}
 				onZoomFit={() => {}}
+				proportional={false}
 				selectedOverlayId={null}
 				showCrop
 				showRecenter
