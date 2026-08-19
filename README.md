@@ -48,7 +48,7 @@ own tools; anything omitted keeps the full default, so `{}` is the
 complete editor.
 
 ```tsx
-<EditorModal
+<AccessibleImageEditor
   image={image}
   onClose={close}
   onSave={async ({blob, fileName, state}, signal) => {
@@ -73,6 +73,13 @@ complete editor.
 
 Lists are always applied in the component's canonical order, and unknown
 names are ignored, so a caller cannot reshuffle or break the UI.
+
+`<AccessibleImageEditor>` is the public root and brings its own
+providers: the announcer that feeds screen readers and the Clay icon
+spritemap (pass `spritemap` to use the host's sheet). Every DOM id the
+editor mints carries an instance prefix, so two editors on the same page
+keep their labels, descriptions, radio groups and SVG filter references
+to themselves.
 
 Saving is a contract, not a download: `onSave` receives the encoded
 `blob`, a suggested `fileName` and the parametric `state`, and may return

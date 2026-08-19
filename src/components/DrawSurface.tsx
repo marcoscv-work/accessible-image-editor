@@ -8,6 +8,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {t} from '../i18n';
 import {pointsToPath, simplifyPoints} from '../imaging/strokeGeometry';
 import {CropRect} from '../state/types';
+import {useEditorId} from './instance';
 
 /**
  * How far a pointer has to travel, in screen pixels, before a press is a
@@ -96,6 +97,8 @@ export function DrawSurface({
 	width,
 	zoom,
 }: Props) {
+	const eid = useEditorId();
+
 	const [points, setPoints] = useState<number[]>([]);
 
 	const [cursor, setCursor] = useState({
@@ -497,10 +500,10 @@ export function DrawSurface({
 
 	return (
 		<g className="editor-draw-surface">
-			<desc id="draw-instructions">{t('draw-instructions')}</desc>
+			<desc id={eid('draw-instructions')}>{t('draw-instructions')}</desc>
 
 			<rect
-				aria-describedby="draw-instructions"
+				aria-describedby={eid('draw-instructions')}
 				aria-label={t('draw-surface')}
 				fill="transparent"
 				height={area.height}

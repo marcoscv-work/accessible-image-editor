@@ -40,14 +40,14 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	await expect(page.locator('.editor-stage .editor-frame')).toHaveCount(0);
 
-	const mat = page.locator('#frame-mat');
+	const mat = page.locator('[id$="-frame-mat"]');
 
 	// Through the card, the way a person picks it: the radio is visually
 	// hidden, so clicking the input itself is a race with the layout.
 
 	const pick = (name: string) =>
 		page
-			.locator('.editor-panel:has(#frame-panel-title) .editor-preset-label')
+			.locator('.editor-panel:has([id$="-frame-panel-title"]) .editor-preset-label')
 			.filter({hasText: new RegExp(`^${name}$`)})
 			.click();
 
@@ -61,8 +61,8 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	// expectations are derived from the crop rather than hardcoded.
 
 	const crop = {
-		height: Number(await page.locator('#crop-height').inputValue()),
-		width: Number(await page.locator('#crop-width').inputValue()),
+		height: Number(await page.locator('[id$="-crop-height"]').inputValue()),
+		width: Number(await page.locator('[id$="-crop-width"]').inputValue()),
 	};
 
 	const band = Math.min(crop.width, crop.height) * 0.04;
@@ -81,7 +81,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	await mat.focus();
 	await page.keyboard.press('ArrowDown');
 
-	await expect(page.locator('#frame-bevel')).toBeChecked();
+	await expect(page.locator('[id$="-frame-bevel"]')).toBeChecked();
 	await expect(mat).not.toBeChecked();
 
 	await pick('Mat');
@@ -89,7 +89,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 	// The size is a percentage of the crop, so the same frame is the same
 	// frame at any size of picture.
 
-	const size = page.locator('#frame-size');
+	const size = page.locator('[id$="-frame-size"]');
 
 	await size.focus();
 
@@ -112,7 +112,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 		['x', '400'],
 		['y', '300'],
 	]) {
-		const input = page.locator(`#crop-${field}`);
+		const input = page.locator(`[id$="-crop-${field}"]`);
 
 		await input.fill(value);
 		await input.press('Enter');

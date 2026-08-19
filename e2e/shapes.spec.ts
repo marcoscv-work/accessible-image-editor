@@ -289,7 +289,7 @@ test('arrow steps preview live and land as one undo entry', async ({
 	// React's commit are not the same instant, and a one-shot read races
 	// it under parallel workers.
 
-	const width = page.locator('#layer-prop-width');
+	const width = page.locator('[id$="-layer-prop-width"]');
 
 	await width.focus();
 	await page.keyboard.press('ArrowUp');
@@ -313,17 +313,17 @@ test('arrow steps preview live and land as one undo entry', async ({
 	// the whole image, so X genuinely cannot move yet: the step is
 	// refused by geometry. Shrink the width first, and X gains room.
 
-	const cropX = page.locator('#crop-x');
+	const cropX = page.locator('[id$="-crop-x"]');
 
 	await cropX.focus();
 	await page.keyboard.press('Shift+ArrowUp');
 
 	await expect(cropX).toHaveValue('0');
 
-	await page.locator('#crop-width').focus();
+	await page.locator('[id$="-crop-width"]').focus();
 	await page.keyboard.press('Shift+ArrowDown');
 
-	await expect(page.locator('#crop-width')).toHaveValue('1540');
+	await expect(page.locator('[id$="-crop-width"]')).toHaveValue('1540');
 
 	await cropX.focus();
 	await page.keyboard.press('Shift+ArrowUp');

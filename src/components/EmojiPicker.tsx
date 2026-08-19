@@ -8,6 +8,7 @@ import React, {useMemo, useRef, useState} from 'react';
 
 import {EMOJI, EmojiEntry} from '../emojiData';
 import {t} from '../i18n';
+import {useEditorId} from './instance';
 
 const COLUMNS = 8;
 
@@ -75,6 +76,8 @@ interface Props {
  * names and the tooltips, so what someone types is what they heard.
  */
 export function EmojiPicker({onChoose}: Props) {
+	const eid = useEditorId();
+
 	const [query, setQuery] = useState('');
 
 	const [limit, setLimit] = useState(PAGE);
@@ -189,10 +192,10 @@ export function EmojiPicker({onChoose}: Props) {
 				 * anything is typed, and axe is right to refuse it as the
 				 * only label a control has.
 				 */
-				aria-describedby="emoji-search-count"
+				aria-describedby={eid('emoji-search-count')}
 				aria-label={t('emoji-search')}
 				autoFocus
-				id="emoji-search"
+				id={eid('emoji-search')}
 				onChange={(event) => {
 					setQuery(event.target.value);
 
@@ -227,7 +230,7 @@ export function EmojiPicker({onChoose}: Props) {
 			  */}
 			<div
 				className="editor-emoji-count"
-				id="emoji-search-count"
+				id={eid('emoji-search-count')}
 				role="status"
 			>
 				{searching

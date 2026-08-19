@@ -32,6 +32,10 @@ import {BottomBar} from './BottomBar';
 import {EditorSidebar} from './EditorSidebar';
 import {ShortcutsDialog} from './ShortcutsDialog';
 import {Workspace} from './Workspace';
+import {
+	EditorInstanceProvider,
+	nextEditorInstancePrefix,
+} from './instance';
 
 const ZOOM_LEVELS = [0.05, 0.1, 0.15, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3];
 
@@ -126,6 +130,17 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	// their cards while a crop is being dragged.
 
 	const enabled = useMemo(() => resolveConfig(config), [config]);
+
+	// Every DOM id this instance mints carries this prefix, so a second
+	// editor on the page keeps its own labels, descriptions and SVG
+	// references to itself.
+
+	const [instancePrefix] = useState(nextEditorInstancePrefix);
+
+	const eid = useCallback(
+		(name: string) => instancePrefix + name,
+		[instancePrefix]
+	);
 
 	const announce = useAnnouncer();
 
@@ -456,9 +471,11 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		const frame = requestAnimationFrame(() => {
 			const sidebar = sidebarRef.current;
 			const annotateTitle = document.getElementById(
-				'annotate-panel-title'
+				eid('annotate-panel-title')
 			);
-			const layersTitle = document.getElementById('layers-panel-title');
+			const layersTitle = document.getElementById(
+				eid('layers-panel-title')
+			);
 
 			if (!sidebar || !annotateTitle) {
 				return;
@@ -484,7 +501,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		});
 
 		return () => cancelAnimationFrame(frame);
-	}, [state.overlays.length]);
+	}, [state.overlays.length, eid]);
 
 	useEffect(() => setCropFramed(false), [state.crop]);
 
@@ -849,7 +866,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	};
 
 	return (
-		<>
+		<EditorInstanceProvider value={instancePrefix}>
 			<ClayModal
 				className="image-editor-modal"
 				observer={observer}
@@ -955,6 +972,6 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 				onOpenChange={setShortcutsOpen}
 				open={shortcutsOpen}
 			/>
-		</>
+		</EditorInstanceProvider>
 	);
 }

@@ -66,7 +66,7 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	await page.locator('.editor-layer-name', {hasText: 'badge'}).click();
 
-	const description = page.locator('#layer-prop-description');
+	const description = page.locator('[id$="-layer-prop-description"]');
 
 	await description.fill('Liferay badge');
 	await description.press('Enter');
@@ -83,16 +83,16 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	await expect(padlock).toHaveAttribute('aria-pressed', 'true');
 
-	await page.locator('#layer-prop-width').fill('300');
-	await page.locator('#layer-prop-width').press('Enter');
+	await page.locator('[id$="-layer-prop-width"]').fill('300');
+	await page.locator('[id$="-layer-prop-width"]').press('Enter');
 
 	await expect(picture).toHaveAttribute('width', '300');
 	await expect(picture).toHaveAttribute('height', '150');
 
 	// Typing a height works the same way round.
 
-	await page.locator('#layer-prop-height').fill('100');
-	await page.locator('#layer-prop-height').press('Enter');
+	await page.locator('[id$="-layer-prop-height"]').fill('100');
+	await page.locator('[id$="-layer-prop-height"]').press('Enter');
 
 	await expect(picture).toHaveAttribute('width', '200');
 
@@ -117,8 +117,8 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	expect(await dragHandles()).toBe(8);
 
-	await page.locator('#layer-prop-width').fill('320');
-	await page.locator('#layer-prop-width').press('Enter');
+	await page.locator('[id$="-layer-prop-width"]').fill('320');
+	await page.locator('[id$="-layer-prop-width"]').press('Enter');
 
 	await expect(picture).toHaveAttribute('width', '320');
 	await expect(picture).toHaveAttribute('height', '100');
@@ -159,11 +159,11 @@ test('brings a picture in as an annotation', async ({page}) => {
 	const size = () =>
 		page.evaluate(() => ({
 			height: Number(
-				(document.getElementById('layer-prop-height') as HTMLInputElement)
+				(document.querySelector('[id$="-layer-prop-height"]') as HTMLInputElement)
 					.value
 			),
 			width: Number(
-				(document.getElementById('layer-prop-width') as HTMLInputElement)
+				(document.querySelector('[id$="-layer-prop-width"]') as HTMLInputElement)
 					.value
 			),
 		}));

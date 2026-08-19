@@ -25,7 +25,10 @@ async function tabUntil(page: Page, target: string): Promise<void> {
 			);
 		});
 
-		if (label === target) {
+		if (label === target || label.endsWith(`-${target}`)) {
+
+			// Ids carry the editor's instance prefix; labels do not.
+
 			return;
 		}
 
@@ -132,15 +135,15 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await tabUntil(page, 'filter-none');
 
-	await expect(page.locator('#filter-none')).toBeFocused();
+	await expect(page.locator('[id$="-filter-none"]')).toBeFocused();
 
 	await page.keyboard.press('ArrowDown');
 
-	await expect(page.locator('#filter-grayscale')).toBeChecked();
+	await expect(page.locator('[id$="-filter-grayscale"]')).toBeChecked();
 	await expect(status).toContainText('Filter set to Grayscale');
 	await expect(page.locator('.editor-workspace image')).toHaveAttribute(
 		'filter',
-		'url(#preview-filter)'
+		/url\(#.*-preview-filter\)/
 	);
 
 	// Layers: two entries, topmost first; delete the selected one.
@@ -203,5 +206,5 @@ test('Enter reaches the properties even while Layers is collapsed', async ({
 	await page.keyboard.press('Enter');
 
 	await expect(layers).toHaveAttribute('aria-expanded', 'true');
-	await expect(page.locator('#layer-prop-color')).toBeFocused();
+	await expect(page.locator('[id$="-layer-prop-color"]')).toBeFocused();
 });

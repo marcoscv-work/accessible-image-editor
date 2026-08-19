@@ -20,6 +20,7 @@ import {EditorAction} from '../state/editorReducer';
 import {ArrowOverlay, Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 import {OverlayTextEditor} from './OverlayTextEditor';
+import {useEditorId} from './instance';
 
 import type {RedactSource} from '../imaging/overlayShapes';
 
@@ -165,6 +166,8 @@ export function OverlaysEditable({
 	selectedId,
 	zoom,
 }: Props) {
+	const eid = useEditorId();
+
 	const overlaysRef = useRef(overlays);
 
 	overlaysRef.current = overlays;
@@ -243,7 +246,7 @@ export function OverlaysEditable({
 					// disclosure is part of honouring the key.
 
 					const header = document
-						.querySelector('#layers-panel-title')
+						.getElementById(eid('layers-panel-title'))
 						?.closest('button');
 
 					if (header?.getAttribute('aria-expanded') === 'false') {
@@ -838,7 +841,7 @@ export function OverlaysEditable({
 
 	return (
 		<g>
-			<desc id="overlay-instructions">{t('overlay-instructions')}</desc>
+			<desc id={eid('overlay-instructions')}>{t('overlay-instructions')}</desc>
 
 			{overlays.map((overlay) => {
 				const bounds = overlayBounds(overlay);
@@ -878,7 +881,7 @@ export function OverlaysEditable({
 						)}
 
 						<rect
-							aria-describedby="overlay-instructions"
+							aria-describedby={eid('overlay-instructions')}
 							aria-label={overlayLabel(overlay)}
 							className="overlay-hit"
 							data-overlay-id={overlay.id}

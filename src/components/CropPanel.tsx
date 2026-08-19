@@ -12,6 +12,7 @@ import {t} from '../i18n';
 import {EditorAction, clampCrop} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {EditorSection} from './EditorSection';
+import {useEditorId} from './instance';
 
 interface Props {
 	angle: number;
@@ -60,6 +61,8 @@ export function CropPanel({
 	onAspectLockedChange,
 	showStraighten,
 }: Props) {
+	const eid = useEditorId();
+
 	const [drafts, setDrafts] = useState<Record<Field, string>>({
 		height: String(crop.height),
 		width: String(crop.width),
@@ -196,10 +199,10 @@ export function CropPanel({
 
 	const renderField = (field: Field) => (
 		<ClayForm.Group key={field} small>
-			<label htmlFor={`crop-${field}`}>{t(FIELD_LABELS[field])}</label>
+			<label htmlFor={eid(`crop-${field}`)}>{t(FIELD_LABELS[field])}</label>
 
 			<ClayInput
-				id={`crop-${field}`}
+				id={eid(`crop-${field}`)}
 				min={0}
 				onBlur={() => commit(field)}
 				onChange={(event) =>
@@ -236,7 +239,7 @@ export function CropPanel({
 	return (
 		<EditorSection
 			title={t('crop-and-rotation')}
-			titleId="crop-panel-title"
+			titleId={eid('crop-panel-title')}
 		>
 
 			<div className="editor-panel-grid">
@@ -275,7 +278,7 @@ export function CropPanel({
 			{showStraighten && (
 				<ClayForm.Group small>
 					<div className="editor-slider-row">
-						<label htmlFor="crop-angle">{t('straighten')}</label>
+						<label htmlFor={eid('crop-angle')}>{t('straighten')}</label>
 
 					<span aria-hidden="true" className="editor-slider-value">
 						{t('angle-degrees', angle)}
@@ -299,7 +302,7 @@ export function CropPanel({
 				</div>
 
 				<ClaySlider
-					id="crop-angle"
+					id={eid('crop-angle')}
 					max={45}
 					min={-45}
 					onBlur={commitAngle}

@@ -15,6 +15,7 @@ import {EditState, rotatedSize} from '../state/types';
 import {CropMarquee} from './CropMarquee';
 import {DrawSurface} from './DrawSurface';
 import {OverlaysEditable} from './OverlaysEditable';
+import {useEditorId} from './instance';
 
 interface Props {
 
@@ -115,6 +116,8 @@ export function Workspace({
 	workspaceRef,
 	zoom,
 }: Props) {
+	const eid = useEditorId();
+
 	const bounds = rotatedSize(state);
 	const {crop} = state;
 
@@ -158,7 +161,7 @@ export function Workspace({
 
 	return (
 		<div
-			aria-describedby="workspace-description"
+			aria-describedby={eid('workspace-description')}
 			aria-label={t('workspace')}
 			className="editor-workspace"
 			onKeyDown={handleKeyDown}
@@ -182,7 +185,7 @@ export function Workspace({
 			role="region"
 			tabIndex={0}
 		>
-			<span className="sr-only" id="workspace-description">
+			<span className="sr-only" id={eid('workspace-description')}>
 				{t('workspace-description')}
 			</span>
 
@@ -198,7 +201,7 @@ export function Workspace({
 					  * spills past the stage: clip it to the image area
 					  * to keep the surrounding padding clean.
 					  */}
-					<clipPath id="stage-clip">
+					<clipPath id={eid('stage-clip')}>
 						<rect
 							height={bounds.height}
 							width={bounds.width}
@@ -210,7 +213,7 @@ export function Workspace({
 					<FilterDefs
 						adjustments={state.adjustments}
 						filter={state.filter}
-						id="preview-filter"
+						id={eid('preview-filter')}
 					/>
 				</defs>
 
@@ -220,7 +223,7 @@ export function Workspace({
 						// Only needed while straightening, and clipping a
 						// filtered 20MP-derived bitmap is not free.
 
-						state.angle ? 'url(#stage-clip)' : undefined
+						state.angle ? `url(#${eid('stage-clip')})` : undefined
 					}
 				>
 					<g transform={imageTransform(state)}>
@@ -228,7 +231,7 @@ export function Workspace({
 						filter={
 							isIdentityFilter(state.adjustments, state.filter)
 								? undefined
-								: 'url(#preview-filter)'
+								: `url(#${eid('preview-filter')})`
 						}
 						height={state.sourceHeight}
 						href={image.previewUrl}
@@ -273,7 +276,7 @@ export function Workspace({
 								state.filter
 							)
 								? undefined
-								: 'url(#preview-filter)',
+								: `url(#${eid('preview-filter')})`,
 							imageUrl: image.previewUrl,
 							pixelUrls: image.pixelUrls,
 							sourceHeight: state.sourceHeight,

@@ -96,10 +96,10 @@ test('a blurred redaction survives the export', async ({page}) => {
 	// a region that is already flat would prove nothing.
 
 	for (const [id, value] of [
-		['#layer-prop-width', '360'],
-		['#layer-prop-height', '160'],
-		['#layer-prop-x', '260'],
-		['#layer-prop-y', '760'],
+		['[id$="-layer-prop-width"]', '360'],
+		['[id$="-layer-prop-height"]', '160'],
+		['[id$="-layer-prop-x"]', '260'],
+		['[id$="-layer-prop-y"]', '760'],
 	]) {
 		await page.locator(id).fill(value);
 		await page.locator(id).press('Enter');
@@ -164,10 +164,10 @@ test('a redaction keeps covering its pixels through a rotation', async ({
 	// Over the balustrade again: detail that would visibly leak.
 
 	for (const [id, value] of [
-		['#layer-prop-width', '360'],
-		['#layer-prop-height', '160'],
-		['#layer-prop-x', '260'],
-		['#layer-prop-y', '760'],
+		['[id$="-layer-prop-width"]', '360'],
+		['[id$="-layer-prop-height"]', '160'],
+		['[id$="-layer-prop-x"]', '260'],
+		['[id$="-layer-prop-y"]', '760'],
 	]) {
 		await page.locator(id).fill(value);
 		await page.locator(id).press('Enter');

@@ -11,6 +11,7 @@ import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {CommitSlider} from './fields';
+import {useEditorId} from './instance';
 
 const SLIDERS: Array<{key: keyof Adjustments; labelKey: string}> = [
 	{key: 'brightness', labelKey: 'brightness'},
@@ -42,19 +43,21 @@ export function AdjustPanel({
 	onAnnounce,
 	sliders,
 }: Props) {
+	const eid = useEditorId();
+
 	const shown = SLIDERS.filter(({key}) => sliders.includes(key));
 
 	const hasAdjustments = shown.some(({key}) => adjustments[key] !== 0);
 
 	return (
-		<EditorSection title={t('adjustments')} titleId="adjust-panel-title">
+		<EditorSection title={t('adjustments')} titleId={eid('adjust-panel-title')}>
 			{shown.map(({key, labelKey}) => {
 				const label = t(labelKey);
 				const value = adjustments[key];
 
 				return (
 					<CommitSlider
-						id={`adjust-${key}`}
+						id={eid(`adjust-${key}`)}
 						key={key}
 						label={label}
 						max={100}
@@ -111,7 +114,9 @@ export function AdjustPanel({
 							() =>
 								document
 									.getElementById(
-										`adjust-${shown[shown.length - 1].key}`
+										eid(
+											`adjust-${shown[shown.length - 1].key}`
+										)
 									)
 									?.focus(),
 							0

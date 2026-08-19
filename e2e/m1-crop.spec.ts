@@ -25,7 +25,10 @@ async function tabUntil(page: Page, ariaLabel: string): Promise<void> {
 			);
 		});
 
-		if (label === ariaLabel) {
+		if (label === ariaLabel || label.endsWith(`-${ariaLabel}`)) {
+
+			// Ids carry the editor's instance prefix; labels do not.
+
 			return;
 		}
 
@@ -85,7 +88,7 @@ test('keyboard-only crop journey', async ({page}) => {
 		await page.keyboard.press('Shift+ArrowLeft');
 	}
 
-	const widthInput = page.locator('#crop-width');
+	const widthInput = page.locator('[id$="-crop-width"]');
 
 	await expect(widthInput).toHaveValue('1520');
 
@@ -105,9 +108,9 @@ test('keyboard-only crop journey', async ({page}) => {
 	// Ratio preset from the select, keyboard only (letter typeahead).
 
 	await tabUntil(page, 'crop-ratio-select');
-	await page.locator('#crop-ratio-select').press('o');
+	await page.locator('[id$="-crop-ratio-select"]').press('o');
 
-	await expect(page.locator('#crop-ratio-select')).toHaveValue('original');
+	await expect(page.locator('[id$="-crop-ratio-select"]')).toHaveValue('original');
 	await expect(widthInput).toHaveValue('1550');
 
 	// Undo everything back to the initial crop. Each discrete arrow press
@@ -169,8 +172,8 @@ test('recenter fills the view with the crop', async ({page}) => {
 		['crop-x', '900'],
 		['crop-y', '500'],
 	]) {
-		await page.locator(`#${id}`).fill(value);
-		await page.locator(`#${id}`).press('Enter');
+		await page.locator(`[id$="-${id}"]`).fill(value);
+		await page.locator(`[id$="-${id}"]`).press('Enter');
 	}
 
 	await page.locator('.crop-recenter').click();
@@ -237,8 +240,8 @@ test('a crop field never shows a value that was refused', async ({page}) => {
 	await page.getByRole('button', {name: 'Edit sample image'}).click();
 	await waitForModalSettled(page);
 
-	const x = page.locator('#crop-x');
-	const width = page.locator('#crop-width');
+	const x = page.locator('[id$="-crop-x"]');
+	const width = page.locator('[id$="-crop-width"]');
 
 	// The crop is as wide as the image, so it cannot also start at 200.
 	// It used to keep showing 200 until some other field changed the crop,
@@ -262,8 +265,8 @@ test('a crop field never shows a value that was refused', async ({page}) => {
 
 	await expect(x).toHaveValue('200');
 
-	await page.locator('#crop-height').fill('600');
-	await page.locator('#crop-height').press('Enter');
+	await page.locator('[id$="-crop-height"]').fill('600');
+	await page.locator('[id$="-crop-height"]').press('Enter');
 
 	await expect(x).toHaveValue('200');
 	await expect(width).toHaveValue('1000');
@@ -301,11 +304,11 @@ test('the locked crop offers corners only, and they keep the ratio', async ({
 	const size = () =>
 		page.evaluate(() => ({
 			height: Number(
-				(document.getElementById('crop-height') as HTMLInputElement)
+				(document.querySelector('[id$="-crop-height"]') as HTMLInputElement)
 					.value
 			),
 			width: Number(
-				(document.getElementById('crop-width') as HTMLInputElement)
+				(document.querySelector('[id$="-crop-width"]') as HTMLInputElement)
 					.value
 			),
 		}));

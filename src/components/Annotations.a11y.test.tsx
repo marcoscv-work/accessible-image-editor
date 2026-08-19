@@ -742,7 +742,7 @@ describe('Annotations, filters, and layers', () => {
 		expect(screen.getByRole('radio', {name: 'Sepia'})).toBeChecked();
 		expect(
 			container.querySelector('.editor-workspace image')
-		).toHaveAttribute('filter', 'url(#preview-filter)');
+		).toHaveAttribute('filter', 'url(#aie-preview-filter)');
 	});
 
 	it('renders the filters as cards backed by hidden radios', () => {
@@ -960,7 +960,7 @@ describe('Annotations, filters, and layers', () => {
 
 		await new Promise((resolve) => setTimeout(resolve, 20));
 
-		expect(document.activeElement?.id).toBe('layer-prop-color');
+		expect(document.activeElement?.id).toBe('aie-layer-prop-color');
 	});
 
 	it('duplicates a layer from its row and selects the copy', () => {
@@ -1081,7 +1081,7 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(row).toHaveAttribute(
 			'aria-describedby',
-			'layer-name-description'
+			'aie-layer-name-description'
 		);
 
 		fireEvent.keyDown(row, {key: 'Enter'});

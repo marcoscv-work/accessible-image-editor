@@ -10,6 +10,7 @@ import ClayModal from '@clayui/modal';
 import {t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {RatioPreset} from '../state/types';
+import {useEditorId} from './instance';
 
 const RATIO_OPTIONS: Array<{labelKey: string; value: RatioPreset}> = [
 	{labelKey: 'ratio-custom', value: 'custom'},
@@ -63,6 +64,8 @@ export function BottomBar({
 	showRotate,
 	zoom,
 }: Props) {
+	const eid = useEditorId();
+
 	/*
 	 * A standard modal footer rather than a bar of our own: Lexicon gives it
 	 * the light surface, the top border and the trailing alignment of the
@@ -79,14 +82,14 @@ export function BottomBar({
 					<>
 						<label
 							className="editor-ratio-label"
-							htmlFor="crop-ratio-select"
+							htmlFor={eid('crop-ratio-select')}
 						>
 							{t('ratio')}
 						</label>
 
 				<ClaySelectWithOption
 					className="editor-ratio-select"
-					id="crop-ratio-select"
+					id={eid('crop-ratio-select')}
 					onChange={(event) => {
 						dispatch({
 							ratio: event.target.value as RatioPreset,

@@ -195,7 +195,7 @@ async function collapse(page, ...titles) {
 	// 2. Crop and rotation: ratios, numeric box, straighten.
 
 	await shot(page, 'crop.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#crop-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-crop-panel-title"])'),
 	});
 
 	// 3. Adjustments: the five sliders and Reset all.
@@ -203,7 +203,7 @@ async function collapse(page, ...titles) {
 	await collapse(page, 'Crop and rotation');
 
 	await shot(page, 'adjust.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#adjust-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-adjust-panel-title"])'),
 	});
 
 	await page.close();
@@ -228,7 +228,7 @@ async function collapse(page, ...titles) {
 
 	const panel = await panelRegion(
 		page,
-		'.editor-panel:has(#filters-panel-title)'
+		'.editor-panel:has([id$="-filters-panel-title"])'
 	);
 
 	await shot(page, 'filters.png', {
@@ -253,7 +253,7 @@ async function collapse(page, ...titles) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
 
-	await page.locator('#frame-mat').check({force: true});
+	await page.locator('[id$="-frame-mat"]').check({force: true});
 	await page.waitForTimeout(500);
 
 	await page.evaluate(() => {
@@ -269,7 +269,7 @@ async function collapse(page, ...titles) {
 	await page.waitForTimeout(400);
 
 	await shot(page, 'frame-panel.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#frame-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-frame-panel-title"])'),
 	});
 
 	await page.close();
@@ -282,7 +282,7 @@ async function collapse(page, ...titles) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
 
-	await page.locator('#frame-polaroid').check({force: true});
+	await page.locator('[id$="-frame-polaroid"]').check({force: true});
 	await page.waitForTimeout(500);
 
 	await shot(page, 'stage-framed.jpg', {
@@ -300,10 +300,10 @@ async function collapse(page, ...titles) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters');
 
-	await page.locator('#frame-mat').check({force: true});
+	await page.locator('[id$="-frame-mat"]').check({force: true});
 	await page.waitForTimeout(300);
 
-	const size = page.locator('#frame-size');
+	const size = page.locator('[id$="-frame-size"]');
 
 	await size.focus();
 
@@ -315,7 +315,7 @@ async function collapse(page, ...titles) {
 
 	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
 	await page.waitForTimeout(400);
-	await page.locator('#text-content').fill('Liferay 2026');
+	await page.locator('[id$="-text-content"]').fill('Liferay 2026');
 	await page.getByRole('button', {exact: true, name: 'Add'}).click();
 	await page.waitForTimeout(500);
 
@@ -341,8 +341,8 @@ async function collapse(page, ...titles) {
 	// Down onto the frame's bottom band, where the two orders differ.
 
 	for (const [id, value] of [
-		['#layer-prop-y', '1070'],
-		['#layer-prop-x', '260'],
+		['[id$="-layer-prop-y"]', '1070'],
+		['[id$="-layer-prop-x"]', '260'],
 	]) {
 		const field = page.locator(id);
 
@@ -421,8 +421,8 @@ async function dragLast(page, dx, dy) {
 
 	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
 	await page.waitForTimeout(600);
-	await page.locator('#text-content').fill('Golden hour');
-	await page.locator('#text-font-size').fill('96');
+	await page.locator('[id$="-text-content"]').fill('Golden hour');
+	await page.locator('[id$="-text-font-size"]').fill('96');
 	await page.getByRole('button', {exact: true, name: 'Add'}).click();
 	await page.waitForTimeout(400);
 	await dragLast(page, -170, 190);
@@ -479,10 +479,10 @@ async function dragLast(page, dx, dy) {
 		'Annotate'
 	);
 
-	await revealPanel(page, '.editor-panel:has(#layers-panel-title)');
+	await revealPanel(page, '.editor-panel:has([id$="-layers-panel-title"])');
 
 	await shot(page, 'layers.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-layers-panel-title"])'),
 	});
 
 	await page.close();
@@ -507,11 +507,11 @@ async function dragLast(page, dx, dy) {
 	// Composed into the sky, at a watermark's size.
 
 	for (const [id, value] of [
-		['#layer-prop-width', '150'],
-		['#layer-prop-height', '150'],
-		['#layer-prop-x', '1230'],
-		['#layer-prop-y', '170'],
-		['#layer-prop-opacity', '80'],
+		['[id$="-layer-prop-width"]', '150'],
+		['[id$="-layer-prop-height"]', '150'],
+		['[id$="-layer-prop-x"]', '1230'],
+		['[id$="-layer-prop-y"]', '170'],
+		['[id$="-layer-prop-opacity"]', '80'],
 	]) {
 		const field = page.locator(id);
 
@@ -526,10 +526,10 @@ async function dragLast(page, dx, dy) {
 		clip: await region(page, '.editor-workspace'),
 	});
 
-	await revealPanel(page, '.editor-panel:has(#layers-panel-title)');
+	await revealPanel(page, '.editor-panel:has([id$="-layers-panel-title"])');
 
 	await shot(page, 'picture-layer.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#layers-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-layers-panel-title"])'),
 	});
 
 	await page.close();
@@ -693,10 +693,10 @@ for (const scheme of ['light', 'dark']) {
 	// reads, and the picture has to be legible before it can make a point.
 
 	for (const [id, value] of [
-		['#layer-prop-width', '12'],
-		['#layer-prop-height', '12'],
-		['#layer-prop-x', '1200'],
-		['#layer-prop-y', '430'],
+		['[id$="-layer-prop-width"]', '12'],
+		['[id$="-layer-prop-height"]', '12'],
+		['[id$="-layer-prop-x"]', '1200'],
+		['[id$="-layer-prop-y"]', '430'],
 	]) {
 		const field = page.locator(id);
 
@@ -806,10 +806,10 @@ for (const scheme of ['light', 'dark']) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments');
 
-	await revealPanel(page, '.editor-panel:has(#filters-panel-title)');
+	await revealPanel(page, '.editor-panel:has([id$="-filters-panel-title"])');
 
 	await shot(page, 'mobile-filters.png', {
-		clip: await panelRegion(page, '.editor-panel:has(#filters-panel-title)'),
+		clip: await panelRegion(page, '.editor-panel:has([id$="-filters-panel-title"])'),
 	});
 
 	// The frames come between the filters and the annotations, and a menu
@@ -817,7 +817,7 @@ for (const scheme of ['light', 'dark']) {
 
 	await collapse(page, 'Filters', 'Frame');
 
-	await revealPanel(page, '.editor-panel:has(#annotate-panel-title)');
+	await revealPanel(page, '.editor-panel:has([id$="-annotate-panel-title"])');
 
 	await page.getByRole('button', {exact: true, name: 'Add emoji'}).click();
 	await page.locator('.editor-emoji-cell').first().waitFor();
@@ -827,7 +827,7 @@ for (const scheme of ['light', 'dark']) {
 		clip: union(
 			await panelRegion(
 				page,
-				'.editor-panel:has(#annotate-panel-title)'
+				'.editor-panel:has([id$="-annotate-panel-title"])'
 			),
 			await region(page, '.dropdown-menu.show')
 		),

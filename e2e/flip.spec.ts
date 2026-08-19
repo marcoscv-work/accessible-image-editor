@@ -29,7 +29,7 @@ test('flips the image horizontally, and back', async ({page}) => {
 	// Off centre on purpose: an annotation sitting in the middle mirrors
 	// onto itself and would prove nothing.
 
-	const positionX = page.locator('#layer-prop-x');
+	const positionX = page.locator('[id$="-layer-prop-x"]');
 
 	await positionX.fill('200');
 	await positionX.press('Enter');

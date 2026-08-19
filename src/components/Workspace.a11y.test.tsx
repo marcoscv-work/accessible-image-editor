@@ -187,10 +187,10 @@ describe('Editor workspace composition', () => {
 
 		expect(container.querySelector('image')).toHaveAttribute(
 			'filter',
-			'url(#preview-filter)'
+			'url(#aie-preview-filter)'
 		);
 		expect(
-			container.querySelector('#preview-filter feFuncR')
+			container.querySelector('#aie-preview-filter feFuncR')
 		).toHaveAttribute('slope', '1.4');
 	});
 

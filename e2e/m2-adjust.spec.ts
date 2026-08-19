@@ -26,7 +26,10 @@ async function tabUntil(page: Page, target: string): Promise<void> {
 			);
 		});
 
-		if (label === target) {
+		if (label === target || label.endsWith(`-${target}`)) {
+
+			// Ids carry the editor's instance prefix; labels do not.
+
 			return;
 		}
 
@@ -60,8 +63,8 @@ test('keyboard-only adjustments journey', async ({page}) => {
 		await page.keyboard.press('ArrowRight');
 	}
 
-	await expect(page.locator('#adjust-brightness')).toHaveValue('5');
-	await expect(image).toHaveAttribute('filter', 'url(#preview-filter)');
+	await expect(page.locator('[id$="-adjust-brightness"]')).toHaveValue('5');
+	await expect(image).toHaveAttribute('filter', /url\(#.*-preview-filter\)/);
 	await expect(page.locator('.editor-announcer')).toContainText(
 		'Brightness set to 5'
 	);
@@ -72,7 +75,7 @@ test('keyboard-only adjustments journey', async ({page}) => {
 	await page.keyboard.press('ArrowRight');
 
 	await expect(
-		page.locator('#preview-filter feFuncR[type="table"]')
+		page.locator('[id$="-preview-filter"] feFuncR[type="table"]')
 	).toHaveAttribute('tableValues', /.+/);
 
 	// The whole panel passes an axe scan with adjustments active.
@@ -86,8 +89,8 @@ test('keyboard-only adjustments journey', async ({page}) => {
 	await tabUntil(page, 'Reset all');
 	await page.keyboard.press('Enter');
 
-	await expect(page.locator('#adjust-brightness')).toHaveValue('0');
-	await expect(page.locator('#adjust-shadows')).toHaveValue('0');
+	await expect(page.locator('[id$="-adjust-brightness"]')).toHaveValue('0');
+	await expect(page.locator('[id$="-adjust-shadows"]')).toHaveValue('0');
 	await expect(image).not.toHaveAttribute('filter', /.+/);
 	await expect(page.locator('.editor-announcer')).toContainText(
 		'All adjustments reset'
@@ -97,6 +100,6 @@ test('keyboard-only adjustments journey', async ({page}) => {
 
 	await page.keyboard.press('ControlOrMeta+z');
 
-	await expect(page.locator('#adjust-brightness')).toHaveValue('5');
-	await expect(page.locator('#adjust-shadows')).toHaveValue('1');
+	await expect(page.locator('[id$="-adjust-brightness"]')).toHaveValue('5');
+	await expect(page.locator('[id$="-adjust-shadows"]')).toHaveValue('1');
 });

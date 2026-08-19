@@ -23,6 +23,7 @@ import {
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
 import {BorderField, ColorField, NumberField, TextField} from './fields';
+import {useEditorId} from './instance';
 
 interface LayerPropertiesProps {
 	dispatch: (action: EditorAction) => void;
@@ -49,6 +50,8 @@ export function LayerProperties({
 	overlay,
 	proportional,
 }: LayerPropertiesProps) {
+	const eid = useEditorId();
+
 	const label = overlayLabel(overlay);
 
 	const commitPatch = (patch: Partial<Overlay>) => {
@@ -97,7 +100,7 @@ export function LayerProperties({
 
 	const rotationField = overlay.kind !== 'arrow' && (
 		<NumberField
-			id="layer-prop-rotation"
+			id={eid('layer-prop-rotation')}
 			label={t('rotation-degrees')}
 			max={360}
 			min={-360}
@@ -110,7 +113,7 @@ export function LayerProperties({
 
 	const opacityField = (
 		<NumberField
-			id="layer-prop-opacity"
+			id={eid('layer-prop-opacity')}
 			label={t('opacity')}
 			max={100}
 			min={0}
@@ -123,7 +126,7 @@ export function LayerProperties({
 
 	return (
 		<div
-			aria-labelledby="layer-properties-title"
+			aria-labelledby={eid('layer-properties-title')}
 			className="editor-layer-properties"
 			role="group"
 		>
@@ -132,13 +135,13 @@ export function LayerProperties({
 			  * now, so a heading here would break the document's heading
 			  * order. The group is labelled by this text instead.
 			  */}
-			<div className="editor-panel-subtitle" id="layer-properties-title">
+			<div className="editor-panel-subtitle" id={eid('layer-properties-title')}>
 				{t('selected-layer', label)}
 			</div>
 
 			{overlay.kind === 'text' && (
 				<TextField
-					id="layer-prop-text"
+					id={eid('layer-prop-text')}
 					label={t('text-content')}
 					onCommit={(text) => commitPatch({text})}
 					value={overlay.text}
@@ -151,7 +154,7 @@ export function LayerProperties({
 			  */}
 			{overlay.kind === 'image' && (
 				<TextField
-					id="layer-prop-description"
+					id={eid('layer-prop-description')}
 					label={t('image-description')}
 					onCommit={(description) => commitPatch({description})}
 					value={overlay.description}
@@ -161,12 +164,12 @@ export function LayerProperties({
 			<div className="editor-panel-grid">
 				{overlay.kind === 'redact' && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-redact-style">
+						<label htmlFor={eid('layer-prop-redact-style')}>
 							{t('redact-style')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-redact-style"
+							id={eid('layer-prop-redact-style')}
 							onChange={(event) =>
 								commitPatch({
 									style: event.target.value as RedactStyle,
@@ -195,12 +198,12 @@ export function LayerProperties({
 				  */}
 				{overlay.kind === 'redact' && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-level">
+						<label htmlFor={eid('layer-prop-level')}>
 							{t('redact-level')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-level"
+							id={eid('layer-prop-level')}
 							onChange={(event) =>
 								commitPatch({
 									level: event.target
@@ -228,7 +231,7 @@ export function LayerProperties({
 				{hasColor(overlay) && (
 					<ColorField
 						fill
-						id="layer-prop-color"
+						id={eid('layer-prop-color')}
 						label={t('text-color')}
 						onCommit={(color) => commitPatch({color})}
 						onPreview={(color) =>
@@ -244,7 +247,7 @@ export function LayerProperties({
 				)}
 
 				<NumberField
-					id="layer-prop-x"
+					id={eid('layer-prop-x')}
 					label={t('x-position')}
 					min={-Infinity}
 					onCommit={(x) => commitPatch({x})}
@@ -253,7 +256,7 @@ export function LayerProperties({
 				/>
 
 				<NumberField
-					id="layer-prop-y"
+					id={eid('layer-prop-y')}
 					label={t('y-position')}
 					min={-Infinity}
 					onCommit={(y) => commitPatch({y})}
@@ -278,12 +281,12 @@ export function LayerProperties({
 
 				{overlay.kind === 'arrow' && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-head">
+						<label htmlFor={eid('layer-prop-head')}>
 							{t('arrow-head')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-head"
+							id={eid('layer-prop-head')}
 							onChange={(event) =>
 								commitPatch({
 									head: event.target
@@ -311,7 +314,7 @@ export function LayerProperties({
 				  */}
 				{overlay.kind === 'arrow' && (
 					<NumberField
-						id="layer-prop-tip-x"
+						id={eid('layer-prop-tip-x')}
 						label={t('tip-x-position')}
 						min={-Infinity}
 						onCommit={(tipX) =>
@@ -326,7 +329,7 @@ export function LayerProperties({
 
 				{overlay.kind === 'arrow' && (
 					<NumberField
-						id="layer-prop-tip-y"
+						id={eid('layer-prop-tip-y')}
 						label={t('tip-y-position')}
 						min={-Infinity}
 						onCommit={(tipY) =>
@@ -341,7 +344,7 @@ export function LayerProperties({
 
 				{overlay.kind === 'arrow' && (
 					<NumberField
-						id="layer-prop-thickness"
+						id={eid('layer-prop-thickness')}
 						label={t('thickness')}
 						min={1}
 						onCommit={(thickness) => commitPatch({thickness})}
@@ -352,7 +355,7 @@ export function LayerProperties({
 
 				{overlay.kind === 'stroke' && (
 					<NumberField
-						id="layer-prop-stroke-width"
+						id={eid('layer-prop-stroke-width')}
 						label={t('thickness')}
 						min={1}
 						onCommit={(width) => commitPatch({width})}
@@ -369,12 +372,12 @@ export function LayerProperties({
 				  */}
 				{overlay.kind === 'stroke' && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-stroke-style">
+						<label htmlFor={eid('layer-prop-stroke-style')}>
 							{t('stroke-style')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-stroke-style"
+							id={eid('layer-prop-stroke-style')}
 							onChange={(event) =>
 								commitPatch({
 									smooth: event.target.value === 'smooth',
@@ -398,7 +401,7 @@ export function LayerProperties({
 
 				{overlay.kind === 'emoji' && (
 					<NumberField
-						id="layer-prop-size"
+						id={eid('layer-prop-size')}
 						label={t('size')}
 						min={8}
 						onCommit={(size) => commitPatch({size})}
@@ -409,12 +412,12 @@ export function LayerProperties({
 
 				{overlay.kind === 'text' && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-font-family">
+						<label htmlFor={eid('layer-prop-font-family')}>
 							{t('font-family')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-font-family"
+							id={eid('layer-prop-font-family')}
 							onChange={(event) =>
 								commitPatch({
 									fontFamily: event.target.value,
@@ -434,7 +437,7 @@ export function LayerProperties({
 
 				{overlay.kind === 'text' && (
 					<NumberField
-						id="layer-prop-font-size"
+						id={eid('layer-prop-font-size')}
 						label={t('font-size')}
 						min={8}
 						onCommit={(fontSize) => commitPatch({fontSize})}
@@ -446,7 +449,7 @@ export function LayerProperties({
 				{isBoxOverlay(overlay) && (
 					<div className="editor-crop-size-row editor-layer-size-row">
 						<NumberField
-							id="layer-prop-width"
+							id={eid('layer-prop-width')}
 							label={t('width')}
 							onCommit={(width) => commitSize('width', width)}
 							onPreview={(width) =>
@@ -478,7 +481,7 @@ export function LayerProperties({
 						/>
 
 						<NumberField
-							id="layer-prop-height"
+							id={eid('layer-prop-height')}
 							label={t('height')}
 							onCommit={(height) => commitSize('height', height)}
 							onPreview={(height) =>
@@ -495,12 +498,12 @@ export function LayerProperties({
 
 				{hasBorder(overlay) && (
 					<ClayForm.Group small>
-						<label htmlFor="layer-prop-shape-style">
+						<label htmlFor={eid('layer-prop-shape-style')}>
 							{t('shape-style')}
 						</label>
 
 						<ClaySelectWithOption
-							id="layer-prop-shape-style"
+							id={eid('layer-prop-shape-style')}
 							onChange={(event) =>
 								commitPatch({
 									sketchSeed:
@@ -536,7 +539,7 @@ export function LayerProperties({
 					<BorderField
 						colorLabel={t('border-color')}
 						colorValue={overlay.borderColor ?? DEFAULT_BORDER_COLOR}
-						id="layer-prop-border-width"
+						id={eid('layer-prop-border-width')}
 						label={t('border')}
 						onColorCommit={(borderColor) =>
 							commitPatch({borderColor})

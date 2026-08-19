@@ -5,13 +5,11 @@
 
 import ClayButton from '@clayui/button';
 import spritemap from '@clayui/css/lib/images/icons/icons.svg';
-import {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useState} from 'react';
 
+import {AccessibleImageEditor} from './AccessibleImageEditor';
 import sampleUrl from './assets/sample.jpg';
-import {AnnouncerProvider} from './components/Announcer';
-import EditorModal from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
 import {EditorConfig} from './editorConfig';
 import {t} from './i18n';
@@ -49,28 +47,25 @@ export function EditorStory({config}: {config?: EditorConfig}) {
 	}, []);
 
 	return (
-		<ClayIconSpriteContext.Provider value={spritemap}>
+		<>
 			<ClayTooltipProvider autoAlign delay={200} scope="[title]" />
 
-			<AnnouncerProvider>
-				{image ? (
-					<EditorModal
-						config={config}
-						image={image}
-						key={JSON.stringify(config)}
-						onClose={() => {}}
-						onSave={({blob, fileName}) =>
-							downloadBlob(blob, fileName)
-						}
-					/>
-				) : (
-					<div className="p-4">
-						<ClayButton disabled displayType="secondary">
-							{t('app-title')}
-						</ClayButton>
-					</div>
-				)}
-			</AnnouncerProvider>
-		</ClayIconSpriteContext.Provider>
+			{image ? (
+				<AccessibleImageEditor
+					config={config}
+					image={image}
+					key={JSON.stringify(config)}
+					onClose={() => {}}
+					onSave={({blob, fileName}) => downloadBlob(blob, fileName)}
+					spritemap={spritemap}
+				/>
+			) : (
+				<div className="p-4">
+					<ClayButton disabled displayType="secondary">
+						{t('app-title')}
+					</ClayButton>
+				</div>
+			)}
+		</>
 	);
 }

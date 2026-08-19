@@ -76,7 +76,7 @@ test('20MP image: load, slider, and crop interactions stay responsive', async ({
 
 	// Slider interaction latency: one arrow-key step on Brightness.
 
-	await page.locator('#adjust-brightness').focus();
+	await page.locator('[id$="-adjust-brightness"]').focus();
 
 	const sliderMillis = await measureInteraction(page, async () => {
 		await page.keyboard.press('ArrowRight');
@@ -102,7 +102,7 @@ test('20MP image: load, slider, and crop interactions stay responsive', async ({
 
 	await page.getByText('Mat', {exact: true}).click();
 
-	await page.locator('#frame-size').focus();
+	await page.locator('[id$="-frame-size"]').focus();
 
 	const frameMillis = await measureInteraction(page, async () => {
 		await page.keyboard.press('ArrowRight');

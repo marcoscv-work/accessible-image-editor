@@ -70,7 +70,7 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 	// this test is about the filter cards.
 
 	const carousel = page.locator(
-		'.editor-panel:has(#filters-panel-title) .editor-carousel'
+		'.editor-panel:has([id$="-filters-panel-title"]) .editor-carousel'
 	);
 
 	await expectSwipeableRow(
@@ -80,10 +80,10 @@ test('the filter gallery becomes a carousel when stacked', async ({page}) => {
 
 	// Keyboard selection still works, and scrolls the card into view.
 
-	await page.locator('#filter-none').focus();
+	await page.locator('[id$="-filter-none"]').focus();
 	await page.keyboard.press('ArrowRight');
 
-	await expect(page.locator('#filter-grayscale')).toBeChecked();
+	await expect(page.locator('[id$="-filter-grayscale"]')).toBeChecked();
 
 	const results = await new AxeBuilder({page}).analyze();
 
@@ -190,7 +190,7 @@ test('reflows at 320 pixels, the 400% zoom equivalent', async ({page}) => {
 	// A crop still commits from the numeric field, which is the route that
 	// does not depend on dragging.
 
-	const width = page.locator('#crop-width');
+	const width = page.locator('[id$="-crop-width"]');
 
 	await width.fill('600');
 	await width.press('Enter');

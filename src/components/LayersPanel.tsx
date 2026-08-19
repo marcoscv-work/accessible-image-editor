@@ -12,6 +12,7 @@ import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {LayerProperties} from './LayerProperties';
+import {useEditorId} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -52,6 +53,8 @@ export function LayersPanel({
 	proportional,
 	selectedId,
 }: Props) {
+	const eid = useEditorId();
+
 	const items = [...overlays].reverse();
 
 	const selected =
@@ -274,9 +277,9 @@ export function LayersPanel({
 	};
 
 	return (
-		<EditorSection title={t('layers')} titleId="layers-panel-title">
+		<EditorSection title={t('layers')} titleId={eid('layers-panel-title')}>
 
-			<span className="sr-only" id="layer-name-description">
+			<span className="sr-only" id={eid('layer-name-description')}>
 				{t('layer-name-description')}
 			</span>
 
@@ -310,7 +313,7 @@ export function LayersPanel({
 								// it into the name is exactly the mistake
 								// jsdom's name computation makes.
 
-								aria-describedby="layer-name-description"
+								aria-describedby={eid('layer-name-description')}
 								aria-label={label}
 								aria-pressed={isSelected}
 								className="editor-layer-name"

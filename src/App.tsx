@@ -9,9 +9,11 @@ import ClayIcon, {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useRef, useState} from 'react';
 
+import {
+	AccessibleImageEditor,
+	EditorSaveResult,
+} from './AccessibleImageEditor';
 import sampleUrl from './assets/sample.jpg';
-import {AnnouncerProvider} from './components/Announcer';
-import EditorModal, {EditorSaveResult} from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
 import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
@@ -158,7 +160,6 @@ export default function App() {
 			 */}
 			<ClayTooltipProvider autoAlign delay={200} scope="[title]" />
 
-			<AnnouncerProvider>
 				<main
 					className={`landing${dropping ? ' is-dropping' : ''}`}
 					onDragLeave={(event) => {
@@ -276,14 +277,14 @@ export default function App() {
 				</main>
 
 				{image && (
-					<EditorModal
+					<AccessibleImageEditor
 						config={configFromSearch(window.location.search)}
 						image={image}
 						onClose={close}
 						onSave={demoSave}
+						spritemap={spritemap}
 					/>
 				)}
-			</AnnouncerProvider>
 		</ClayIconSpriteContext.Provider>
 	);
 }

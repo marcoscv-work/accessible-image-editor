@@ -28,7 +28,7 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	// The first annotation reveals the Layers section; the sidebar
 	// scrolls so it enters the view.
 
-	await expect(page.locator('#layers-panel-title')).toBeInViewport();
+	await expect(page.locator('[id$="-layers-panel-title"]')).toBeInViewport();
 
 	// Drag the rectangle 60px right, 40px down.
 
@@ -71,16 +71,16 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 
 	// Properties: recolor and resize the selected layer.
 
-	await page.locator('#layer-prop-color').fill('#00ff00');
-	await page.locator('#layer-prop-color').blur();
+	await page.locator('[id$="-layer-prop-color"]').fill('#00ff00');
+	await page.locator('[id$="-layer-prop-color"]').blur();
 
 	await expect(status).toContainText('Rectangle updated');
 	await expect(
 		page.locator('.editor-workspace rect[fill="#00ff00"]')
 	).toHaveCount(1);
 
-	await page.locator('#layer-prop-width').fill('500');
-	await page.locator('#layer-prop-width').press('Enter');
+	await page.locator('[id$="-layer-prop-width"]').fill('500');
+	await page.locator('[id$="-layer-prop-width"]').press('Enter');
 
 	await expect(
 		page.locator('.editor-workspace rect[fill="#00ff00"]')
@@ -103,10 +103,10 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await expect(page.locator('.object-handle').first()).toBeVisible();
 
 	const widthBefore = Number(
-		await page.locator('#layer-prop-width').inputValue()
+		await page.locator('[id$="-layer-prop-width"]').inputValue()
 	);
 	const heightBefore = Number(
-		await page.locator('#layer-prop-height').inputValue()
+		await page.locator('[id$="-layer-prop-height"]').inputValue()
 	);
 
 	const seHandle = page.locator('.object-handle').nth(2);
@@ -123,10 +123,10 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.mouse.up();
 
 	const widthAfter = Number(
-		await page.locator('#layer-prop-width').inputValue()
+		await page.locator('[id$="-layer-prop-width"]').inputValue()
 	);
 	const heightAfter = Number(
-		await page.locator('#layer-prop-height').inputValue()
+		await page.locator('[id$="-layer-prop-height"]').inputValue()
 	);
 
 	// Free by default: both sides follow the pointer independently, so a
@@ -156,10 +156,10 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.keyboard.up('Shift');
 
 	const widthShift = Number(
-		await page.locator('#layer-prop-width').inputValue()
+		await page.locator('[id$="-layer-prop-width"]').inputValue()
 	);
 	const heightShift = Number(
-		await page.locator('#layer-prop-height').inputValue()
+		await page.locator('[id$="-layer-prop-height"]').inputValue()
 	);
 
 	expect(
@@ -170,10 +170,10 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	// grows the width and leaves the height untouched.
 
 	const stretchWidthBefore = Number(
-		await page.locator('#layer-prop-width').inputValue()
+		await page.locator('[id$="-layer-prop-width"]').inputValue()
 	);
 	const stretchHeightBefore = Number(
-		await page.locator('#layer-prop-height').inputValue()
+		await page.locator('[id$="-layer-prop-height"]').inputValue()
 	);
 
 	// Handles render corners first (4), then edges: n, e, s, w.
@@ -194,10 +194,10 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.mouse.up();
 
 	expect(
-		Number(await page.locator('#layer-prop-width').inputValue())
+		Number(await page.locator('[id$="-layer-prop-width"]').inputValue())
 	).toBeGreaterThan(stretchWidthBefore);
 	expect(
-		Number(await page.locator('#layer-prop-height').inputValue())
+		Number(await page.locator('[id$="-layer-prop-height"]').inputValue())
 	).toBe(stretchHeightBefore);
 
 	// The rotate handle spins the annotation.
@@ -214,7 +214,7 @@ test('rectangle drags with the pointer and stays editable', async ({page}) => {
 	await page.mouse.up();
 
 	const rotation = Number(
-		await page.locator('#layer-prop-rotation').inputValue()
+		await page.locator('[id$="-layer-prop-rotation"]').inputValue()
 	);
 
 	expect(rotation).not.toBe(0);

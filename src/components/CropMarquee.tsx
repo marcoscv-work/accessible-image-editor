@@ -11,6 +11,7 @@ import {arrowDelta} from '../imaging/geometry';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
+import {useEditorId} from './instance';
 
 type HandleDirection = 'e' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w';
 
@@ -218,6 +219,8 @@ export function CropMarquee({
 	showRecenter,
 	zoom,
 }: Props) {
+	const eid = useEditorId();
+
 	const cropRef = useRef(crop);
 
 	cropRef.current = crop;
@@ -412,9 +415,9 @@ export function CropMarquee({
 
 	return (
 		<g>
-			<desc id="crop-area-description">{t('crop-area-description')}</desc>
+			<desc id={eid('crop-area-description')}>{t('crop-area-description')}</desc>
 
-			<desc id="crop-handle-description">
+			<desc id={eid('crop-handle-description')}>
 				{t('crop-handle-description')}
 			</desc>
 
@@ -448,7 +451,7 @@ export function CropMarquee({
 				</g>
 
 			<rect
-				aria-describedby="crop-area-description"
+				aria-describedby={eid('crop-area-description')}
 				aria-label={t('crop-area')}
 				className="crop-move"
 				fill="transparent"
@@ -607,7 +610,7 @@ export function CropMarquee({
 						)}
 
 						<circle
-							aria-describedby="crop-handle-description"
+							aria-describedby={eid('crop-handle-description')}
 							aria-label={t(`crop-handle-${direction}`)}
 							className="crop-handle"
 							cx={position.x}

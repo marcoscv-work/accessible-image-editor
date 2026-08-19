@@ -12,6 +12,7 @@ import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {PresetGallery} from './PresetGallery';
+import {useEditorId} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -37,10 +38,12 @@ function FilterGalleryCards({
 	onAnnounce,
 	presets,
 }: Props) {
+	const eid = useEditorId();
+
 	return (
-		<EditorSection title={t('filters')} titleId="filters-panel-title">
+		<EditorSection title={t('filters')} titleId={eid('filters-panel-title')}>
 			<PresetGallery
-				idPrefix="filter"
+				idPrefix={eid('filter')}
 				items={presets}
 				label={(preset) => t(`filter-${preset}`)}
 				legend={t('filters')}
@@ -61,7 +64,7 @@ function FilterGalleryCards({
 							<FilterDefs
 								adjustments={DEFAULT_ADJUSTMENTS}
 								filter={preset}
-								id={`filter-thumb-${preset}`}
+								id={eid(`filter-thumb-${preset}`)}
 							/>
 						</defs>
 

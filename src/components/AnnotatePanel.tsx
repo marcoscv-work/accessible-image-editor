@@ -23,6 +23,7 @@ import {CropRect, Overlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
+import {useEditorId} from './instance';
 
 /**
  * Loaded when the button is pressed, not when the editor is: the picker
@@ -206,6 +207,8 @@ export function AnnotatePanel({
 	onStartDrawing,
 	tools,
 }: Props) {
+	const eid = useEditorId();
+
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
 	const [shapeMenuOpen, setShapeMenuOpen] = useState(false);
@@ -475,7 +478,7 @@ export function AnnotatePanel({
 		);
 
 	return (
-		<EditorSection title={t('annotate')} titleId="annotate-panel-title">
+		<EditorSection title={t('annotate')} titleId={eid('annotate-panel-title')}>
 			<div
 				className="editor-annotate-actions"
 				onKeyDown={handlePanelKeyDown}

@@ -42,8 +42,8 @@ test('0 fits, 1 goes to actual size, 2 frames the crop', async ({page}) => {
 		['x', '600'],
 		['y', '500'],
 	]) {
-		await page.locator(`#crop-${field}`).fill(value);
-		await page.locator(`#crop-${field}`).press('Enter');
+		await page.locator(`[id$="-crop-${field}"]`).fill(value);
+		await page.locator(`[id$="-crop-${field}"]`).press('Enter');
 	}
 
 	const status = page.locator('.editor-announcer');
@@ -86,8 +86,8 @@ test('framing the crop lands on the same view from any zoom', async ({
 		['x', '600'],
 		['y', '500'],
 	]) {
-		await page.locator(`#crop-${field}`).fill(value);
-		await page.locator(`#crop-${field}`).press('Enter');
+		await page.locator(`[id$="-crop-${field}"]`).fill(value);
+		await page.locator(`[id$="-crop-${field}"]`).press('Enter');
 	}
 
 	await page.locator('.editor-workspace').focus();

@@ -14,6 +14,7 @@ import {Frame, FrameKind} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {PresetGallery} from './PresetGallery';
 import {ColorField, CommitSlider} from './fields';
+import {useEditorId} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -42,10 +43,12 @@ const SLIDERS: {key: 'offset' | 'size'; labelKey: string; max: number}[] = [
  * where the old edges used to be.
  */
 function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
+	const eid = useEditorId();
+
 	return (
-		<EditorSection title={t('frame')} titleId="frame-panel-title">
+		<EditorSection title={t('frame')} titleId={eid('frame-panel-title')}>
 			<PresetGallery
-				idPrefix="frame"
+				idPrefix={eid('frame')}
 				items={presets}
 				label={(kind) => t(`frame-${kind}`)}
 				legend={t('frame')}
@@ -91,7 +94,7 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 					<div className="editor-panel-grid">
 						<ColorField
 							fill
-							id="frame-color"
+							id={eid('frame-color')}
 							label={t('frame-color')}
 							onCommit={(color) => {
 								dispatch({frame: {color}, type: 'set-frame'});
@@ -109,12 +112,12 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 						/>
 
 						<ClayForm.Group small>
-							<label htmlFor="frame-placement">
+							<label htmlFor={eid('frame-placement')}>
 								{t('frame-placement')}
 							</label>
 
 							<ClaySelectWithOption
-								id="frame-placement"
+								id={eid('frame-placement')}
 								onChange={(event) => {
 									const overAnnotations =
 										event.target.value === 'over';
@@ -155,7 +158,7 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 
 						return (
 							<CommitSlider
-								id={`frame-${key}`}
+								id={eid(`frame-${key}`)}
 								key={key}
 								label={label}
 								max={max}

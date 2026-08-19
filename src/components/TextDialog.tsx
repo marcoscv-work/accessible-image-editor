@@ -12,6 +12,7 @@ import {t} from '../i18n';
 import {nextId} from '../state/ids';
 import {TextOverlay} from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
+import {useEditorId} from './instance';
 
 interface TextDialogProps {
 	onAdd: (overlay: Omit<TextOverlay, 'x' | 'y'>) => void;
@@ -20,6 +21,8 @@ interface TextDialogProps {
 }
 
 export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
+	const eid = useEditorId();
+
 	const {observer} = useModal({onClose: () => onOpenChange(false)});
 
 	const [text, setText] = useState('');
@@ -99,12 +102,12 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 				<ClayModal.Body>
 					<form onSubmit={submit}>
 						<ClayForm.Group>
-							<label htmlFor="text-content">
+							<label htmlFor={eid('text-content')}>
 								{t('text-content')}
 							</label>
 
 							<ClayInput
-								id="text-content"
+								id={eid('text-content')}
 								onChange={(event) =>
 									setText(event.target.value)
 								}
@@ -115,12 +118,12 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 						</ClayForm.Group>
 
 						<ClayForm.Group>
-							<label htmlFor="text-font-family">
+							<label htmlFor={eid('text-font-family')}>
 								{t('font-family')}
 							</label>
 
 							<ClaySelectWithOption
-								id="text-font-family"
+								id={eid('text-font-family')}
 								onChange={(event) =>
 									setFontFamily(event.target.value)
 								}
@@ -141,14 +144,14 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 						  * decision about how the text will look.
 						  */}
 						<ClayForm.Group>
-							<label htmlFor="text-font-size">
+							<label htmlFor={eid('text-font-size')}>
 								{t('font-size')}
 							</label>
 
 							<ClayInput.Group>
 								<ClayInput.GroupItem prepend>
 									<ClayInput
-										id="text-font-size"
+										id={eid('text-font-size')}
 										min={8}
 										onChange={(event) =>
 											setFontSize(event.target.value)
@@ -162,7 +165,7 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 									<input
 										aria-label={t('text-color')}
 										className="editor-color-input form-control"
-										id="text-color"
+										id={eid('text-color')}
 										onChange={(event) =>
 											setColor(event.target.value)
 										}
