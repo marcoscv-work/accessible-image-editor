@@ -203,6 +203,7 @@ export default {
 	saturation: 'Saturation',
 	save: 'Save',
 	'save-failed': 'Saving failed. Please try again.',
+	saving: 'Saving…',
 	'selected-layer': 'Selected layer: {0}',
 	shadows: 'Shadows',
 	'shape-arrow': 'Arrow',

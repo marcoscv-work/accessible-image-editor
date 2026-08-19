@@ -11,10 +11,11 @@ import {useEffect, useRef, useState} from 'react';
 
 import sampleUrl from './assets/sample.jpg';
 import {AnnouncerProvider} from './components/Announcer';
-import EditorModal from './components/EditorModal';
+import EditorModal, {EditorSaveResult} from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
 import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
+import {downloadBlob} from './imaging/exportImage';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 
 const SCHEME_KEY = 'accessible-image-editor-color-scheme';
@@ -71,6 +72,30 @@ function ThemeToggle() {
 			title={dark ? t('use-light-theme') : t('use-dark-theme')}
 		/>
 	);
+}
+
+/**
+ * The demo's save adapter: the editor hands the result over and the shell
+ * decides what saving means, which here is a download. The URL can bend
+ * it for the e2e suite: `?save=slow` settles late, `?save=fail` throws.
+ */
+async function demoSave(
+	{blob, fileName}: EditorSaveResult,
+	signal: AbortSignal
+): Promise<void> {
+	const mode = new URLSearchParams(window.location.search).get('save');
+
+	if (mode === 'slow') {
+		await new Promise((resolve) => window.setTimeout(resolve, 800));
+	}
+
+	if (mode === 'fail') {
+		throw new Error('demo: save refused');
+	}
+
+	if (!signal.aborted) {
+		downloadBlob(blob, fileName);
+	}
 }
 
 export default function App() {
@@ -255,6 +280,7 @@ export default function App() {
 						config={configFromSearch(window.location.search)}
 						image={image}
 						onClose={close}
+						onSave={demoSave}
 					/>
 				)}
 			</AnnouncerProvider>

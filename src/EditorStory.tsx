@@ -15,6 +15,7 @@ import EditorModal from './components/EditorModal';
 import {watchOrphanTooltips} from './components/tooltips';
 import {EditorConfig} from './editorConfig';
 import {t} from './i18n';
+import {downloadBlob} from './imaging/exportImage';
 import {LoadedImage, loadImage} from './imaging/loadImage';
 
 /**
@@ -58,6 +59,9 @@ export function EditorStory({config}: {config?: EditorConfig}) {
 						image={image}
 						key={JSON.stringify(config)}
 						onClose={() => {}}
+						onSave={({blob, fileName}) =>
+							downloadBlob(blob, fileName)
+						}
 					/>
 				) : (
 					<div className="p-4">

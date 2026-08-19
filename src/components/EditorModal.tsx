@@ -15,7 +15,7 @@ import React, {
 
 import {EditorConfig, resolveConfig} from '../editorConfig';
 import {t} from '../i18n';
-import {downloadBlob, exportEditedImage} from '../imaging/exportImage';
+import {exportEditedImage} from '../imaging/exportImage';
 import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
 import {overlayLabel} from '../imaging/overlayShapes';
@@ -26,7 +26,7 @@ import {
 	undoLabel,
 } from '../state/editorReducer';
 import {nextId} from '../state/ids';
-import {CropRect, Overlay, rotatedSize} from '../state/types';
+import {CropRect, EditState, Overlay, rotatedSize} from '../state/types';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {EditorSidebar} from './EditorSidebar';
@@ -86,9 +86,33 @@ function stepZoom(zoom: number, direction: -1 | 1): number {
 	return smaller.length ? smaller[smaller.length - 1] : zoom;
 }
 
+/**
+ * What a save hands the host: the encoded image, a suggested file name,
+ * and the parametric state that produced it, so the host can persist the
+ * recipe alongside the pixels and reopen the edit later.
+ */
+export interface EditorSaveResult {
+	blob: Blob;
+	fileName: string;
+	state: EditState;
+}
+
 interface Props {
 	image: LoadedImage;
 	onClose: () => void;
+
+	/**
+	 * Where the edited image goes. May return a promise: the editor
+	 * shows the saving state until it settles, closes on success, and
+	 * stays open showing the failure on a throw. The signal aborts when
+	 * the editor is dismissed mid-save, so an upload can be cancelled.
+	 * The editor itself never downloads; the demo shell passes an
+	 * adapter that does.
+	 */
+	onSave: (
+		result: EditorSaveResult,
+		signal: AbortSignal
+	) => Promise<void> | void;
 
 	/**
 	 * Which editing blocks and tools to expose; anything omitted keeps
@@ -97,7 +121,7 @@ interface Props {
 	config?: EditorConfig;
 }
 
-export default function EditorModal({config, image, onClose}: Props) {
+export default function EditorModal({config, image, onClose, onSave}: Props) {
 	// Stable across renders, so the galleries below can skip re-rendering
 	// their cards while a crop is being dragged.
 
@@ -125,6 +149,17 @@ export default function EditorModal({config, image, onClose}: Props) {
 		fitZoom(null, image.width, image.height)
 	);
 	const [saving, setSaving] = useState(false);
+	const [saveError, setSaveError] = useState(false);
+
+	// One active save, aborted if the editor goes away underneath it:
+	// the ref is the reentry guard (state is a render behind the click)
+	// and the controller is what a host's upload listens to.
+
+	const saveControllerRef = useRef<AbortController | null>(null);
+
+	useEffect(() => {
+		return () => saveControllerRef.current?.abort();
+	}, []);
 
 	/*
 	 * Kept here rather than in the panel, because the marquee honours it
@@ -740,22 +775,51 @@ export default function EditorModal({config, image, onClose}: Props) {
 	}, [selectedOverlayId]);
 
 	const handleSave = async () => {
+		if (saveControllerRef.current) {
+			return;
+		}
+
+		const controller = new AbortController();
+
+		saveControllerRef.current = controller;
+
+		setSaveError(false);
 		setSaving(true);
 
 		try {
 			const result = await exportEditedImage(image, state);
 
-			downloadBlob(result.blob, result.fileName);
+			if (controller.signal.aborted) {
+				return;
+			}
+
+			await onSave({...result, state}, controller.signal);
+
+			if (controller.signal.aborted) {
+				return;
+			}
 
 			announce(t('image-saved', result.fileName));
 
 			closeModal();
 		}
 		catch {
-			announce(t('save-failed'));
+
+			// A dismissal mid-save is not a failure to report: the abort
+			// is the outcome the person asked for.
+
+			if (!controller.signal.aborted) {
+				setSaveError(true);
+
+				announce(t('save-failed'));
+			}
 		}
 		finally {
-			setSaving(false);
+			saveControllerRef.current = null;
+
+			if (!controller.signal.aborted) {
+				setSaving(false);
+			}
 		}
 	};
 
@@ -831,6 +895,15 @@ export default function EditorModal({config, image, onClose}: Props) {
 							state={state}
 						/>
 					</div>
+
+					{saveError && (
+						<div
+							className="alert alert-danger editor-save-error"
+							role="alert"
+						>
+							{t('save-failed')}
+						</div>
+					)}
 
 					<BottomBar
 						canRedo={!!redoLabel(history)}

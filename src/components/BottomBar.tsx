@@ -197,8 +197,9 @@ export function BottomBar({
 				</div>
 			}
 			last={
-				<div className="editor-bar-group">
+				<div aria-busy={saving} className="editor-bar-group">
 					<ClayButton
+						disabled={saving}
 						displayType="secondary"
 						onClick={onCancel}
 					>
@@ -210,7 +211,7 @@ export function BottomBar({
 						displayType="primary"
 						onClick={onSave}
 					>
-						{t('save')}
+						{saving ? t('saving') : t('save')}
 					</ClayButton>
 				</div>
 			}

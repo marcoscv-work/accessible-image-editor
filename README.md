@@ -51,6 +51,9 @@ complete editor.
 <EditorModal
   image={image}
   onClose={close}
+  onSave={async ({blob, fileName, state}, signal) => {
+    await upload(blob, fileName, {signal}); // or persist `state` too
+  }}
   config={{
     adjustments: {sliders: ['brightness', 'contrast']},
     annotate: {tools: ['text', 'emoji']},
@@ -70,6 +73,13 @@ complete editor.
 
 Lists are always applied in the component's canonical order, and unknown
 names are ignored, so a caller cannot reshuffle or break the UI.
+
+Saving is a contract, not a download: `onSave` receives the encoded
+`blob`, a suggested `fileName` and the parametric `state`, and may return
+a promise. The editor shows the saving state until it settles, closes on
+success, and stays open showing the failure on a throw. The `signal`
+aborts if the editor is dismissed mid-save, so an upload can be
+cancelled. The demo shell passes an adapter that downloads.
 
 The initial state is born inside the configuration: when a list keeps its
 neutral (`none`, `original`) the editor starts there, and when it does
