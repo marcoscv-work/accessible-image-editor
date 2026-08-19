@@ -271,3 +271,44 @@ describe('Editor workspace composition', () => {
 		expect(screen.getByText('75%')).toBeInTheDocument();
 	});
 });
+
+describe('the controls agree with the state from the first render', () => {
+	it('shows the forced ratio as the selected option', () => {
+
+		// AIE-002: a host narrowing the ratios to 1:1 gets an editor whose
+		// state was born on 1:1, so the select's value belongs to its own
+		// option list from the very first paint.
+
+		const history = initialHistory(IMAGE.width, IMAGE.height, {
+			ratios: ['1:1'],
+		});
+
+		render(
+			<BottomBar
+				canRedo={false}
+				canUndo={false}
+				dispatch={() => {}}
+				onAnnounce={() => {}}
+				onCancel={() => {}}
+				onRedo={() => {}}
+				onSave={() => {}}
+				onShowShortcuts={() => {}}
+				onUndo={() => {}}
+				onZoom={() => {}}
+				onZoomFit={() => {}}
+				ratio={history.present.ratio}
+				ratios={['1:1']}
+				saving={false}
+				showRotate
+				zoom={1}
+			/>
+		);
+
+		const select = screen.getByLabelText('Ratio:') as HTMLSelectElement;
+
+		expect(select.value).toBe('1:1');
+		expect(
+			Array.from(select.options).map((option) => option.value)
+		).toEqual(['1:1']);
+	});
+});

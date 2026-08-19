@@ -20,6 +20,7 @@ import {
 	EditorHistory,
 	FilterPreset,
 	Frame,
+	FrameKind,
 	MIN_CROP_SIZE,
 	Overlay,
 	RATIO_VALUES,
@@ -63,33 +64,86 @@ export type EditorAction =
 	  }
 	| {type: 'undo'};
 
+/**
+ * What the state may start as, taken from the resolved configuration. A
+ * host that offers only `sepia` must not open an editor whose state says
+ * `none`: every visible control would then show a selection its state
+ * does not hold, or no selection at all.
+ */
+export interface InitialStateOptions {
+	filters?: FilterPreset[];
+	frames?: FrameKind[];
+	ratios?: RatioPreset[];
+}
+
+/**
+ * The neutral when the configuration allows it, the first allowed value
+ * when it does not, and the neutral again when the section is switched
+ * off entirely (an empty list means no control renders, so no control
+ * can disagree with the state).
+ */
+function firstAllowed<T>(neutral: T, allowed: T[] | undefined): T {
+	if (!allowed || !allowed.length || allowed.includes(neutral)) {
+		return neutral;
+	}
+
+	return allowed[0];
+}
+
 export function initialEditState(
 	sourceWidth: number,
-	sourceHeight: number
+	sourceHeight: number,
+	options: InitialStateOptions = {}
 ): EditState {
-	return {
+	const ratio = firstAllowed<RatioPreset>(
+		'original',
+
+		// `custom` is the free state: a configuration offering it can
+		// also start on it, since the full-image crop is a legal custom
+		// crop.
+
+		options.ratios?.includes('custom')
+			? ['original', 'custom', ...options.ratios]
+			: options.ratios
+	);
+
+	const state: EditState = {
 		adjustments: {...DEFAULT_ADJUSTMENTS},
 		angle: 0,
 		crop: {height: sourceHeight, width: sourceWidth, x: 0, y: 0},
-		filter: 'none',
+		filter: firstAllowed<FilterPreset>('none', options.filters),
 		flipHorizontal: false,
-		frame: {...DEFAULT_FRAME},
+		frame: {
+			...DEFAULT_FRAME,
+			kind: firstAllowed<FrameKind>('none', options.frames),
+		},
 		overlays: [],
-		ratio: 'original',
+		ratio,
 		rotation: 0,
 		sourceHeight,
 		sourceWidth,
 	};
+
+	// A forced ratio reshapes the initial crop the same way choosing it
+	// would, so the crop the user first sees already obeys the only
+	// shapes on offer.
+
+	if (ratio !== 'original' && ratio !== 'custom') {
+		state.crop = centeredCrop(state, RATIO_VALUES[ratio]);
+	}
+
+	return state;
 }
 
 export function initialHistory(
 	sourceWidth: number,
-	sourceHeight: number
+	sourceHeight: number,
+	options: InitialStateOptions = {}
 ): EditorHistory {
 	return {
 		future: [],
 		past: [],
-		present: initialEditState(sourceWidth, sourceHeight),
+		present: initialEditState(sourceWidth, sourceHeight, options),
 	};
 }
 

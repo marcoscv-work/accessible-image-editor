@@ -71,6 +71,14 @@ complete editor.
 Lists are always applied in the component's canonical order, and unknown
 names are ignored, so a caller cannot reshuffle or break the UI.
 
+The initial state is born inside the configuration: when a list keeps its
+neutral (`none`, `original`) the editor starts there, and when it does
+not, the editor starts on the first value the list allows, applying it
+for real (a forced ratio reshapes the opening crop). Every visible
+control therefore agrees with the state from the first render. The
+configuration is read once, when the editor opens, and is immutable for
+that session.
+
 The hosted build reads the same configuration from the URL, so any
 combination can be tried without a code change:
 

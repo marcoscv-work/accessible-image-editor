@@ -108,7 +108,17 @@ export default function EditorModal({config, image, onClose}: Props) {
 	const {observer, onClose: closeModal} = useModal({onClose});
 
 	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
-		initialHistory(image.width, image.height)
+
+		// Born inside the configuration: a host offering only sepia gets
+		// an editor whose state starts on sepia, not one whose gallery
+		// shows no selection. The config is immutable for the session,
+		// which is what makes the one-time init sound.
+
+		initialHistory(image.width, image.height, {
+			filters: enabled.filters,
+			frames: enabled.frames,
+			ratios: enabled.crop.ratios,
+		})
 	);
 
 	const [zoom, setZoom] = useState(() =>

@@ -5,6 +5,7 @@
 
 import {
 	editorReducer,
+	initialEditState,
 	initialHistory,
 	redoLabel,
 	undoLabel,
@@ -456,5 +457,84 @@ describe('set-frame', () => {
 		});
 
 		expect(cropped.present.frame.kind).toBe('polaroid');
+	});
+});
+
+describe('the initial state is born inside the configuration', () => {
+	it('starts every property on its neutral when nothing narrows it', () => {
+		const state = initialEditState(WIDTH, HEIGHT);
+
+		expect(state.filter).toBe('none');
+		expect(state.frame.kind).toBe('none');
+		expect(state.ratio).toBe('original');
+	});
+
+	it('keeps the neutral when the configuration allows it', () => {
+		const state = initialEditState(WIDTH, HEIGHT, {
+			filters: ['none', 'sepia'],
+			frames: ['none', 'mat'],
+			ratios: ['original', '1:1'],
+		});
+
+		expect(state.filter).toBe('none');
+		expect(state.frame.kind).toBe('none');
+		expect(state.ratio).toBe('original');
+	});
+
+	it('starts on the first allowed value when the neutral is gone', () => {
+
+		// The review's case: a host offering only sepia must not open an
+		// editor whose gallery shows sepia but whose state says none.
+
+		const state = initialEditState(WIDTH, HEIGHT, {
+			filters: ['sepia'],
+			frames: ['mat'],
+		});
+
+		expect(state.filter).toBe('sepia');
+		expect(state.frame.kind).toBe('mat');
+	});
+
+	it('applies a forced ratio to the crop it starts with', () => {
+		const state = initialEditState(WIDTH, HEIGHT, {ratios: ['1:1']});
+
+		expect(state.ratio).toBe('1:1');
+
+		// A centered square in 1600x1000: the crop the select claims.
+
+		expect(state.crop).toEqual({
+			height: HEIGHT,
+			width: HEIGHT,
+			x: (WIDTH - HEIGHT) / 2,
+			y: 0,
+		});
+	});
+
+	it('treats custom as freedom enough to keep the full image', () => {
+		const state = initialEditState(WIDTH, HEIGHT, {
+			ratios: ['custom', '16:9'],
+		});
+
+		// The full image is a legal custom crop, so nothing forces the
+		// 16:9 window on someone who was offered a free hand.
+
+		expect(state.ratio).toBe('original');
+		expect(state.crop).toEqual({height: HEIGHT, width: WIDTH, x: 0, y: 0});
+	});
+
+	it('keeps the neutral when a section is switched off entirely', () => {
+
+		// Empty lists mean no control renders, and no control can
+		// disagree with a state it does not show.
+
+		const state = initialEditState(WIDTH, HEIGHT, {
+			filters: [],
+			frames: [],
+			ratios: [],
+		});
+
+		expect(state.filter).toBe('none');
+		expect(state.frame.kind).toBe('none');
+		expect(state.ratio).toBe('original');
 	});
 });
