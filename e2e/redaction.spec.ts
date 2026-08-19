@@ -153,3 +153,74 @@ test('a blurred redaction survives the export', async ({page}) => {
 	expect(inside.mean).toBeGreaterThan(beside.mean * 0.6);
 	expect(inside.mean).toBeLessThan(beside.mean * 1.4);
 });
+
+test('a redaction keeps covering its pixels through a rotation', async ({
+	page,
+}) => {
+	await openEditor(page);
+
+	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
+
+	// Over the balustrade again: detail that would visibly leak.
+
+	for (const [id, value] of [
+		['#layer-prop-width', '360'],
+		['#layer-prop-height', '160'],
+		['#layer-prop-x', '260'],
+		['#layer-prop-y', '760'],
+	]) {
+		await page.locator(id).fill(value);
+		await page.locator(id).press('Enter');
+	}
+
+	// Blurred, like the sibling test: a mosaic keeps the edges of its own
+	// blocks, which muddies the detail metric this assertion leans on.
+
+	await page.getByLabel('Type', {exact: true}).selectOption('blur');
+	await page.getByLabel('Strength', {exact: true}).selectOption('coarse');
+
+	await page.getByRole('button', {name: 'Rotate 90 degrees'}).click();
+
+	// The redaction must follow its pixels into the rotated space: the
+	// stage node's box is the first witness.
+
+	const hit = page.locator('.editor-workspace .overlay-hit');
+
+	await expect(hit).toHaveAttribute('width', '160');
+	await expect(hit).toHaveAttribute('height', '360');
+
+	const downloadPromise = page.waitForEvent('download');
+
+	await page.getByRole('button', {exact: true, name: 'Save'}).click();
+
+	const download = await downloadPromise;
+
+	const exported = `data:image/jpeg;base64,${(
+		await readFile(await download.path())
+	).toString('base64')}`;
+
+	// A display point (x, y) lands on (H - y, x): the covered content
+	// now lives at (252, 260) sized 160x360, and the strip below it in
+	// the rotated frame holds the balustrade that continues unhidden.
+
+	const inside = await sample(page, exported, {
+		height: 360,
+		width: 160,
+		x: 252,
+		y: 260,
+	});
+
+	const beside = await sample(page, exported, {
+		height: 360,
+		width: 160,
+		x: 252,
+		y: 640,
+	});
+
+	// Hidden stays hidden, rotated or not; and the region genuinely
+	// drew, so this is a covered area rather than a void.
+
+	expect(inside.detail).toBeLessThan(beside.detail / 5);
+	expect(inside.mean).toBeGreaterThan(beside.mean * 0.6);
+	expect(inside.mean).toBeLessThan(beside.mean * 1.4);
+});

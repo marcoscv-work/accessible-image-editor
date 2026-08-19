@@ -6,6 +6,12 @@
 import {t} from '../i18n';
 import {mirrorOverlay} from '../imaging/overlayShapes';
 import {
+	imageMatrix,
+	invert,
+	multiply,
+	transformOverlay,
+} from '../imaging/overlayTransform';
+import {
 	Adjustments,
 	CropRect,
 	DEFAULT_ADJUSTMENTS,
@@ -200,9 +206,35 @@ export function editorReducer(
 				return history;
 			}
 
+			// A caption belongs to the frame and stays put while the
+			// horizon is straightened underneath it; a redaction belongs
+			// to the pixels it hides and must follow them. The commit
+			// carries the redactions through the angle's exact transform
+			// (rotate plus cover-scale), computed from the state the
+			// gesture started from, since transients never touch them.
+
+			let overlays = present.overlays;
+
+			if (!action.transient) {
+				const base = history.pendingBase?.state ?? present;
+
+				if (base.angle !== action.angle) {
+					const mapping = multiply(
+						imageMatrix({...base, angle: action.angle}),
+						invert(imageMatrix(base))
+					);
+
+					overlays = present.overlays.map((overlay) =>
+						overlay.kind === 'redact'
+							? transformOverlay(overlay, mapping)
+							: overlay
+					);
+				}
+			}
+
 			return applyEdit(
 				history,
-				{...present, angle: action.angle},
+				{...present, angle: action.angle, overlays},
 				t('label-angle'),
 				action.transient
 			);
@@ -294,6 +326,17 @@ export function editorReducer(
 
 			const bounds = rotatedSize(next);
 
+			// The annotations turn with the picture, through the exact
+			// same matrix the stage will use: a redaction that stayed in
+			// its old coordinates would sit over different pixels, and
+			// the export would reveal what it was hiding. Flip already
+			// honoured this; rotation now does too.
+
+			const mapping = multiply(
+				imageMatrix(next),
+				invert(imageMatrix(present))
+			);
+
 			return applyEdit(
 				history,
 				{
@@ -304,6 +347,9 @@ export function editorReducer(
 						x: 0,
 						y: 0,
 					},
+					overlays: present.overlays.map((overlay) =>
+						transformOverlay(overlay, mapping)
+					),
 					ratio: 'original',
 				},
 				t('label-rotate')
