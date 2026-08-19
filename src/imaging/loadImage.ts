@@ -125,6 +125,35 @@ export async function loadImage(
 ): Promise<LoadedImage> {
 	const bitmap = await createImageBitmap(blob);
 
+	let previewUrl: string | null = null;
+
+	// The bitmap is native memory and the preview URL pins a blob alive:
+	// a failure after either exists must release both, or a rejected
+	// load leaks what the successful path would have owned.
+
+	try {
+		return await loadFromBitmap(bitmap, blob, fileName, (url) => {
+			previewUrl = url;
+		});
+	}
+	catch (error) {
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+		}
+
+		throw error;
+	}
+	finally {
+		bitmap.close();
+	}
+}
+
+async function loadFromBitmap(
+	bitmap: ImageBitmap,
+	blob: Blob,
+	fileName: string,
+	onPreviewUrl: (url: string) => void
+): Promise<LoadedImage> {
 	const {height, width} = bitmap;
 
 	let previewUrl: string;
@@ -164,6 +193,8 @@ export async function loadImage(
 		previewUrl = URL.createObjectURL(blob);
 	}
 
+	onPreviewUrl(previewUrl);
+
 	const thumbUrl = downsampleToDataURL(bitmap, 160, 'image/jpeg');
 
 	const pixelUrls = {
@@ -172,8 +203,6 @@ export async function loadImage(
 		medium: downsampleToDataURL(bitmap, REDACT_SIZES.medium),
 		tiny: downsampleToDataURL(bitmap, REDACT_SIZES.tiny),
 	};
-
-	bitmap.close();
 
 	return {
 		blob,

@@ -210,6 +210,11 @@ export function redoLabel(history: EditorHistory): string | null {
 	return history.future.length ? history.future[0].label : null;
 }
 
+/**
+ * How many undo steps are kept. Beyond this the oldest step falls away.
+ */
+export const HISTORY_LIMIT = 100;
+
 function applyEdit(
 	history: EditorHistory,
 	next: EditState,
@@ -229,9 +234,20 @@ function applyEdit(
 
 	const base = history.pendingBase ?? {label, state: history.present};
 
+	const past = [...history.past, {label, state: base.state}];
+
+	// Bounded: an editing session cannot grow the undo stack without
+	// limit. Snapshots share overlay references, so the cap bounds the
+	// bookkeeping; dropping the oldest entry is the cheapest honest
+	// answer to a hundred-and-first edit.
+
+	if (past.length > HISTORY_LIMIT) {
+		past.shift();
+	}
+
 	return {
 		future: [],
-		past: [...history.past, {label, state: base.state}],
+		past,
 		pendingBase: undefined,
 		present: next,
 	};

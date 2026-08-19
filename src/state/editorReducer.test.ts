@@ -4,6 +4,7 @@
  */
 
 import {
+	HISTORY_LIMIT,
 	editorReducer,
 	initialEditState,
 	initialHistory,
@@ -591,5 +592,30 @@ describe('cancel-gesture', () => {
 		const state = history();
 
 		expect(editorReducer(state, {type: 'cancel-gesture'})).toBe(state);
+	});
+});
+
+describe('the undo stack is bounded', () => {
+	it('drops the oldest entry past the limit', () => {
+		let state = history();
+
+		for (let step = 1; step <= HISTORY_LIMIT + 5; step++) {
+			state = editorReducer(state, {
+				key: 'brightness',
+				type: 'set-adjustment',
+				value: step % 100,
+			});
+		}
+
+		expect(state.past.length).toBe(HISTORY_LIMIT);
+
+		// The newest edits are all still there: undoing one step lands
+		// on the previous value, not on some collapsed average.
+
+		state = editorReducer(state, {type: 'undo'});
+
+		expect(state.present.adjustments.brightness).toBe(
+			(HISTORY_LIMIT + 4) % 100
+		);
 	});
 });

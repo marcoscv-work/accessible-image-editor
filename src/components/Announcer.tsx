@@ -7,6 +7,7 @@ import React, {
 	createContext,
 	useCallback,
 	useContext,
+	useEffect,
 	useRef,
 	useState,
 } from 'react';
@@ -26,6 +27,12 @@ export function useAnnouncer() {
 export function AnnouncerProvider({children}: {children: React.ReactNode}) {
 	const [message, setMessage] = useState('');
 	const timeoutRef = useRef<number>();
+
+	// A pending re-announce must not fire into an unmounted region.
+
+	useEffect(() => {
+		return () => window.clearTimeout(timeoutRef.current);
+	}, []);
 
 	const announce = useCallback((next: string) => {
 		setMessage('');

@@ -109,13 +109,31 @@ export default function App() {
 
 	useEffect(() => watchOrphanTooltips(), []);
 
+	// Only the newest open wins: a slow decode finishing after a second
+	// pick must neither replace the newer image nor leak its preview URL.
+
+	const openRequestRef = useRef(0);
+
 	const open = async (blob: Blob, fileName: string) => {
+		const request = ++openRequestRef.current;
+
 		try {
 			setLoadError(false);
-			setImage(await loadImage(blob, fileName));
+
+			const loaded = await loadImage(blob, fileName);
+
+			if (request !== openRequestRef.current) {
+				URL.revokeObjectURL(loaded.previewUrl);
+
+				return;
+			}
+
+			setImage(loaded);
 		}
 		catch {
-			setLoadError(true);
+			if (request === openRequestRef.current) {
+				setLoadError(true);
+			}
 		}
 	};
 
