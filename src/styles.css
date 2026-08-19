@@ -291,15 +291,23 @@
  * reveal) would push the header and the action bar out of view.
  */
 
+/*
+ * clip, not hidden: hidden boxes still scroll programmatically, and the
+ * browser's focus reveal walks every such ancestor, so focusing a stage
+ * node before the fit settles could shove the whole editor frame off the
+ * screen (an intermittent CI ghost for weeks). clip forbids scrolling
+ * outright; the workspace and the sidebar remain the only scrollers.
+ */
+
 .image-editor-modal .modal-content {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	overflow: hidden;
+	overflow: clip;
 }
 
 .image-editor-modal .modal-body {
-	overflow: hidden;
+	overflow: clip;
 }
 
 .image-editor {

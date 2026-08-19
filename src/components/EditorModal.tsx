@@ -468,35 +468,28 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 			return;
 		}
 
+		// One instant anchor, a frame after the commit so the selected
+		// layer's properties have rendered. Instant rather than smooth,
+		// because a smooth scroll is an animation the browser may cancel
+		// under load; and only the sidebar's own scroll moves, never an
+		// ancestor's, which is why this is a scrollTo and not a
+		// scrollIntoView.
+
 		const frame = requestAnimationFrame(() => {
 			const sidebar = sidebarRef.current;
 			const annotateTitle = document.getElementById(
 				eid('annotate-panel-title')
-			);
-			const layersTitle = document.getElementById(
-				eid('layers-panel-title')
 			);
 
 			if (!sidebar || !annotateTitle) {
 				return;
 			}
 
-			const sidebarBounds = sidebar.getBoundingClientRect();
-
-			let delta =
-				annotateTitle.getBoundingClientRect().top - sidebarBounds.top;
-
-			if (layersTitle) {
-				delta = Math.max(
-					delta,
-					layersTitle.getBoundingClientRect().bottom -
-						sidebarBounds.bottom
-				);
-			}
-
 			sidebar.scrollTo({
-				behavior: 'smooth',
-				top: sidebar.scrollTop + delta,
+				top:
+					sidebar.scrollTop +
+					annotateTitle.getBoundingClientRect().top -
+					sidebar.getBoundingClientRect().top,
 			});
 		});
 
