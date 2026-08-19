@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {render, screen} from '@testing-library/react';
+import {screen} from '@testing-library/react';
 import {describe, expect, it} from 'vitest';
 
+import {renderEditor} from '../test/renderEditor';
 import {BottomBar} from './BottomBar';
 import {EditorInstanceProvider, nextEditorInstancePrefix} from './instance';
 
@@ -46,7 +47,7 @@ describe('per-instance ids', () => {
 	});
 
 	it('keeps two instances distinct and both label associations sound', () => {
-		render(
+		renderEditor(
 			<>
 				<EditorInstanceProvider value="one-">
 					{bar('1:1')}

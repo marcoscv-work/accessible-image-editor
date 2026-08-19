@@ -20,3 +20,37 @@ if (!globalThis.ResizeObserver) {
 		unobserve() {}
 	} as unknown as typeof ResizeObserver;
 }
+
+/*
+ * An unexpected console.error or console.warn is a failure, not noise: a
+ * React act() violation, a missing spritemap, a bad prop type all arrive
+ * through these channels, and a suite that scrolls past them green is
+ * lying. A test that expects a specific message can still spy on the
+ * console explicitly.
+ */
+
+const unexpected: string[] = [];
+
+const failOn =
+	(original: (...args: unknown[]) => void) =>
+	(...args: unknown[]) => {
+		unexpected.push(args.map(String).join(' '));
+
+		original(...args);
+	};
+
+// eslint-disable-next-line no-console
+console.error = failOn(console.error.bind(console));
+
+// eslint-disable-next-line no-console
+console.warn = failOn(console.warn.bind(console));
+
+afterEach(() => {
+	if (unexpected.length) {
+		const messages = unexpected.splice(0);
+
+		throw new Error(
+			`Unexpected console output:\n${messages.join('\n')}`
+		);
+	}
+});

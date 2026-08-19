@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
@@ -11,6 +11,7 @@ import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../editorConfig';
 import {LoadedImage} from '../imaging/loadImage';
 import {editorReducer, initialHistory} from '../state/editorReducer';
 import {rotatedSize} from '../state/types';
+import {renderEditor} from '../test/renderEditor';
 import {AdjustPanel} from './AdjustPanel';
 import {BottomBar} from './BottomBar';
 import {CropPanel} from './CropPanel';
@@ -115,13 +116,13 @@ function EditorHarness() {
 
 describe('Editor workspace composition', () => {
 	it('has no axe violations', async () => {
-		const {container} = render(<EditorHarness />);
+		const {container} = renderEditor(<EditorHarness />);
 
 		expect(await axe(container)).toHaveNoViolations();
 	});
 
 	it('exposes the crop area and all eight handles as labelled buttons', () => {
-		render(<EditorHarness />);
+		renderEditor(<EditorHarness />);
 
 		expect(
 			screen.getByRole('button', {name: 'Crop area'})
@@ -142,7 +143,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('moves the crop area with the keyboard', () => {
-		render(<EditorHarness />);
+		renderEditor(<EditorHarness />);
 
 		const rightHandle = screen.getByRole('button', {
 			name: 'Crop handle: right edge',
@@ -157,7 +158,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('commits numeric panel edits on Enter and respects aspect lock', () => {
-		render(<EditorHarness />);
+		renderEditor(<EditorHarness />);
 
 		const widthInput = screen.getByLabelText('Width') as HTMLInputElement;
 		const heightInput = screen.getByLabelText(
@@ -174,7 +175,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('applies the color pipeline when an adjustment slider commits', () => {
-		const {container} = render(<EditorHarness />);
+		const {container} = renderEditor(<EditorHarness />);
 
 		expect(container.querySelector('image')).not.toHaveAttribute(
 			'filter'
@@ -195,7 +196,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('paints the dim layer above the annotations', () => {
-		const {container} = render(<EditorHarness />);
+		const {container} = renderEditor(<EditorHarness />);
 
 		const classes = [
 			...(container.querySelectorAll(
@@ -215,7 +216,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('shows the thirds grid only while a crop gesture runs', () => {
-		const {container} = render(<EditorHarness />);
+		const {container} = renderEditor(<EditorHarness />);
 
 		const handle = screen.getByRole('button', {
 			name: 'Crop handle: right edge',
@@ -236,7 +237,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('offers the recenter control only once the crop is a selection', () => {
-		const {container} = render(<EditorHarness />);
+		const {container} = renderEditor(<EditorHarness />);
 
 		expect(container.querySelector('.crop-recenter')).toBeNull();
 
@@ -249,7 +250,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('steps an adjustment slider by 10 with shift plus arrows', () => {
-		render(<EditorHarness />);
+		renderEditor(<EditorHarness />);
 
 		const slider = screen.getByLabelText('Brightness');
 
@@ -260,7 +261,7 @@ describe('Editor workspace composition', () => {
 	});
 
 	it('zooms with plus and minus while the workspace has focus', () => {
-		render(<EditorHarness />);
+		renderEditor(<EditorHarness />);
 
 		const workspace = screen.getByRole('region', {
 			name: 'Image workspace',
@@ -283,7 +284,7 @@ describe('the controls agree with the state from the first render', () => {
 			ratios: ['1:1'],
 		});
 
-		render(
+		renderEditor(
 			<BottomBar
 				canRedo={false}
 				canUndo={false}

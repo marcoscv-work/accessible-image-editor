@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {fireEvent, render, screen, within} from '@testing-library/react';
+import {act, fireEvent, screen, within} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
@@ -14,6 +14,7 @@ import {
 	editorReducer,
 	initialHistory,
 } from '../state/editorReducer';
+import {renderEditor} from '../test/renderEditor';
 import {AnnotatePanel} from './AnnotatePanel';
 import {FilterGallery} from './FilterGallery';
 import {LayersPanel} from './LayersPanel';
@@ -311,7 +312,7 @@ async function addEmoji(name: string) {
 
 describe('Annotations, filters, and layers', () => {
 	it('has no axe violations with annotations present', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		await addEmoji('star');
 		addShape('Rectangle');
@@ -320,7 +321,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds an arrow, aimed by its ends rather than by a box', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Arrow');
 
@@ -378,7 +379,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('offers the square and the circle from the same menu', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Square');
 
@@ -396,7 +397,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('draws a guided line with the keyboard alone', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		// A click with no detail is the browser's record of a keyboard
 		// activation, which is what fireEvent produces by default: the
@@ -449,7 +450,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('refuses to set a line with no length, and says so', () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
 
@@ -468,7 +469,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('steps back from the bend to re-aim the end', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
 
@@ -494,7 +495,7 @@ describe('Annotations, filters, and layers', () => {
 
 
 	it('abandons a drawing with Escape', () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Draw'}));
 
@@ -513,7 +514,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('dresses a rectangle in the hand-drawn style and back', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -562,7 +563,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('moves a shift-built group together, and only moves it', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 		addShape('Circle');
@@ -639,7 +640,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('deletes a whole group with one key and undoes it whole', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 		addShape('Circle');
@@ -657,7 +658,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds an emoji as a layer of its own, sized but never coloured', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Add emoji'}));
 
@@ -693,7 +694,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('finds an emoji whatever the capitalisation of its name', async () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Add emoji'}));
 
@@ -712,7 +713,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds an emoji as a focusable, keyboard-movable SVG node', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		await addEmoji('star');
 
@@ -731,7 +732,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('applies a filter preset from the radio group', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		expect(container.querySelector('image')).not.toHaveAttribute(
 			'filter'
@@ -746,7 +747,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('renders the filters as cards backed by hidden radios', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		const radios = screen.getAllByRole('radio');
 
@@ -774,7 +775,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('lists layers topmost first and reorders them from the listbox', async () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		await addEmoji('star');
 		addShape('Rectangle');
@@ -799,7 +800,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('edits the selected layer properties from the layers panel', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -870,7 +871,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('has no axe violations with the layer properties open', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -878,7 +879,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('leaves a shape free to stretch, and locks on request', () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -915,7 +916,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('syncs selection between the stage and the layers panel', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		await addEmoji('star');
 		addShape('Rectangle');
@@ -950,7 +951,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('jumps from the stage node to its property editor on Enter', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -958,13 +959,16 @@ describe('Annotations, filters, and layers', () => {
 
 		fireEvent.keyDown(hit, {key: 'Enter'});
 
-		await new Promise((resolve) => setTimeout(resolve, 20));
+		// Inside act: the jump hands focus over on a timeout, and that
+		// state update must be flushed as React work, not stray output.
+
+		await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
 
 		expect(document.activeElement?.id).toBe('aie-layer-prop-color');
 	});
 
 	it('duplicates a layer from its row and selects the copy', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -987,7 +991,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('edits a text annotation in place on double click', () => {
-		const {container} = render(<TextStageHarness />);
+		const {container} = renderEditor(<TextStageHarness />);
 
 		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
 
@@ -1010,7 +1014,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('changes the font family of an existing text layer', () => {
-		const {container} = render(<TextStageHarness />);
+		const {container} = renderEditor(<TextStageHarness />);
 
 		const label = () => container.querySelector('.editor-workspace text');
 
@@ -1024,7 +1028,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('roves a single tab stop through the annotate controls', () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		const addText = screen.getByRole('button', {name: 'Add text'});
 
@@ -1070,7 +1074,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('jumps from a layer row to its element on the stage on Enter', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -1086,7 +1090,10 @@ describe('Annotations, filters, and layers', () => {
 
 		fireEvent.keyDown(row, {key: 'Enter'});
 
-		await new Promise((resolve) => setTimeout(resolve, 20));
+		// Inside act: the jump hands focus over on a timeout, and that
+		// state update must be flushed as React work, not stray output.
+
+		await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
 
 		expect(document.activeElement).toBe(
 			container.querySelector('.overlay-hit')
@@ -1094,7 +1101,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds a redaction that pixelates through a clipped source', async () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		fireEvent.click(screen.getByRole('button', {name: 'Add redaction'}));
 
@@ -1157,7 +1164,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('adds a circle that behaves like the rectangle', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Circle');
 
@@ -1187,7 +1194,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('keeps a 24 pixel target on an annotation smaller than that', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -1221,7 +1228,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('draws no border until one is asked for', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -1250,7 +1257,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('centers a new annotation on the crop, not on the image', async () => {
-		const {container} = render(<CroppedHarness />);
+		const {container} = renderEditor(<CroppedHarness />);
 
 		await addEmoji('star');
 
@@ -1272,7 +1279,7 @@ describe('Annotations, filters, and layers', () => {
 	});
 
 	it('deletes a layer from its row and hides the empty panel', async () => {
-		render(<AnnotationHarness />);
+		renderEditor(<AnnotationHarness />);
 
 		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 
@@ -1293,7 +1300,7 @@ describe('Annotations, filters, and layers', () => {
 
 describe('interrupted gestures', () => {
 	it('a cancelled pointer drag reverts the move entirely', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
@@ -1317,7 +1324,7 @@ describe('interrupted gestures', () => {
 	});
 
 	it('a lost capture after a normal release changes nothing', () => {
-		const {container} = render(<AnnotationHarness />);
+		const {container} = renderEditor(<AnnotationHarness />);
 
 		addShape('Rectangle');
 
