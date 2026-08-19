@@ -11,6 +11,7 @@ import {
 	multiply,
 	transformOverlay,
 } from '../imaging/overlayTransform';
+import {patchOverlay} from './overlayPatch';
 import {
 	Adjustments,
 	CropRect,
@@ -597,13 +598,15 @@ export function editorReducer(
 				return history;
 			}
 
+			// Validated, not trusted: unknown keys and out-of-domain
+			// values fall away, and an unchanged overlay commits nothing.
+
+			const patched = patchOverlay(target, action.patch);
+
 			if (
+				patched === target &&
 				!action.transient &&
-				!history.pendingBase &&
-				Object.entries(action.patch).every(
-					([key, value]) =>
-						target[key as keyof Overlay] === value
-				)
+				!history.pendingBase
 			) {
 				return history;
 			}
@@ -613,9 +616,7 @@ export function editorReducer(
 				{
 					...present,
 					overlays: present.overlays.map((overlay) =>
-						overlay.id === action.id
-							? ({...overlay, ...action.patch} as Overlay)
-							: overlay
+						overlay.id === action.id ? patched : overlay
 					),
 				},
 				t('label-annotation'),
