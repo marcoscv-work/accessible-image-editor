@@ -81,6 +81,14 @@ editor mints carries an instance prefix, so two editors on the same page
 keep their labels, descriptions, radio groups and SVG filter references
 to themselves.
 
+Localization is injectable and typed: every string goes through
+`t(key: TranslationKey, ...)`, where the key type is derived from the
+bundled English catalogue, so a component cannot ask for a string that
+does not exist. A host passes `translations` on the root, either a
+partial dictionary or a translator function (the shape of Liferay's
+`Language.get`); emoji names are the documented exception, localized via
+CLDR data rather than the catalogue.
+
 Saving is a contract, not a download: `onSave` receives the encoded
 `blob`, a suggested `fileName` and the parametric `state`, and may return
 a promise. The editor shows the saving state until it settles, closes on

@@ -5,10 +5,16 @@
 
 import bundledSpritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {ClayIconSpriteContext} from '@clayui/icon';
+import {useEffect, useState} from 'react';
 
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal, {EditorSaveResult} from './components/EditorModal';
 import {EditorConfig} from './editorConfig';
+import {
+	TranslationKey,
+	Translator,
+	setTranslations,
+} from './i18n';
 import {LoadedImage} from './imaging/loadImage';
 
 export type {EditorSaveResult};
@@ -33,6 +39,14 @@ export interface AccessibleImageEditorProps {
 	 * portal's own.
 	 */
 	spritemap?: string;
+
+	/**
+	 * How the host localizes the editor: a partial dictionary (missing
+	 * keys keep the bundled English) or a translator function, the shape
+	 * of Liferay's `Language.get`. One locale per page, as in the portal
+	 * itself.
+	 */
+	translations?: Partial<Record<TranslationKey, string>> | Translator;
 }
 
 /**
@@ -48,7 +62,30 @@ export function AccessibleImageEditor({
 	onClose,
 	onSave,
 	spritemap,
+	translations,
 }: AccessibleImageEditorProps) {
+
+	// Installed before the first child asks for a string, kept in sync
+	// with the prop, and restored to the bundled English on unmount.
+
+	useState(() => {
+		if (translations) {
+			setTranslations(translations);
+		}
+
+		return null;
+	});
+
+	useEffect(() => {
+		if (translations) {
+			setTranslations(translations);
+		}
+	}, [translations]);
+
+	useEffect(() => {
+		return () => setTranslations(null);
+	}, []);
+
 	return (
 		<ClayIconSpriteContext.Provider value={spritemap ?? bundledSpritemap}>
 			<AnnouncerProvider>
