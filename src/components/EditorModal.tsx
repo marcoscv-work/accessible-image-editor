@@ -428,37 +428,62 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	// When the first annotation appears, the Layers panel materializes
 	// below the fold: bring the Annotate title to the top of the sidebar
-	// so the new section enters the view.
+	// so the new section enters the view, and scroll further when the
+	// selected layer's properties push the Layers title past the fold
+	// anyway.
 	//
-	// This scrolls the sidebar explicitly rather than through
-	// scrollIntoView, which walks up the ancestors and would also scroll
-	// the modal itself, pushing the header out of sight.
+	// Measured a frame later: the selection's properties render in their
+	// own commit, and a distance taken before they land describes a
+	// sidebar that is about to change height. This scrolls the sidebar
+	// explicitly rather than through scrollIntoView, which walks up the
+	// ancestors and would also scroll the modal itself, pushing the
+	// header out of sight.
 
 	const sidebarRef = useRef<HTMLElement>(null);
 
 	const previousOverlayCount = useRef(0);
 
 	useEffect(() => {
-		const sidebar = sidebarRef.current;
-		const title = document.getElementById('annotate-panel-title');
+		const first =
+			previousOverlayCount.current === 0 && state.overlays.length > 0;
 
-		if (
-			previousOverlayCount.current === 0 &&
-			state.overlays.length > 0 &&
-			sidebar &&
-			title
-		) {
-			const delta =
-				title.getBoundingClientRect().top -
-				sidebar.getBoundingClientRect().top;
+		previousOverlayCount.current = state.overlays.length;
+
+		if (!first) {
+			return;
+		}
+
+		const frame = requestAnimationFrame(() => {
+			const sidebar = sidebarRef.current;
+			const annotateTitle = document.getElementById(
+				'annotate-panel-title'
+			);
+			const layersTitle = document.getElementById('layers-panel-title');
+
+			if (!sidebar || !annotateTitle) {
+				return;
+			}
+
+			const sidebarBounds = sidebar.getBoundingClientRect();
+
+			let delta =
+				annotateTitle.getBoundingClientRect().top - sidebarBounds.top;
+
+			if (layersTitle) {
+				delta = Math.max(
+					delta,
+					layersTitle.getBoundingClientRect().bottom -
+						sidebarBounds.bottom
+				);
+			}
 
 			sidebar.scrollTo({
 				behavior: 'smooth',
 				top: sidebar.scrollTop + delta,
 			});
-		}
+		});
 
-		previousOverlayCount.current = state.overlays.length;
+		return () => cancelAnimationFrame(frame);
 	}, [state.overlays.length]);
 
 	useEffect(() => setCropFramed(false), [state.crop]);
