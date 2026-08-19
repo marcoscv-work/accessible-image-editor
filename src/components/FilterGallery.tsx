@@ -72,7 +72,7 @@ function FilterGalleryCards({
 							filter={
 								preset === 'none'
 									? undefined
-									: `url(#filter-thumb-${preset})`
+									: `url(#${eid(`filter-thumb-${preset}`)})`
 							}
 							height={48}
 							href={image.thumbUrl}
