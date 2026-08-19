@@ -8,30 +8,29 @@ import React, {
 	useCallback,
 	useEffect,
 	useMemo,
-	useReducer,
 	useRef,
 	useState,
 } from 'react';
 
 import {EditorConfig, resolveConfig} from '../editorConfig';
 import {t} from '../i18n';
-import {exportEditedImage} from '../imaging/exportImage';
 import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
-import {overlayLabel} from '../imaging/overlayShapes';
 import {
-	editorReducer,
-	initialHistory,
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
 import {nextId} from '../state/ids';
-import {CropRect, EditState, Overlay, rotatedSize} from '../state/types';
+import {CropRect, EditState, rotatedSize} from '../state/types';
 import {useAnnouncer} from './Announcer';
 import {BottomBar} from './BottomBar';
 import {EditorSidebar} from './EditorSidebar';
 import {ShortcutsDialog} from './ShortcutsDialog';
 import {Workspace} from './Workspace';
+import {useEditorHistory} from './hooks/useEditorHistory';
+import {useOverlayClipboard} from './hooks/useOverlayClipboard';
+import {useOverlaySelection} from './hooks/useOverlaySelection';
+import {useSaveController} from './hooks/useSaveController';
 import {
 	EditorInstanceProvider,
 	nextEditorInstancePrefix,
@@ -146,35 +145,39 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	const {observer, onClose: closeModal} = useModal({onClose});
 
-	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
+	const {dispatch, editorRef, handleUndoShortcut, history, redo, undo} =
+		useEditorHistory(image, enabled, announce);
 
-		// Born inside the configuration: a host offering only sepia gets
-		// an editor whose state starts on sepia, not one whose gallery
-		// shows no selection. The config is immutable for the session,
-		// which is what makes the one-time init sound.
+	const state = history.present;
 
-		initialHistory(image.width, image.height, {
-			filters: enabled.filters,
-			frames: enabled.frames,
-			ratios: enabled.crop.ratios,
-		})
+	const {
+		layerProportional,
+		multiSelectedIds,
+		selectOverlay,
+		selectedOverlayId,
+		setLayerProportional,
+		setSelectedOverlayId,
+		toggleMultiSelect,
+	} = useOverlaySelection(state.overlays, announce);
+
+	const {copyOverlay, pasteOverlay} = useOverlayClipboard(
+		state,
+		dispatch,
+		setSelectedOverlayId,
+		announce
+	);
+
+	const {handleSave, saveError, saving} = useSaveController(
+		image,
+		state,
+		onSave,
+		announce,
+		closeModal
 	);
 
 	const [zoom, setZoom] = useState(() =>
 		fitZoom(null, image.width, image.height)
 	);
-	const [saving, setSaving] = useState(false);
-	const [saveError, setSaveError] = useState(false);
-
-	// One active save, aborted if the editor goes away underneath it:
-	// the ref is the reentry guard (state is a render behind the click)
-	// and the controller is what a host's upload listens to.
-
-	const saveControllerRef = useRef<AbortController | null>(null);
-
-	useEffect(() => {
-		return () => saveControllerRef.current?.abort();
-	}, []);
 
 	/*
 	 * Kept here rather than in the panel, because the marquee honours it
@@ -197,14 +200,6 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	 * elsewhere. Each paste nudges the stored position, so repeated
 	 * pastes cascade instead of stacking invisibly.
 	 */
-	const clipboardRef = useRef<Overlay | null>(null);
-
-	/**
-	 * The move-together set: Shift+click curates it, and moving is the
-	 * only thing it does. The properties panel keeps following the
-	 * primary selection, never the group.
-	 */
-	const [multiSelectedIds, setMultiSelectedIds] = useState<string[]>([]);
 
 	/*
 	 * The selected annotation's padlock, here for the same reason: the
@@ -212,62 +207,6 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	 * a shape free, and choosing another layer starts again from that.
 	 */
 
-	const [layerProportional, setLayerProportional] = useState(false);
-	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
-		null
-	);
-
-	const selectOverlay = (id: string | null) => {
-		setSelectedOverlayId(id);
-
-		// A plain selection outside the group dissolves it, and so does
-		// deselecting: the set survives only plain clicks on its own
-		// members, which is how the group is dragged.
-
-		setMultiSelectedIds((currentIds) =>
-			id !== null && currentIds.includes(id) ? currentIds : []
-		);
-	};
-
-	const toggleMultiSelect = (id: string) => {
-		const removing = multiSelectedIds.includes(id);
-
-		// A Shift+click with a standing plain selection reads as "these
-		// two together": the group is seeded with what was already
-		// selected, the way every editor treats it.
-
-		const base = multiSelectedIds.length
-			? multiSelectedIds
-			: selectedOverlayId && selectedOverlayId !== id
-				? [selectedOverlayId]
-				: [];
-
-		const next = removing
-			? multiSelectedIds.filter((candidate) => candidate !== id)
-			: [...base, id];
-
-		if (next.length >= 2) {
-
-			// The count is spoken by the layers panel's own status note,
-			// which changes in the same render: announcing it here too
-			// would say everything twice.
-
-			setMultiSelectedIds(next);
-		}
-		else {
-
-			// A group of one is just a selection: dissolve rather than
-			// keep an invisible group around.
-
-			setMultiSelectedIds([]);
-
-			if (multiSelectedIds.length >= 2) {
-				announce(t('annotations-ungrouped'));
-			}
-		}
-
-		setSelectedOverlayId(id);
-	};
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
 	/**
@@ -286,62 +225,6 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	 * user control; the fit button switches back.
 	 */
 	const autoFitRef = useRef(true);
-
-	const state = history.present;
-
-	const copyOverlay = (id: string) => {
-		const overlay = state.overlays.find(
-			(candidate) => candidate.id === id
-		);
-
-		if (!overlay) {
-			return;
-		}
-
-		clipboardRef.current = {...overlay};
-
-		announce(t('annotation-copied', overlayLabel(overlay)));
-	};
-
-	const pasteOverlay = () => {
-		const copied = clipboardRef.current;
-
-		if (!copied) {
-			return;
-		}
-
-		const offset = Math.round(
-			Math.max(
-				16,
-				Math.min(state.sourceWidth, state.sourceHeight) * 0.02
-			)
-		);
-
-		const overlay: Overlay = {
-			...copied,
-			id: nextId(copied.kind),
-			x: copied.x + offset,
-			y: copied.y + offset,
-		};
-
-		// The cascade: the next paste starts from this one.
-
-		clipboardRef.current = overlay;
-
-		dispatch({overlay, type: 'add-overlay'});
-
-		setSelectedOverlayId(overlay.id);
-
-		announce(t('annotation-pasted', overlayLabel(overlay)));
-
-		window.setTimeout(() => {
-			document
-				.querySelector<HTMLElement>(
-					`[data-overlay-id="${overlay.id}"]`
-				)
-				?.focus({preventScroll: true});
-		}, 0);
-	};
 
 	const finishDrawing = (result: {points: number[]; smooth: boolean} | null) => {
 		setDrawing(null);
@@ -716,147 +599,8 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		announce(t('crop-centered', Math.round(next * 100)));
 	};
 
-	const undo = () => {
-		const label = undoLabel(history);
 
-		if (!label) {
-			return;
-		}
 
-		dispatch({type: 'undo'});
-
-		announce(t('undo-done', label));
-	};
-
-	const redo = () => {
-		const label = redoLabel(history);
-
-		if (!label) {
-			return;
-		}
-
-		dispatch({type: 'redo'});
-
-		announce(t('redo-done', label));
-	};
-
-	const handleKeyDown = (event: React.KeyboardEvent) => {
-		if (
-			!(event.metaKey || event.ctrlKey) ||
-			event.key.toLowerCase() !== 'z'
-		) {
-			return;
-		}
-
-		event.preventDefault();
-
-		if (event.shiftKey) {
-			redo();
-		}
-		else {
-			undo();
-		}
-	};
-
-	const editorRef = useRef<HTMLDivElement | null>(null);
-
-	const undoRef = useRef({redo, undo});
-
-	undoRef.current = {redo, undo};
-
-	// The React handler above only hears keys pressed inside the editor.
-	// Focus can still escape it for a moment (a focused node that
-	// unmounts drops focus on the body), and the undo someone presses in
-	// that moment must not vanish: the document catches what the editor
-	// did not already see.
-
-	useEffect(() => {
-		const catchStray = (event: KeyboardEvent) => {
-			if (
-				!(event.metaKey || event.ctrlKey) ||
-				event.key.toLowerCase() !== 'z' ||
-				(event.target instanceof Node &&
-					editorRef.current?.contains(event.target))
-			) {
-				return;
-			}
-
-			event.preventDefault();
-
-			if (event.shiftKey) {
-				undoRef.current.redo();
-			}
-			else {
-				undoRef.current.undo();
-			}
-		};
-
-		document.addEventListener('keydown', catchStray);
-
-		return () => document.removeEventListener('keydown', catchStray);
-	}, []);
-
-	useEffect(() => {
-		const overlay = state.overlays.find(
-			(candidate) => candidate.id === selectedOverlayId
-		);
-
-		setLayerProportional(overlay?.kind === 'image');
-
-		// Only when the selection changes: the padlock is the reader's to
-		// set once they are on a layer.
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedOverlayId]);
-
-	const handleSave = async () => {
-		if (saveControllerRef.current) {
-			return;
-		}
-
-		const controller = new AbortController();
-
-		saveControllerRef.current = controller;
-
-		setSaveError(false);
-		setSaving(true);
-
-		try {
-			const result = await exportEditedImage(image, state);
-
-			if (controller.signal.aborted) {
-				return;
-			}
-
-			await onSave({...result, state}, controller.signal);
-
-			if (controller.signal.aborted) {
-				return;
-			}
-
-			announce(t('image-saved', result.fileName));
-
-			closeModal();
-		}
-		catch {
-
-			// A dismissal mid-save is not a failure to report: the abort
-			// is the outcome the person asked for.
-
-			if (!controller.signal.aborted) {
-				setSaveError(true);
-
-				announce(t('save-failed'));
-			}
-		}
-		finally {
-			saveControllerRef.current = null;
-
-			if (!controller.signal.aborted) {
-				setSaving(false);
-			}
-		}
-	};
 
 	return (
 		<EditorInstanceProvider value={instancePrefix}>
@@ -871,7 +615,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 				<div
 					className="image-editor"
-					onKeyDown={handleKeyDown}
+					onKeyDown={handleUndoShortcut}
 					ref={editorRef}
 				>
 					<div className="editor-main">
