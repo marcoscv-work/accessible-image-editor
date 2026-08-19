@@ -1290,3 +1290,53 @@ describe('Annotations, filters, and layers', () => {
 		expect(screen.queryByText('Layers')).not.toBeInTheDocument();
 	});
 });
+
+describe('interrupted gestures', () => {
+	it('a cancelled pointer drag reverts the move entirely', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Rectangle');
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		const xInput = screen.getByLabelText('X position') as HTMLInputElement;
+
+		const startX = xInput.value;
+
+		// Drag away, then the browser takes the pointer (an alert, a
+		// palm rejection): the annotation returns to where it was.
+
+		fireEvent.pointerDown(hit, {clientX: 100, clientY: 100});
+		fireEvent.pointerMove(hit, {clientX: 160, clientY: 140});
+
+		fireEvent.pointerCancel(hit);
+
+		expect(
+			(screen.getByLabelText('X position') as HTMLInputElement).value
+		).toBe(startX);
+	});
+
+	it('a lost capture after a normal release changes nothing', () => {
+		const {container} = render(<AnnotationHarness />);
+
+		addShape('Rectangle');
+
+		const hit = container.querySelector('.overlay-hit') as SVGRectElement;
+
+		fireEvent.pointerDown(hit, {clientX: 100, clientY: 100});
+		fireEvent.pointerMove(hit, {clientX: 160, clientY: 100});
+		fireEvent.pointerUp(hit, {clientX: 160, clientY: 100});
+
+		const moved = (screen.getByLabelText('X position') as HTMLInputElement)
+			.value;
+
+		// The browser reports the capture's end after the release, as it
+		// always does; the committed move stays committed.
+
+		fireEvent.lostPointerCapture(hit);
+
+		expect(
+			(screen.getByLabelText('X position') as HTMLInputElement).value
+		).toBe(moved);
+	});
+});

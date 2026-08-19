@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {arrowDelta} from '../imaging/geometry';
@@ -472,6 +472,41 @@ export function OverlaysEditable({
 		});
 	};
 
+	// pointercancel (and a capture lost to the browser) reverts the drag
+	// wholesale: transients never became history, so the base state is
+	// one dispatch away. lostpointercapture also follows every normal
+	// release, after pointerup has already cleared the ref, which is what
+	// makes it safe to listen to.
+
+	const cancelPointerGesture = () => {
+		if (pointerGesture.current) {
+			pointerGesture.current = null;
+
+			dispatch({type: 'cancel-gesture'});
+		}
+	};
+
+	const cancelManipGesture = () => {
+		if (manipGesture.current) {
+			manipGesture.current = null;
+
+			dispatch({type: 'cancel-gesture'});
+		}
+	};
+
+	// Unmounting mid-drag (a panel switch, the modal closing) must not
+	// leave a transient half-applied under the next commit.
+
+	useEffect(() => {
+		return () => {
+			if (pointerGesture.current || manipGesture.current) {
+				dispatch({type: 'cancel-gesture'});
+			}
+		};
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const handlePointerUp = () => {
 		const gesture = pointerGesture.current;
 
@@ -873,6 +908,8 @@ export function OverlaysEditable({
 							}}
 							onKeyDown={handleKeyDown(overlay.id)}
 							onKeyUp={handleKeyUp(overlay.id)}
+							onLostPointerCapture={cancelPointerGesture}
+							onPointerCancel={cancelPointerGesture}
 							onPointerDown={handlePointerDown(overlay.id)}
 							onPointerMove={handlePointerMove}
 							onPointerUp={handlePointerUp}
@@ -917,6 +954,7 @@ export function OverlaysEditable({
 												cx={handleX}
 												cy={handleY}
 												key={end}
+												onPointerCancel={cancelManipGesture}
 												onPointerDown={startManipulation(
 													overlay,
 													'endpoint',
@@ -947,6 +985,7 @@ export function OverlaysEditable({
 													className="object-handle"
 													height={size}
 													key={corner.name}
+													onPointerCancel={cancelManipGesture}
 													onPointerDown={startManipulation(
 														overlay,
 														'resize',
@@ -956,7 +995,7 @@ export function OverlaysEditable({
 													onPointerMove={
 														handleManipulationMove
 													}
-													onPointerUp={handleManipulationUp}
+												onPointerUp={handleManipulationUp}
 													strokeWidth={1.5 / zoom}
 													style={{cursor: corner.cursor}}
 													width={size}
@@ -982,6 +1021,9 @@ export function OverlaysEditable({
 														className="object-handle"
 														height={size}
 														key={edge.name}
+														onPointerCancel={
+															cancelManipGesture
+														}
 														onPointerDown={startManipulation(
 															overlay,
 															'resize',
@@ -1017,6 +1059,7 @@ export function OverlaysEditable({
 											className="object-handle object-handle-rotate"
 											cx={bounds.x + bounds.width / 2}
 											cy={bounds.y - 24 / zoom}
+											onPointerCancel={cancelManipGesture}
 											onPointerDown={startManipulation(
 												overlay,
 												'rotate',
@@ -1024,7 +1067,7 @@ export function OverlaysEditable({
 												bounds.y - 24 / zoom
 											)}
 											onPointerMove={handleManipulationMove}
-											onPointerUp={handleManipulationUp}
+												onPointerUp={handleManipulationUp}
 											r={6 / zoom}
 											strokeWidth={1.5 / zoom}
 										/>

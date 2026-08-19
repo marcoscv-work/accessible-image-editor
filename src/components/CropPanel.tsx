@@ -343,6 +343,13 @@ export function CropPanel({
 						});
 					}}
 					onKeyUp={commitAngle}
+					onPointerCancel={() => {
+						if (angleGesture.current) {
+							angleGesture.current = false;
+
+							dispatch({type: 'cancel-gesture'});
+						}
+					}}
 					onPointerUp={commitAngle}
 						showTooltip={false}
 						value={angle}

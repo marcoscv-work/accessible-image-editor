@@ -375,6 +375,22 @@ export function CropMarquee({
 		announceCrop();
 	};
 
+	// An interrupted drag reverts the marquee to where the gesture
+	// started; a lost capture after a normal release finds the ref
+	// already cleared and does nothing.
+
+	const handlePointerCancel = () => {
+		if (!pointerGesture.current) {
+			return;
+		}
+
+		pointerGesture.current = null;
+
+		setGesturing(false);
+
+		dispatch({type: 'cancel-gesture'});
+	};
+
 	const gridWidth = 1 / zoom;
 	const hitRadius = 12 / zoom;
 	const visualRadius = 6 / zoom;
@@ -448,6 +464,7 @@ export function CropMarquee({
 				}
 				onKeyDown={handleKeyDown(MOVE_EDGES, 'move')}
 				onKeyUp={handleKeyUp}
+				onPointerCancel={handlePointerCancel}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove(MOVE_EDGES)}
 				onPointerUp={handlePointerUp}
@@ -609,9 +626,10 @@ export function CropMarquee({
 							}
 							onKeyDown={handleKeyDown(edges, direction)}
 							onKeyUp={handleKeyUp}
+							onPointerCancel={handlePointerCancel}
 							onPointerDown={handlePointerDown}
 							onPointerMove={handlePointerMove(edges)}
-							onPointerUp={handlePointerUp}
+				onPointerUp={handlePointerUp}
 							r={hitRadius}
 							role="button"
 							tabIndex={0}

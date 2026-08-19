@@ -160,6 +160,9 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 								label={label}
 								max={max}
 								min={0}
+								onCancel={() =>
+									dispatch({type: 'cancel-gesture'})
+								}
 								onCommit={(value) => {
 									dispatch({
 										frame: {[key]: value},

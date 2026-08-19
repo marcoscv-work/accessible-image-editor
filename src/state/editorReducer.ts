@@ -30,6 +30,7 @@ import {
 
 export type EditorAction =
 	| {type: 'add-overlay'; overlay: Overlay}
+	| {type: 'cancel-gesture'}
 	| {id: string; newId: string; type: 'duplicate-overlay'}
 	| {type: 'move-overlay-layer'; direction: -1 | 1; id: string}
 	| {type: 'redo'}
@@ -657,6 +658,24 @@ export function editorReducer(
 				{...present, overlays},
 				t('label-layer-order')
 			);
+		}
+
+		case 'cancel-gesture': {
+
+			// An interrupted gesture (pointercancel, a lost capture, an
+			// unmount mid-drag) reverts to where it started: no history
+			// entry, no half-applied transient left for the next commit
+			// to absorb.
+
+			if (!history.pendingBase) {
+				return history;
+			}
+
+			return {
+				...history,
+				pendingBase: undefined,
+				present: history.pendingBase.state,
+			};
 		}
 
 		case 'undo': {

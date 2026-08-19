@@ -538,3 +538,58 @@ describe('the initial state is born inside the configuration', () => {
 		expect(state.ratio).toBe('original');
 	});
 });
+
+describe('cancel-gesture', () => {
+	it('reverts an open transient gesture without a history entry', () => {
+		let state = history();
+
+		state = editorReducer(state, {
+			crop: {height: 400, width: 400, x: 10, y: 10},
+			transient: true,
+			type: 'set-crop',
+		});
+		state = editorReducer(state, {
+			crop: {height: 300, width: 300, x: 20, y: 20},
+			transient: true,
+			type: 'set-crop',
+		});
+
+		const pastBefore = state.past.length;
+
+		state = editorReducer(state, {type: 'cancel-gesture'});
+
+		// Back to the base, nothing recorded, nothing pending.
+
+		expect(state.present.crop).toEqual({
+			height: HEIGHT,
+			width: WIDTH,
+			x: 0,
+			y: 0,
+		});
+		expect(state.past.length).toBe(pastBefore);
+		expect(state.pendingBase).toBeUndefined();
+
+		// And the next commit is its own gesture, not the absorbed tail
+		// of the cancelled one.
+
+		state = editorReducer(state, {
+			crop: {height: 500, width: 500, x: 0, y: 0},
+			type: 'set-crop',
+		});
+
+		state = editorReducer(state, {type: 'undo'});
+
+		expect(state.present.crop).toEqual({
+			height: HEIGHT,
+			width: WIDTH,
+			x: 0,
+			y: 0,
+		});
+	});
+
+	it('does nothing when no gesture is open', () => {
+		const state = history();
+
+		expect(editorReducer(state, {type: 'cancel-gesture'})).toBe(state);
+	});
+});

@@ -255,6 +255,7 @@ export function CommitSlider({
 	label,
 	max,
 	min,
+	onCancel,
 	onCommit,
 	onPreview,
 	shiftStep,
@@ -264,6 +265,7 @@ export function CommitSlider({
 	children?: React.ReactNode;
 	max: number;
 	min: number;
+	onCancel?: () => void;
 	onCommit: (value: number) => void;
 	onPreview: (value: number) => void;
 	shiftStep?: number;
@@ -282,8 +284,22 @@ export function CommitSlider({
 		onCommit(value);
 	};
 
+	// A cancelled pointer (an alert, a palm rejection, a tab switch)
+	// reverts the preview instead of committing a value nobody chose.
+	// The event bubbles, so the group catches what the input saw.
+
+	const cancel = () => {
+		if (!dragging.current) {
+			return;
+		}
+
+		dragging.current = false;
+
+		onCancel?.();
+	};
+
 	return (
-		<ClayForm.Group small>
+		<ClayForm.Group onPointerCancel={cancel} small>
 			<div className="editor-slider-row">
 				<label htmlFor={id}>{label}</label>
 

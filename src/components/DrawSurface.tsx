@@ -120,7 +120,11 @@ export function DrawSurface({
 
 	const surfaceRef = useRef<SVGRectElement>(null);
 
-	const gesture = useRef<{capturing: boolean; last: [number, number]} | null>(
+	const gesture = useRef<{
+		capturing: boolean;
+		last: [number, number];
+		startCount: number;
+	} | null>(
 		null
 	);
 
@@ -174,7 +178,7 @@ export function DrawSurface({
 
 		const [x, y] = toImage(event);
 
-		gesture.current = {capturing: false, last: [x, y]};
+		gesture.current = {capturing: false, last: [x, y], startCount: points.length};
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<SVGRectElement>) => {
@@ -213,6 +217,26 @@ export function DrawSurface({
 			active.last = [x, y];
 
 			addPoint(x, y);
+		}
+	};
+
+	const handlePointerCancel = () => {
+		const active = gesture.current;
+
+		if (!active) {
+			return;
+		}
+
+		gesture.current = null;
+
+		if (active.capturing) {
+
+			// The interrupted drag never became a stroke: its points go,
+			// the mode and any pen points placed before it stay.
+
+			setPoints((current) => current.slice(0, active.startCount));
+
+			onAnnounce(t('draw-cancelled'));
 		}
 	};
 
@@ -481,6 +505,7 @@ export function DrawSurface({
 				fill="transparent"
 				height={area.height}
 				onKeyDown={handleKeyDown}
+				onPointerCancel={handlePointerCancel}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}

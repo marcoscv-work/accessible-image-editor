@@ -59,6 +59,7 @@ export function AdjustPanel({
 						label={label}
 						max={100}
 						min={-100}
+						onCancel={() => dispatch({type: 'cancel-gesture'})}
 						onCommit={(next) => {
 							dispatch({key, type: 'set-adjustment', value: next});
 
