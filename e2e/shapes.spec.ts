@@ -285,19 +285,21 @@ test('arrow steps preview live and land as one undo entry', async ({
 	const before = await stageWidth();
 
 	// Three steps, one of them large: the stage follows each one before
-	// anything is committed.
+	// anything is committed. Polled, not read once: the keypress and
+	// React's commit are not the same instant, and a one-shot read races
+	// it under parallel workers.
 
 	const width = page.locator('#layer-prop-width');
 
 	await width.focus();
 	await page.keyboard.press('ArrowUp');
 
-	expect(await stageWidth()).toBe(before + 1);
+	await expect.poll(stageWidth).toBe(before + 1);
 
 	await page.keyboard.press('Shift+ArrowUp');
 	await page.keyboard.press('ArrowUp');
 
-	expect(await stageWidth()).toBe(before + 12);
+	await expect.poll(stageWidth).toBe(before + 12);
 
 	// Blur commits the whole run as a single history entry.
 
@@ -305,7 +307,7 @@ test('arrow steps preview live and land as one undo entry', async ({
 
 	await page.getByRole('button', {exact: true, name: 'Undo'}).click();
 
-	expect(await stageWidth()).toBe(before);
+	await expect.poll(stageWidth).toBe(before);
 
 	// The crop fields step through the same clamp. The default crop is
 	// the whole image, so X genuinely cannot move yet: the step is
