@@ -19,6 +19,17 @@ import {LoadedImage} from './imaging/loadImage';
 
 export type {EditorSaveResult};
 
+/**
+ * What identifies an editing session: the image itself. A host that
+ * swaps the `image` prop on a mounted editor gets a fresh session, not
+ * the previous image's crop, zoom, overlays and history draped over new
+ * pixels. The preview URL is unique per loaded image (`loadImage` mints
+ * an object URL per call), which is what makes it the key.
+ */
+export function sessionKeyOf(image: LoadedImage): string {
+	return image.previewUrl;
+}
+
 export interface AccessibleImageEditorProps {
 	image: LoadedImage;
 	onClose: () => void;
@@ -92,6 +103,7 @@ export function AccessibleImageEditor({
 				<EditorModal
 					config={config}
 					image={image}
+					key={sessionKeyOf(image)}
 					onClose={onClose}
 					onSave={onSave}
 				/>

@@ -89,6 +89,11 @@ partial dictionary or a translator function (the shape of Liferay's
 `Language.get`); emoji names are the documented exception, localized via
 CLDR data rather than the catalogue.
 
+An editing session belongs to one image: swapping the `image` prop on a
+mounted editor starts a fresh session (crop, zoom, overlays, selection
+and history reset; an in-flight save is aborted). Each loaded image must
+carry its own `previewUrl`, which `loadImage` guarantees.
+
 Saving is a contract, not a download: `onSave` receives the encoded
 `blob`, a suggested `fileName` and the parametric `state`, and may return
 a promise. The editor shows the saving state until it settles, closes on
