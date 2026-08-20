@@ -83,19 +83,28 @@ to themselves.
 
 The usage contract, stated once: the editor is one modal session per
 image (`image` identifies the session; swapping it remounts), the locale
-is page-level configuration (`translations` is read at mount), and the
+is page-level configuration (`messages` is read at mount), and the
 host supplies Clay's `ClayTooltipProvider` if it wants tooltips, exactly
 as the portal already does. Several editors can be mounted at once: ids,
 announcements, focus handoffs and the undo shortcut are all
 instance-scoped.
 
-Localization is injectable and typed: every string goes through
-`t(key: TranslationKey, ...)`, where the key type is derived from the
-bundled English catalogue, so a component cannot ask for a string that
-does not exist. A host passes `translations` on the root, either a
-partial dictionary or a translator function (the shape of Liferay's
-`Language.get`); emoji names are the documented exception, localized via
-CLDR data rather than the catalogue.
+Localization follows the Clay convention: the root takes `messages`, a
+typed partial dictionary whose missing keys keep the bundled English,
+exactly like a Clay component's `messages` prop. Every string goes
+through `t(key: TranslationKey, ...)`, with the key type derived from
+the catalogue, so a component cannot ask for a string that does not
+exist. The keys follow the portal's own conventions: kebab-case, `x`
+marking placeholders (`image-saved-as-x`, `x-set-to-x`), `{0}`-style
+substitution in values, and wherever the portal's global
+`Language.properties` already carries an equivalent (`save`, `cancel`,
+`undo-x`, `delete-x`, `x-moved-up`, `sans-serif`, ...) the editor uses
+that key verbatim, so those strings translate for free in every locale
+the portal ships. In a portal module, generate the dictionary with
+`node scripts/generate-liferay-messages.mjs`: one literal
+`Liferay.Language.get('key')` call per key, literal because the language
+filter substitutes statically. Emoji names are the documented exception,
+localized via CLDR data rather than the catalogue.
 
 An editing session belongs to one image: swapping the `image` prop on a
 mounted editor starts a fresh session (crop, zoom, overlays, selection

@@ -65,7 +65,7 @@ test('a slow save freezes the surface while it runs, then closes', async ({
 		'inert',
 		''
 	);
-	await expect(page.locator('button:has-text("Saving…")')).toBeDisabled();
+	await expect(page.locator('button:has-text("Saving")')).toBeDisabled();
 
 	// A stray undo during the save changes nothing: the document-level
 	// net is frozen too.

@@ -66,7 +66,7 @@ export function useSaveController(
 				return;
 			}
 
-			announce(t('image-saved', result.fileName));
+			announce(t('image-saved-as-x', result.fileName));
 
 			closeModal();
 		}

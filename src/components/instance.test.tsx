@@ -58,7 +58,7 @@ describe('per-instance ids', () => {
 			</>
 		);
 
-		const selects = screen.getAllByLabelText('Ratio:') as HTMLSelectElement[];
+		const selects = screen.getAllByLabelText('Ratio') as HTMLSelectElement[];
 
 		// Both labels resolve, to different controls with different ids,
 		// and each shows its own editor's value.

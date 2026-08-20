@@ -188,7 +188,7 @@ export function overlayLabel(overlay: Overlay): string {
 			return t('overlay-stroke-label');
 
 		case 'circle':
-			return t('overlay-circle-label');
+			return t('circle');
 
 		case 'shape':
 			return t('overlay-shape-label');

@@ -6,7 +6,7 @@
 import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 import {memo} from 'react';
 
-import {t} from '../i18n';
+import {TranslationKey, t} from '../i18n';
 import {FrameShape} from '../imaging/frameShapes';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
@@ -30,7 +30,7 @@ interface Props {
 
 const CARD = {height: 48, width: 72, x: 0, y: 0};
 
-const SLIDERS: {key: 'offset' | 'size'; labelKey: string; max: number}[] = [
+const SLIDERS: {key: 'offset' | 'size'; labelKey: TranslationKey; max: number}[] = [
 	{key: 'size', labelKey: 'frame-size', max: 20},
 	{key: 'offset', labelKey: 'frame-offset', max: 15},
 ];
@@ -173,7 +173,7 @@ function FramePanelCards({dispatch, frame, image, onAnnounce, presets}: Props) {
 									});
 
 									onAnnounce(
-										t('frame-value-set', label, value)
+										t('x-set-to-x-percent', label, value)
 									);
 								}}
 								onPreview={(value) =>

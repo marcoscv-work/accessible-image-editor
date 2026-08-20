@@ -7,12 +7,12 @@ import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {ClaySelectWithOption} from '@clayui/form';
 import ClayModal from '@clayui/modal';
 
-import {t} from '../i18n';
+import {TranslationKey, t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {RatioPreset} from '../state/types';
 import {useEditorId} from './instance';
 
-const RATIO_OPTIONS: Array<{labelKey: string; value: RatioPreset}> = [
+const RATIO_OPTIONS: Array<{labelKey: TranslationKey; value: RatioPreset}> = [
 	{labelKey: 'ratio-custom', value: 'custom'},
 	{labelKey: 'ratio-original', value: 'original'},
 	{labelKey: '1:1', value: '1:1'},

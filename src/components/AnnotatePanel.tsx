@@ -327,7 +327,7 @@ export function AnnotatePanel({
 	const add = (overlay: Overlay, label: string) => {
 		dispatch({overlay, type: 'add-overlay'});
 
-		onAnnounce(t('annotation-added', label));
+		onAnnounce(t('x-added-to-the-center-of-the-crop-area', label));
 
 		focusOverlay(editorRoot, overlay.id);
 	};
@@ -376,7 +376,7 @@ export function AnnotatePanel({
 				x: Math.round(centerX - size / 2),
 				y: Math.round(centerY - size / 2),
 			},
-			t('overlay-circle-label')
+			t('circle')
 		);
 	};
 
@@ -465,7 +465,7 @@ export function AnnotatePanel({
 				x: Math.round(centerX - width / 2),
 				y: Math.round(centerY - height / 2),
 			},
-			t('overlay-image-label')
+			t('image')
 		);
 	};
 
@@ -498,7 +498,7 @@ export function AnnotatePanel({
 						displayType="secondary"
 						onClick={() => setTextDialogOpen(true)}
 					>
-						<ToolTile icon="text" label={t('tool-text')} />
+						<ToolTile icon="text" label={t('text')} />
 					</ClayButton>
 				)}
 
@@ -586,7 +586,7 @@ export function AnnotatePanel({
 						>
 							<ToolTile
 								icon="picture"
-								label={t('tool-image')}
+								label={t('image')}
 							/>
 						</ClayButton>
 
@@ -679,7 +679,7 @@ export function AnnotatePanel({
 
 					onAnnounce(
 						t(
-							'annotation-added',
+							'x-added-to-the-center-of-the-crop-area',
 							t('overlay-text-label', overlay.text)
 						)
 					);

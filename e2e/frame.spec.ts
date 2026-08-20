@@ -174,7 +174,7 @@ test('frames the picture and reframes it after a crop', async ({page}) => {
 
 	await page.getByRole('button', {name: 'Undo'}).click();
 
-	await expect(page.locator('.editor-announcer')).toContainText('Undo: frame change');
+	await expect(page.locator('.editor-announcer')).toContainText('Undo frame change');
 
 	const downloadPromise = page.waitForEvent('download');
 

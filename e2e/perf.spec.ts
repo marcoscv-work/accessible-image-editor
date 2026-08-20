@@ -145,7 +145,7 @@ test('20MP image: exporting a full scene stays within seconds', async ({
 
 	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
 
-	await page.getByRole('button', {exact: true, name: 'Add image'}).click();
+	await page.getByRole('button', {exact: true, name: 'Add Image'}).click();
 
 	await page
 		.getByRole('dialog')

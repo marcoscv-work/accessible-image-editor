@@ -10,11 +10,7 @@ import {useState} from 'react';
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal, {EditorSaveResult} from './components/EditorModal';
 import {EditorConfig} from './editorConfig';
-import {
-	TranslationKey,
-	Translator,
-	setTranslations,
-} from './i18n';
+import {EditorMessages, setMessages} from './i18n';
 import {LoadedImage} from './imaging/loadImage';
 
 export type {EditorSaveResult};
@@ -52,14 +48,14 @@ export interface AccessibleImageEditorProps {
 	spritemap?: string;
 
 	/**
-	 * How the host localizes the editor: a partial dictionary (missing
-	 * keys keep the bundled English) or a translator function, the shape
-	 * of Liferay's `Language.get`. Read once, when the editor mounts:
-	 * one locale per page, set before the page renders, as in the
-	 * portal itself. Changing the prop on a mounted editor is not
-	 * supported.
+	 * How the host localizes the editor: the same shape as a Clay
+	 * component's `messages` prop, a partial dictionary whose missing
+	 * keys keep the bundled English. In the portal, generate it with
+	 * `scripts/generate-liferay-messages.mjs` (one literal
+	 * `Liferay.Language.get` call per key). Read once, when the editor
+	 * mounts: one locale per page, as in the portal itself.
 	 */
-	translations?: Partial<Record<TranslationKey, string>> | Translator;
+	messages?: EditorMessages;
 }
 
 /**
@@ -72,10 +68,10 @@ export interface AccessibleImageEditorProps {
 export function AccessibleImageEditor({
 	config,
 	image,
+	messages,
 	onClose,
 	onSave,
 	spritemap,
-	translations,
 }: AccessibleImageEditorProps) {
 
 	// Installed before the first child asks for a string, and only
@@ -86,8 +82,8 @@ export function AccessibleImageEditor({
 	// Mode is idempotent.)
 
 	useState(() => {
-		if (translations) {
-			setTranslations(translations);
+		if (messages) {
+			setMessages(messages);
 		}
 
 		return null;

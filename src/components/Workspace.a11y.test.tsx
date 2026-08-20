@@ -305,7 +305,7 @@ describe('the controls agree with the state from the first render', () => {
 			/>
 		);
 
-		const select = screen.getByLabelText('Ratio:') as HTMLSelectElement;
+		const select = screen.getByLabelText('Ratio') as HTMLSelectElement;
 
 		expect(select.value).toBe('1:1');
 		expect(
@@ -344,7 +344,7 @@ describe('the controls agree with the state from the first render', () => {
 			/>
 		);
 
-		const select = screen.getByLabelText('Ratio:') as HTMLSelectElement;
+		const select = screen.getByLabelText('Ratio') as HTMLSelectElement;
 
 		expect(select.value).toBe('custom');
 		expect(

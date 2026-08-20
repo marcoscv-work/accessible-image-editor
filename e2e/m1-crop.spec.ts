@@ -73,7 +73,7 @@ test('keyboard-only crop journey', async ({page}) => {
 
 	await expect(dialog).toBeVisible();
 	await expect(
-		dialog.getByText('Editing Image', {exact: true})
+		dialog.getByText('Editing image', {exact: true})
 	).toBeVisible();
 
 	await waitForModalSettled(page);

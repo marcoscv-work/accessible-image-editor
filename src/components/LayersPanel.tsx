@@ -213,7 +213,7 @@ export function LayersPanel({
 		) {
 			dispatch({ids: multiSelectedIds, type: 'remove-overlays'});
 
-			onAnnounce(t('annotations-removed', multiSelectedIds.length));
+			onAnnounce(t('x-annotations-removed', multiSelectedIds.length));
 
 			onSelect(null);
 
@@ -222,7 +222,7 @@ export function LayersPanel({
 
 		dispatch({id: overlay.id, type: 'remove-overlay'});
 
-		onAnnounce(t('annotation-removed', overlayLabel(overlay)));
+		onAnnounce(t('x-removed-from-the-image', overlayLabel(overlay)));
 
 		onSelect(null);
 	};
@@ -232,7 +232,7 @@ export function LayersPanel({
 
 		dispatch({id: overlay.id, newId, type: 'duplicate-overlay'});
 
-		onAnnounce(t('annotation-duplicated', overlayLabel(overlay)));
+		onAnnounce(t('x-duplicated', overlayLabel(overlay)));
 
 		onSelect(newId);
 	};
@@ -276,7 +276,7 @@ export function LayersPanel({
 
 		onAnnounce(
 			t(
-				visualDirection === -1 ? 'layer-moved-up' : 'layer-moved-down',
+				visualDirection === -1 ? 'x-moved-up' : 'x-moved-down',
 				overlayLabel(overlay)
 			)
 		);
@@ -400,24 +400,24 @@ export function LayersPanel({
 
 								<ClayButtonWithIcon
 									{...rovingProps(row, 3)}
-									aria-label={t('duplicate-layer', label)}
+									aria-label={t('duplicate-x', label)}
 									borderless
 							displayType="secondary"
 									onClick={() => duplicate(overlay)}
 									size="xs"
 									symbol="copy"
-									title={t('duplicate-layer', label)}
+									title={t('duplicate-x', label)}
 								/>
 
 								<ClayButtonWithIcon
 									{...rovingProps(row, 4)}
-									aria-label={t('delete-layer', label)}
+									aria-label={t('delete-x', label)}
 									borderless
 							displayType="secondary"
 									onClick={() => remove(overlay)}
 									size="xs"
 									symbol="trash"
-									title={t('delete-layer', label)}
+									title={t('delete-x', label)}
 								/>
 							</span>
 						</li>

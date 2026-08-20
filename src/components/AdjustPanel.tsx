@@ -6,14 +6,14 @@
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 
 import {AdjustmentKey} from '../editorConfig';
-import {t} from '../i18n';
+import {TranslationKey, t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {CommitSlider} from './fields';
 import {useEditorId} from './instance';
 
-const SLIDERS: Array<{key: keyof Adjustments; labelKey: string}> = [
+const SLIDERS: Array<{key: keyof Adjustments; labelKey: TranslationKey}> = [
 	{key: 'brightness', labelKey: 'brightness'},
 	{key: 'contrast', labelKey: 'contrast'},
 	{key: 'saturation', labelKey: 'saturation'},
@@ -66,7 +66,7 @@ export function AdjustPanel({
 						onCommit={(next) => {
 							dispatch({key, type: 'set-adjustment', value: next});
 
-							onAnnounce(t('adjustment-set', label, next));
+							onAnnounce(t('x-set-to-x', label, next));
 						}}
 						onPreview={(next) =>
 							dispatch({
@@ -88,7 +88,7 @@ export function AdjustPanel({
 							displayType="secondary"
 							onClick={() => {
 								dispatch({key, type: 'set-adjustment', value: 0});
-								onAnnounce(t('adjustment-set', label, 0));
+								onAnnounce(t('x-set-to-x', label, 0));
 							}}
 							size="xs"
 							symbol="restore"

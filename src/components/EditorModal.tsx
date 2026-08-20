@@ -288,7 +288,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 			type: 'add-overlay',
 		});
 
-		announce(t('annotation-added', t('overlay-stroke-label')));
+		announce(t('x-added-to-the-center-of-the-crop-area', t('overlay-stroke-label')));
 
 		window.setTimeout(() => {
 			(editorRef.current ?? document)

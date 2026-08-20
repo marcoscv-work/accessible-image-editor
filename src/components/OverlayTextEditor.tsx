@@ -61,7 +61,7 @@ export function OverlayTextEditor({
 			y={bounds.y - overlay.fontSize * 0.15}
 		>
 			<input
-				aria-label={t('text-content')}
+				aria-label={t('text')}
 				autoFocus
 				className="overlay-text-editor"
 				onBlur={onCommit}

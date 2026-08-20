@@ -12,44 +12,39 @@ import en from './en';
  */
 export type TranslationKey = keyof typeof en;
 
-export type Translator = (
-	key: TranslationKey,
-	...args: Array<string | number>
-) => string;
+/**
+ * What a host hands over to localize the editor: the same shape as a
+ * Clay component's `messages` prop, a partial dictionary whose missing
+ * keys keep the bundled English. In the portal the host builds it with
+ * one literal `Liferay.Language.get('key')` call per key (the language
+ * filter substitutes literals, never dynamic lookups), which is what
+ * `scripts/generate-liferay-messages.mjs` writes out.
+ */
+export type EditorMessages = Partial<Record<TranslationKey, string>>;
 
 let dictionary: Record<string, string> = en;
 
-let custom: Translator | null = null;
-
 /**
- * How a host localizes the editor. Either hand over a partial dictionary
- * (missing keys keep the bundled English) or a full translator function,
- * which is the shape of Liferay's `Language.get`. One locale per page:
- * the seam is a module, matching how the portal itself localizes.
+ * Installs the host's messages. One locale per page: the seam is a
+ * module, matching how the portal itself localizes. `null` restores the
+ * bundled English.
  */
-export function setTranslations(
-	value: Partial<Record<TranslationKey, string>> | Translator | null
-): void {
+export function setMessages(value: EditorMessages | null): void {
 	if (value === null) {
-		custom = null;
 		dictionary = en;
-	}
-	else if (typeof value === 'function') {
-		custom = value;
-	}
-	else {
-		custom = null;
 
-		const merged: Record<string, string> = {...en};
+		return;
+	}
 
-		for (const [key, translation] of Object.entries(value)) {
-			if (typeof translation === 'string') {
-				merged[key] = translation;
-			}
+	const merged: Record<string, string> = {...en};
+
+	for (const [key, translation] of Object.entries(value)) {
+		if (typeof translation === 'string') {
+			merged[key] = translation;
 		}
-
-		dictionary = merged;
 	}
+
+	dictionary = merged;
 }
 
 /**
@@ -62,10 +57,6 @@ export function t(
 	key: TranslationKey,
 	...args: Array<string | number>
 ): string {
-	if (custom) {
-		return custom(key, ...args);
-	}
-
 	let value = dictionary[key] ?? key;
 
 	args.forEach((arg, index) => {

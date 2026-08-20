@@ -6,9 +6,9 @@
 import ClayModal, {useModal} from '@clayui/modal';
 import React from 'react';
 
-import {t} from '../i18n';
+import {TranslationKey, t} from '../i18n';
 
-const SHORTCUTS: Array<{descriptionKey: string; keys: string}> = [
+const SHORTCUTS: Array<{descriptionKey: TranslationKey; keys: string}> = [
 	{descriptionKey: 'shortcut-arrows', keys: 'Arrow keys'},
 	{descriptionKey: 'shortcut-shift-arrows', keys: 'Shift + Arrow keys'},
 	{descriptionKey: 'shortcut-shift-drag', keys: 'Shift + drag'},

@@ -829,7 +829,7 @@ describe('Annotations, filters, and layers', () => {
 
 		// Color commits on blur after picking.
 
-		const colorInput = screen.getByLabelText('Color');
+		const colorInput = screen.getByLabelText('Text Color');
 
 		fireEvent.change(colorInput, {target: {value: '#00ff00'}});
 		fireEvent.blur(colorInput);
@@ -1024,7 +1024,7 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(label()).toHaveAttribute('font-family', 'sans-serif');
 
-		fireEvent.change(screen.getByLabelText('Font family'), {
+		fireEvent.change(screen.getByLabelText('Font Family'), {
 			target: {value: 'monospace'},
 		});
 
@@ -1240,7 +1240,7 @@ describe('Annotations, filters, and layers', () => {
 
 		expect(shape()).not.toHaveAttribute('stroke');
 
-		const width = screen.getByLabelText('Border width');
+		const width = screen.getByLabelText('Border Width');
 
 		fireEvent.change(width, {target: {value: '4'}});
 		fireEvent.keyDown(width, {key: 'Enter'});
@@ -1250,10 +1250,10 @@ describe('Annotations, filters, and layers', () => {
 
 		// Back to zero and the outline goes away again.
 
-		fireEvent.change(screen.getByLabelText('Border width'), {
+		fireEvent.change(screen.getByLabelText('Border Width'), {
 			target: {value: '0'},
 		});
-		fireEvent.keyDown(screen.getByLabelText('Border width'), {
+		fireEvent.keyDown(screen.getByLabelText('Border Width'), {
 			key: 'Enter',
 		});
 

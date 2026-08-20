@@ -30,7 +30,7 @@ test('brings a picture in as an annotation', async ({page}) => {
 
 	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
 
-	await page.getByRole('button', {exact: true, name: 'Add image'}).click();
+	await page.getByRole('button', {exact: true, name: 'Add Image'}).click();
 
 	// Scoped to the dialog: the demonstration page has a picker of its own
 	// for the photograph being edited.

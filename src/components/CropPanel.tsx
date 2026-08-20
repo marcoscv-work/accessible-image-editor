@@ -8,7 +8,7 @@ import ClayForm, {ClayInput} from '@clayui/form';
 import ClaySlider from '@clayui/slider';
 import React, {useEffect, useRef, useState} from 'react';
 
-import {t} from '../i18n';
+import {TranslationKey, t} from '../i18n';
 import {EditorAction, clampCrop} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {EditorSection} from './EditorSection';
@@ -38,7 +38,7 @@ interface Props {
 
 type Field = 'height' | 'width' | 'x' | 'y';
 
-const FIELD_LABELS: Record<Field, string> = {
+const FIELD_LABELS: Record<Field, TranslationKey> = {
 	height: 'height',
 	width: 'width',
 	x: 'x-position',

@@ -58,7 +58,7 @@ export function LayerProperties({
 	const commitPatch = (patch: Partial<Overlay>) => {
 		dispatch({id: overlay.id, patch, type: 'update-overlay'});
 
-		onAnnounce(t('layer-updated', label));
+		onAnnounce(t('x-updated', label));
 	};
 
 	/**
@@ -137,13 +137,13 @@ export function LayerProperties({
 			  * order. The group is labelled by this text instead.
 			  */}
 			<div className="editor-panel-subtitle" id={eid('layer-properties-title')}>
-				{t('selected-layer', label)}
+				{t('selected-layer-x', label)}
 			</div>
 
 			{overlay.kind === 'text' && (
 				<TextField
 					id={eid('layer-prop-text')}
-					label={t('text-content')}
+					label={t('text')}
 					onCommit={(text) => commitPatch({text})}
 					value={overlay.text}
 				/>
@@ -166,7 +166,7 @@ export function LayerProperties({
 				{overlay.kind === 'redact' && (
 					<ClayForm.Group small>
 						<label htmlFor={eid('layer-prop-redact-style')}>
-							{t('redact-style')}
+							{t('type')}
 						</label>
 
 						<ClaySelectWithOption
@@ -306,7 +306,7 @@ export function LayerProperties({
 									label: t('arrow-head-filled'),
 									value: 'filled',
 								},
-								{label: t('arrow-head-open'), value: 'open'},
+								{label: t('open'), value: 'open'},
 							]}
 							sizing="sm"
 							value={overlay.head}
@@ -510,7 +510,7 @@ export function LayerProperties({
 				{hasBorder(overlay) && (
 					<ClayForm.Group small>
 						<label htmlFor={eid('layer-prop-shape-style')}>
-							{t('shape-style')}
+							{t('style')}
 						</label>
 
 						<ClaySelectWithOption

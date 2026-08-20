@@ -162,7 +162,7 @@ export function Workspace({
 	return (
 		<div
 			aria-describedby={eid('workspace-description')}
-			aria-label={t('workspace')}
+			aria-label={t('image-workspace')}
 			className="editor-workspace"
 			onKeyDown={handleKeyDown}
 			onPointerDown={(event) => {

@@ -43,7 +43,7 @@ export function useOverlayClipboard(
 
 		clipboardRef.current = {...overlay};
 
-		announce(t('annotation-copied', overlayLabel(overlay)));
+		announce(t('x-copied', overlayLabel(overlay)));
 	};
 
 	const pasteOverlay = () => {
@@ -75,7 +75,7 @@ export function useOverlayClipboard(
 
 		onPasteSelect(overlay.id);
 
-		announce(t('annotation-pasted', overlayLabel(overlay)));
+		announce(t('x-pasted', overlayLabel(overlay)));
 
 		window.setTimeout(() => {
 			root()

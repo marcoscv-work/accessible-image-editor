@@ -5,21 +5,23 @@
 
 import {afterEach, describe, expect, it} from 'vitest';
 
-import {TranslationKey, setTranslations, t} from './index';
+import {TranslationKey, setMessages, t} from './index';
 
-afterEach(() => setTranslations(null));
+afterEach(() => setMessages(null));
 
 describe('the i18n seam', () => {
 	it('formats Liferay-style placeholders', () => {
-		expect(t('image-saved', 'photo.jpg')).toBe('Image saved as photo.jpg');
+		expect(t('image-saved-as-x', 'photo.jpg')).toBe(
+			'Image saved as photo.jpg'
+		);
 	});
 
 	it('falls back to the key rather than to silence', () => {
 		expect(t('not-a-real-key' as TranslationKey)).toBe('not-a-real-key');
 	});
 
-	it('lets a host override part of the dictionary', () => {
-		setTranslations({save: 'Guardar'});
+	it('lets a host override part of the dictionary, Clay-style', () => {
+		setMessages({save: 'Guardar'});
 
 		expect(t('save')).toBe('Guardar');
 
@@ -27,14 +29,8 @@ describe('the i18n seam', () => {
 
 		expect(t('cancel')).toBe('Cancel');
 
-		setTranslations(null);
+		setMessages(null);
 
 		expect(t('save')).toBe('Save');
-	});
-
-	it('lets a host take over translation entirely', () => {
-		setTranslations((key, ...args) => `[${key}:${args.join(',')}]`);
-
-		expect(t('image-saved', 'x.jpg')).toBe('[image-saved:x.jpg]');
 	});
 });

@@ -104,7 +104,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await expect(page.getByRole('dialog').nth(1)).toBeVisible();
 
-	await tabUntil(page, 'text-content');
+	await tabUntil(page, 'text');
 	await page.keyboard.type('Hello');
 	await page.keyboard.press('Enter');
 

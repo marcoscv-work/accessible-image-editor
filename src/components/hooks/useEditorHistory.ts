@@ -69,7 +69,7 @@ export function useEditorHistory(
 
 		dispatch({type: 'undo'});
 
-		announce(t('undo-done', label));
+		announce(t('undo-x', label));
 	};
 
 	const redo = () => {
@@ -81,7 +81,7 @@ export function useEditorHistory(
 
 		dispatch({type: 'redo'});
 
-		announce(t('redo-done', label));
+		announce(t('redo-x', label));
 	};
 
 	const handleUndoShortcut = (event: React.KeyboardEvent) => {

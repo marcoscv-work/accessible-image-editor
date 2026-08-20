@@ -496,7 +496,7 @@ async function dragLast(page, dx, dy) {
 
 	await collapse(page, 'Crop and rotation', 'Adjustments', 'Filters', 'Frame');
 
-	await page.getByRole('button', {exact: true, name: 'Add image'}).click();
+	await page.getByRole('button', {exact: true, name: 'Add Image'}).click();
 
 	await page
 		.locator('.modal-content input[type=file]')

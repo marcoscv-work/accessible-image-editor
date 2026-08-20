@@ -214,7 +214,7 @@ export function OverlaysEditable({
 		if (overlay) {
 			onAnnounce(
 				t(
-					'annotation-moved',
+					'x-moved-to-x-y',
 					overlayLabel(overlay),
 					Math.round(overlay.x),
 					Math.round(overlay.y)
@@ -299,7 +299,7 @@ export function OverlaysEditable({
 				if (multiSet.has(id) && multiSet.size > 1) {
 					dispatch({ids: [...multiSet], type: 'remove-overlays'});
 
-					onAnnounce(t('annotations-removed', multiSet.size));
+					onAnnounce(t('x-annotations-removed', multiSet.size));
 
 					onSelect(null);
 
@@ -312,7 +312,7 @@ export function OverlaysEditable({
 
 				if (overlay) {
 					onAnnounce(
-						t('annotation-removed', overlayLabel(overlay))
+						t('x-removed-from-the-image', overlayLabel(overlay))
 					);
 				}
 
@@ -388,7 +388,7 @@ export function OverlaysEditable({
 					type: 'move-overlays',
 				});
 
-				onAnnounce(t('annotations-moved', multiSet.size));
+				onAnnounce(t('x-annotations-moved-together', multiSet.size));
 
 				return;
 			}
@@ -529,7 +529,7 @@ export function OverlaysEditable({
 				type: 'move-overlays',
 			});
 
-			onAnnounce(t('annotations-moved', multiSet.size));
+			onAnnounce(t('x-annotations-moved-together', multiSet.size));
 
 			return;
 		}
@@ -569,7 +569,7 @@ export function OverlaysEditable({
 				type: 'update-overlay',
 			});
 
-			onAnnounce(t('layer-updated', overlayLabel(overlay)));
+			onAnnounce(t('x-updated', overlayLabel(overlay)));
 		}
 	};
 
@@ -837,7 +837,7 @@ export function OverlaysEditable({
 				type: 'update-overlay',
 			});
 
-			onAnnounce(t('layer-updated', overlayLabel(overlay)));
+			onAnnounce(t('x-updated', overlayLabel(overlay)));
 		}
 	};
 

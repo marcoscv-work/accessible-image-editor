@@ -104,7 +104,7 @@ test('an emoji lands as its own layer, sized but never coloured', async ({
 
 	await expect(page.getByLabel('Size', {exact: true})).toBeVisible();
 	await expect(page.getByLabel('Color', {exact: true})).toHaveCount(0);
-	await expect(page.getByLabel('Font family')).toHaveCount(0);
+	await expect(page.getByLabel('Font Family')).toHaveCount(0);
 
 	// Scaling is one number, and the glyph follows it.
 

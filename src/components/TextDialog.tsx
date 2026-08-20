@@ -102,12 +102,12 @@ export function TextDialog({onAdd, onOpenChange, open}: TextDialogProps) {
 				<ClayModal.Body>
 					<form onSubmit={submit}>
 						<ClayForm.Group>
-							<label htmlFor={eid('text-content')}>
-								{t('text-content')}
+							<label htmlFor={eid('text')}>
+								{t('text')}
 							</label>
 
 							<ClayInput
-								id={eid('text-content')}
+								id={eid('text')}
 								onChange={(event) =>
 									setText(event.target.value)
 								}

@@ -72,7 +72,7 @@ test('0 fits, 1 goes to actual size, 2 frames the crop', async ({page}) => {
 
 	await page.getByRole('button', {name: 'Undo'}).click();
 
-	await expect(status).toContainText('Undo: crop change');
+	await expect(status).toContainText('Undo crop change');
 });
 
 test('framing the crop lands on the same view from any zoom', async ({
