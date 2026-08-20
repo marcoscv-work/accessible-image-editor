@@ -156,7 +156,7 @@ export default {
 	'landing-drop-anywhere': 'or anywhere on this page',
 	'landing-dropping': 'Drop to open it',
 	'landing-sample-alt':
-		'The bundled sample photograph: the dome of a building at sunset, with a clock and a half moon in a blue sky',
+		'The bundled sample photograph: a green high-altitude lagoon ringed by white salt, between two bare volcanoes under a blue sky',
 	'landing-tagline': 'Everything works with the keyboard alone',
 	'layer-moved-down': '{0} moved down',
 	'layer-moved-up': '{0} moved up',

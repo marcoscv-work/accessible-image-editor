@@ -123,7 +123,7 @@ test('a blurred redaction survives the export', async ({page}) => {
 	).toString('base64')}`;
 
 	// The block, and the untouched picture immediately beside it: the same
-	// balustrade continues there, so it is the baseline this file carries
+	// slope continues there, so it is the baseline this file carries
 	// with it, and no second export is needed to have something to compare.
 
 	const inside = await sample(page, exported, {
@@ -161,7 +161,7 @@ test('a redaction keeps covering its pixels through a rotation', async ({
 
 	await page.getByRole('button', {exact: true, name: 'Add redaction'}).click();
 
-	// Over the balustrade again: detail that would visibly leak.
+	// Over the volcano's rocky flank: detail that would visibly leak.
 
 	for (const [id, value] of [
 		['[id$="-layer-prop-width"]', '360'],
@@ -182,12 +182,16 @@ test('a redaction keeps covering its pixels through a rotation', async ({
 	await page.getByRole('button', {name: 'Rotate 90 degrees'}).click();
 
 	// The redaction must follow its pixels into the rotated space: the
-	// stage node's box is the first witness.
+	// property fields are the witness. (Not the hit rect: that one
+	// clamps to a 24-screen-pixel minimum target, which at this image's
+	// fit zoom is wider than the folded box itself.)
 
-	const hit = page.locator('.editor-workspace .overlay-hit');
-
-	await expect(hit).toHaveAttribute('width', '160');
-	await expect(hit).toHaveAttribute('height', '360');
+	await expect(page.locator('[id$="-layer-prop-width"]')).toHaveValue(
+		'160'
+	);
+	await expect(page.locator('[id$="-layer-prop-height"]')).toHaveValue(
+		'360'
+	);
 
 	const downloadPromise = page.waitForEvent('download');
 
@@ -200,20 +204,21 @@ test('a redaction keeps covering its pixels through a rotation', async ({
 	).toString('base64')}`;
 
 	// A display point (x, y) lands on (H - y, x): the covered content
-	// now lives at (252, 260) sized 160x360, and the strip below it in
-	// the rotated frame holds the balustrade that continues unhidden.
+	// now lives at (1348, 260) sized 160x360 (H = 2268), and the strip
+	// below it in the rotated frame holds the volcano's slope that
+	// continues unhidden.
 
 	const inside = await sample(page, exported, {
 		height: 360,
 		width: 160,
-		x: 252,
+		x: 1348,
 		y: 260,
 	});
 
 	const beside = await sample(page, exported, {
 		height: 360,
 		width: 160,
-		x: 252,
+		x: 1348,
 		y: 640,
 	});
 

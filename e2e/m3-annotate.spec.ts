@@ -87,7 +87,7 @@ test('keyboard-only annotation journey', async ({page}) => {
 
 	await page.keyboard.press('Shift+ArrowRight');
 
-	await expect(status).toContainText('party popper moved to x 785');
+	await expect(status).toContainText('party popper moved to x 2026');
 
 	// Add a text overlay through the dialog.
 

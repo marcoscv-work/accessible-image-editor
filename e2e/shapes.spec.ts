@@ -323,7 +323,7 @@ test('arrow steps preview live and land as one undo entry', async ({
 	await page.locator('[id$="-crop-width"]').focus();
 	await page.keyboard.press('Shift+ArrowDown');
 
-	await expect(page.locator('[id$="-crop-width"]')).toHaveValue('1540');
+	await expect(page.locator('[id$="-crop-width"]')).toHaveValue('4022');
 
 	await cropX.focus();
 	await page.keyboard.press('Shift+ArrowUp');
