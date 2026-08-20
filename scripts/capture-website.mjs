@@ -258,7 +258,7 @@ async function collapse(page, ...titles) {
 
 	await page.evaluate(() => {
 		const sidebar = document.querySelector('.editor-sidebar');
-		const title = document.getElementById('frame-panel-title');
+		const title = document.querySelector('[id$="-frame-panel-title"]');
 
 		sidebar.scrollTop +=
 			title.getBoundingClientRect().top -
@@ -315,7 +315,8 @@ async function collapse(page, ...titles) {
 
 	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
 	await page.waitForTimeout(400);
-	await page.locator('[id$="-text-content"]').fill('Liferay 2026');
+	await page.locator('[id$="-text"]').fill('Liferay 2026');
+	await page.locator('[id$="-text-font-size"]').fill('170');
 	await page.getByRole('button', {exact: true, name: 'Add'}).click();
 	await page.waitForTimeout(500);
 
@@ -323,7 +324,7 @@ async function collapse(page, ...titles) {
 	// nothing.
 
 	await page.evaluate(() => {
-		const input = document.getElementById('layer-prop-color');
+		const input = document.querySelector('[id$="-layer-prop-color"]');
 
 		const setter = Object.getOwnPropertyDescriptor(
 			window.HTMLInputElement.prototype,
@@ -341,8 +342,8 @@ async function collapse(page, ...titles) {
 	// Down onto the frame's bottom band, where the two orders differ.
 
 	for (const [id, value] of [
-		['[id$="-layer-prop-y"]', '1070'],
-		['[id$="-layer-prop-x"]', '260'],
+		['[id$="-layer-prop-y"]', '2120'],
+		['[id$="-layer-prop-x"]', '640'],
 	]) {
 		const field = page.locator(id);
 
@@ -421,8 +422,8 @@ async function dragLast(page, dx, dy) {
 
 	await page.getByRole('button', {exact: true, name: 'Add text'}).click();
 	await page.waitForTimeout(600);
-	await page.locator('[id$="-text-content"]').fill('Golden hour');
-	await page.locator('[id$="-text-font-size"]').fill('96');
+	await page.locator('[id$="-text"]').fill('Laguna Verde');
+	await page.locator('[id$="-text-font-size"]').fill('180');
 	await page.getByRole('button', {exact: true, name: 'Add'}).click();
 	await page.waitForTimeout(400);
 	await dragLast(page, -170, 190);
@@ -507,10 +508,10 @@ async function dragLast(page, dx, dy) {
 	// Composed into the sky, at a watermark's size.
 
 	for (const [id, value] of [
-		['[id$="-layer-prop-width"]', '150'],
-		['[id$="-layer-prop-height"]', '150'],
-		['[id$="-layer-prop-x"]', '1230'],
-		['[id$="-layer-prop-y"]', '170'],
+		['[id$="-layer-prop-width"]', '390'],
+		['[id$="-layer-prop-height"]', '390'],
+		['[id$="-layer-prop-x"]', '3320'],
+		['[id$="-layer-prop-y"]', '300'],
 		['[id$="-layer-prop-opacity"]', '80'],
 	]) {
 		const field = page.locator(id);
@@ -689,14 +690,15 @@ for (const scheme of ['light', 'dark']) {
 	await addShape(page, 'Circle');
 	await page.waitForTimeout(100);
 
-	// Over the sky: on the carved stone neither the dot nor the outline
-	// reads, and the picture has to be legible before it can make a point.
+	// Over the sky: on the volcano's flank neither the dot nor the
+	// outline reads, and the picture has to be legible before it can
+	// make a point.
 
 	for (const [id, value] of [
-		['[id$="-layer-prop-width"]', '12'],
-		['[id$="-layer-prop-height"]', '12'],
-		['[id$="-layer-prop-x"]', '1200'],
-		['[id$="-layer-prop-y"]', '430'],
+		['[id$="-layer-prop-width"]', '30'],
+		['[id$="-layer-prop-height"]', '30'],
+		['[id$="-layer-prop-x"]', '3120'],
+		['[id$="-layer-prop-y"]', '380'],
 	]) {
 		const field = page.locator(id);
 
