@@ -5,7 +5,7 @@
 
 import {act, fireEvent, screen, within} from '@testing-library/react';
 import {axe} from 'jest-axe';
-import {useReducer, useState} from 'react';
+import {useReducer, useRef, useState} from 'react';
 
 import {ANNOTATE_TOOLS} from '../editorConfig';
 import {FILTER_PRESETS} from '../imaging/FilterDefs';
@@ -19,6 +19,10 @@ import {AnnotatePanel} from './AnnotatePanel';
 import {FilterGallery} from './FilterGallery';
 import {LayersPanel} from './LayersPanel';
 import {Workspace} from './Workspace';
+import {
+	EditorInstanceProvider,
+	EditorRootProvider,
+} from './instance';
 
 const IMAGE: LoadedImage = {
 	blob: new Blob(),
@@ -1345,5 +1349,58 @@ describe('interrupted gestures', () => {
 		expect(
 			(screen.getByLabelText('X position') as HTMLInputElement).value
 		).toBe(moved);
+	});
+});
+
+describe('two editors on one page (R2-007)', () => {
+	function ScopedHarness({label}: {label: string}) {
+		const rootRef = useRef<HTMLDivElement>(null);
+
+		return (
+			<div data-editor={label} ref={rootRef}>
+				<EditorInstanceProvider value={`${label}-`}>
+					<EditorRootProvider value={rootRef}>
+						<AnnotationHarness />
+					</EditorRootProvider>
+				</EditorInstanceProvider>
+			</div>
+		);
+	}
+
+	it('hands focus to its own workspace after the last deletion', async () => {
+		const {container} = renderEditor(
+			<>
+				<ScopedHarness label="one" />
+				<ScopedHarness label="two" />
+			</>
+		);
+
+		const second = container.querySelector(
+			'[data-editor="two"]'
+		) as HTMLElement;
+
+		// One annotation in the second editor, deleted from the stage.
+
+		fireEvent.click(
+			within(second).getByRole('button', {name: 'Add shape'})
+		);
+
+		// The shape menu portals to the body; the one open right now is
+		// the second editor's.
+
+		fireEvent.click(screen.getByRole('button', {name: 'Rectangle'}));
+
+		const hit = second.querySelector('.overlay-hit') as SVGRectElement;
+
+		fireEvent.keyDown(hit, {key: 'Delete'});
+
+		await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
+
+		// The fallback lands on the second editor's workspace, never on
+		// the first's: the lookup resolves through the instance root.
+
+		expect(document.activeElement).toBe(
+			second.querySelector('.editor-workspace')
+		);
 	});
 });

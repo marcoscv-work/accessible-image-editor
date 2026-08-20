@@ -22,7 +22,13 @@ export function useOverlayClipboard(
 	state: EditState,
 	dispatch: (action: EditorAction) => void,
 	onPasteSelect: (id: string) => void,
-	announce: (message: string) => void
+	announce: (message: string) => void,
+
+	/**
+	 * Where the pasted annotation's focus handoff looks the node up:
+	 * this editor's root, never the page.
+	 */
+	root: () => ParentNode
 ) {
 	const clipboardRef = useRef<Overlay | null>(null);
 
@@ -72,7 +78,7 @@ export function useOverlayClipboard(
 		announce(t('annotation-pasted', overlayLabel(overlay)));
 
 		window.setTimeout(() => {
-			document
+			root()
 				.querySelector<HTMLElement>(
 					`[data-overlay-id="${overlay.id}"]`
 				)

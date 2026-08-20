@@ -33,6 +33,7 @@ import {useOverlaySelection} from './hooks/useOverlaySelection';
 import {useSaveController} from './hooks/useSaveController';
 import {
 	EditorInstanceProvider,
+	EditorRootProvider,
 	nextEditorInstancePrefix,
 } from './instance';
 
@@ -169,7 +170,8 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		state,
 		dispatch,
 		setSelectedOverlayId,
-		announce
+		announce,
+		() => editorRef.current ?? document
 	);
 
 	const {handleSave, saveError, saving} = useSaveController(
@@ -289,7 +291,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		announce(t('annotation-added', t('overlay-stroke-label')));
 
 		window.setTimeout(() => {
-			document
+			(editorRef.current ?? document)
 				.querySelector<HTMLElement>(`[data-overlay-id="${id}"]`)
 				?.focus({preventScroll: true});
 		}, 0);
@@ -621,6 +623,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	return (
 		<EditorInstanceProvider value={instancePrefix}>
+			<EditorRootProvider value={editorRef}>
 			<ClayModal
 				className="image-editor-modal"
 				observer={observer}
@@ -726,6 +729,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 				onOpenChange={setShortcutsOpen}
 				open={shortcutsOpen}
 			/>
+			</EditorRootProvider>
 		</EditorInstanceProvider>
 	);
 }

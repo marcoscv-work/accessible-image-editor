@@ -20,7 +20,7 @@ import {EditorAction} from '../state/editorReducer';
 import {ArrowOverlay, Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 import {OverlayTextEditor} from './OverlayTextEditor';
-import {useEditorId} from './instance';
+import {useEditorId, useEditorRoot} from './instance';
 
 import type {RedactSource} from '../imaging/overlayShapes';
 
@@ -168,6 +168,8 @@ export function OverlaysEditable({
 }: Props) {
 	const eid = useEditorId();
 
+	const editorRoot = useEditorRoot();
+
 	const overlaysRef = useRef(overlays);
 
 	overlaysRef.current = overlays;
@@ -245,8 +247,8 @@ export function OverlaysEditable({
 					// layer and appear to do nothing at all. Opening the
 					// disclosure is part of honouring the key.
 
-					const header = document
-						.getElementById(eid('layers-panel-title'))
+					const header = editorRoot()
+						.querySelector(`#${eid('layers-panel-title')}`)
 						?.closest('button');
 
 					if (header?.getAttribute('aria-expanded') === 'false') {
@@ -254,7 +256,7 @@ export function OverlaysEditable({
 					}
 
 					window.requestAnimationFrame(() => {
-						document
+						editorRoot()
 							.querySelector<HTMLElement>(
 								'.editor-layer-properties input, .editor-layer-properties select'
 							)

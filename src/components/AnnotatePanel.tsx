@@ -23,7 +23,7 @@ import {CropRect, Overlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
-import {useEditorId} from './instance';
+import {useEditorId, useEditorRoot} from './instance';
 
 /**
  * Loaded when the button is pressed, not when the editor is: the picker
@@ -40,10 +40,14 @@ const EmojiPicker = lazy(() =>
  * Clay restores focus to the trigger button when the modal closes, and
  * this focus must land after that.
  */
-function focusOverlay(id: string, delay = 0): void {
+function focusOverlay(root: () => ParentNode, id: string, delay = 0): void {
 	window.setTimeout(() => {
 		window.requestAnimationFrame(() => {
-			const node = document.querySelector<SVGElement>(
+
+			// Resolved through this editor's root at fire time, so two
+			// mounted editors can never trade focus.
+
+			const node = root().querySelector<SVGElement>(
 				`[data-overlay-id="${id}"]`
 			);
 
@@ -209,6 +213,8 @@ export function AnnotatePanel({
 }: Props) {
 	const eid = useEditorId();
 
+	const editorRoot = useEditorRoot();
+
 	const [textDialogOpen, setTextDialogOpen] = useState(false);
 
 	const [shapeMenuOpen, setShapeMenuOpen] = useState(false);
@@ -323,7 +329,7 @@ export function AnnotatePanel({
 
 		onAnnounce(t('annotation-added', label));
 
-		focusOverlay(overlay.id);
+		focusOverlay(editorRoot, overlay.id);
 	};
 
 	const addRectangle = () =>
@@ -678,7 +684,7 @@ export function AnnotatePanel({
 						)
 					);
 
-					focusOverlay(overlay.id, 450);
+					focusOverlay(editorRoot, overlay.id, 450);
 				}}
 				onOpenChange={setTextDialogOpen}
 				open={textDialogOpen}

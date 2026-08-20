@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {createContext, useCallback, useContext} from 'react';
+import React, {createContext, useCallback, useContext} from 'react';
 
 /**
  * Every DOM id the editor mints goes through this prefix, so two editors
@@ -29,4 +29,22 @@ export function useEditorId(): (name: string) => string {
 	const prefix = useContext(EditorInstanceContext);
 
 	return useCallback((name: string) => prefix + name, [prefix]);
+}
+
+/**
+ * This instance's DOM root, for the focus handoffs that look elements
+ * up at a distance (a deleted row's fallback, a paste's landing spot).
+ * Queries resolved through it can never reach into another editor on
+ * the same page. The default, `document`, keeps lone components (tests,
+ * stories) working without a provider.
+ */
+const EditorRootContext =
+	createContext<React.RefObject<HTMLElement | null> | null>(null);
+
+export const EditorRootProvider = EditorRootContext.Provider;
+
+export function useEditorRoot(): () => ParentNode {
+	const ref = useContext(EditorRootContext);
+
+	return useCallback(() => ref?.current ?? document, [ref]);
 }

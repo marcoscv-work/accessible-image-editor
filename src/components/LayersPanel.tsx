@@ -12,7 +12,7 @@ import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
 import {EditorSection} from './EditorSection';
 import {LayerProperties} from './LayerProperties';
-import {useEditorId} from './instance';
+import {useEditorId, useEditorRoot} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;
@@ -54,6 +54,8 @@ export function LayersPanel({
 	selectedId,
 }: Props) {
 	const eid = useEditorId();
+
+	const editorRoot = useEditorRoot();
 
 	const items = [...overlays].reverse();
 
@@ -188,11 +190,15 @@ export function LayersPanel({
 		// workspace catches the last deletion.
 
 		window.setTimeout(() => {
+
+			// This editor's workspace, never another instance's: the
+			// fallback resolves through the instance root.
+
 			const next =
 				listRef.current?.querySelector<HTMLElement>(
 					'.editor-layer-name'
 				) ??
-				document.querySelector<HTMLElement>('.editor-workspace');
+				editorRoot().querySelector<HTMLElement>('.editor-workspace');
 
 			next?.focus();
 		}, 0);
@@ -330,7 +336,7 @@ export function LayersPanel({
 
 										window.setTimeout(() => {
 											const node =
-												document.querySelector(
+												editorRoot().querySelector(
 													`[data-overlay-id="${overlay.id}"]`
 												);
 
