@@ -37,7 +37,14 @@ const mountedEditors = new Set<object>();
 export function useEditorHistory(
 	image: LoadedImage,
 	enabled: ResolvedEditorConfig,
-	announce: (message: string) => void
+	announce: (message: string) => void,
+
+	/**
+	 * When this reports true, the undo net stays quiet: a save in
+	 * flight must not have history changed underneath the snapshot it
+	 * is persisting.
+	 */
+	frozen?: () => boolean
 ) {
 	const [history, dispatch] = useReducer(editorReducer, undefined, () =>
 
@@ -56,7 +63,7 @@ export function useEditorHistory(
 	const undo = () => {
 		const label = undoLabel(history);
 
-		if (!label) {
+		if (!label || frozen?.()) {
 			return;
 		}
 
@@ -68,7 +75,7 @@ export function useEditorHistory(
 	const redo = () => {
 		const label = redoLabel(history);
 
-		if (!label) {
+		if (!label || frozen?.()) {
 			return;
 		}
 

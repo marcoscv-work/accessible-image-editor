@@ -48,6 +48,11 @@ export function useSaveController(
 		setSaveError(false);
 		setSaving(true);
 
+		// The surface goes inert (out of the accessibility tree), so the
+		// live region is what tells a screen reader the wait started.
+
+		announce(t('saving'));
+
 		try {
 			const result = await exportEditedImage(image, state);
 

@@ -145,8 +145,13 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	const {observer, onClose: closeModal} = useModal({onClose});
 
+	// Declared before the history hook so its undo net can consult it;
+	// synced right after the save controller below.
+
+	const savingRef = useRef(false);
+
 	const {dispatch, editorRef, handleUndoShortcut, history, redo, undo} =
-		useEditorHistory(image, enabled, announce);
+		useEditorHistory(image, enabled, announce, () => savingRef.current);
 
 	const state = history.present;
 
@@ -174,6 +179,18 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		announce,
 		closeModal
 	);
+
+	savingRef.current = saving;
+
+	// While the save promise is pending, the editable surface goes
+	// inert: a change made after the snapshot was exported would be
+	// silently discarded when the editor closes on success. The modal
+	// header's close button stays live on purpose, as the abort hatch.
+	// Attribute, not prop: React 18 does not know `inert`.
+
+	useEffect(() => {
+		editorRef.current?.toggleAttribute('inert', saving);
+	}, [saving, editorRef]);
 
 	const [zoom, setZoom] = useState(() =>
 		fitZoom(null, image.width, image.height)
