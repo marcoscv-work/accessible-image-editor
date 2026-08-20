@@ -99,7 +99,9 @@ cancelled. The demo shell passes an adapter that downloads.
 The initial state is born inside the configuration: when a list keeps its
 neutral (`none`, `original`) the editor starts there, and when it does
 not, the editor starts on the first value the list allows, applying it
-for real (a forced ratio reshapes the opening crop). Every visible
+for real (a forced ratio reshapes the opening crop; a list offering
+`custom` starts there, the full image being a legal custom crop). The
+state is never a value its own control does not render. Every visible
 control therefore agrees with the state from the first render. The
 configuration is read once, when the editor opens, and is immutable for
 that session.

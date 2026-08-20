@@ -92,22 +92,32 @@ function firstAllowed<T>(neutral: T, allowed: T[] | undefined): T {
 	return allowed[0];
 }
 
+/**
+ * Which ratio the session opens on. Never a value outside the configured
+ * list: the select renders exactly that list, and a state it cannot show
+ * is the bug this function exists to prevent. `custom` is the free
+ * state, so when it is offered and `original` is not, the session starts
+ * there, with the full image as its (legal) custom crop; only when both
+ * are absent does the first configured shape reshape the opening crop.
+ */
+function initialRatio(allowed: RatioPreset[] | undefined): RatioPreset {
+	if (!allowed || !allowed.length || allowed.includes('original')) {
+		return 'original';
+	}
+
+	if (allowed.includes('custom')) {
+		return 'custom';
+	}
+
+	return allowed[0];
+}
+
 export function initialEditState(
 	sourceWidth: number,
 	sourceHeight: number,
 	options: InitialStateOptions = {}
 ): EditState {
-	const ratio = firstAllowed<RatioPreset>(
-		'original',
-
-		// `custom` is the free state: a configuration offering it can
-		// also start on it, since the full-image crop is a legal custom
-		// crop.
-
-		options.ratios?.includes('custom')
-			? ['original', 'custom', ...options.ratios]
-			: options.ratios
-	);
+	const ratio = initialRatio(options.ratios);
 
 	const state: EditState = {
 		adjustments: {...DEFAULT_ADJUSTMENTS},

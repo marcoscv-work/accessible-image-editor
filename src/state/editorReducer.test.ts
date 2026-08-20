@@ -511,15 +511,17 @@ describe('the initial state is born inside the configuration', () => {
 		});
 	});
 
-	it('treats custom as freedom enough to keep the full image', () => {
+	it('starts on custom when it is offered and original is not', () => {
 		const state = initialEditState(WIDTH, HEIGHT, {
 			ratios: ['custom', '16:9'],
 		});
 
 		// The full image is a legal custom crop, so nothing forces the
-		// 16:9 window on someone who was offered a free hand.
+		// 16:9 window on someone who was offered a free hand. And the
+		// state must be a value the select actually renders: `original`
+		// is not in this list, so it cannot be the answer.
 
-		expect(state.ratio).toBe('original');
+		expect(state.ratio).toBe('custom');
 		expect(state.crop).toEqual({height: HEIGHT, width: WIDTH, x: 0, y: 0});
 	});
 

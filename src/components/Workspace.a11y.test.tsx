@@ -312,4 +312,43 @@ describe('the controls agree with the state from the first render', () => {
 			Array.from(select.options).map((option) => option.value)
 		).toEqual(['1:1']);
 	});
+
+	it('starts a custom-plus-presets config on custom, never outside it', () => {
+
+		// R2-004: `original` is not configured here, so it must not be
+		// the state either; a select whose value is not among its own
+		// options is exactly the bug the birth rule exists to prevent.
+
+		const history = initialHistory(IMAGE.width, IMAGE.height, {
+			ratios: ['custom', '16:9'],
+		});
+
+		renderEditor(
+			<BottomBar
+				canRedo={false}
+				canUndo={false}
+				dispatch={() => {}}
+				onAnnounce={() => {}}
+				onCancel={() => {}}
+				onRedo={() => {}}
+				onSave={() => {}}
+				onShowShortcuts={() => {}}
+				onUndo={() => {}}
+				onZoom={() => {}}
+				onZoomFit={() => {}}
+				ratio={history.present.ratio}
+				ratios={['custom', '16:9']}
+				saving={false}
+				showRotate
+				zoom={1}
+			/>
+		);
+
+		const select = screen.getByLabelText('Ratio:') as HTMLSelectElement;
+
+		expect(select.value).toBe('custom');
+		expect(
+			Array.from(select.options).map((option) => option.value)
+		).toEqual(['custom', '16:9']);
+	});
 });
