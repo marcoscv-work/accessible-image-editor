@@ -560,14 +560,32 @@ async function dragLast(page, dx, dy) {
 
 	await page.waitForTimeout(300);
 
-	const workspace = await region(page, '.editor-workspace');
+	// Centred on the line itself, wherever this image's crop centre put
+	// it, and clamped inside the stage so no workspace chrome bleeds in.
+
+	const stage = await region(page, '.editor-stage');
+
+	const line = await page
+		.locator('.editor-workspace path[stroke-linecap="round"]')
+		.first()
+		.boundingBox();
+
+	const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
 	await shot(page, 'draw-keyboard.png', {
 		clip: {
 			height: 340,
 			width: 560,
-			x: workspace.x + workspace.width * 0.34,
-			y: workspace.y + workspace.height * 0.3,
+			x: clamp(
+				line.x + line.width / 2 - 280,
+				stage.x,
+				stage.x + stage.width - 560
+			),
+			y: clamp(
+				line.y + line.height / 2 - 190,
+				stage.y,
+				stage.y + stage.height - 340
+			),
 		},
 	});
 
