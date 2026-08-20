@@ -5,7 +5,7 @@
 
 import bundledSpritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {ClayIconSpriteContext} from '@clayui/icon';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 
 import {AnnouncerProvider} from './components/Announcer';
 import EditorModal, {EditorSaveResult} from './components/EditorModal';
@@ -54,8 +54,10 @@ export interface AccessibleImageEditorProps {
 	/**
 	 * How the host localizes the editor: a partial dictionary (missing
 	 * keys keep the bundled English) or a translator function, the shape
-	 * of Liferay's `Language.get`. One locale per page, as in the portal
-	 * itself.
+	 * of Liferay's `Language.get`. Read once, when the editor mounts:
+	 * one locale per page, set before the page renders, as in the
+	 * portal itself. Changing the prop on a mounted editor is not
+	 * supported.
 	 */
 	translations?: Partial<Record<TranslationKey, string>> | Translator;
 }
@@ -76,8 +78,12 @@ export function AccessibleImageEditor({
 	translations,
 }: AccessibleImageEditorProps) {
 
-	// Installed before the first child asks for a string, kept in sync
-	// with the prop, and restored to the bundled English on unmount.
+	// Installed before the first child asks for a string, and only
+	// then: the locale is page configuration, not component state, so
+	// there is nothing to keep in sync and no unmount reset to pull the
+	// dictionary out from under a sibling editor. (The initializer runs
+	// during render; setting the same dictionary twice under Strict
+	// Mode is idempotent.)
 
 	useState(() => {
 		if (translations) {
@@ -86,16 +92,6 @@ export function AccessibleImageEditor({
 
 		return null;
 	});
-
-	useEffect(() => {
-		if (translations) {
-			setTranslations(translations);
-		}
-	}, [translations]);
-
-	useEffect(() => {
-		return () => setTranslations(null);
-	}, []);
 
 	return (
 		<ClayIconSpriteContext.Provider value={spritemap ?? bundledSpritemap}>

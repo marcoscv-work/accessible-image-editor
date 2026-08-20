@@ -9,6 +9,7 @@ import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 import {t} from '../i18n';
 import {DEFAULT_BORDER_COLOR, overlayLabel} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
+import {patchFor} from '../state/overlayPatch';
 import {
 	ArrowOverlay,
 	CircleOverlay,
@@ -18,7 +19,7 @@ import {
 	RedactOverlay,
 	RedactStyle,
 	ShapeOverlay,
-	StrokeOverlay,
+
 	isBoxOverlay,
 } from '../state/types';
 import {FONT_FAMILIES} from '../textFonts';
@@ -171,9 +172,12 @@ export function LayerProperties({
 						<ClaySelectWithOption
 							id={eid('layer-prop-redact-style')}
 							onChange={(event) =>
-								commitPatch({
-									style: event.target.value as RedactStyle,
-								})
+								commitPatch(
+									patchFor(overlay)({
+										style: event.target
+											.value as RedactStyle,
+									})
+								)
 							}
 							options={[
 								{
@@ -205,10 +209,12 @@ export function LayerProperties({
 						<ClaySelectWithOption
 							id={eid('layer-prop-level')}
 							onChange={(event) =>
-								commitPatch({
-									level: event.target
-										.value as RedactOverlay['level'],
-								})
+								commitPatch(
+									patchFor(overlay)({
+										level: event.target
+											.value as RedactOverlay['level'],
+									})
+								)
 							}
 							options={[
 								{
@@ -288,10 +294,12 @@ export function LayerProperties({
 						<ClaySelectWithOption
 							id={eid('layer-prop-head')}
 							onChange={(event) =>
-								commitPatch({
-									head: event.target
-										.value as ArrowOverlay['head'],
-								})
+								commitPatch(
+									patchFor(overlay)({
+										head: event.target
+											.value as ArrowOverlay['head'],
+									})
+								)
 							}
 							options={[
 								{
@@ -379,9 +387,12 @@ export function LayerProperties({
 						<ClaySelectWithOption
 							id={eid('layer-prop-stroke-style')}
 							onChange={(event) =>
-								commitPatch({
-									smooth: event.target.value === 'smooth',
-								} as Partial<StrokeOverlay>)
+								commitPatch(
+									patchFor(overlay)({
+										smooth:
+											event.target.value === 'smooth',
+									})
+								)
 							}
 							options={[
 								{
@@ -505,15 +516,17 @@ export function LayerProperties({
 						<ClaySelectWithOption
 							id={eid('layer-prop-shape-style')}
 							onChange={(event) =>
-								commitPatch({
-									sketchSeed:
-										event.target.value === 'sketchy'
-											? Math.floor(
-													Math.random() *
-														2 ** 31
-												)
-											: undefined,
-								})
+								commitPatch(
+									patchFor(overlay)({
+										sketchSeed:
+											event.target.value === 'sketchy'
+												? Math.floor(
+														Math.random() *
+															2 ** 31
+													)
+												: undefined,
+									})
+								)
 							}
 							options={[
 								{

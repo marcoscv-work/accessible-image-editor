@@ -132,8 +132,14 @@ function validate(key: string, value: unknown): unknown {
 	}
 
 	if (key === 'points') {
+
+		// Pairs, and at least one of them: an odd-length array is not a
+		// point list, it is a bug in the dispatcher. A single pair stays
+		// legal, because a one-point stroke is the dot the pen draws.
+
 		return Array.isArray(value) &&
 			value.length >= 2 &&
+			value.length % 2 === 0 &&
 			value.every((entry) => Number.isFinite(entry))
 			? value
 			: undefined;
@@ -166,7 +172,27 @@ function validate(key: string, value: unknown): unknown {
 		return Math.max(1, value);
 	}
 
+	// A border can be absent (zero), never inverted.
+
+	if (key === 'borderWidth') {
+		return Math.max(0, value);
+	}
+
 	return value;
+}
+
+/**
+ * A compile-time companion to the runtime validation below: at a call
+ * site where the overlay's kind is narrowed, `patchFor(overlay)` types
+ * the patch against that kind, so a redact panel cannot dispatch `text`
+ * and the compiler says so before the whitelist has to. Identity at
+ * runtime; the reducer still validates, because not every dispatcher is
+ * narrowed.
+ */
+export function patchFor<O extends Overlay>(
+	_overlay: O
+): (patch: Partial<Omit<O, 'id' | 'kind'>>) => Partial<Overlay> {
+	return (patch) => patch as Partial<Overlay>;
 }
 
 /**

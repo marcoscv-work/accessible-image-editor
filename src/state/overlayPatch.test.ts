@@ -5,7 +5,7 @@
 
 import {describe, expect, it} from 'vitest';
 
-import {patchOverlay} from './overlayPatch';
+import {patchFor, patchOverlay} from './overlayPatch';
 import {ShapeOverlay, TextOverlay} from './types';
 
 const SHAPE: ShapeOverlay = {
@@ -102,6 +102,43 @@ describe('patchOverlay', () => {
 		// But a position cannot be cleared, only moved.
 
 		expect(patchOverlay(SHAPE, {x: undefined})).toBe(SHAPE);
+	});
+
+	it('rejects an odd point list and keeps the border unsigned', () => {
+		const stroke = patchOverlay(
+			{
+				color: '#000000',
+				id: 'stroke-1',
+				kind: 'stroke',
+				points: [0, 0, 10, 10],
+				smooth: true,
+				width: 4,
+				x: 0,
+				y: 0,
+			},
+			{points: [0, 0, 10]}
+		);
+
+		// An odd-length array is not a point list.
+
+		expect(stroke).toMatchObject({points: [0, 0, 10, 10]});
+
+		// A border can be absent (zero), never inverted.
+
+		expect(patchOverlay(SHAPE, {borderWidth: -4})).toMatchObject({
+			borderWidth: 0,
+		});
+	});
+
+	it('types the patch against the kind at narrowed call sites', () => {
+		const typed = patchFor(SHAPE);
+
+		expect(typed({width: 500})).toEqual({width: 500});
+
+		// @ts-expect-error a shape has no `text`; the compiler is the
+		// first line of defence, the whitelist the second.
+
+		typed({text: 'nope'});
 	});
 
 	it('returns the same reference when nothing changes', () => {

@@ -81,6 +81,14 @@ editor mints carries an instance prefix, so two editors on the same page
 keep their labels, descriptions, radio groups and SVG filter references
 to themselves.
 
+The usage contract, stated once: the editor is one modal session per
+image (`image` identifies the session; swapping it remounts), the locale
+is page-level configuration (`translations` is read at mount), and the
+host supplies Clay's `ClayTooltipProvider` if it wants tooltips, exactly
+as the portal already does. Several editors can be mounted at once: ids,
+announcements, focus handoffs and the undo shortcut are all
+instance-scoped.
+
 Localization is injectable and typed: every string goes through
 `t(key: TranslationKey, ...)`, where the key type is derived from the
 bundled English catalogue, so a component cannot ask for a string that
