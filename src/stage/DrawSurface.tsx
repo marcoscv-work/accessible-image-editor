@@ -34,6 +34,7 @@ function DrawAnchor({x, y, zoom}: {x: number; y: number; zoom: number}) {
 				r={6 / zoom}
 				strokeWidth={4 / zoom}
 			/>
+
 			<circle
 				className="editor-draw-anchor"
 				r={6 / zoom}
@@ -123,25 +124,31 @@ export function DrawSurface({
 
 	const surfaceRef = useRef<SVGRectElement>(null);
 
-	const gesture = useRef<{
+	const gestureRef = useRef<{
 		capturing: boolean;
 		last: [number, number];
 		startCount: number;
-	} | null>(
-		null
-	);
+	} | null>(null);
 
 	// The mode begins on the surface, where every key already works.
 
+	// The announcement belongs to the mode's opening, not to any later
+	// change of the announcer's identity: the ref makes the effect
+	// run-once under its full dependency list.
+
+	const openedRef = useRef(false);
+
 	useEffect(() => {
+		if (openedRef.current) {
+			return;
+		}
+
+		openedRef.current = true;
+
 		surfaceRef.current?.focus({preventScroll: true});
 
 		onAnnounce(t(guided ? 'draw-guided-start' : 'draw-started'));
-
-		// The announcement belongs to the mode's opening, not to any
-		// later change of the announcer's identity.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [guided, onAnnounce]);
 
 	const toImage = (event: React.PointerEvent): [number, number] => {
 		const box = surfaceRef.current!.getBoundingClientRect();
@@ -181,11 +188,15 @@ export function DrawSurface({
 
 		const [x, y] = toImage(event);
 
-		gesture.current = {capturing: false, last: [x, y], startCount: points.length};
+		gestureRef.current = {
+			capturing: false,
+			last: [x, y],
+			startCount: points.length,
+		};
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<SVGRectElement>) => {
-		const active = gesture.current;
+		const active = gestureRef.current;
 
 		if (!active) {
 			return;
@@ -224,13 +235,13 @@ export function DrawSurface({
 	};
 
 	const handlePointerCancel = () => {
-		const active = gesture.current;
+		const active = gestureRef.current;
 
 		if (!active) {
 			return;
 		}
 
-		gesture.current = null;
+		gestureRef.current = null;
 
 		if (active.capturing) {
 
@@ -244,13 +255,13 @@ export function DrawSurface({
 	};
 
 	const handlePointerUp = (event: React.PointerEvent<SVGRectElement>) => {
-		const active = gesture.current;
+		const active = gestureRef.current;
 
 		if (!active) {
 			return;
 		}
 
-		gesture.current = null;
+		gestureRef.current = null;
 
 		const [x, y] = toImage(event);
 
@@ -259,10 +270,7 @@ export function DrawSurface({
 			// A freehand gesture is one stroke: simplified once, at a
 			// tolerance measured on screen, and committed on release.
 
-			finish(
-				simplifyPoints([...points, x, y], 1.5 / zoom),
-				true
-			);
+			finish(simplifyPoints([...points, x, y], 1.5 / zoom), true);
 
 			return;
 		}
@@ -285,7 +293,12 @@ export function DrawSurface({
 		setCursor({x: Math.round(x), y: Math.round(y)});
 
 		onAnnounce(
-			t('draw-point-added', points.length / 2 + 1, Math.round(x), Math.round(y))
+			t(
+				'draw-point-added',
+				points.length / 2 + 1,
+				Math.round(x),
+				Math.round(y)
+			)
 		);
 	};
 
@@ -480,10 +493,7 @@ export function DrawSurface({
 	const preview = guided
 		? guide.stage === 'end'
 			? Math.hypot(cursor.x - start.x, cursor.y - start.y) >= 1
-				? pointsToPath(
-						[start.x, start.y, cursor.x, cursor.y],
-						false
-					)
+				? pointsToPath([start.x, start.y, cursor.x, cursor.y], false)
 				: ''
 			: pointsToPath(
 					[
@@ -541,20 +551,23 @@ export function DrawSurface({
 			)}
 
 			{/*
-			  * The keyboard cursor: a crosshair that never grows or
-			  * shrinks with the zoom, drawn last so it rides above the
-			  * preview.
-			  */}
+			 * The keyboard cursor: a crosshair that never grows or
+			 * shrinks with the zoom, drawn last so it rides above the
+			 * preview.
+			 */}
+
 			<g
 				className="editor-draw-cursor"
 				pointerEvents="none"
 				transform={`translate(${cursor.x} ${cursor.y})`}
 			>
+
 				{/*
-				  * Two passes, like every indicator on the stage: a white
-				  * halo under the accent, so the cross reads on stone and
-				  * on sky alike, at any zoom.
-				  */}
+				 * Two passes, like every indicator on the stage: a white
+				 * halo under the accent, so the cross reads on stone and
+				 * on sky alike, at any zoom.
+				 */}
+
 				{[
 					{name: 'editor-draw-cursor-halo', width: 5},
 					{name: 'editor-draw-cursor-line', width: 2},
@@ -567,6 +580,7 @@ export function DrawSurface({
 							y1={0}
 							y2={0}
 						/>
+
 						<line
 							strokeWidth={width / zoom}
 							x1={0}

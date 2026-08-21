@@ -1,5 +1,13 @@
 # Migration Plan: Portal Module
 
+**STATUS: EXECUTED.** Branch `LPD-102667` in the portal worktree carries
+the full series (skeleton, lang + buildLang, core, chrome/hooks,
+stage/panels, annotations, editor root, sample portlet, playwright
+project: 10 commits, each green in isolation). This document remains as
+the plan of record; the standalone now tracks the portal's
+rule-compliant rewrites (hooks without eslint-disables, effect-synced
+refs) so the two stay line-for-line comparable.
+
 How the accessible image editor becomes a Liferay portal module, following
 the patterns the portal already uses. Reference modules studied:
 `frontend-js-charts-web` (library + jest + scss + Language.get),

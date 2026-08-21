@@ -106,7 +106,9 @@ export function useEditorHistory(
 
 	const undoRef = useRef({redo, undo});
 
-	undoRef.current = {redo, undo};
+	useEffect(() => {
+		undoRef.current = {redo, undo};
+	});
 
 	// The React handler above only hears keys pressed inside the editor.
 	// Focus can still escape it for a moment, and the undo someone
@@ -128,6 +130,8 @@ export function useEditorHistory(
 		// physically contains an event owns the net before any bubble
 		// phase document listener asks whose stray key it was.
 
+		let claimed: HTMLElement | null = null;
+
 		const claim = (event: Event) => {
 			const node = editorRef.current;
 
@@ -136,6 +140,7 @@ export function useEditorHistory(
 				event.target instanceof Node &&
 				node.contains(event.target)
 			) {
+				claimed = node;
 				lastActiveEditor = node;
 			}
 		};
@@ -187,13 +192,11 @@ export function useEditorHistory(
 			document.removeEventListener('keydown', claim, true);
 			document.removeEventListener('keydown', catchStray);
 
-			// Reading the ref at cleanup time is the point here: the
-			// node did not exist when the effect ran (the modal renders
-			// its children a commit later), and the net must be released
-			// for whatever node this editor ended up being.
+			// The net is released for whatever node this editor claimed
+			// during its life; the claim listeners tracked it so the
+			// cleanup does not have to consult the ref.
 
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			if (lastActiveEditor === editorRef.current) {
+			if (claimed && lastActiveEditor === claimed) {
 				lastActiveEditor = null;
 			}
 		};

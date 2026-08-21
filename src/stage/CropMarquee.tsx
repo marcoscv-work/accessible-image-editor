@@ -33,9 +33,7 @@ const HANDLES: Array<{direction: HandleDirection; edges: Edges}> = [
 	{direction: 'w', edges: {left: true}},
 ];
 
-const CORNER_HANDLES = HANDLES.filter(
-	({direction}) => direction.length === 2
-);
+const CORNER_HANDLES = HANDLES.filter(({direction}) => direction.length === 2);
 
 const MOVE_EDGES: Edges = {};
 
@@ -175,6 +173,7 @@ interface Props {
 	 * must sit above the whole-area move rect (or it swallows their
 	 * pointer events) but below the handles.
 	 */
+
 	/**
 	 * Size of the rotated image, so the marquee knows whether the crop
 	 * is a real selection (and worth offering the recenter control).
@@ -189,16 +188,16 @@ interface Props {
 	onCenterCrop: () => void;
 
 	/**
-	 * False once the view already frames the crop, so the control does
-	 * not offer an action that would change nothing.
-	 */
-	showRecenter: boolean;
-
-	/**
 	 * The crop chrome (marquee, handles, recenter) is only rendered when
 	 * the crop section is enabled; the children still are.
 	 */
 	showCrop: boolean;
+
+	/**
+	 * False once the view already frames the crop, so the control does
+	 * not offer an action that would change nothing.
+	 */
+	showRecenter: boolean;
 
 	/**
 	 * CSS pixels per SVG user unit, used to keep handle hit targets at
@@ -223,7 +222,9 @@ export function CropMarquee({
 
 	const cropRef = useRef(crop);
 
-	cropRef.current = crop;
+	useEffect(() => {
+		cropRef.current = crop;
+	});
 
 	const [focused, setFocused] = useState<{
 		key: string;
@@ -247,19 +248,19 @@ export function CropMarquee({
 	 * modality: hiding a focused control would drop focus to the body, so
 	 * it is handed to the crop area instead.
 	 */
-	const recenterHasFocus = useRef(false);
+	const recenterHasFocusRef = useRef(false);
 
 	useEffect(() => {
-		if (!showRecenter && recenterHasFocus.current) {
-			recenterHasFocus.current = false;
+		if (!showRecenter && recenterHasFocusRef.current) {
+			recenterHasFocusRef.current = false;
 
 			moveRef.current?.focus();
 		}
 	}, [showRecenter]);
 
-	const keyboardGesture = useRef(false);
+	const keyboardGestureRef = useRef(false);
 
-	const pointerGesture = useRef<{
+	const pointerGestureRef = useRef<{
 		crop: CropRect;
 		startX: number;
 		startY: number;
@@ -281,44 +282,44 @@ export function CropMarquee({
 
 	const handleKeyDown =
 		(edges: Edges, focusKey: string) => (event: React.KeyboardEvent) => {
-		const delta = arrowDelta(event.key);
+			const delta = arrowDelta(event.key);
 
-		if (!delta) {
-			return;
-		}
+			if (!delta) {
+				return;
+			}
 
-		event.preventDefault();
-		event.stopPropagation();
+			event.preventDefault();
+			event.stopPropagation();
 
-		const step = event.shiftKey ? 10 : 1;
+			const step = event.shiftKey ? 10 : 1;
 
-		keyboardGesture.current = true;
+			keyboardGestureRef.current = true;
 
-		setGesturing(true);
+			setGesturing(true);
 
-		// Arrow keys are keyboard interaction even after a mouse focus:
-		// surface the full ring.
+			// Arrow keys are keyboard interaction even after a mouse focus:
+			// surface the full ring.
 
-		setFocused({key: focusKey, modality: 'keyboard'});
+			setFocused({key: focusKey, modality: 'keyboard'});
 
-		dispatch({
-			crop: adjustCrop(
-				cropRef.current,
-				edges,
-				delta[0] * step,
-				delta[1] * step
-			),
-			transient: true,
-			type: 'set-crop',
-		});
-	};
+			dispatch({
+				crop: adjustCrop(
+					cropRef.current,
+					edges,
+					delta[0] * step,
+					delta[1] * step
+				),
+				transient: true,
+				type: 'set-crop',
+			});
+		};
 
 	const handleKeyUp = (event: React.KeyboardEvent) => {
-		if (!arrowDelta(event.key) || !keyboardGesture.current) {
+		if (!arrowDelta(event.key) || !keyboardGestureRef.current) {
 			return;
 		}
 
-		keyboardGesture.current = false;
+		keyboardGestureRef.current = false;
 
 		setGesturing(false);
 
@@ -332,7 +333,7 @@ export function CropMarquee({
 
 		setGesturing(true);
 
-		pointerGesture.current = {
+		pointerGestureRef.current = {
 			crop: cropRef.current,
 			startX: event.clientX,
 			startY: event.clientY,
@@ -341,7 +342,7 @@ export function CropMarquee({
 
 	const handlePointerMove =
 		(edges: Edges) => (event: React.PointerEvent<SVGElement>) => {
-			const gesture = pointerGesture.current;
+			const gesture = pointerGestureRef.current;
 
 			if (!gesture) {
 				return;
@@ -365,11 +366,11 @@ export function CropMarquee({
 		};
 
 	const handlePointerUp = () => {
-		if (!pointerGesture.current) {
+		if (!pointerGestureRef.current) {
 			return;
 		}
 
-		pointerGesture.current = null;
+		pointerGestureRef.current = null;
 
 		setGesturing(false);
 
@@ -383,11 +384,11 @@ export function CropMarquee({
 	// already cleared and does nothing.
 
 	const handlePointerCancel = () => {
-		if (!pointerGesture.current) {
+		if (!pointerGestureRef.current) {
 			return;
 		}
 
-		pointerGesture.current = null;
+		pointerGestureRef.current = null;
 
 		setGesturing(false);
 
@@ -415,40 +416,42 @@ export function CropMarquee({
 
 	return (
 		<g>
-			<desc id={eid('crop-area-description')}>{t('crop-area-description')}</desc>
+			<desc id={eid('crop-area-description')}>
+				{t('crop-area-description')}
+			</desc>
 
 			<desc id={eid('crop-handle-description')}>
 				{t('crop-handle-description')}
 			</desc>
 
 			<g
-					className={
-						gesturing ? 'crop-grid crop-grid-visible' : 'crop-grid'
-					}
-					pointerEvents="none"
-				>
-					{[1, 2].map((step) => (
-						<line
-							key={`v-${step}`}
-							strokeWidth={gridWidth}
-							x1={crop.x + (crop.width * step) / 3}
-							x2={crop.x + (crop.width * step) / 3}
-							y1={crop.y}
-							y2={crop.y + crop.height}
-						/>
-					))}
+				className={
+					gesturing ? 'crop-grid crop-grid-visible' : 'crop-grid'
+				}
+				pointerEvents="none"
+			>
+				{[1, 2].map((step) => (
+					<line
+						key={`v-${step}`}
+						strokeWidth={gridWidth}
+						x1={crop.x + (crop.width * step) / 3}
+						x2={crop.x + (crop.width * step) / 3}
+						y1={crop.y}
+						y2={crop.y + crop.height}
+					/>
+				))}
 
-					{[1, 2].map((step) => (
-						<line
-							key={`h-${step}`}
-							strokeWidth={gridWidth}
-							x1={crop.x}
-							x2={crop.x + crop.width}
-							y1={crop.y + (crop.height * step) / 3}
-							y2={crop.y + (crop.height * step) / 3}
-						/>
-					))}
-				</g>
+				{[1, 2].map((step) => (
+					<line
+						key={`h-${step}`}
+						strokeWidth={gridWidth}
+						x1={crop.x}
+						x2={crop.x + crop.width}
+						y1={crop.y + (crop.height * step) / 3}
+						y2={crop.y + (crop.height * step) / 3}
+					/>
+				))}
+			</g>
 
 			<rect
 				aria-describedby={eid('crop-area-description')}
@@ -507,139 +510,140 @@ export function CropMarquee({
 				y={crop.y}
 			/>
 
-
 			{showRecenter &&
-				(crop.width < bounds.width ||
-					crop.height < bounds.height) && (
-				<g
-					className={
-						recenterFocused
-							? 'crop-recenter crop-recenter-focused'
-							: 'crop-recenter'
-					}
-					onBlur={() => {
-						recenterHasFocus.current = false;
-
-						setRecenterFocused(false);
-					}}
-					onClick={onCenterCrop}
-					onFocus={(event) => {
-						recenterHasFocus.current = true;
-
-						setRecenterFocused(
-							matchesFocusVisible(event.currentTarget)
-						);
-					}}
-					onKeyDown={(event: React.KeyboardEvent) => {
-						if (event.key === 'Enter' || event.key === ' ') {
-							event.preventDefault();
-							onCenterCrop();
+				(crop.width < bounds.width || crop.height < bounds.height) && (
+					<g
+						className={
+							recenterFocused
+								? 'crop-recenter crop-recenter-focused'
+								: 'crop-recenter'
 						}
-					}}
-					role="button"
-					tabIndex={0}
-				>
-					<title>{t('center-crop')}</title>
+						onBlur={() => {
+							recenterHasFocusRef.current = false;
 
-					<circle
-						className="crop-recenter-disc"
-						cx={crop.x + crop.width / 2}
-						cy={crop.y + crop.height / 2}
-						r={16 / zoom}
-					/>
+							setRecenterFocused(false);
+						}}
+						onClick={onCenterCrop}
+						onFocus={(event) => {
+							recenterHasFocusRef.current = true;
 
-					<use
-						className="crop-recenter-icon"
-						height={18 / zoom}
-						href={`${spritemap}#autosize`}
-						width={18 / zoom}
-						x={crop.x + crop.width / 2 - 9 / zoom}
-						y={crop.y + crop.height / 2 - 9 / zoom}
-					/>
+							setRecenterFocused(
+								matchesFocusVisible(event.currentTarget)
+							);
+						}}
+						onKeyDown={(event: React.KeyboardEvent) => {
+							if (event.key === 'Enter' || event.key === ' ') {
+								event.preventDefault();
+								onCenterCrop();
+							}
+						}}
+						role="button"
+						tabIndex={0}
+					>
+						<title>{t('center-crop')}</title>
 
-					{/*
-					  * The same ring as every other control on the stage.
-					  * A CSS stroke here would be measured in image units
-					  * and thin out with the zoom: at 55% the old 3px ring
-					  * drew at 1.65px, which is what made a focused
-					  * control look unfocused.
-					  */}
-					{recenterFocused && (
-						<FocusRing
-							bounds={{
-								height: 32 / zoom,
-								width: 32 / zoom,
-								x: crop.x + crop.width / 2 - 16 / zoom,
-								y: crop.y + crop.height / 2 - 16 / zoom,
-							}}
-							shape="circle"
-							zoom={zoom}
-						/>
-					)}
-					</g>
-				)}
-
-
-			{(aspectLocked ? CORNER_HANDLES : HANDLES).map(
-				({direction, edges}) => {
-				const position = handlePosition(crop, direction);
-
-				return (
-					<g key={direction}>
 						<circle
-							className="crop-handle-visual"
-							cx={position.x}
-							cy={position.y}
-							pointerEvents="none"
-							r={visualRadius}
-							strokeWidth={strokeWidth}
+							className="crop-recenter-disc"
+							cx={crop.x + crop.width / 2}
+							cy={crop.y + crop.height / 2}
+							r={16 / zoom}
 						/>
 
-						{focused?.key === direction && (
+						<use
+							className="crop-recenter-icon"
+							height={18 / zoom}
+							href={`${spritemap}#autosize`}
+							width={18 / zoom}
+							x={crop.x + crop.width / 2 - 9 / zoom}
+							y={crop.y + crop.height / 2 - 9 / zoom}
+						/>
+
+						{/*
+						 * The same ring as every other control on the stage.
+						 * A CSS stroke here would be measured in image units
+						 * and thin out with the zoom: at 55% the old 3px ring
+						 * drew at 1.65px, which is what made a focused
+						 * control look unfocused.
+						 */}
+
+						{recenterFocused && (
 							<FocusRing
 								bounds={{
-									height: hitRadius * 2,
-									width: hitRadius * 2,
-									x: position.x - hitRadius,
-									y: position.y - hitRadius,
+									height: 32 / zoom,
+									width: 32 / zoom,
+									x: crop.x + crop.width / 2 - 16 / zoom,
+									y: crop.y + crop.height / 2 - 16 / zoom,
 								}}
-								emphasis={focused.modality}
 								shape="circle"
 								zoom={zoom}
 							/>
 						)}
-
-						<circle
-							aria-describedby={eid('crop-handle-description')}
-							aria-label={t(`crop-handle-${direction}`)}
-							className="crop-handle"
-							cx={position.x}
-							cy={position.y}
-							fill="transparent"
-							onBlur={() => setFocused(null)}
-							onFocus={(event) =>
-								setFocused({
-									key: direction,
-									modality: matchesFocusVisible(
-										event.currentTarget
-									)
-										? 'keyboard'
-										: 'pointer',
-								})
-							}
-							onKeyDown={handleKeyDown(edges, direction)}
-							onKeyUp={handleKeyUp}
-							onPointerCancel={handlePointerCancel}
-							onPointerDown={handlePointerDown}
-							onPointerMove={handlePointerMove(edges)}
-				onPointerUp={handlePointerUp}
-							r={hitRadius}
-							role="button"
-							tabIndex={0}
-						/>
 					</g>
-				);
-			})}
+				)}
+
+			{(aspectLocked ? CORNER_HANDLES : HANDLES).map(
+				({direction, edges}) => {
+					const position = handlePosition(crop, direction);
+
+					return (
+						<g key={direction}>
+							<circle
+								className="crop-handle-visual"
+								cx={position.x}
+								cy={position.y}
+								pointerEvents="none"
+								r={visualRadius}
+								strokeWidth={strokeWidth}
+							/>
+
+							{focused?.key === direction && (
+								<FocusRing
+									bounds={{
+										height: hitRadius * 2,
+										width: hitRadius * 2,
+										x: position.x - hitRadius,
+										y: position.y - hitRadius,
+									}}
+									emphasis={focused.modality}
+									shape="circle"
+									zoom={zoom}
+								/>
+							)}
+
+							<circle
+								aria-describedby={eid(
+									'crop-handle-description'
+								)}
+								aria-label={t(`crop-handle-${direction}`)}
+								className="crop-handle"
+								cx={position.x}
+								cy={position.y}
+								fill="transparent"
+								onBlur={() => setFocused(null)}
+								onFocus={(event) =>
+									setFocused({
+										key: direction,
+										modality: matchesFocusVisible(
+											event.currentTarget
+										)
+											? 'keyboard'
+											: 'pointer',
+									})
+								}
+								onKeyDown={handleKeyDown(edges, direction)}
+								onKeyUp={handleKeyUp}
+								onPointerCancel={handlePointerCancel}
+								onPointerDown={handlePointerDown}
+								onPointerMove={handlePointerMove(edges)}
+								onPointerUp={handlePointerUp}
+								r={hitRadius}
+								role="button"
+								tabIndex={0}
+							/>
+						</g>
+					);
+				}
+			)}
 		</g>
 	);
 }

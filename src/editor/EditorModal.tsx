@@ -4,13 +4,7 @@
  */
 
 import ClayModal, {useModal} from '@clayui/modal';
-import React, {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 import {useAnnouncer} from '../chrome/Announcer';
 import {BottomBar} from '../chrome/BottomBar';
@@ -30,10 +24,7 @@ import {t} from '../i18n';
 import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
 import {Workspace} from '../stage/Workspace';
-import {
-	redoLabel,
-	undoLabel,
-} from '../state/editorReducer';
+import {redoLabel, undoLabel} from '../state/editorReducer';
 import {nextId} from '../state/ids';
 import {CropRect, EditState, rotatedSize} from '../state/types';
 
@@ -62,6 +53,7 @@ function fitZoom(
 	height: number,
 	max = 1
 ): number {
+
 	/*
 	 * The workspace scrolls on both axes at all times (see the
 	 * stylesheet), so this measurement is the same before and after the
@@ -102,6 +94,12 @@ export interface EditorSaveResult {
 }
 
 interface Props {
+
+	/**
+	 * Which editing blocks and tools to expose; anything omitted keeps
+	 * its default, so `{}` is the complete editor.
+	 */
+	config?: EditorConfig;
 	image: LoadedImage;
 	onClose: () => void;
 
@@ -117,15 +115,10 @@ interface Props {
 		result: EditorSaveResult,
 		signal: AbortSignal
 	) => Promise<void> | void;
-
-	/**
-	 * Which editing blocks and tools to expose; anything omitted keeps
-	 * its default, so `{}` is the complete editor.
-	 */
-	config?: EditorConfig;
 }
 
 export default function EditorModal({config, image, onClose, onSave}: Props) {
+
 	// Stable across renders, so the galleries below can skip re-rendering
 	// their cards while a crop is being dragged.
 
@@ -182,7 +175,9 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		closeModal
 	);
 
-	savingRef.current = saving;
+	useEffect(() => {
+		savingRef.current = saving;
+	});
 
 	// While the save promise is pending, the editable surface goes
 	// inert: a change made after the snapshot was exported would be
@@ -245,7 +240,9 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 	 */
 	const autoFitRef = useRef(true);
 
-	const finishDrawing = (result: {points: number[]; smooth: boolean} | null) => {
+	const finishDrawing = (
+		result: {points: number[]; smooth: boolean} | null
+	) => {
 		setDrawing(null);
 
 		if (!result) {
@@ -270,10 +267,11 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 				color: '#0b5fff',
 				id,
 				kind: 'stroke',
-				points: result.points.map((value, index) =>
-					Math.round(
-						(value - (index % 2 === 0 ? minX : minY)) * 10
-					) / 10
+				points: result.points.map(
+					(value, index) =>
+						Math.round(
+							(value - (index % 2 === 0 ? minX : minY)) * 10
+						) / 10
 				),
 				smooth: result.smooth,
 				width: Math.max(
@@ -288,7 +286,12 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 			type: 'add-overlay',
 		});
 
-		announce(t('x-added-to-the-center-of-the-crop-area', t('overlay-stroke-label')));
+		announce(
+			t(
+				'x-added-to-the-center-of-the-crop-area',
+				t('overlay-stroke-label')
+			)
+		);
 
 		window.setTimeout(() => {
 			(editorRef.current ?? document)
@@ -299,7 +302,9 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	const stageBoundsRef = useRef(rotatedSize(state));
 
-	stageBoundsRef.current = rotatedSize(state);
+	useEffect(() => {
+		stageBoundsRef.current = rotatedSize(state);
+	});
 
 	useEffect(() => {
 		announce(t('editor-loaded', image.width, image.height));
@@ -313,35 +318,32 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-	const handleWorkspaceRef = useCallback(
-		(element: HTMLDivElement | null) => {
-			resizeObserverRef.current?.disconnect();
-			resizeObserverRef.current = null;
+	const handleWorkspaceRef = useCallback((element: HTMLDivElement | null) => {
+		resizeObserverRef.current?.disconnect();
+		resizeObserverRef.current = null;
 
-			workspaceRef.current = element;
+		workspaceRef.current = element;
 
-			if (!element) {
-				return;
+		if (!element) {
+			return;
+		}
+
+		const observer = new ResizeObserver(() => {
+			if (autoFitRef.current) {
+				setZoom(
+					fitZoom(
+						element,
+						stageBoundsRef.current.width,
+						stageBoundsRef.current.height
+					)
+				);
 			}
+		});
 
-			const observer = new ResizeObserver(() => {
-				if (autoFitRef.current) {
-					setZoom(
-						fitZoom(
-							element,
-							stageBoundsRef.current.width,
-							stageBoundsRef.current.height
-						)
-					);
-				}
-			});
+		observer.observe(element);
 
-			observer.observe(element);
-
-			resizeObserverRef.current = observer;
-		},
-		[]
-	);
+		resizeObserverRef.current = observer;
+	}, []);
 
 	// When the first annotation appears, the Layers panel materializes
 	// below the fold: bring the Annotate title to the top of the sidebar
@@ -358,13 +360,13 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 	const sidebarRef = useRef<HTMLElement>(null);
 
-	const previousOverlayCount = useRef(0);
+	const previousOverlayCountRef = useRef(0);
 
 	useEffect(() => {
 		const first =
-			previousOverlayCount.current === 0 && state.overlays.length > 0;
+			previousOverlayCountRef.current === 0 && !!state.overlays.length;
 
-		previousOverlayCount.current = state.overlays.length;
+		previousOverlayCountRef.current = state.overlays.length;
 
 		if (!first) {
 			return;
@@ -514,11 +516,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 		const bounds = rotatedSize(state);
 
-		const next = fitZoom(
-			workspaceRef.current,
-			bounds.width,
-			bounds.height
-		);
+		const next = fitZoom(workspaceRef.current, bounds.width, bounds.height);
 
 		setZoom(next);
 		announce(t('zoom-level', Math.round(next * 100)));
@@ -597,12 +595,7 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 
 		const {crop} = state;
 
-		const next = fitZoom(
-			element,
-			crop.width,
-			crop.height,
-			MAX_ZOOM
-		);
+		const next = fitZoom(element, crop.width, crop.height, MAX_ZOOM);
 
 		if (next === zoom) {
 			scrollCropToCenter(crop, next);
@@ -618,117 +611,121 @@ export default function EditorModal({config, image, onClose, onSave}: Props) {
 		announce(t('crop-centered', Math.round(next * 100)));
 	};
 
-
-
-
 	return (
 		<EditorInstanceProvider value={instancePrefix}>
 			<EditorRootProvider value={editorRef}>
-			<ClayModal
-				className="image-editor-modal"
-				observer={observer}
-				size="full-screen"
-			>
-				<ClayModal.Header closeButtonAriaLabel={t('close')} withTitle>
-					{t('editing-image')}
-				</ClayModal.Header>
-
-				<div
-					className="image-editor"
-					onKeyDown={handleUndoShortcut}
-					ref={editorRef}
+				<ClayModal
+					className="image-editor-modal"
+					observer={observer}
+					size="full-screen"
 				>
-					<div className="editor-main">
-						<Workspace
-							aspectLocked={aspectLocked}
+					<ClayModal.Header
+						closeButtonAriaLabel={t('close')}
+						withTitle
+					>
+						{t('editing-image')}
+					</ClayModal.Header>
+
+					<div
+						className="image-editor"
+						onKeyDown={handleUndoShortcut}
+						ref={editorRef}
+					>
+						<div className="editor-main">
+							<Workspace
+								aspectLocked={aspectLocked}
+								dispatch={dispatch}
+								drawing={Boolean(drawing)}
+								guidedDrawing={drawing?.guided}
+								image={image}
+								multiSelectedIds={multiSelectedIds}
+								onAnnounce={announce}
+								onCenterCrop={centerCrop}
+								onCopyOverlay={copyOverlay}
+								onFinishDrawing={finishDrawing}
+								onMultiSelectToggle={toggleMultiSelect}
+								onPasteOverlay={pasteOverlay}
+								onSelectOverlay={selectOverlay}
+								onWorkspacePointerLeave={
+									handleWorkspacePointerLeave
+								}
+								onWorkspacePointerMove={
+									handleWorkspacePointerMove
+								}
+								onWorkspaceScroll={() => {
+									if (programmaticScrollRef.current) {
+										programmaticScrollRef.current = false;
+									}
+									else {
+										setCropFramed(false);
+									}
+								}}
+								onZoom={zoomBy}
+								onZoomActual={zoomToActual}
+								onZoomFit={zoomToFit}
+								proportional={layerProportional}
+								selectedOverlayId={selectedOverlayId}
+								showCrop={enabled.crop.enabled}
+								showRecenter={!cropFramed}
+								state={state}
+								workspaceRef={handleWorkspaceRef}
+								zoom={zoom}
+							/>
+
+							<EditorSidebar
+								aspectLocked={aspectLocked}
+								dispatch={dispatch}
+								enabled={enabled}
+								image={image}
+								multiSelectedIds={multiSelectedIds}
+								onAnnounce={announce}
+								onAspectLockedChange={setAspectLocked}
+								onProportionalChange={setLayerProportional}
+								onSelectOverlay={selectOverlay}
+								onStartDrawing={(via) =>
+									setDrawing({guided: via === 'keyboard'})
+								}
+								proportional={layerProportional}
+								selectedOverlayId={selectedOverlayId}
+								sidebarRef={sidebarRef}
+								state={state}
+							/>
+						</div>
+
+						{saveError && (
+							<div
+								className="alert alert-danger editor-save-error"
+								role="alert"
+							>
+								{t('save-failed')}
+							</div>
+						)}
+
+						<BottomBar
+							canRedo={!!redoLabel(history)}
+							canUndo={!!undoLabel(history)}
 							dispatch={dispatch}
-							drawing={Boolean(drawing)}
-							guidedDrawing={drawing?.guided}
-							image={image}
-							multiSelectedIds={multiSelectedIds}
 							onAnnounce={announce}
-							onCenterCrop={centerCrop}
-							onCopyOverlay={copyOverlay}
-							onFinishDrawing={finishDrawing}
-							onMultiSelectToggle={toggleMultiSelect}
-							onPasteOverlay={pasteOverlay}
-							onSelectOverlay={selectOverlay}
-							onWorkspacePointerLeave={handleWorkspacePointerLeave}
-							onWorkspacePointerMove={handleWorkspacePointerMove}
-							onWorkspaceScroll={() => {
-								if (programmaticScrollRef.current) {
-									programmaticScrollRef.current = false;
-								}
-								else {
-									setCropFramed(false);
-								}
-							}}
+							onCancel={closeModal}
+							onRedo={redo}
+							onSave={handleSave}
+							onShowShortcuts={() => setShortcutsOpen(true)}
+							onUndo={undo}
 							onZoom={zoomBy}
-							onZoomActual={zoomToActual}
 							onZoomFit={zoomToFit}
-							proportional={layerProportional}
-							selectedOverlayId={selectedOverlayId}
-							showCrop={enabled.crop.enabled}
-							showRecenter={!cropFramed}
-							state={state}
-							workspaceRef={handleWorkspaceRef}
+							ratio={state.ratio}
+							ratios={enabled.crop.ratios}
+							saving={saving}
+							showRotate={enabled.crop.rotate}
 							zoom={zoom}
 						/>
-
-						<EditorSidebar
-							aspectLocked={aspectLocked}
-							dispatch={dispatch}
-							enabled={enabled}
-							image={image}
-							multiSelectedIds={multiSelectedIds}
-							onAnnounce={announce}
-							onAspectLockedChange={setAspectLocked}
-							onProportionalChange={setLayerProportional}
-							onSelectOverlay={selectOverlay}
-							onStartDrawing={(via) =>
-								setDrawing({guided: via === 'keyboard'})
-							}
-							proportional={layerProportional}
-							selectedOverlayId={selectedOverlayId}
-							sidebarRef={sidebarRef}
-							state={state}
-						/>
 					</div>
+				</ClayModal>
 
-					{saveError && (
-						<div
-							className="alert alert-danger editor-save-error"
-							role="alert"
-						>
-							{t('save-failed')}
-						</div>
-					)}
-
-					<BottomBar
-						canRedo={!!redoLabel(history)}
-						canUndo={!!undoLabel(history)}
-						dispatch={dispatch}
-						onAnnounce={announce}
-						onCancel={closeModal}
-						onRedo={redo}
-						onSave={handleSave}
-						onShowShortcuts={() => setShortcutsOpen(true)}
-						onUndo={undo}
-						onZoom={zoomBy}
-						onZoomFit={zoomToFit}
-						ratio={state.ratio}
-						ratios={enabled.crop.ratios}
-						saving={saving}
-						showRotate={enabled.crop.rotate}
-						zoom={zoom}
-					/>
-				</div>
-			</ClayModal>
-
-			<ShortcutsDialog
-				onOpenChange={setShortcutsOpen}
-				open={shortcutsOpen}
-			/>
+				<ShortcutsDialog
+					onOpenChange={setShortcutsOpen}
+					open={shortcutsOpen}
+				/>
 			</EditorRootProvider>
 		</EditorInstanceProvider>
 	);

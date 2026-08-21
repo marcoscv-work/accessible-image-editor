@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import {t} from '../i18n';
 import {Overlay} from '../state/types';
@@ -78,18 +78,26 @@ export function useOverlaySelection(
 		setSelectedOverlayId(id);
 	};
 
+	// Only when the selection changes does the padlock reset: it is the
+	// reader's to set once they are on a layer. The previous id is
+	// tracked so the effect can run under its full dependency list and
+	// still leave the padlock alone while the same layer merely updates.
+
+	const previousSelectedIdRef = useRef<string | null>(null);
+
 	useEffect(() => {
+		if (previousSelectedIdRef.current === selectedOverlayId) {
+			return;
+		}
+
+		previousSelectedIdRef.current = selectedOverlayId;
+
 		const overlay = overlays.find(
 			(candidate) => candidate.id === selectedOverlayId
 		);
 
 		setLayerProportional(overlay?.kind === 'image');
-
-		// Only when the selection changes: the padlock is the reader's to
-		// set once they are on a layer.
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedOverlayId]);
+	}, [overlays, selectedOverlayId]);
 
 	return {
 		layerProportional,
