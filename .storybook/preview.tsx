@@ -5,7 +5,6 @@
 
 import '@clayui/css/lib/css/atlas.css';
 
-import '../src/styles.css';
 
 import type {Preview} from '@storybook/react-vite';
 
