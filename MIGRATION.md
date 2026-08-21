@@ -41,8 +41,13 @@ charts module pins). Nothing exotic enters the yarn workspace.
 
 ## 2. Source mapping and renames
 
-Portal convention: snake_case directories per area under `js/`,
-PascalCase component files, shared code in area-neutral folders.
+PREPAID (the `Migration prep:` series, `951edf9..40f4ea7`): the
+standalone already uses the module's exact layout, so the mapping is now
+1:1 directory copies: `src/<area>/` → `js/<area>/` for `editor`,
+`stage`, `panels`, `annotations`, `chrome`, `hooks`, `state`, `imaging`,
+`i18n`, plus the root `ImageEditor.tsx`, `index.ts` and
+`editorConfig.ts`. The table below documents where everything came from
+originally; it no longer describes work.
 
 | Standalone | Portal module (`.../resources/js/`) |
 | --- | --- |
@@ -92,14 +97,11 @@ Portal-native mechanism, preserving the typed catalogue:
 
 ## 4. CSS
 
-`src/styles.css` (one file today) splits into scss partials under
-`css/`, imported from the components that own them, the way
-`BarChart.tsx` does `import '../../css/BarChart.scss'`:
-
-- `ImageEditor.scss` (modal frame, workspace, bottom bar)
-- `Stage.scss` (marquee, focus rings, draw cursors)
-- `Panels.scss` (sections, galleries, sliders)
-- `Annotations.scss` (layers list, emoji popover, menus)
+PREPAID: `src/css/{ImageEditor,Stage,Panels,Annotations}.css` already
+exist, imported from their owner components exactly as `BarChart.tsx`
+does, and verified pixel-identical against the pre-split UI (capture
+md5s). What remains at port time is renaming `.css` → `.scss` and
+adjusting the import paths (scss is a css superset).
 
 The Atlas/Clay custom-property fallbacks we already use
 (`var(--cadmin-gray-300, ...)`) become plain admin tokens inside the
@@ -107,19 +109,14 @@ portal. The `.editor-*` class prefix stays (collision-safe and grep-able).
 
 ## 5. Unit tests (vitest → jest)
 
-Portal frontend testing is jest via `node-scripts test`, with the shared
-config picking up everything under `test/` mirroring `js/` subpaths
-(`.claude/rules/jest-testing.md`). Migration is mechanical:
-
-- Move `src/**/*.test.ts(x)` → `test/**` mirroring the new `js/` paths;
-  no colocated tests, no `__tests__`.
-- `import {describe, expect, it, vi} from 'vitest'` → jest globals;
-  `vi.fn/spyOn` → `jest.fn/spyOn`; add `import '@testing-library/jest-dom';`.
-- `src/test/setup.ts` (URL/ResizeObserver stubs + the console guard) →
-  `jest-setup.config.ts` declared in `package.json` `jest.setupFiles`.
-- `src/test/renderEditor.tsx` → `test/__lib__/renderEditor.tsx`
-  (`__lib__` is excluded from testMatch, made for helpers).
-- 171 tests move as they are; none depend on vitest-only APIs.
+PREPAID: the suite already lives in the portal's shape and runs green
+there: `test/` mirrors the source tree with no `.test` suffix, no
+vitest imports (globals), the `import '@testing-library/jest-dom';`
+side-effect per file, helpers in `test/__lib__/`, and the setup file is
+already named `jest-setup.config.ts`. What remains at port time is the
+runner itself: declare the `jest` block in the module's `package.json`
+and fix whatever the shared portal config surfaces (expected: little;
+the suite is jsdom-tuned and console-guarded).
 
 ## 6. Playwright (47 specs)
 
@@ -145,15 +142,16 @@ modules/test/playwright/tests/frontend-js-image-editor-web/
 
 Plus one line each in `playwright.config.ts` (import + project entry).
 
-Adaptation cost, the honest one: the specs today start at the demo shell
-(`page.goto('/')` + "Edit sample image"). In portal they start from a page
-holding the sample portlet: one shared helper (login via the repo's
-fixtures, provision a page with the sample portlet through apiHelpers,
-open the editor) replaces `openEditor()`, and the rest of each spec
-carries over: our selectors are already portal-proof (label-based,
-`[id$="-crop-width"]` suffix ids, `.editor-announcer`). The `?save=slow`
-and `?filters=...` URL knobs become sample-portlet preferences or query
-params read by `Sample.js`, same trick, different shell.
+Adaptation cost, the honest one (and the largest remaining item):
+PREPAID half: every spec now opens the editor through one shared
+`e2e/helpers.ts` (`openEditor`/`tabUntil`/`announcer`), so the portal
+swap rewrites exactly one function: login via the repo's fixtures,
+provision a page with the sample portlet through apiHelpers, open the
+editor. The specs' selectors are already portal-proof (label-based,
+`[id$="-crop-width"]` suffix ids, `.editor-announcer`). Still to do:
+that helper rewrite, regrouping specs into the functionality files
+above, and turning the `?save=slow` / `?filters=...` knobs into
+sample-portlet parameters read by `Sample.js`.
 
 ## 7. Commit series
 
@@ -217,10 +215,9 @@ rewrite risk.
 3. **React 18.2 vs 18.3.** RETIRED: the standalone now pins the
    workspace's exact `react@18.2.0`, and the full suite (the `inert`
    save-freeze spec included) runs green on it.
-4. **Spritemap.** In-portal the sample passes
-   `themeDisplay.getPathThemeSpritemap()`; the library keeps its
-   `spritemap` prop with no bundled default (the `@clayui/css` asset
-   import is vite-specific and demo-only today).
+4. **Spritemap.** RETIRED: the prop is now required with no bundled
+   default, and a boundary check wired into `npm run lint` guarantees
+   the library imports no assets, shell modules or vite-isms.
 5. **jest jsdom differences.** Our suite is jsdom-tuned already, but the
    portal pins its own jsdom; the console guard will surface anything.
 6. **Feature flag.** The two new modules ship dark (a sample-category
