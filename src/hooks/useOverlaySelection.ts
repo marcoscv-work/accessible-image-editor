@@ -5,8 +5,8 @@
 
 import {useEffect, useState} from 'react';
 
-import {t} from '../../i18n';
-import {Overlay} from '../../state/types';
+import {t} from '../i18n';
+import {Overlay} from '../state/types';
 
 /**
  * Which annotation is selected, which set moves together, and the

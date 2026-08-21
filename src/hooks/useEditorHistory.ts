@@ -5,15 +5,15 @@
 
 import React, {useEffect, useReducer, useRef} from 'react';
 
-import {ResolvedEditorConfig} from '../../editorConfig';
-import {t} from '../../i18n';
-import {LoadedImage} from '../../imaging/loadImage';
+import {ResolvedEditorConfig} from '../editorConfig';
+import {t} from '../i18n';
+import {LoadedImage} from '../imaging/loadImage';
 import {
 	editorReducer,
 	initialHistory,
 	redoLabel,
 	undoLabel,
-} from '../../state/editorReducer';
+} from '../state/editorReducer';
 
 /**
  * The editor whose undo net the document-level fallback belongs to right

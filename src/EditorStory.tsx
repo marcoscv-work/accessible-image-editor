@@ -10,7 +10,7 @@ import {useEffect, useState} from 'react';
 
 import {ImageEditor} from './ImageEditor';
 import sampleUrl from './assets/sample.jpg';
-import {watchOrphanTooltips} from './components/tooltips';
+import {watchOrphanTooltips} from './chrome/tooltips';
 import {EditorConfig} from './editorConfig';
 import {t} from './i18n';
 import {downloadBlob} from './imaging/exportImage';

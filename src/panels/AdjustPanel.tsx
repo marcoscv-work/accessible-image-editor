@@ -5,13 +5,13 @@
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {CommitSlider} from '../chrome/fields';
+import {useEditorId} from '../chrome/instance';
 import {AdjustmentKey} from '../editorConfig';
 import {TranslationKey, t} from '../i18n';
 import {EditorAction} from '../state/editorReducer';
 import {Adjustments} from '../state/types';
-import {EditorSection} from './EditorSection';
-import {CommitSlider} from './fields';
-import {useEditorId} from './instance';
 
 const SLIDERS: Array<{key: keyof Adjustments; labelKey: TranslationKey}> = [
 	{key: 'brightness', labelKey: 'brightness'},

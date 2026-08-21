@@ -5,14 +5,14 @@
 
 import {memo} from 'react';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {FilterDefs} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
-import {EditorSection} from './EditorSection';
 import {PresetGallery} from './PresetGallery';
-import {useEditorId} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;

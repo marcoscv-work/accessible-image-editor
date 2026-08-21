@@ -6,15 +6,15 @@
 import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 import {memo} from 'react';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {ColorField, CommitSlider} from '../chrome/fields';
+import {useEditorId} from '../chrome/instance';
 import {TranslationKey, t} from '../i18n';
 import {FrameShape} from '../imaging/frameShapes';
 import {LoadedImage} from '../imaging/loadImage';
 import {EditorAction} from '../state/editorReducer';
 import {Frame, FrameKind} from '../state/types';
-import {EditorSection} from './EditorSection';
 import {PresetGallery} from './PresetGallery';
-import {ColorField, CommitSlider} from './fields';
-import {useEditorId} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;

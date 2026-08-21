@@ -5,10 +5,10 @@
 
 import {useEffect, useRef, useState} from 'react';
 
-import {t} from '../../i18n';
-import {exportEditedImage} from '../../imaging/exportImage';
-import {LoadedImage} from '../../imaging/loadImage';
-import {EditState} from '../../state/types';
+import {t} from '../i18n';
+import {exportEditedImage} from '../imaging/exportImage';
+import {LoadedImage} from '../imaging/loadImage';
+import {EditState} from '../state/types';
 
 /**
  * The save contract's runtime: one active save, aborted if the editor

@@ -8,6 +8,8 @@ import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {Suspense, lazy, useRef, useState} from 'react';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {useEditorId, useEditorRoot} from '../chrome/instance';
 import {
 	AnnotateTool,
 	SHAPE_TOOLS,
@@ -20,10 +22,8 @@ import {textWidth} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {nextId} from '../state/ids';
 import {CropRect, Overlay} from '../state/types';
-import {EditorSection} from './EditorSection';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
-import {useEditorId, useEditorRoot} from './instance';
 
 /**
  * Loaded when the button is pressed, not when the editor is: the picker

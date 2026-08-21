@@ -7,22 +7,22 @@ import {act, fireEvent, screen, within} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useRef, useState} from 'react';
 
+import {
+	EditorInstanceProvider,
+	EditorRootProvider,
+} from '../chrome/instance';
 import {ANNOTATE_TOOLS} from '../editorConfig';
 import {FILTER_PRESETS} from '../imaging/FilterDefs';
 import {LoadedImage} from '../imaging/loadImage';
+import {FilterGallery} from '../panels/FilterGallery';
+import {Workspace} from '../stage/Workspace';
 import {
 	editorReducer,
 	initialHistory,
 } from '../state/editorReducer';
 import {renderEditor} from '../test/renderEditor';
 import {AnnotatePanel} from './AnnotatePanel';
-import {FilterGallery} from './FilterGallery';
 import {LayersPanel} from './LayersPanel';
-import {Workspace} from './Workspace';
-import {
-	EditorInstanceProvider,
-	EditorRootProvider,
-} from './instance';
 
 const IMAGE: LoadedImage = {
 	blob: new Blob(),

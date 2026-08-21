@@ -12,30 +12,30 @@ import React, {
 	useState,
 } from 'react';
 
+import {useAnnouncer} from '../chrome/Announcer';
+import {BottomBar} from '../chrome/BottomBar';
+import {EditorSidebar} from '../chrome/EditorSidebar';
+import {ShortcutsDialog} from '../chrome/ShortcutsDialog';
+import {
+	EditorInstanceProvider,
+	EditorRootProvider,
+	nextEditorInstancePrefix,
+} from '../chrome/instance';
 import {EditorConfig, resolveConfig} from '../editorConfig';
+import {useEditorHistory} from '../hooks/useEditorHistory';
+import {useOverlayClipboard} from '../hooks/useOverlayClipboard';
+import {useOverlaySelection} from '../hooks/useOverlaySelection';
+import {useSaveController} from '../hooks/useSaveController';
 import {t} from '../i18n';
 import {anchoredScroll} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
+import {Workspace} from '../stage/Workspace';
 import {
 	redoLabel,
 	undoLabel,
 } from '../state/editorReducer';
 import {nextId} from '../state/ids';
 import {CropRect, EditState, rotatedSize} from '../state/types';
-import {useAnnouncer} from './Announcer';
-import {BottomBar} from './BottomBar';
-import {EditorSidebar} from './EditorSidebar';
-import {ShortcutsDialog} from './ShortcutsDialog';
-import {Workspace} from './Workspace';
-import {useEditorHistory} from './hooks/useEditorHistory';
-import {useOverlayClipboard} from './hooks/useOverlayClipboard';
-import {useOverlaySelection} from './hooks/useOverlaySelection';
-import {useSaveController} from './hooks/useSaveController';
-import {
-	EditorInstanceProvider,
-	EditorRootProvider,
-	nextEditorInstancePrefix,
-} from './instance';
 
 const ZOOM_LEVELS = [0.05, 0.1, 0.15, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3];
 

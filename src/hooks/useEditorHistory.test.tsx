@@ -6,9 +6,9 @@
 import {fireEvent, screen} from '@testing-library/react';
 import {describe, expect, it} from 'vitest';
 
-import {resolveConfig} from '../../editorConfig';
-import {LoadedImage} from '../../imaging/loadImage';
-import {renderEditor} from '../../test/renderEditor';
+import {resolveConfig} from '../editorConfig';
+import {LoadedImage} from '../imaging/loadImage';
+import {renderEditor} from '../test/renderEditor';
 import {useEditorHistory} from './useEditorHistory';
 
 const IMAGE: LoadedImage = {

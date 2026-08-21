@@ -5,6 +5,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 
+import {useEditorId, useEditorRoot} from '../chrome/instance';
 import {t} from '../i18n';
 import {arrowDelta} from '../imaging/geometry';
 import {
@@ -20,7 +21,6 @@ import {EditorAction} from '../state/editorReducer';
 import {ArrowOverlay, Overlay, isBoxOverlay} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
 import {OverlayTextEditor} from './OverlayTextEditor';
-import {useEditorId, useEditorRoot} from './instance';
 
 import type {RedactSource} from '../imaging/overlayShapes';
 

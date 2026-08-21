@@ -7,14 +7,14 @@ import {fireEvent, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
+import {BottomBar} from '../chrome/BottomBar';
 import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../editorConfig';
 import {LoadedImage} from '../imaging/loadImage';
+import {AdjustPanel} from '../panels/AdjustPanel';
+import {CropPanel} from '../panels/CropPanel';
 import {editorReducer, initialHistory} from '../state/editorReducer';
 import {rotatedSize} from '../state/types';
 import {renderEditor} from '../test/renderEditor';
-import {AdjustPanel} from './AdjustPanel';
-import {BottomBar} from './BottomBar';
-import {CropPanel} from './CropPanel';
 import {Workspace} from './Workspace';
 
 const IMAGE: LoadedImage = {

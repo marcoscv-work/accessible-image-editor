@@ -7,8 +7,8 @@ import bundledSpritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {ClayIconSpriteContext} from '@clayui/icon';
 import {useState} from 'react';
 
-import {AnnouncerProvider} from './components/Announcer';
-import EditorModal, {EditorSaveResult} from './components/EditorModal';
+import {AnnouncerProvider} from './chrome/Announcer';
+import EditorModal, {EditorSaveResult} from './editor/EditorModal';
 import {EditorConfig} from './editorConfig';
 import {EditorMessages, setMessages} from './i18n';
 import {LoadedImage} from './imaging/loadImage';

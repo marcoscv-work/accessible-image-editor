@@ -5,17 +5,17 @@
 
 import React from 'react';
 
+import {AnnotatePanel} from '../annotations/AnnotatePanel';
+import {LayersPanel} from '../annotations/LayersPanel';
 import {ResolvedEditorConfig} from '../editorConfig';
 import {t} from '../i18n';
 import {LoadedImage} from '../imaging/loadImage';
+import {AdjustPanel} from '../panels/AdjustPanel';
+import {CropPanel} from '../panels/CropPanel';
+import {FilterGallery} from '../panels/FilterGallery';
+import {FramePanel} from '../panels/FramePanel';
 import {EditorAction} from '../state/editorReducer';
 import {EditState, rotatedSize} from '../state/types';
-import {AdjustPanel} from './AdjustPanel';
-import {AnnotatePanel} from './AnnotatePanel';
-import {CropPanel} from './CropPanel';
-import {FilterGallery} from './FilterGallery';
-import {FramePanel} from './FramePanel';
-import {LayersPanel} from './LayersPanel';
 
 interface Props {
 

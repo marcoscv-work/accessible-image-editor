@@ -8,11 +8,11 @@ import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import ClayModal, {useModal} from '@clayui/modal';
 import React, {useEffect, useRef, useState} from 'react';
 
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {nextId} from '../state/ids';
 import {TextOverlay} from '../state/types';
-import {FONT_FAMILIES} from '../textFonts';
-import {useEditorId} from './instance';
+import {FONT_FAMILIES} from './textFonts';
 
 interface TextDialogProps {
 	onAdd: (overlay: Omit<TextOverlay, 'x' | 'y'>) => void;

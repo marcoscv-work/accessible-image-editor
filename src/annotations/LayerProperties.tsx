@@ -6,6 +6,8 @@
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClaySelectWithOption} from '@clayui/form';
 
+import {BorderField, ColorField, NumberField, TextField} from '../chrome/fields';
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {DEFAULT_BORDER_COLOR, overlayLabel} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
@@ -22,9 +24,7 @@ import {
 
 	isBoxOverlay,
 } from '../state/types';
-import {FONT_FAMILIES} from '../textFonts';
-import {BorderField, ColorField, NumberField, TextField} from './fields';
-import {useEditorId} from './instance';
+import {FONT_FAMILIES} from './textFonts';
 
 interface LayerPropertiesProps {
 	dispatch: (action: EditorAction) => void;

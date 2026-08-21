@@ -5,6 +5,7 @@
 
 import React from 'react';
 
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {FilterDefs, isIdentityFilter} from '../imaging/FilterDefs';
 import {FrameShape} from '../imaging/frameShapes';
@@ -15,7 +16,6 @@ import {EditState, rotatedSize} from '../state/types';
 import {CropMarquee} from './CropMarquee';
 import {DrawSurface} from './DrawSurface';
 import {OverlaysEditable} from './OverlaysEditable';
-import {useEditorId} from './instance';
 
 interface Props {
 

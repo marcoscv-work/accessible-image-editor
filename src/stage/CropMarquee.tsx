@@ -6,12 +6,12 @@
 import {ClayIconSpriteContext} from '@clayui/icon';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {arrowDelta} from '../imaging/geometry';
 import {EditorAction} from '../state/editorReducer';
 import {CropRect} from '../state/types';
 import {FocusModality, FocusRing, matchesFocusVisible} from './FocusRing';
-import {useEditorId} from './instance';
 
 type HandleDirection = 'e' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w';
 

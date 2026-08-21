@@ -5,11 +5,11 @@
 
 import {useRef} from 'react';
 
-import {t} from '../../i18n';
-import {overlayLabel} from '../../imaging/overlayShapes';
-import {EditorAction} from '../../state/editorReducer';
-import {nextId} from '../../state/ids';
-import {EditState, Overlay} from '../../state/types';
+import {t} from '../i18n';
+import {overlayLabel} from '../imaging/overlayShapes';
+import {EditorAction} from '../state/editorReducer';
+import {nextId} from '../state/ids';
+import {EditState, Overlay} from '../state/types';
 
 /**
  * The editor-internal clipboard: copy takes a snapshot of the annotation,

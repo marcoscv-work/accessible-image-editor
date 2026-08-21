@@ -8,11 +8,11 @@ import ClayForm, {ClayInput} from '@clayui/form';
 import ClaySlider from '@clayui/slider';
 import React, {useEffect, useRef, useState} from 'react';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {useEditorId} from '../chrome/instance';
 import {TranslationKey, t} from '../i18n';
 import {EditorAction, clampCrop} from '../state/editorReducer';
 import {CropRect} from '../state/types';
-import {EditorSection} from './EditorSection';
-import {useEditorId} from './instance';
 
 interface Props {
 	angle: number;

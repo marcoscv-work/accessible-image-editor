@@ -6,9 +6,9 @@
 import {ClayInput} from '@clayui/form';
 import React, {useMemo, useRef, useState} from 'react';
 
-import {EMOJI, EmojiEntry} from '../emojiData';
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
-import {useEditorId} from './instance';
+import {EMOJI, EmojiEntry} from './emojiData';
 
 const COLUMNS = 8;
 

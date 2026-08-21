@@ -6,13 +6,13 @@
 import {ClayButtonWithIcon} from '@clayui/button';
 import React, {useEffect, useRef, useState} from 'react';
 
+import {EditorSection} from '../chrome/EditorSection';
+import {useEditorId, useEditorRoot} from '../chrome/instance';
 import {t} from '../i18n';
 import {overlayLabel} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {Overlay} from '../state/types';
-import {EditorSection} from './EditorSection';
 import {LayerProperties} from './LayerProperties';
-import {useEditorId, useEditorRoot} from './instance';
 
 interface Props {
 	dispatch: (action: EditorAction) => void;

@@ -10,7 +10,7 @@ import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useRef, useState} from 'react';
 
 import sampleUrl from './assets/sample.jpg';
-import {watchOrphanTooltips} from './components/tooltips';
+import {watchOrphanTooltips} from './chrome/tooltips';
 import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
 import {downloadBlob} from './imaging/exportImage';

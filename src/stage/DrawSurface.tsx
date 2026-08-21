@@ -5,10 +5,10 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 
+import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
 import {pointsToPath, simplifyPoints} from '../imaging/strokeGeometry';
 import {CropRect} from '../state/types';
-import {useEditorId} from './instance';
 
 /**
  * How far a pointer has to travel, in screen pixels, before a press is a
