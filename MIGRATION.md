@@ -213,9 +213,9 @@ rewrite risk.
 2. **`Liferay.Language.get` substitution.** The generated dictionary
    assumes literal replacement works in a node-scripts library build;
    verify on the first deploy (a raw key on screen = it did not).
-3. **React 18.2 vs 18.3.** The `inert` freeze during save relies on the
-   attribute passing through; verify against the workspace-pinned react
-   and fall back to `ref`-set attribute if 18.2 drops it.
+3. **React 18.2 vs 18.3.** RETIRED: the standalone now pins the
+   workspace's exact `react@18.2.0`, and the full suite (the `inert`
+   save-freeze spec included) runs green on it.
 4. **Spritemap.** In-portal the sample passes
    `themeDisplay.getPathThemeSpritemap()`; the library keeps its
    `spritemap` prop with no bundled default (the `@clayui/css` asset
