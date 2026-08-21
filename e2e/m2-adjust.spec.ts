@@ -4,7 +4,8 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import {Page, expect, test} from '@playwright/test';
+import {expect, test} from '@playwright/test';
+import {tabUntil} from './helpers';
 
 /**
  * Keyboard-only adjustment journey: sliders are operated with arrow keys,
@@ -12,32 +13,6 @@ import {Page, expect, test} from '@playwright/test';
  * (shadows/highlights, the deliberately hard adjustment) materializes as a
  * declarative table transfer function.
  */
-
-async function tabUntil(page: Page, target: string): Promise<void> {
-	for (let i = 0; i < 60; i++) {
-		const label = await page.evaluate(() => {
-			const active = document.activeElement;
-
-			return (
-				active?.getAttribute('aria-label') ||
-				active?.id ||
-				active?.textContent?.trim() ||
-				''
-			);
-		});
-
-		if (label === target || label.endsWith(`-${target}`)) {
-
-			// Ids carry the editor's instance prefix; labels do not.
-
-			return;
-		}
-
-		await page.keyboard.press('Tab');
-	}
-
-	throw new Error(`Never reached element labelled "${target}"`);
-}
 
 test('keyboard-only adjustments journey', async ({page}) => {
 	await page.goto('/');

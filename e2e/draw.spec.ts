@@ -4,7 +4,8 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import {Page, expect, test} from '@playwright/test';
+import {expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * Drawing. The gesture is the one input WCAG exempts as path-dependent,
@@ -13,14 +14,6 @@ import {Page, expect, test} from '@playwright/test';
  * same parametric stroke that every later operation treats like any
  * other layer.
  */
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
 
 test('a freehand drag becomes a stroke layer', async ({page}) => {
 	await openEditor(page);

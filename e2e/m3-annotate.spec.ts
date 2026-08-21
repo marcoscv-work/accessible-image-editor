@@ -4,39 +4,14 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import {Page, expect, test} from '@playwright/test';
+import {expect, test} from '@playwright/test';
+import {tabUntil} from './helpers';
 
 /**
  * Keyboard-only annotation journey: add an emoji and a text overlay, move
  * them as focusable SVG nodes, pick a filter preset, manage layers in the
  * listbox, and save with everything composited into the export.
  */
-
-async function tabUntil(page: Page, target: string): Promise<void> {
-	for (let i = 0; i < 80; i++) {
-		const label = await page.evaluate(() => {
-			const active = document.activeElement;
-
-			return (
-				active?.getAttribute('aria-label') ||
-				active?.id ||
-				active?.textContent?.trim() ||
-				''
-			);
-		});
-
-		if (label === target || label.endsWith(`-${target}`)) {
-
-			// Ids carry the editor's instance prefix; labels do not.
-
-			return;
-		}
-
-		await page.keyboard.press('Tab');
-	}
-
-	throw new Error(`Never reached element labelled "${target}"`);
-}
 
 test('keyboard-only annotation journey', async ({page}) => {
 	await page.goto('/');

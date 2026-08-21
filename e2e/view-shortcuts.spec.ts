@@ -4,6 +4,7 @@
  */
 
 import {Page, expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * The view keys, which read as the view menu of any editor: fit, actual
@@ -21,14 +22,6 @@ function zoomPercent(page: Page): Promise<number> {
 					100
 			)
 		);
-}
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
 }
 
 test('0 fits, 1 goes to actual size, 2 frames the crop', async ({page}) => {

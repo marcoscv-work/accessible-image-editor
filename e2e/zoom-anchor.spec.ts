@@ -4,19 +4,12 @@
  */
 
 import {Page, expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * A zoom step holds one point of the image still: the one under the pointer
  * while it is over the stage, and the centre of the view otherwise.
  */
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-	await page.waitForTimeout(600);
-}
 
 /**
  * Which fraction of the image sits under a client point, so the assertion

@@ -5,20 +5,13 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import {Locator, Page, expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * The shapes sit behind one menu rather than a button each, and the arrow
  * is the one annotation that is not a box: it is placed by its two ends,
  * by pointer or by field, and it has a head that can be solid or open.
  */
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
 
 async function addShape(page: Page, shape: string) {
 	await page.getByRole('button', {exact: true, name: 'Add shape'}).click();

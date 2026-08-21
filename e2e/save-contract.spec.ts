@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Page, expect, test} from '@playwright/test';
+import {expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * AIE-003: saving is a contract with the host, not a download. The demo
@@ -11,16 +12,8 @@ import {Page, expect, test} from '@playwright/test';
  * and the slow path can be exercised deterministically.
  */
 
-async function openEditor(page: Page, search = '') {
-	await page.goto(`/${search}`);
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
-
 test('a rejected save keeps the editor open and says why', async ({page}) => {
-	await openEditor(page, '?save=fail');
+	await openEditor(page, {search: '?save=fail'});
 
 	await page.getByRole('button', {exact: true, name: 'Save'}).click();
 
@@ -41,7 +34,7 @@ test('a rejected save keeps the editor open and says why', async ({page}) => {
 test('a slow save freezes the surface while it runs, then closes', async ({
 	page,
 }) => {
-	await openEditor(page, '?save=slow');
+	await openEditor(page, {search: '?save=slow'});
 
 	// An edit before saving, so there is something an in-flight undo
 	// could corrupt.

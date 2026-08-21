@@ -4,6 +4,7 @@
  */
 
 import {Page, expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 import {readFile} from 'fs/promises';
 
 /**
@@ -14,14 +15,6 @@ import {readFile} from 'fs/promises';
  * the picture itself rather than from a prepared mosaic, and the
  * rasteriser runs in a mode that refuses `blob:` subresources.
  */
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
 
 /**
  * Two measurements over a rectangle of an image, in its own pixels: how

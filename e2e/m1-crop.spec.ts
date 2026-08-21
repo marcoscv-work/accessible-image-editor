@@ -5,38 +5,13 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import {Page, expect, test} from '@playwright/test';
+import {tabUntil} from './helpers';
 
 /**
  * The whole journey is keyboard-only: no mouse events are synthesized at
  * any point. Movement between controls uses Tab, activation uses Enter or
  * Space, and spatial edits use the arrow keys.
  */
-
-async function tabUntil(page: Page, ariaLabel: string): Promise<void> {
-	for (let i = 0; i < 80; i++) {
-		const label = await page.evaluate(() => {
-			const active = document.activeElement;
-
-			return (
-				active?.getAttribute('aria-label') ||
-				active?.id ||
-				active?.textContent?.trim() ||
-				''
-			);
-		});
-
-		if (label === ariaLabel || label.endsWith(`-${ariaLabel}`)) {
-
-			// Ids carry the editor's instance prefix; labels do not.
-
-			return;
-		}
-
-		await page.keyboard.press('Tab');
-	}
-
-	throw new Error(`Never reached element labelled "${ariaLabel}"`);
-}
 
 async function expectNoAxeViolations(page: Page): Promise<void> {
 	const results = await new AxeBuilder({page}).analyze();

@@ -4,7 +4,8 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import {Locator, Page, expect, test} from '@playwright/test';
+import {Locator, expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * In the stacked layout the sidebar sits under the workspace, and the
@@ -13,13 +14,6 @@ import {Locator, Page, expect, test} from '@playwright/test';
  */
 
 test.use({viewport: {height: 820, width: 400}});
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
 
 /**
  * One row, wider than the viewport, that the arrows page through.

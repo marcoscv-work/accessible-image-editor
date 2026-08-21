@@ -4,21 +4,14 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import {Page, expect, test} from '@playwright/test';
+import {expect, test} from '@playwright/test';
+import {openEditor} from './helpers';
 
 /**
  * The emoji picker: the whole Unicode set as characters, drawn by the
  * platform's own font, offered as a curated page of commons and reached in
  * full through the search. No artwork is bundled, which is the point.
  */
-
-async function openEditor(page: Page) {
-	await page.goto('/');
-
-	await page.getByRole('button', {name: 'Edit sample image'}).click();
-
-	await expect(page.locator('.modal')).toHaveCSS('opacity', '1');
-}
 
 test('opens on a curated page and reaches everything by search', async ({
 	page,
