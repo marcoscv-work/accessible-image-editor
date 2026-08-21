@@ -1,0 +1,208 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+/* The demo shell's landing page. Not part of the editor component. */
+
+.landing {
+	align-items: center;
+	background:
+		radial-gradient(
+			38rem 24rem at 8% -10%,
+			rgba(11, 95, 255, 0.14) 0%,
+			transparent 62%
+		),
+		radial-gradient(
+			32rem 20rem at 96% 6%,
+			rgba(140, 90, 255, 0.12) 0%,
+			transparent 60%
+		),
+		#fff;
+	display: flex;
+	justify-content: center;
+	min-height: 100vh;
+	padding: clamp(1.5rem, 5vw, 4rem);
+	transition: background-color 0.15s ease-out;
+}
+
+.landing.is-dropping {
+	background-color: #f1f5ff;
+}
+
+.landing-shell {
+	align-items: stretch;
+	display: flex;
+	flex-direction: column;
+	gap: clamp(1.5rem, 3vw, 2.5rem);
+	max-width: 68rem;
+	width: 100%;
+}
+
+@media (max-width: 55.9375rem) {
+	.landing-preview {
+			max-height: min(40vh, 18rem);
+		}
+
+	.landing-preview img {
+			height: 100%;
+			object-fit: cover;
+		}
+}
+
+@media (min-width: 56rem) {
+	.landing-shell {
+			flex-direction: row;
+		}
+
+	.landing-intro {
+			flex: 0 1 auto;
+		}
+
+	.landing-preview {
+			flex: 1 1 0;
+			min-width: 0;
+		}
+
+	/*
+		 * The photograph matches the height of the text beside it instead of
+		 * keeping its own: side by side, a short landscape crop next to a tall
+		 * column reads as an afterthought.
+		 */
+	
+		.landing-preview img {
+			height: 100%;
+			object-fit: cover;
+		}
+}
+
+.landing-eyebrow {
+	color: #0b5fff;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	margin-bottom: 0.75rem;
+	text-transform: uppercase;
+}
+
+.landing h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	margin: 0;
+}
+
+.landing-lead {
+	color: #6b6c7e;
+	font-size: 1.125rem;
+	margin: 1rem 0 0;
+	max-width: 32rem;
+}
+
+.landing-open {
+	margin-top: 1.75rem;
+	max-width: 100%;
+	width: fit-content;
+}
+
+.landing-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.landing-actions .btn {
+	flex: 1 1 auto;
+}
+
+.landing-dropzone {
+	align-items: center;
+	background: rgba(255, 255, 255, 0.6);
+	border: 2px dashed #cdced9;
+	border-radius: 0.75rem;
+	color: #6b6c7e;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-top: 1.25rem;
+	padding: 1.5rem 1rem;
+	text-align: center;
+	transition: background-color 0.15s ease-out, border-color 0.15s ease-out,
+		transform 0.15s ease-out;
+}
+
+.landing-dropzone:hover {
+	background: #fff;
+	border-color: #0b5fff;
+	color: #393a4a;
+}
+
+.landing-dropzone-icon {
+	align-items: center;
+	background: #e0eaff;
+	border-radius: 50%;
+	color: #0b5fff;
+	display: flex;
+	height: 2.25rem;
+	justify-content: center;
+	margin-bottom: 0.25rem;
+	transition: transform 0.15s ease-out;
+	width: 2.25rem;
+}
+
+.landing-dropzone-title {
+	color: #393a4a;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.landing-dropzone-hint {
+	font-size: 0.8125rem;
+	margin: 0;
+}
+
+.landing.is-dropping .landing-dropzone {
+	background: #fff;
+	border-color: #0b5fff;
+	border-style: solid;
+	transform: scale(1.02);
+}
+
+.landing.is-dropping .landing-dropzone-icon {
+	transform: translateY(0.125rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.landing-dropzone,
+		.landing-dropzone-icon {
+			transition: none;
+		}
+
+	.landing.is-dropping .landing-dropzone,
+		.landing.is-dropping .landing-dropzone-icon {
+			transform: none;
+		}
+}
+
+.landing-preview {
+	border: 1px solid #e7e7ed;
+	border-radius: 0.75rem;
+	box-shadow: 0 16px 32px -8px rgba(39, 40, 51, 0.18);
+	display: flex;
+	margin: 0;
+	overflow: hidden;
+}
+
+.landing-preview img {
+	display: block;
+	height: auto;
+	width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.landing {
+			transition: none;
+		}
+}

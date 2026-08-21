@@ -41,7 +41,7 @@ const ZOOM_LEVELS = [0.05, 0.1, 0.15, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3];
 
 /**
  * The stage padding around the image inside the workspace (see
- * .editor-stage in styles.css), counted on both sides.
+ * .editor-stage in css/Stage.css), counted on both sides.
  */
 const STAGE_PADDING = 48;
 

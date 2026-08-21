@@ -1,0 +1,325 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+/* Sidebar */
+
+.editor-sidebar {
+	background: var(--editor-surface);
+	border-left: 1px solid var(--editor-border);
+	display: flex;
+	flex-direction: column;
+	overflow: auto;
+	padding: 1rem;
+	width: 280px;
+}
+
+/*
+ * Collapsible sections (ClayPanel, unstyled): flat rows separated by a
+ * rule, with the disclosure button spanning the full width.
+ */
+
+.editor-panel {
+	border: 0;
+	border-bottom: 1px solid var(--editor-border);
+	border-radius: 0;
+	margin-bottom: 0;
+}
+
+.editor-panel:last-of-type {
+	border-bottom: 0;
+}
+
+/*
+ * Symmetric padding: Atlas centers the collapse chevron on the header's
+ * box, so an uneven padding would offset the title from the icon.
+ */
+
+.editor-panel .panel-header {
+	align-items: center;
+	border: 0;
+	display: flex;
+	justify-content: space-between;
+	padding: 0.75rem 0;
+	width: 100%;
+}
+
+.editor-panel .panel-header:hover {
+	color: var(--editor-accent-text);
+}
+
+.editor-panel .panel-body {
+	border: 0;
+	padding: 0 0 1rem;
+}
+
+.editor-panel-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 0.25rem;
+}
+
+.editor-panel-title {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	margin-bottom: 0;
+	text-transform: uppercase;
+}
+
+/*
+ * Clay has no small variant of the range input (no `clay-range-sm`), so
+ * the compact look is scoped here: a thinner track and a smaller painted
+ * thumb.
+ *
+ * The pointer target is not the painted dot: the transparent
+ * `input[type="range"]` spans the full width and keeps a 24px height, so
+ * the whole band is draggable and clickable. The dot is decorative, which
+ * is why it can be smaller than the minimum target size.
+ */
+
+.editor-panel .clay-range-input .form-control-range {
+	height: 1.5rem;
+}
+
+.editor-panel .clay-range-input .clay-range-track,
+.editor-panel .clay-range-input .clay-range-progress {
+	height: 2px;
+	margin-top: -1px;
+}
+
+.editor-panel .clay-range-input .clay-range-thumb {
+	height: 0.875rem;
+	pointer-events: none;
+	right: -0.4375rem;
+	top: 0.375rem;
+	width: 0.875rem;
+}
+
+.editor-slider-row {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.editor-slider-row label {
+	flex: 1;
+	margin-bottom: 0;
+}
+
+.editor-slider-value {
+	font-variant-numeric: tabular-nums;
+	min-width: 2.25rem;
+	text-align: right;
+}
+
+/*
+ * The gutter is as wide as the padlock that sits in it: 24px for the
+ * button plus the 4px either side of it in the size row. That way the two
+ * columns of this grid land exactly where the width and height fields do,
+ * and every row of a panel shares the same two edges.
+ */
+
+.editor-panel-grid {
+	display: grid;
+	gap: 0 1rem;
+	grid-template-columns: 1fr 1fr;
+}
+
+.editor-aspect-lock {
+	align-self: flex-end;
+	margin-bottom: 0.625rem;
+}
+
+.editor-aspect-lock[aria-pressed='true'] {
+	color: var(--editor-accent-text);
+}
+
+.editor-ratio-label {
+	margin-bottom: 0;
+}
+
+.editor-ratio-select {
+	width: auto;
+}
+
+/*
+ * Preset galleries, filters and frames: a two-column card grid. The radio input stays in the DOM and
+ * in the tab order (screen-reader visible, visually hidden), so the cards
+ * keep the radio-group semantics; selection is conveyed by a ring and a
+ * check badge, never by colour alone.
+ */
+
+.editor-preset-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 1fr 1fr;
+}
+
+.editor-preset-option {
+	padding: 0;
+}
+
+.editor-preset-label {
+	cursor: pointer;
+	display: block;
+	margin: 0;
+	text-align: center;
+}
+
+.editor-preset-card {
+	border: 2px solid var(--editor-border);
+	border-radius: 4px;
+	display: block;
+	overflow: hidden;
+	position: relative;
+}
+
+.editor-preset-thumb {
+	display: block;
+	height: auto;
+	width: 100%;
+}
+
+.editor-preset-name {
+	display: block;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.editor-preset-input:checked ~ .editor-preset-label .editor-preset-card {
+	border-color: var(--primary, #0b5fff);
+}
+
+.editor-preset-input:checked ~ .editor-preset-label .editor-preset-name {
+	color: var(--editor-accent-text);
+	font-weight: 600;
+}
+
+/* A check badge, so the selected card does not rely on colour alone. */
+
+.editor-preset-input:checked ~ .editor-preset-label .editor-preset-card::after {
+	background: var(--primary, #0b5fff);
+	border-radius: 50%;
+	color: #fff;
+	content: '\2713';
+	font-size: 0.625rem;
+	height: 1rem;
+	line-height: 1rem;
+	position: absolute;
+	right: 0.25rem;
+	text-align: center;
+	top: 0.25rem;
+	width: 1rem;
+}
+
+.editor-preset-input:focus-visible ~ .editor-preset-label .editor-preset-card {
+	outline: 2px solid var(--primary, #0b5fff);
+	outline-offset: 2px;
+}
+
+/*
+ * A colour control is a swatch, not a field: it takes the width it needs
+ * and leaves the rest of the cell alone. `p-0` in the markup lets the
+ * colour fill it rather than sit inside a frame of padding.
+ */
+
+/*
+ * Qualified enough to outrank `.form-group-sm .form-control`, which is
+ * where Clay's padding comes from: the swatch shows the colour rather
+ * than a frame around it.
+ */
+
+input.editor-color-input.form-control {
+	min-width: 2.5rem;
+	padding: 0;
+	width: 2.5rem;
+}
+
+/*
+ * The height belongs to the size of control it sits with: the panels use
+ * the small variant, the add-text dialog the regular one, and a swatch
+ * that keeps one fixed height overflows the other.
+ */
+
+input.editor-color-input.form-control-sm {
+	height: 1.9375rem;
+}
+
+.input-group input.editor-color-input.form-control {
+	align-self: stretch;
+	height: auto;
+}
+
+input.editor-color-input.editor-color-fill.form-control {
+	width: 100%;
+}
+
+.editor-panel-subtitle {
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+}
+
+/* Carousel: a track that scrolls sideways in the stacked layout */
+
+.editor-carousel {
+	align-items: center;
+	display: flex;
+	gap: 0.25rem;
+}
+
+.editor-carousel-track {
+	flex: 1;
+	min-width: 0;
+}
+
+.editor-carousel-arrow {
+	flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+	.editor-sidebar {
+			border-left: 0;
+			border-top: 1px solid var(--editor-border);
+			max-height: 45%;
+			width: 100%;
+		}
+
+	/*
+		 * Stacked layout: every carousel track runs in one swipeable row with
+		 * snap points, and the arrows page through it.
+		 */
+	
+		/*
+		 * No scrollbar: the arrows already carry the affordance (they disable
+		 * at either end), the last card is cut off mid-card, and a touch
+		 * scrollbar is an overlay that fades on its own. It would only spend
+		 * vertical space in a sidebar that is 45% of the screen here.
+		 */
+	
+		.editor-carousel-track {
+			display: flex;
+			flex-wrap: nowrap;
+			grid-template-columns: none;
+			overflow-x: auto;
+			scroll-snap-type: x proximity;
+			scrollbar-width: none;
+		}
+
+	.editor-carousel-track::-webkit-scrollbar {
+			display: none;
+		}
+
+	.editor-carousel-track > * {
+			scroll-snap-align: start;
+		}
+
+	.editor-preset-option {
+			flex: 0 0 6rem;
+		}
+}

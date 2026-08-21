@@ -1,0 +1,475 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+/* The same row inside the two-column properties grid, spanning it. */
+
+.editor-layer-size-row {
+	grid-column: 1 / -1;
+}
+
+/* Annotate */
+
+/*
+ * A lattice, not a wrap: equal columns sized by what a tile needs, two of
+ * them in the sidebar, so the five tools read as a tidy two-by-two block
+ * with the fifth starting the next row.
+ */
+
+.editor-annotate-actions {
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+}
+
+/*
+ * The tools as tiles: Clay's icon over one word, equal widths, wrapping
+ * to a second row when the sidebar is narrow. A row of five text buttons
+ * is a wall; five pictures with names are a toolbox.
+ */
+
+/*
+ * Horizontal: the icon leads and the word follows, reading like a row of
+ * labelled entries rather than a wall of buttons.
+ */
+
+.editor-tool-tile {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-start;
+	padding: 0.5rem 0.75rem;
+	width: 100%;
+}
+
+/*
+ * Two of the tools are dropdown triggers, and Clay wraps a trigger in a
+ * `div.dropdown` of its own: that wrapper is the grid cell, so the tile
+ * inside has to fill it or the lattice shows holes.
+ */
+
+.editor-annotate-actions .dropdown {
+	display: flex;
+}
+
+.editor-tool-tile .lexicon-icon {
+	font-size: 1rem;
+	margin: 0;
+}
+
+.editor-tool-tile-label {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	line-height: 1;
+}
+
+/*
+ * The caret that marks a tile as a menu, on the trailing edge where every
+ * dropdown puts it.
+ */
+
+.editor-tool-tile .editor-tool-tile-caret {
+	font-size: 0.625rem;
+	margin-left: auto;
+	opacity: 0.6;
+}
+
+/* Layers */
+
+.editor-layer-list {
+	border: 1px solid var(--editor-border);
+	border-radius: 4px;
+	margin: 0 0 0.75rem;
+	max-height: 12rem;
+	overflow: auto;
+	padding: 0;
+}
+
+.editor-layer-item {
+	align-items: center;
+	background: var(--editor-surface);
+	display: flex;
+	position: relative;
+}
+
+/*
+ * A group member wears the full selected dress, not a tinted name: the
+ * point of the highlight is reading WHICH layers move together, and text
+ * has to stay text wherever the highlight lands.
+ */
+
+.editor-layer-item-grouped,
+.editor-layer-item-selected {
+	background: var(--primary, #0b5fff);
+}
+
+.editor-layer-item-grouped .editor-layer-actions .btn,
+.editor-layer-item-grouped .editor-layer-name,
+.editor-layer-item-selected .editor-layer-actions .btn,
+.editor-layer-item-selected .editor-layer-name {
+	color: #fff;
+}
+
+.editor-layer-name {
+	background: none;
+	border: 0;
+
+	/*
+	 * A bare button does not inherit its colour, so without this the name
+	 * kept the user agent's black and vanished on a dark surface.
+	 */
+
+	color: inherit;
+	flex: 1;
+	overflow: hidden;
+	padding: 0.375rem 0.75rem;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/*
+ * Focus is signalled on the whole row (the name button's own outline
+ * would be clipped by the actions overlay): a two-tone inset ring on a
+ * pseudo-element painted above the row content, visible against both the
+ * white and the selected primary backgrounds.
+ */
+
+.editor-layer-name:focus-visible {
+	outline: none;
+}
+
+.editor-layer-item::after {
+	content: '';
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+}
+
+.editor-layer-item:focus-within::after {
+	box-shadow:
+		inset 0 0 0 2px #fff,
+		inset 0 0 0 4px var(--primary, #0b5fff);
+}
+
+/*
+ * Per-row actions reveal on hover or keyboard focus. They overlay the
+ * right edge of the row (no reserved width, so the layer name is never
+ * truncated by hidden controls) with the row background inherited to
+ * cover the text underneath; they stay in the tab order while hidden.
+ */
+
+.editor-layer-actions {
+	align-items: center;
+	background: inherit;
+	bottom: 0;
+	display: flex;
+	opacity: 0;
+	padding: 0 0.25rem;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.editor-layer-item:focus-within .editor-layer-actions,
+.editor-layer-item:hover .editor-layer-actions {
+	opacity: 1;
+}
+
+.editor-layer-properties {
+	margin-top: 0.75rem;
+}
+
+/* The drawing pickers */
+
+/*
+ * A picker of drawings: a shape is recognised faster than it is read, so
+ * the cell is the drawing and the name is its label and its tooltip. The popover is sized by the grid rather than by the menu's
+ * usual minimum, which exists for rows of text.
+ */
+
+/*
+ * Clay pins a dropdown to `min-width: 240px; max-width: 240px` with
+ * `overflow: auto`, which is right for a column of text and wrong for a
+ * grid: a row wider than 240 was overflowing sideways and the last cell of
+ * every row sat under the scrollbar. Both classes are needed to win, since
+ * Clay's stylesheet is loaded after this one, and the narrow-screen rule it
+ * carries (230px under 768) has to lose too.
+ *
+ * The grid inside decides both dimensions, and the grid is also what
+ * scrolls when there is too much of it. The popover must not scroll as
+ * well: two nested scrollers on the same content is what produced the
+ * sideways scrollbar in the first place.
+ */
+
+.dropdown-menu.editor-menu-popover {
+	max-width: none;
+	min-width: 0;
+	overflow: visible;
+	padding: 0.25rem;
+	width: auto;
+}
+
+.editor-menu-grid [role='row'] {
+	display: flex;
+}
+
+/*
+ * Fixed tracks rather than flex, so the row is exactly as wide as its
+ * cells and the popover can take its width from that: a row that can
+ * stretch is a row whose last cell ends up under the scrollbar.
+ */
+
+/*
+ * Eight fixed tracks and an explicit width, so a row holding three cells
+ * is exactly as wide as one holding eight. Without the width the picker's
+ * `max-content` shrank on a narrow result set, which moved the popover
+ * sideways for the same reason a changing height moved it vertically.
+ */
+
+.editor-emoji-row {
+	display: grid;
+	grid-template-columns: repeat(8, 2.25rem);
+	width: 18rem;
+}
+
+/*
+ * 2rem, which is above the 24 pixel floor (WCAG 2.2, 2.5.8) with room for
+ * the ring, and tight enough that a page of drawings stays one glance.
+ */
+
+/*
+ * Doubled up on purpose: Clay's `.btn` carries a colour of its own, from
+ * the light theme, and it is loaded after this file, so a single class
+ * would lose the tie on order. The drawings inside are `currentColor`,
+ * which is why this decides whether they are visible: without it they
+ * stay dark on a dark popover.
+ */
+
+.editor-menu-cell.btn {
+	color: inherit;
+}
+
+.editor-menu-cell {
+	align-items: center;
+	border: 0;
+	display: flex;
+	height: 2rem;
+	justify-content: center;
+	padding: 0;
+	width: 2rem;
+}
+
+/*
+ * The highlight is mixed from the cell's own text colour rather than from
+ * a surface token, because the surface under it is Clay's popover and not
+ * the editor's panel: a token that darkens with the editor would paint a
+ * dark patch on a light popover in the demo, and an invisible one on a
+ * dark popover in the product. Derived from `currentColor`, it contrasts
+ * with whatever the popover turns out to be, in either scheme.
+ */
+
+.editor-menu-cell:focus-visible,
+.editor-menu-cell:hover {
+	background-color: rgba(128, 128, 128, 0.25);
+	background-color: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.editor-menu-preview {
+	flex: 0 0 auto;
+	pointer-events: none;
+}
+
+/* The emoji picker: a search field over a grid that scrolls on its own. */
+
+/*
+ * The scroll area reaches the popover's edge, so the popover holds no
+ * padding of its own and the parts inside pad themselves. That is what
+ * puts the scrollbar against the right edge instead of leaving it floating
+ * in a margin.
+ */
+
+.dropdown-menu.editor-emoji-popover {
+	padding: 0;
+}
+
+.editor-emoji-picker {
+
+	/*
+	 * As wide as eight cells, the scrollbar beside them and the inset on
+	 * the left, measured rather than guessed at.
+	 */
+
+	width: max-content;
+}
+
+/*
+ * The search field and its count keep the inset the grid gives up, and
+ * enough of it on every side for the field's focus ring.
+ */
+
+.editor-emoji-header {
+	padding: 0.75rem 0.75rem 0;
+}
+
+/*
+ * As wide as a row, so the box the popover is aligned against is the same
+ * whether the search matched everything or nothing: with no rows at all,
+ * the grid's `max-content` would otherwise fall back to its minimum and
+ * take the scrollbar's gutter out of the content, ending up fifteen
+ * pixels narrower and moving the popover sideways.
+ */
+
+.editor-emoji-empty {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.8125rem;
+	padding: 1rem 0.25rem;
+	width: 18rem;
+}
+
+.editor-emoji-count {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.75rem;
+	padding: 0 0.125rem 0.5rem;
+}
+
+.editor-group-note {
+	color: var(--editor-text-muted, #6b6c7e);
+	font-size: 0.8125rem;
+	margin: 0.25rem 0 0;
+}
+
+/*
+ * Zero, not display none: hiding the region while it is empty would also
+ * hide it at the instant the message lands, and a hidden live region does
+ * not speak.
+ */
+
+.editor-group-note:empty {
+	margin: 0;
+}
+
+.editor-layer-glyph {
+	margin-right: 0.375rem;
+}
+
+.editor-emoji-header .form-control {
+	margin-bottom: 0.5rem;
+}
+
+.editor-emoji-grid {
+
+	/*
+	 * The grid scrolls rather than the popover, so the search field stays
+	 * put while the list moves under it. Its rows are skipped by the
+	 * browser until they are near the viewport, which is what keeps a long
+	 * list cheap without hand-written virtualisation.
+	 *
+	 * The gutter is reserved at all times: without it the row width
+	 * changes the moment the list grows past one screenful, and the cells
+	 * shift under the pointer.
+	 */
+
+	/*
+	 * Fixed rather than maximum, on purpose. The popover is aligned by
+	 * Clay against the viewport, so every time the list of matches changed
+	 * height the whole popover was re-aligned and jumped, sometimes
+	 * flipping from below the button to above it, while someone was still
+	 * typing. A picker whose box never changes cannot be re-aligned, so
+	 * the area stays where it was opened and only the cells inside it
+	 * change. The empty space under a short result list is the price, and
+	 * it is the cheaper of the two.
+	 */
+
+	/*
+	 * The width is what the rows need and the scrollbar is added beside
+	 * it, which is the only arrangement where eight columns are eight
+	 * columns. Fixing the width instead made the specified value the
+	 * border box, and the reserved gutter came out of the content: the
+	 * eight columns were 288 pixels inside 273, so the last one sat
+	 * underneath the scrollbar.
+	 *
+	 * The minimum is for the search that matches nothing: with no rows at
+	 * all, `max-content` would let the popover collapse to the width of
+	 * its search field.
+	 */
+
+	box-sizing: content-box;
+	height: 15rem;
+
+	/*
+	 * Flush to the popover's right edge, inset on the left to line up with
+	 * the search field above it.
+	 */
+
+	margin-bottom: 0.75rem;
+	margin-left: 0.75rem;
+
+	min-width: 18rem;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	/*
+	 * The scroll container clips whatever leaves it, so the rows at its
+	 * edges need room for their focus rings inside it. On the sides this
+	 * also keeps the last column clear of the scrollbar.
+	 */
+
+	padding: 0.25rem;
+
+	scrollbar-gutter: stable;
+	width: max-content;
+}
+
+/*
+ * No `content-visibility: auto` here, tempting as it is. It brings paint
+ * containment with it, and paint containment clips whatever is drawn
+ * outside the element's box: the focus ring of a cell was being cut off
+ * along the top and bottom edges of its own row. The window of rendered
+ * cells is what keeps the list cheap, and it does not need help from a
+ * property that hides focus.
+ */
+
+.editor-emoji-row {
+	scroll-margin: 0.25rem 0;
+}
+
+.editor-emoji-picker .form-control {
+	width: 100%;
+}
+
+.editor-emoji-cell {
+
+	/*
+	 * The character is the artwork, so it is sized like type rather than
+	 * like an icon, and the cell is left a little larger than the shape
+	 * cells to hold it comfortably.
+	 */
+
+	font-size: 1.35rem;
+	height: 2.25rem;
+	line-height: 1;
+	width: 2.25rem;
+}
+
+@media (max-width: 767px) {
+	.editor-emoji-empty {
+			width: 16rem;
+		}
+
+	.editor-emoji-grid {
+			min-width: 16rem;
+		}
+
+	.editor-emoji-row {
+			grid-template-columns: repeat(8, 2rem);
+			width: 16rem;
+		}
+
+	.editor-emoji-cell {
+			font-size: 1.15rem;
+			height: 2rem;
+			width: 2rem;
+		}
+}
