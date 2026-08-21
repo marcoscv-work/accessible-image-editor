@@ -8,10 +8,11 @@ import '../css/Annotations.css';
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import React, {Suspense, lazy, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {EditorSection} from '../chrome/EditorSection';
 import {useEditorId, useEditorRoot} from '../chrome/instance';
+import {EmojiPicker} from './EmojiPicker';
 import {
 	AnnotateTool,
 	SHAPE_TOOLS,
@@ -26,15 +27,6 @@ import {nextId} from '../state/ids';
 import {CropRect, Overlay} from '../state/types';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
-
-/**
- * Loaded when the button is pressed, not when the editor is: the picker
- * carries the whole Unicode inventory (~1,900 names), and nobody should
- * parse it for an edit that never opens it.
- */
-const EmojiPicker = lazy(() =>
-	import('./EmojiPicker').then((module) => ({default: module.EmojiPicker}))
-);
 
 /**
  * Move focus to the freshly inserted overlay on the stage, so the user
@@ -641,14 +633,7 @@ export function AnnotatePanel({
 						</ClayButton>
 					}
 				>
-					<Suspense
-						fallback={
-							<div
-								aria-hidden="true"
-								className="editor-emoji-picker"
-							/>
-						}
-					>
+					{emojiMenuOpen && (
 						<EmojiPicker
 							onChoose={(entry) => {
 								setEmojiMenuOpen(false);
@@ -656,7 +641,7 @@ export function AnnotatePanel({
 								addEmoji(entry.c, entry.n);
 							}}
 						/>
-					</Suspense>
+					)}
 				</ClayDropDown>
 				)}
 			</div>

@@ -4,11 +4,13 @@
  */
 
 import {ClayInput} from '@clayui/form';
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 
 import {useEditorId} from '../chrome/instance';
 import {t} from '../i18n';
-import {EMOJI, EmojiEntry} from './emojiData';
+import {EmojiCatalog, loadEmojiCatalog} from './emojiLoader';
+
+import type {EmojiEntry} from './emojiData';
 
 const COLUMNS = 8;
 
@@ -18,8 +20,6 @@ const COLUMNS = 8;
  * the names as written finds nothing for exactly the words people type.
  * Built once at module scope rather than per keystroke.
  */
-const SEARCH_KEYS = EMOJI.map((entry) => entry.n.toLowerCase());
-
 /**
  * What the picker offers before anyone types: the groups that are common
  * in the honest sense of the word. Eight rows of faces, three of hands,
@@ -45,16 +45,16 @@ const COMMON = [
 	'✅', '❌', '⚠️', '❓', '❗', '👀', '💬', '🚀',
 ];
 
-const BY_CHARACTER = new Map(EMOJI.map((entry) => [entry.c, entry]));
-
 /**
  * The common set as full entries, so its cells carry Unicode's own names
  * exactly as the searched ones do. Anything the list names that the data
  * does not have is dropped rather than shown without a name.
  */
-const COMMON_ENTRIES = COMMON.map((character) =>
-	BY_CHARACTER.get(character)
-).filter(Boolean) as EmojiEntry[];
+function commonEntries(catalog: EmojiCatalog): EmojiEntry[] {
+	return COMMON.map((character) => catalog.byCharacter.get(character)).filter(
+		Boolean
+	) as EmojiEntry[];
+}
 
 /**
  * How many cells are built at once. Nineteen hundred glyphs would be
@@ -80,6 +80,25 @@ export function EmojiPicker({onChoose}: Props) {
 
 	const [query, setQuery] = useState('');
 
+	// The catalogue is the heavy half of the picker and arrives through
+	// its own async seam; until it lands, the popover holds its box.
+
+	const [catalog, setCatalog] = useState<EmojiCatalog | null>(null);
+
+	useEffect(() => {
+		let alive = true;
+
+		loadEmojiCatalog().then((loaded) => {
+			if (alive) {
+				setCatalog(loaded);
+			}
+		});
+
+		return () => {
+			alive = false;
+		};
+	}, []);
+
 	const [limit, setLimit] = useState(PAGE);
 
 	const gridRef = useRef<HTMLDivElement>(null);
@@ -91,20 +110,24 @@ export function EmojiPicker({onChoose}: Props) {
 	const searching = Boolean(query.trim());
 
 	const matches = useMemo(() => {
+		if (!catalog) {
+			return [];
+		}
+
 		const needle = query.trim().toLowerCase();
 
 		if (!needle) {
-			return COMMON_ENTRIES;
+			return commonEntries(catalog);
 		}
 
 		const words = needle.split(/\s+/);
 
-		return EMOJI.filter((_, index) => {
-			const name = SEARCH_KEYS[index];
+		return catalog.entries.filter((_, index) => {
+			const name = catalog.searchKeys[index];
 
 			return words.every((word) => name.includes(word));
 		});
-	}, [query]);
+	}, [catalog, query]);
 
 	const shown = matches.slice(0, limit);
 
@@ -182,6 +205,14 @@ export function EmojiPicker({onChoose}: Props) {
 		event.stopPropagation();
 	};
 
+	// No catalogue, no grid: the popover holds its box while the data
+	// chunk lands, exactly as the old lazy fallback did, and anything
+	// waiting for the grid role is genuinely waiting for the data.
+
+	if (!catalog) {
+		return <div aria-hidden="true" className="editor-emoji-popover" />;
+	}
+
 	return (
 		<div className="editor-emoji-picker">
 			<div className="editor-emoji-header">
@@ -235,7 +266,7 @@ export function EmojiPicker({onChoose}: Props) {
 			>
 				{searching
 					? t('emoji-count', matches.length)
-					: t('emoji-common', EMOJI.length)}
+					: t('emoji-common', catalog?.entries.length ?? 0)}
 			</div>
 
 			</div>

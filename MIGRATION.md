@@ -206,10 +206,11 @@ rewrite risk.
 
 ## 9. Risks and verification points
 
-1. **node-scripts (webpack) vs vite.** The lazy `EmojiPicker` chunk uses
-   dynamic `import()`; verify node-scripts supports it in-library. Fallback:
-   eager import (~70KB) or a JSON resource fetched from the module's
-   `Web-ContextPath`.
+1. **node-scripts (webpack) vs vite.** MITIGATED BY DESIGN: the async
+   boundary now sits on the data alone (`emojiLoader.loadEmojiCatalog`),
+   the picker component is eager and mounts only while its menu is open.
+   If the portal build dislikes the in-library dynamic `import()`, the
+   loader is the single line to swap for an eager import or a fetch.
 2. **`Liferay.Language.get` substitution.** The generated dictionary
    assumes literal replacement works in a node-scripts library build;
    verify on the first deploy (a raw key on screen = it did not).
