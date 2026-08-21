@@ -5,7 +5,6 @@
 
 import './css/ImageEditor.css';
 
-import bundledSpritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {ClayIconSpriteContext} from '@clayui/icon';
 import {useState} from 'react';
 
@@ -43,11 +42,12 @@ export interface ImageEditorProps {
 	config?: EditorConfig;
 
 	/**
-	 * The Clay icon spritemap to draw symbols from. Defaults to the
-	 * bundled Clay sheet; a host embedded in the portal passes the
-	 * portal's own.
+	 * The Clay icon spritemap to draw symbols from. In the portal this
+	 * is the theme's own sheet
+	 * (`themeDisplay.getPathThemeSpritemap()`); the demo shell passes
+	 * the Clay one it bundles. The library bundles no asset of its own.
 	 */
-	spritemap?: string;
+	spritemap: string;
 
 	/**
 	 * How the host localizes the editor: the same shape as a Clay
@@ -92,7 +92,7 @@ export function ImageEditor({
 	});
 
 	return (
-		<ClayIconSpriteContext.Provider value={spritemap ?? bundledSpritemap}>
+		<ClayIconSpriteContext.Provider value={spritemap}>
 			<AnnouncerProvider>
 				<EditorModal
 					config={config}
