@@ -4,8 +4,9 @@
  */
 
 import {Page, expect, test} from '@playwright/test';
-import {openEditor} from './helpers';
 import {readFile} from 'fs/promises';
+
+import {openEditor} from './helpers';
 
 /**
  * A redaction hides an area in one of two ways, and both have to survive

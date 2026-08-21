@@ -12,7 +12,6 @@ import React, {useRef, useState} from 'react';
 
 import {EditorSection} from '../chrome/EditorSection';
 import {useEditorId, useEditorRoot} from '../chrome/instance';
-import {EmojiPicker} from './EmojiPicker';
 import {
 	AnnotateTool,
 	SHAPE_TOOLS,
@@ -25,6 +24,7 @@ import {textWidth} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {nextId} from '../state/ids';
 import {CropRect, Overlay} from '../state/types';
+import {EmojiPicker} from './EmojiPicker';
 import {MenuGrid} from './MenuGrid';
 import {TextDialog} from './TextDialog';
 

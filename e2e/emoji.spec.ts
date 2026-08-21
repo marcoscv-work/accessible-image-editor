@@ -5,6 +5,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import {expect, test} from '@playwright/test';
+
 import {openEditor} from './helpers';
 
 /**

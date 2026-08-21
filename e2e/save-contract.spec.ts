@@ -4,6 +4,7 @@
  */
 
 import {expect, test} from '@playwright/test';
+
 import {openEditor} from './helpers';
 
 /**
