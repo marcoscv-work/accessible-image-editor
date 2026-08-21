@@ -5,7 +5,7 @@
 
 import {describe, expect, it} from 'vitest';
 
-import {sessionKeyOf} from './AccessibleImageEditor';
+import {sessionKeyOf} from './ImageEditor';
 import {LoadedImage} from './imaging/loadImage';
 
 const image = (previewUrl: string): LoadedImage => ({

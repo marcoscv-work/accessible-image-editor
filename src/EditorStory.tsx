@@ -8,7 +8,7 @@ import spritemap from '@clayui/css/lib/images/icons/icons.svg';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useState} from 'react';
 
-import {AccessibleImageEditor} from './AccessibleImageEditor';
+import {ImageEditor} from './ImageEditor';
 import sampleUrl from './assets/sample.jpg';
 import {watchOrphanTooltips} from './components/tooltips';
 import {EditorConfig} from './editorConfig';
@@ -51,7 +51,7 @@ export function EditorStory({config}: {config?: EditorConfig}) {
 			<ClayTooltipProvider autoAlign delay={200} scope="[title]" />
 
 			{image ? (
-				<AccessibleImageEditor
+				<ImageEditor
 					config={config}
 					image={image}
 					key={JSON.stringify(config)}

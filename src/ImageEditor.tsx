@@ -26,7 +26,7 @@ export function sessionKeyOf(image: LoadedImage): string {
 	return image.previewUrl;
 }
 
-export interface AccessibleImageEditorProps {
+export interface ImageEditorProps {
 	image: LoadedImage;
 	onClose: () => void;
 	onSave: (
@@ -65,14 +65,14 @@ export interface AccessibleImageEditorProps {
  * component and owes it nothing but the props, and two instances on the
  * same page stay out of each other's way.
  */
-export function AccessibleImageEditor({
+export function ImageEditor({
 	config,
 	image,
 	messages,
 	onClose,
 	onSave,
 	spritemap,
-}: AccessibleImageEditorProps) {
+}: ImageEditorProps) {
 
 	// Installed before the first child asks for a string, and only
 	// then: the locale is page configuration, not component state, so

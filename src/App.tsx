@@ -9,16 +9,13 @@ import ClayIcon, {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {useEffect, useRef, useState} from 'react';
 
-import {
-	AccessibleImageEditor,
-	EditorSaveResult,
-} from './AccessibleImageEditor';
 import sampleUrl from './assets/sample.jpg';
 import {watchOrphanTooltips} from './components/tooltips';
 import {configFromSearch} from './editorConfig';
 import {t} from './i18n';
 import {downloadBlob} from './imaging/exportImage';
 import {LoadedImage, loadImage} from './imaging/loadImage';
+import {EditorSaveResult, ImageEditor} from './index';
 
 const SCHEME_KEY = 'accessible-image-editor-color-scheme';
 
@@ -295,7 +292,7 @@ export default function App() {
 				</main>
 
 				{image && (
-					<AccessibleImageEditor
+					<ImageEditor
 						config={configFromSearch(window.location.search)}
 						image={image}
 						onClose={close}
