@@ -4,10 +4,11 @@
  */
 
 import {renderToStaticMarkup} from 'react-dom/server';
-import {describe, expect, it} from 'vitest';
 
-import {CropRect, Frame} from '../state/types';
-import {FrameShape} from './frameShapes';
+import '@testing-library/jest-dom';
+
+import {FrameShape} from '../../src/imaging/frameShapes';
+import {CropRect, Frame} from '../../src/state/types';
 
 const FRAME: Frame = {
 	color: '#ffffff',

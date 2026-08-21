@@ -4,12 +4,13 @@
  */
 
 import {fireEvent, screen} from '@testing-library/react';
-import {describe, expect, it} from 'vitest';
 
-import {resolveConfig} from '../editorConfig';
-import {LoadedImage} from '../imaging/loadImage';
-import {renderEditor} from '../test/renderEditor';
-import {useEditorHistory} from './useEditorHistory';
+import '@testing-library/jest-dom';
+
+import {resolveConfig} from '../../src/editorConfig';
+import {useEditorHistory} from '../../src/hooks/useEditorHistory';
+import {LoadedImage} from '../../src/imaging/loadImage';
+import {renderEditor} from '../__lib__/renderEditor';
 
 const IMAGE: LoadedImage = {
 	blob: new Blob(),

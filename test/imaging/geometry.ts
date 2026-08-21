@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {initialEditState} from '../state/editorReducer';
-import {anchoredScroll, coverScale, imageTransform} from './geometry';
+import '@testing-library/jest-dom';
+
+import {anchoredScroll, coverScale, imageTransform} from '../../src/imaging/geometry';
+import {initialEditState} from '../../src/state/editorReducer';
 
 describe('coverScale', () => {
 	it('is neutral without an angle', () => {

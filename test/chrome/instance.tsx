@@ -4,11 +4,12 @@
  */
 
 import {screen} from '@testing-library/react';
-import {describe, expect, it} from 'vitest';
 
-import {renderEditor} from '../test/renderEditor';
-import {BottomBar} from './BottomBar';
-import {EditorInstanceProvider, nextEditorInstancePrefix} from './instance';
+import '@testing-library/jest-dom';
+
+import {BottomBar} from '../../src/chrome/BottomBar';
+import {EditorInstanceProvider, nextEditorInstancePrefix} from '../../src/chrome/instance';
+import {renderEditor} from '../__lib__/renderEditor';
 
 /**
  * AIE-006: two editors on one page must not cross-wire. Every id is

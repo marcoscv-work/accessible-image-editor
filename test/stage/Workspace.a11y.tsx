@@ -7,15 +7,17 @@ import {fireEvent, screen} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useState} from 'react';
 
-import {BottomBar} from '../chrome/BottomBar';
-import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../editorConfig';
-import {LoadedImage} from '../imaging/loadImage';
-import {AdjustPanel} from '../panels/AdjustPanel';
-import {CropPanel} from '../panels/CropPanel';
-import {editorReducer, initialHistory} from '../state/editorReducer';
-import {rotatedSize} from '../state/types';
-import {renderEditor} from '../test/renderEditor';
-import {Workspace} from './Workspace';
+import '@testing-library/jest-dom';
+
+import {BottomBar} from '../../src/chrome/BottomBar';
+import {ADJUSTMENT_KEYS, RATIO_PRESETS} from '../../src/editorConfig';
+import {LoadedImage} from '../../src/imaging/loadImage';
+import {AdjustPanel} from '../../src/panels/AdjustPanel';
+import {CropPanel} from '../../src/panels/CropPanel';
+import {Workspace} from '../../src/stage/Workspace';
+import {editorReducer, initialHistory} from '../../src/state/editorReducer';
+import {rotatedSize} from '../../src/state/types';
+import {renderEditor} from '../__lib__/renderEditor';
 
 const IMAGE: LoadedImage = {
 	blob: new Blob(),

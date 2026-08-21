@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {describe, expect, it} from 'vitest';
+import '@testing-library/jest-dom';
 
-import {editorReducer, initialHistory} from '../state/editorReducer';
+import {coverScale} from '../../src/imaging/geometry';
+import {applyToPoint, imageMatrix, invert, multiply} from '../../src/imaging/overlayTransform';
+import {editorReducer, initialHistory} from '../../src/state/editorReducer';
 import {
 	ArrowOverlay,
 	EmojiOverlay,
@@ -15,9 +17,7 @@ import {
 	ShapeOverlay,
 	StrokeOverlay,
 	TextOverlay,
-} from '../state/types';
-import {coverScale} from './geometry';
-import {applyToPoint, imageMatrix, invert, multiply} from './overlayTransform';
+} from '../../src/state/types';
 
 /**
  * AIE-001: the annotations turn with the picture. The space here is

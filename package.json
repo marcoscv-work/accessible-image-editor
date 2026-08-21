@@ -11,7 +11,7 @@
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
 		"generate:images": "node scripts/generate-images.mjs",
-		"lint": "eslint --ext .ts,.tsx,.mjs src e2e scripts",
+		"lint": "eslint --ext .ts,.tsx,.mjs src test e2e scripts jest-setup.config.ts",
 		"postinstall": "node scripts/link-liferay-eslint-plugin.mjs",
 		"storybook": "storybook dev -p 6006",
 		"build:storybook": "storybook build -o dist/storybook"

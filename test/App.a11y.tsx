@@ -6,7 +6,9 @@
 import {render} from '@testing-library/react';
 import {axe} from 'jest-axe';
 
-import App from './App';
+import '@testing-library/jest-dom';
+
+import App from '../src/App';
 
 describe('App landing view', () => {
 	it('has no axe violations', async () => {

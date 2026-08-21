@@ -3,14 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {describe, expect, it} from 'vitest';
+import '@testing-library/jest-dom';
 
-import {
-	ArrowOverlay,
-	EmojiOverlay,
-	ImageOverlay,
-	isBoxOverlay,
-} from '../state/types';
 import {
 	arrowGeometry,
 	mirrorOverlay,
@@ -18,7 +12,13 @@ import {
 	overlayHitBox,
 	overlayLabel,
 	overlayRotation,
-} from './overlayShapes';
+} from '../../src/imaging/overlayShapes';
+import {
+	ArrowOverlay,
+	EmojiOverlay,
+	ImageOverlay,
+	isBoxOverlay,
+} from '../../src/state/types';
 
 const PICTURE: ImageOverlay = {
 	description: 'Team badge',

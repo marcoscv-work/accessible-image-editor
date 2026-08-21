@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {describe, expect, it} from 'vitest';
+import '@testing-library/jest-dom';
 
 import {
 	pointsBounds,
@@ -11,7 +11,7 @@ import {
 	simplifyPoints,
 	sketchyEllipsePath,
 	sketchyRectPath,
-} from './strokeGeometry';
+} from '../../src/imaging/strokeGeometry';
 
 describe('simplifyPoints', () => {
 	it('collapses collinear runs to their endpoints', () => {

@@ -5,12 +5,14 @@
 
 import {renderToStaticMarkup} from 'react-dom/server';
 
-import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../state/types';
+import '@testing-library/jest-dom';
+
 import {
 	FILTER_PRESETS,
 	FilterDefs,
 	isIdentityFilter,
-} from './FilterDefs';
+} from '../../src/imaging/FilterDefs';
+import {DEFAULT_ADJUSTMENTS, FilterPreset} from '../../src/state/types';
 
 function markup(
 	adjustments: Partial<typeof DEFAULT_ADJUSTMENTS>,

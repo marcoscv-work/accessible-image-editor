@@ -7,22 +7,24 @@ import {act, fireEvent, screen, within} from '@testing-library/react';
 import {axe} from 'jest-axe';
 import {useReducer, useRef, useState} from 'react';
 
+import '@testing-library/jest-dom';
+
+import {AnnotatePanel} from '../../src/annotations/AnnotatePanel';
+import {LayersPanel} from '../../src/annotations/LayersPanel';
 import {
 	EditorInstanceProvider,
 	EditorRootProvider,
-} from '../chrome/instance';
-import {ANNOTATE_TOOLS} from '../editorConfig';
-import {FILTER_PRESETS} from '../imaging/FilterDefs';
-import {LoadedImage} from '../imaging/loadImage';
-import {FilterGallery} from '../panels/FilterGallery';
-import {Workspace} from '../stage/Workspace';
+} from '../../src/chrome/instance';
+import {ANNOTATE_TOOLS} from '../../src/editorConfig';
+import {FILTER_PRESETS} from '../../src/imaging/FilterDefs';
+import {LoadedImage} from '../../src/imaging/loadImage';
+import {FilterGallery} from '../../src/panels/FilterGallery';
+import {Workspace} from '../../src/stage/Workspace';
 import {
 	editorReducer,
 	initialHistory,
-} from '../state/editorReducer';
-import {renderEditor} from '../test/renderEditor';
-import {AnnotatePanel} from './AnnotatePanel';
-import {LayersPanel} from './LayersPanel';
+} from '../../src/state/editorReducer';
+import {renderEditor} from '../__lib__/renderEditor';
 
 const IMAGE: LoadedImage = {
 	blob: new Blob(),

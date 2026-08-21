@@ -3,13 +3,15 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import '@testing-library/jest-dom';
+
 import {
 	ADJUSTMENT_KEYS,
 	ANNOTATE_TOOLS,
 	configFromSearch,
 	resolveConfig,
-} from './editorConfig';
-import {FILTER_PRESETS} from './imaging/FilterDefs';
+} from '../src/editorConfig';
+import {FILTER_PRESETS} from '../src/imaging/FilterDefs';
 
 describe('resolveConfig', () => {
 	it('exposes everything by default', () => {

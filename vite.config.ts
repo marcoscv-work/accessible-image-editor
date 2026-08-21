@@ -17,8 +17,13 @@ export default defineConfig({
 	test: {
 		css: false,
 		environment: 'jsdom',
-		exclude: ['e2e/**', 'node_modules/**'],
+
+		// The portal convention: everything under test/ is a test,
+		// mirroring the source tree, with __lib__ reserved for helpers.
+
+		exclude: ['e2e/**', 'node_modules/**', 'test/__lib__/**'],
 		globals: true,
-		setupFiles: './src/test/setup.ts',
+		include: ['test/**/*.{ts,tsx}'],
+		setupFiles: './jest-setup.config.ts',
 	},
 });

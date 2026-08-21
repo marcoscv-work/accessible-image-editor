@@ -7,8 +7,8 @@ import {ClayIconSpriteContext} from '@clayui/icon';
 import {RenderResult, render} from '@testing-library/react';
 import React from 'react';
 
-import {AnnouncerProvider} from '../chrome/Announcer';
-import {EditorInstanceProvider} from '../chrome/instance';
+import {AnnouncerProvider} from '../../src/chrome/Announcer';
+import {EditorInstanceProvider} from '../../src/chrome/instance';
 
 /**
  * Renders editor components under the same providers the public root

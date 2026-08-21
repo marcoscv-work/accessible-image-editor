@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {afterEach, describe, expect, it} from 'vitest';
+import '@testing-library/jest-dom';
 
-import {TranslationKey, setMessages, t} from './index';
+import {TranslationKey, setMessages, t} from '../../src/i18n/index';
 
 afterEach(() => setMessages(null));
 
